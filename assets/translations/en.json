@@ -1,0 +1,13 @@
+{
+  "login": {
+    "welcome_text": "Happy to see you again. Log in to continue\nyour journey towards your strongest version",
+    "phone_hint": "Phone Number",
+    "phone_error": "Please enter phone number",
+    "password_hint": "Password",
+    "password_error": "Please enter password",
+    "next_button": "Next",
+    "success_login": "Logged in successfully",
+    "search_country_hint": "Search for country or code",
+    "phone_local_digits_min": "Phone number must be at least {} digits"
+  }
+}

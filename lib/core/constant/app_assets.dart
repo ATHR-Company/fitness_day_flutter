@@ -1,0 +1,52 @@
+/// Base paths
+const String _svgPath = 'assets/svg';
+const String _imagePath = 'assets/images';
+const String _iconsPath = 'assets/icons';
+
+/// SVG asset paths used throughout the application.
+class SvgIcons {
+  SvgIcons._();
+
+  // ── Splash ──────────────────────────────────────────────────────────────
+  static const String apple = '$_svgPath/apple.svg';
+  static const String left = '$_svgPath/left.svg';
+  static const String right = '$_svgPath/right.svg';
+  static const String head = '$_svgPath/head.svg';
+  static const String appName = '$_svgPath/app_name.svg';
+
+  // ── Other Icons ─────────────────────────────────────────────────────────
+  static const String aboutUs = '$_svgPath/about_us.svg';
+  static const String arabic = '$_svgPath/arabic.svg';
+  static const String bmi = '$_svgPath/bmi.svg';
+  static const String bodyMass = '$_svgPath/body_mass.svg';
+  static const String calendar = '$_svgPath/calendar.svg';
+  static const String clients = '$_svgPath/clients.svg';
+  static const String clientsNumber = '$_svgPath/clients_number.svg';
+  static const String clock = '$_svgPath/clock.svg';
+  static const String conditions = '$_svgPath/conditions.svg';
+  static const String diet = '$_svgPath/diet.svg';
+  static const String editPassword = '$_svgPath/edit_password.svg';
+  static const String email = '$_svgPath/email.svg';
+  static const String english = '$_svgPath/english.svg';
+  static const String height = '$_svgPath/height.svg';
+  static const String home = '$_svgPath/home.svg';
+  static const String lang = '$_svgPath/lang.svg';
+  static const String location = '$_svgPath/location.svg';
+  static const String logo = '$_svgPath/logo.svg';
+  static const String logout = '$_svgPath/logout.svg';
+  static const String needMonitor = '$_svgPath/need_monitor.svg';
+  static const String needMonitorRed = '$_svgPath/need_monitor_red.svg';
+  static const String noClients = '$_svgPath/no_clients.svg';
+  static const String noMessages = '$_svgPath/no_messages.svg';
+  static const String notification = '$_svgPath/notification.svg';
+  static const String password = '$_svgPath/password.svg';
+  static const String perfectWieght = '$_svgPath/perfect_wieght.svg';
+  static const String privacy = '$_svgPath/privacy.svg';
+  static const String profile = '$_svgPath/profile.svg';
+  static const String review = '$_svgPath/review.svg';
+  static const String tasks = '$_svgPath/tasks.svg';
+  static const String todaysVisit = '$_svgPath/todays_visit.svg';
+  static const String whatsapp = '$_svgPath/whatsapp.svg';
+  static const String wieght = '$_svgPath/wieght.svg';
+  static const String workout = '$_svgPath/workout.svg';
+}
