@@ -28,6 +28,8 @@ class SvgIcons {
   static const String editPassword = '$_svgPath/edit_password.svg';
   static const String email = '$_svgPath/email.svg';
   static const String english = '$_svgPath/english.svg';
+  static const String eye = '$_svgPath/eye.svg';
+  static const String eyeClosed = '$_svgPath/eye_closed.svg';
   static const String height = '$_svgPath/height.svg';
   static const String home = '$_svgPath/home.svg';
   static const String lang = '$_svgPath/lang.svg';

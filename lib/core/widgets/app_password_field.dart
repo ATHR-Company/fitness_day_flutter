@@ -22,11 +22,50 @@ class AppPasswordField extends StatefulWidget {
 
 class _AppPasswordFieldState extends State<AppPasswordField> {
   bool _obscureText = true;
+  bool _hasText = false;
+  final FocusNode _focusNode = FocusNode();
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? TextEditingController();
+    _hasText = _controller.text.isNotEmpty;
+    _controller.addListener(_onTextChanged);
+    
+    _focusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  void _onTextChanged() {
+    final hasText = _controller.text.isNotEmpty;
+    if (_hasText != hasText) {
+      setState(() {
+        _hasText = hasText;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _controller.removeListener(_onTextChanged);
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isFocused = _focusNode.hasFocus;
+    final iconColor = (isFocused || _hasText) ? AppColors.primary : AppColors.textSecondary;
+    final dividerColor = (isFocused || _hasText) ? AppColors.primary : AppColors.divider;
+
     return TextFormField(
-      controller: widget.controller,
+      focusNode: _focusNode,
+      controller: _controller,
       keyboardType: TextInputType.visiblePassword,
       obscureText: _obscureText,
       validator: widget.validator,
@@ -49,14 +88,14 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
                 SvgIcons.password,
                 width: 24.w,
                 height: 24.h,
-                colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
               ),
               SizedBox(width: 12.w),
-              // The grey vertical divider
+              // The vertical divider
               Container(
                 width: 1.w,
                 height: 24.h,
-                color: AppColors.divider,
+                color: dividerColor,
               ),
             ],
           ),
@@ -65,19 +104,22 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
           minWidth: 48.w,
           minHeight: 24.h,
         ),
-        // Password visibility toggle
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscureText ? Icons.visibility_off : Icons.visibility,
-            color: AppColors.textSecondary,
-            size: 20.sp,
-          ),
-          onPressed: () {
-            setState(() {
-              _obscureText = !_obscureText;
-            });
-          },
-        ),
+        // Password visibility toggle (only visible when there is text)
+        suffixIcon: _hasText
+            ? IconButton(
+                icon: SvgPicture.asset(
+                  _obscureText ? SvgIcons.eyeClosed : SvgIcons.eye,
+                  width: 20.w,
+                  height: 20.h,
+                  colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+              )
+            : null,
         contentPadding: EdgeInsets.symmetric(vertical: 16.h),
         border: const UnderlineInputBorder(
           borderSide: BorderSide(color: AppColors.divider, width: 1.0),

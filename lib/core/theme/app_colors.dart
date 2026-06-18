@@ -102,12 +102,17 @@ class AppColors {
   /// Ultra-light crystalline green for smooth gradient endings or backgrounds
   static const Color greenCrystal = Color(0xFFCDFFD4);
 
-
-
   static const LinearGradient splashBackgroundGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFFFFFFF), Color(0xFFECFFF7), Color(0xFFA2FFDA)],
+    begin: Alignment.topCenter,
+    end: Alignment.center,
+    colors: [
+      Color(0xFFb5e5ba),
+      Color(0xFFddf3de),
+      Color(0xFFfbfefb),
+      Color(0xFFFFFFFF),
+      Color(0xFFFFFFFF),
+      Color(0xFFFFFFFF),
+    ],
   );
 
   // ---------------------------------------------------------------------------
