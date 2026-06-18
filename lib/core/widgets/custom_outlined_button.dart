@@ -3,12 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 
-class CustomButton extends StatelessWidget {
+class CustomOutlinedButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final bool isLoading;
 
-  const CustomButton({
+  const CustomOutlinedButton({
     super.key,
     required this.text,
     required this.onPressed,
@@ -23,17 +23,18 @@ class CustomButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(28.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: ElevatedButton(
+      child: OutlinedButton(
         onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.white,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: AppColors.white,
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.primary, width: 2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28.r),
           ),
@@ -41,18 +42,18 @@ class CustomButton extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 10.h),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                  color: AppColors.white,
+                  color: AppColors.primary,
                   strokeWidth: 2,
                 ),
               )
             : Text(
                 text,
                 style: TextStyleManager.button.copyWith(
-                  color: AppColors.white,
+                  color: AppColors.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

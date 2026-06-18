@@ -7,6 +7,7 @@ import 'package:fitness_day/features/auth/domain/usecases/login_usecase.dart';
 import 'package:fitness_day/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:fitness_day/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/generated/codegen_loader.g.dart';
 import 'package:fitness_day/splash_screen.dart';
 
 void main() async {
@@ -16,9 +17,10 @@ void main() async {
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('ar'), Locale('en')],
-      path: 'assets/translations', // <-- change the path of the translation files 
+      path: 'assets/translations',
       fallbackLocale: const Locale('ar'),
-      startLocale: const Locale('ar'), // Set default to Arabic
+      startLocale: const Locale('ar'),
+      assetLoader: const CodegenLoader(),
       child: const MyApp(),
     ),
   );

@@ -11,6 +11,7 @@ import 'package:fitness_day/core/widgets/app_password_field.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/features/auth/presentation/manager/auth_cubit.dart';
 import 'package:fitness_day/features/auth/presentation/manager/auth_state.dart';
+import 'package:fitness_day/features/visits/presentation/pages/visits_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -106,7 +107,10 @@ class _LoginPageState extends State<LoginPage> {
                             backgroundColor: AppColors.success,
                           ),
                         );
-                        // Navigate to home page here
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const VisitsPage()),
+                        );
                       } else if (state is AuthFailure) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

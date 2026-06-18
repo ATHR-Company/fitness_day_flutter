@@ -115,6 +115,16 @@ class AppColors {
     ],
   );
 
+  static const LinearGradient visitsBackgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.center,
+    colors: [
+      Color(0xFFEFFBF1),
+      Color(0xFFFFFFFF),
+      Color(0xFFFFFFFF),
+    ],
+  );
+
   // ---------------------------------------------------------------------------
   // Unified Case-Insensitive Design Tokens Map
   // ---------------------------------------------------------------------------

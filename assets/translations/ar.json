@@ -2,12 +2,46 @@
   "login": {
     "welcome_text": "سعداء بعودتك من جديد سجّل الدخول لمتابعة رحلتك نحو نسختك الأقوى",
     "phone_hint": "رقم الجوال",
-    "phone_error": "الرجاء إدخال رقم الجوال",
     "password_hint": "كلمة المرور",
     "password_error": "الرجاء إدخال كلمة المرور",
+    "forgot_password": "نسيت كلمة المرور؟",
+    "login_button": "تسجيل الدخول",
     "next_button": "التالي",
     "success_login": "تم تسجيل الدخول بنجاح",
     "search_country_hint": "ابحث عن الدولة أو الرمز",
     "phone_local_digits_min": "رقم الجوال يجب أن يكون على الأقل {} أرقام"
+  },
+  "visits": {
+    "title": "سجل الزيارات",
+    "search_hint": "بحث عن عميل أو زيارة",
+    "tab_upcoming": "القادمة",
+    "tab_history": "السجل",
+    "in_minutes": "بعد {} دقيقة",
+    "client_name_label": "اسم العميل :",
+    "visit_time_label": "ميعاد الزيارة :",
+    "visit_location_label": "مكان الزيارة :",
+    "view_visit": "عرض الزيارة »",
+    "today": "اليوم",
+    "pm": "مساءاً",
+    "hq_location": "في مقر يوم الرشاقة",
+    "dummy_title": "متابعة أسبوعية",
+    "dummy_subtitle": "متابعة الوزن وتخصيص النظام الغذائي والرياضي له",
+    "dummy_client": "محمد عبدالله"
+  },
+  "visit_details": {
+    "title": "تفاصيل الزيارة",
+    "tab_visit_data": "بيانات الزيارة",
+    "tab_custom_plan": "النظام المخصص",
+    "tab_report": "التقرير",
+    "visit_goal_title": "الهدف من الزيارة",
+    "goal_1": "تعديل السعرات اليومية لتناسب هدفك",
+    "goal_2": "تحديث خطة التمارين",
+    "goal_3": "ضبط توزيع البروتين والكربوهيدرات",
+    "goal_4": "متابعة تقدمك خلال الأسبوع الماضي",
+    "start_visit": "بدء الزيارة",
+    "reschedule": "إعادة جدولة",
+    "reschedule_title": "طلب تغيير ميعاد الزيارة",
+    "save": "حفظ",
+    "cancel": "إلغاء"
   }
 }

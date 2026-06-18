@@ -63,7 +63,7 @@ class TextStyleManager {
 
   static TextStyle button = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 16.sp,
+    fontSize: 13.sp,
     fontWeight: FontWeight.w500,
   );
 

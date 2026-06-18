@@ -2,12 +2,46 @@
   "login": {
     "welcome_text": "Happy to see you again. Log in to continue\nyour journey towards your strongest version",
     "phone_hint": "Phone Number",
-    "phone_error": "Please enter phone number",
     "password_hint": "Password",
     "password_error": "Please enter password",
+    "forgot_password": "Forgot Password?",
+    "login_button": "Login",
     "next_button": "Next",
     "success_login": "Logged in successfully",
     "search_country_hint": "Search for country or code",
     "phone_local_digits_min": "Phone number must be at least {} digits"
+  },
+  "visits": {
+    "title": "Visits Log",
+    "search_hint": "Search for client or visit",
+    "tab_upcoming": "Upcoming",
+    "tab_history": "History",
+    "in_minutes": "In {} minutes",
+    "client_name_label": "Client Name :",
+    "visit_time_label": "Visit Time :",
+    "visit_location_label": "Location :",
+    "view_visit": "View Visit »",
+    "today": "Today",
+    "pm": "PM",
+    "hq_location": "Fitness Day HQ",
+    "dummy_title": "Weekly Follow-up",
+    "dummy_subtitle": "Weight follow-up and customizing diet and sports regimen",
+    "dummy_client": "Mohamed Abdullah"
+  },
+  "visit_details": {
+    "title": "Visit Details",
+    "tab_visit_data": "Visit Data",
+    "tab_custom_plan": "Custom Plan",
+    "tab_report": "Report",
+    "visit_goal_title": "Visit Goal",
+    "goal_1": "Adjust daily calories to match your goal",
+    "goal_2": "Update exercise plan",
+    "goal_3": "Balance protein and carbohydrate distribution",
+    "goal_4": "Follow up on progress from last week",
+    "start_visit": "Start Visit",
+    "reschedule": "Reschedule",
+    "reschedule_title": "Reschedule Visit Request",
+    "save": "Save",
+    "cancel": "Cancel"
   }
 }

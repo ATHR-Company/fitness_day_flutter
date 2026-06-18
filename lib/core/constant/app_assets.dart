@@ -51,4 +51,5 @@ class SvgIcons {
   static const String whatsapp = '$_svgPath/whatsapp.svg';
   static const String wieght = '$_svgPath/wieght.svg';
   static const String workout = '$_svgPath/workout.svg';
+  static const String monitor = '$_svgPath/monitor.svg';
 }
