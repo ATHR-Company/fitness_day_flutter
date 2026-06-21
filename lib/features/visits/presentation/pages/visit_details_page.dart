@@ -9,6 +9,12 @@ import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/core/widgets/visit_goal_card.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
+import 'package:fitness_day/features/visits/presentation/widgets/report_text_field.dart';
+import 'package:fitness_day/features/visits/presentation/pages/add_meal_page.dart';
+import 'package:fitness_day/features/visits/presentation/pages/add_exercise_page.dart';
+import 'package:fitness_day/features/visits/presentation/pages/add_activity_page.dart';
+
+import '../../../../core/theme/app_text_styles.dart';
 
 class VisitDetailsPage extends StatefulWidget {
   const VisitDetailsPage({super.key});
@@ -19,6 +25,7 @@ class VisitDetailsPage extends StatefulWidget {
 
 class _VisitDetailsPageState extends State<VisitDetailsPage> {
   int _selectedTabIndex = 0;
+  int _selectedDayIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -76,27 +83,33 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               // 4. Bottom Buttons
               Container(
                 padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-                child: Row(
-                  children: [
-                    // Start Visit (Primary) — on the right in RTL
-                    Expanded(
-                      child: CustomButton(
-                        text: 'visit_details.start_visit'.tr(),
+                child: (_selectedTabIndex == 1 || _selectedTabIndex == 2)
+                    ? CustomButton(
+                        text: 'visit_details.end_visit'.tr(),
+                        color: AppColors.greenMint, // Match lighter green from design
                         onPressed: () {},
+                      )
+                    : Row(
+                        children: [
+                          // Start Visit (Primary) — on the right in RTL
+                          Expanded(
+                            child: CustomButton(
+                              text: 'visit_details.start_visit'.tr(),
+                              onPressed: () {},
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          // Reschedule (Outlined) — on the left in RTL
+                          Expanded(
+                            child: CustomOutlinedButton(
+                              text: 'visit_details.reschedule'.tr(),
+                              onPressed: () {
+                                showRescheduleDialog(context);
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(width: 12.w),
-                    // Reschedule (Outlined) — on the left in RTL
-                    Expanded(
-                      child: CustomOutlinedButton(
-                        text: 'visit_details.reschedule'.tr(),
-                        onPressed: () {
-                          showRescheduleDialog(context);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ],
           ),
@@ -149,10 +162,473 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
   }
 
   Widget _buildCustomPlanTab() {
-    return const SizedBox.shrink();
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Content Area (Right side in RTL)
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 16.h, 16.w, 0),
+            child: Column(
+              children: [
+                _buildActionCard(
+                  title: 'visit_details.add_meal'.tr(),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AddMealPage()),
+                    );
+                  },
+                ),
+                SizedBox(height: 16.h),
+                _buildActionCard(
+                  title: 'visit_details.add_exercise'.tr(),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AddExercisePage()),
+                    );
+                  },
+                ),
+                SizedBox(height: 16.h),
+                _buildActionCard(
+                  title: 'visit_details.add_activity'.tr(),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AddActivityPage()),
+                    );
+                  },
+                ),
+                SizedBox(height: 32.h),
+
+                // Added Items List
+                _buildSectionTitle('visit_details.nutrition'.tr(), 1),
+                SizedBox(height: 12.h),
+                _buildNutritionCard(),
+                
+                SizedBox(height: 24.h),
+                _buildSectionTitle('visit_details.exercises'.tr(), 1),
+                SizedBox(height: 12.h),
+                _buildExerciseCard(),
+
+                SizedBox(height: 24.h),
+                _buildSectionTitle('visit_details.activity'.tr(), 1),
+                SizedBox(height: 12.h),
+                _buildActivityCard(),
+              ],
+            ),
+          ),
+        ),
+        // Vertical Tab Bar (Left side in RTL)
+        _buildVerticalTabBar(),
+      ],
+    );
+  }
+
+  Widget _buildActionCard({required String title, required VoidCallback onPressed}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.4), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyleManager.heading3.copyWith(
+              color: AppColors.black,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              minimumSize: const Size(0, 0),
+              elevation: 0,
+            ),
+            child: Text(
+              'visit_details.add'.tr(),
+              style: TextStyleManager.smallButtons.copyWith(
+                color: AppColors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVerticalTabBar() {
+    final days = [
+      'visit_details.day_1'.tr(),
+      'visit_details.day_2'.tr(),
+      'visit_details.day_3'.tr(),
+      'visit_details.day_4'.tr(),
+      'visit_details.day_5'.tr(),
+      'visit_details.day_6'.tr(),
+      'visit_details.day_7'.tr(),
+    ];
+
+    return Container(
+      width: 70.w,
+      decoration: BoxDecoration(
+        color: AppColors.backgroundTint,
+        borderRadius: BorderRadius.horizontal(
+          right: Radius.circular(20.r),
+        ),
+      ),
+      child: Column(
+        children: List.generate(days.length, (index) {
+          final isSelected = _selectedDayIndex == index;
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedDayIndex = index;
+              });
+            },
+            child: Container(
+              height: 60.h,
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primary : Colors.transparent,
+                borderRadius: isSelected
+                    ? BorderRadius.horizontal(right: Radius.circular(20.r))
+                    : null,
+                border: !isSelected && index < days.length - 1
+                    ? const Border(
+                        bottom: BorderSide(color: AppColors.white, width: 1),
+                      )
+                    : null,
+              ),
+              child: Center(
+                child: Text(
+                  days[index].replaceAll(' ', '\n'), // Put day name and number on separate lines
+                  textAlign: TextAlign.center,
+                  style: TextStyleManager.heading3.copyWith(
+                    color: isSelected ? AppColors.white : AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, int count) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: TextStyleManager.heading2.copyWith(
+            color: AppColors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          count.toString(),
+          style: TextStyleManager.heading3.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBaseCard({
+    required String title,
+    required bool isCompleted,
+    String? time,
+    String? subtitle,
+    required Widget details,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5), width: 1),
+      ),
+      padding: EdgeInsets.all(16.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Row
+          Row(
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: isCompleted ? AppColors.primary : AppColors.divider,
+                size: 24.sp,
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyleManager.heading2.copyWith(
+                    color: AppColors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (time != null) ...[
+                Icon(Icons.access_time_filled, color: AppColors.primary, size: 16.sp), 
+                SizedBox(width: 4.w),
+                Text(
+                  time,
+                  style: TextStyleManager.heading3.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          
+          if (subtitle != null) ...[
+            SizedBox(height: 8.h),
+            Text(
+              subtitle,
+              style: TextStyleManager.heading3.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+
+          SizedBox(height: 12.h),
+          details,
+          SizedBox(height: 16.h),
+
+          // Bottom Buttons
+          Row(
+            children: [
+              // Edit Button (Green) - Right side in RTL
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'visit_details.edit'.tr(),
+                    style: TextStyleManager.smallButtons.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              // Delete Button (Red) - Left side in RTL
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.red,
+                    foregroundColor: AppColors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'visit_details.delete'.tr(),
+                    style: TextStyleManager.smallButtons.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNutritionCard() {
+    return _buildBaseCard(
+      title: 'وجبة الافطار',
+      isCompleted: true,
+      time: '8:00 صباحا',
+      subtitle: 'شوفان بالحليب مع مكسرات وعسل',
+      details: RichText(
+        text: TextSpan(
+          style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+          children: [
+            const TextSpan(text: 'الكمية: شوفان : '),
+            TextSpan(text: '45g', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            const TextSpan(text: ' - حليب : '),
+            TextSpan(text: '250ml', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            const TextSpan(text: ' -مكسرات : '),
+            TextSpan(text: '10g', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            const TextSpan(text: ' - عسل : '),
+            TextSpan(text: '5g', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExerciseCard() {
+    return _buildBaseCard(
+      title: 'تمرين البلانك',
+      isCompleted: true,
+      time: '8:00 صباحا',
+      details: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            text: TextSpan(
+              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              children: [
+                const TextSpan(text: 'عدد المجموعات : '),
+                TextSpan(text: '5 مجموعات', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+          RichText(
+            text: TextSpan(
+              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              children: [
+                const TextSpan(text: 'مدة الاستراحة بين المجموعات : '),
+                TextSpan(text: '20 ثانيه', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+          RichText(
+            text: TextSpan(
+              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              children: [
+                const TextSpan(text: 'عدد التكرارات : '),
+                TextSpan(text: '5', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityCard() {
+    return _buildBaseCard(
+      title: 'تمرين المشي',
+      isCompleted: false,
+      details: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            text: TextSpan(
+              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              children: [
+                const TextSpan(text: 'عدد الخطوات : '),
+                TextSpan(text: '5000 خطوة', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+          RichText(
+            text: TextSpan(
+              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              children: [
+                const TextSpan(text: 'مدة الاستراحة : '),
+                TextSpan(text: '20 ثانيه', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildReportTab() {
-    return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        children: [
+          ReportTextField(
+            label: '${'visit_details.weight'.tr()} :',
+            hintText: 'visit_details.write_weight'.tr(),
+            suffixText: 'visit_details.kg'.tr(),
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: '${'visit_details.height'.tr()} :',
+            hintText: 'visit_details.write_height'.tr(),
+            suffixText: 'visit_details.cm'.tr(),
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.bmi'.tr(),
+            hintText: 'visit_details.bmi'.tr(),
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.body_fat_percentage'.tr(),
+            hintText: 'visit_details.write_body_fat_percentage'.tr(),
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.fat_mass'.tr(),
+            hintText: 'visit_details.fat_mass'.tr(),
+            suffixText: 'visit_details.kg'.tr(),
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.muscle_weight'.tr(),
+            hintText: 'visit_details.muscle_weight'.tr(),
+            suffixText: 'visit_details.kg'.tr(),
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: '${'visit_details.metabolic_rate'.tr()} :',
+            hintText: 'visit_details.write_total_metabolic_rate'.tr(),
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.lean_mass'.tr(),
+            hintText: 'visit_details.write_lean_mass'.tr(),
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: '${'visit_details.muscle_percentage'.tr()} :',
+            hintText: 'visit_details.write_muscle_percentage'.tr(),
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.protein_percentage'.tr(),
+            hintText: 'visit_details.write_protein_percentage'.tr(),
+          ),
+        ],
+      ),
+    );
   }
 }
