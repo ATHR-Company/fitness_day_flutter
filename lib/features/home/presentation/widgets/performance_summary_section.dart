@@ -49,7 +49,7 @@ class PerformanceSummarySection extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(16.r),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "home.performance_summary_title".tr(),

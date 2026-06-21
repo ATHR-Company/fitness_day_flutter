@@ -27,18 +27,18 @@ class AppointmentCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Commitment Badge
           Align(
-            alignment: Alignment.topLeft,
+            alignment: AlignmentDirectional.topEnd,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               decoration: BoxDecoration(
                 color: AppColors.greenMint,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16.r),
-                  bottomRight: Radius.circular(16.r),
+                borderRadius: BorderRadiusDirectional.only(
+                  topEnd: Radius.circular(16.r),
+                  bottomStart: Radius.circular(16.r),
                 ),
               ),
               child: Text(
@@ -54,35 +54,13 @@ class AppointmentCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title Row
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "home.weekly_follow_up".tr(),
-                            style: TextStyleManager.heading2.copyWith(
-                              color: AppColors.black,
-                            ),
-                          ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            "home.weekly_follow_up_desc".tr(),
-                            textAlign: TextAlign.right,
-                            style: TextStyleManager.style12Regular.copyWith(
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
                     Container(
                       width: 50.w,
                       height: 50.h,
@@ -98,6 +76,27 @@ class AppointmentCard extends StatelessWidget {
                           AppColors.primary,
                           BlendMode.srcIn,
                         ),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "home.weekly_follow_up".tr(),
+                            style: TextStyleManager.heading2.copyWith(
+                              color: AppColors.black,
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            "home.weekly_follow_up_desc".tr(),
+                            style: TextStyleManager.style12Regular.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -116,27 +115,6 @@ class AppointmentCard extends StatelessWidget {
                 // Buttons
                 Row(
                   children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24.r),
-                          ),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                        ),
-                        child: Text(
-                          "home.reschedule".tr(),
-                          style: TextStyleManager.style12Regular.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {},
@@ -158,6 +136,27 @@ class AppointmentCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(color: AppColors.primary),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24.r),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                        ),
+                        child: Text(
+                          "home.reschedule".tr(),
+                          style: TextStyleManager.style12Regular.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -170,20 +169,20 @@ class AppointmentCard extends StatelessWidget {
 
   Widget _buildDetailRow(String label, String value, bool isValueGreen) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        Text(
+          label,
+          style: TextStyleManager.style12Regular.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
+        SizedBox(width: 4.w),
         Text(
           value,
           style: TextStyleManager.style12Regular.copyWith(
             color: isValueGreen ? AppColors.primary : AppColors.textPrimary,
             fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(width: 4.w),
-        Text(
-          label,
-          style: TextStyleManager.style12Regular.copyWith(
-            color: AppColors.textPrimary,
           ),
         ),
       ],

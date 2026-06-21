@@ -52,4 +52,6 @@ class SvgIcons {
   static const String wieght = '$_svgPath/wieght.svg';
   static const String workout = '$_svgPath/workout.svg';
   static const String monitor = '$_svgPath/monitor.svg';
+  static const String chatIcon = '$_svgPath/chat_icon.svg';
+  static const String menuIcon = '$_svgPath/menu_icon.svg';
 }

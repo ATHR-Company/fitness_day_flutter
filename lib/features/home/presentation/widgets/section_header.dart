@@ -19,17 +19,17 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        Text(
+          title,
+          style: TextStyleManager.heading1.copyWith(
+            color: AppColors.black,
+          ),
+        ),
         if (onMorePressed != null)
           GestureDetector(
             onTap: onMorePressed,
             child: Row(
               children: [
-                Icon(
-                  Icons.keyboard_double_arrow_left_rounded,
-                  color: AppColors.primary,
-                  size: 16.w,
-                ),
-                SizedBox(width: 4.w),
                 Text(
                   "home.see_more".tr(),
                   style: TextStyleManager.style12Regular.copyWith(
@@ -37,17 +37,17 @@ class SectionHeader extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                SizedBox(width: 4.w),
+                Icon(
+                  Icons.keyboard_double_arrow_left_rounded,
+                  color: AppColors.primary,
+                  size: 16.w,
+                ),
               ],
             ),
           )
         else
           const SizedBox(),
-        Text(
-          title,
-          style: TextStyleManager.heading1.copyWith(
-            color: AppColors.black,
-          ),
-        ),
       ],
     );
   }

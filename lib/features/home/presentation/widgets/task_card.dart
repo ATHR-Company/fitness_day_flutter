@@ -28,35 +28,13 @@ class TaskCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title Row
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      "home.measurements_review".tr(),
-                      style: TextStyleManager.heading2.copyWith(
-                        color: AppColors.black,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      "home.measurements_review_desc".tr(),
-                      textAlign: TextAlign.right,
-                      style: TextStyleManager.style12Regular.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 12.w),
               Container(
                 width: 50.w,
                 height: 50.h,
@@ -74,6 +52,27 @@ class TaskCard extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "home.measurements_review".tr(),
+                      style: TextStyleManager.heading2.copyWith(
+                        color: AppColors.black,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      "home.measurements_review_desc".tr(),
+                      style: TextStyleManager.style12Regular.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           SizedBox(height: 16.h),
@@ -89,7 +88,7 @@ class TaskCard extends StatelessWidget {
           
           // Button
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerEnd,
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
@@ -117,20 +116,20 @@ class TaskCard extends StatelessWidget {
 
   Widget _buildDetailRow(String label, String value, bool isValueGreen) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        Text(
+          label,
+          style: TextStyleManager.style12Regular.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
+        SizedBox(width: 4.w),
         Text(
           value,
           style: TextStyleManager.style12Regular.copyWith(
             color: isValueGreen ? AppColors.primary : AppColors.textPrimary,
             fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(width: 4.w),
-        Text(
-          label,
-          style: TextStyleManager.style12Regular.copyWith(
-            color: AppColors.textPrimary,
           ),
         ),
       ],
