@@ -158,6 +158,8 @@ class AppColors {
     'greenCrystal': greenCrystal,
   };
 
+  static Color red = Colors.red;
+
   /// Get color by name (case-insensitive)
   static Color? getColorByName(String name) {
     final lowerName = name.toLowerCase();
