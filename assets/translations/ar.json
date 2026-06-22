@@ -44,6 +44,7 @@
     "visit_time_label": "ميعاد الزيارة :",
     "visit_location_label": "مكان الزيارة :",
     "view_visit": "عرض الزيارة »",
+    "details": "تفاصيل »",
     "today": "اليوم",
     "pm": "مساءاً",
     "hq_location": "في مقر يوم الرشاقة",
@@ -100,8 +101,11 @@
     "nutrition": "التغذية",
     "exercises": "التمارين",
     "activity": "النشاط",
-    "edit": "تعديل «",
-    "delete": "حذف «"
+    "edit": "تعديل »",
+    "delete": "حذف »",
+    "select_date": "حدد اليوم",
+    "select_time": "حدد الميعاد",
+    "confirm": "تأكيد"
   },
   "add_meal": {
     "title": "اضافة وجبة",

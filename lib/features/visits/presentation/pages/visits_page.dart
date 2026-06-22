@@ -103,6 +103,7 @@ class _VisitsPageState extends State<VisitsPage> {
                           clientName: 'visits.dummy_client'.tr(),
                           visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
                           location: 'visits.hq_location'.tr(),
+                          buttonText: _selectedTabIndex == 0 ? 'visits.view_visit'.tr() : 'visits.details'.tr(),
                           onViewPressed: () {
                             Navigator.push(
                               context,

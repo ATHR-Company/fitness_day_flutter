@@ -54,7 +54,7 @@ class AppSegmentedControl extends StatelessWidget {
     }
 
     return Container(
-      height: 48.h,
+      height: 45.h,
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(24.r),
@@ -70,10 +70,10 @@ class AppSegmentedControl extends StatelessWidget {
               AnimatedPositionedDirectional(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeInOut,
-                start: (selectedIndex * tabWidth) - 6.w, // Shift start to make it overflow
+                start: (selectedIndex * tabWidth), // Shift start to make it overflow
                 top: -1, // Cover top border
                 bottom: -1, // Cover bottom border
-                width: tabWidth + 12.w, // Make it wider from both sides
+                width: tabWidth, // Make it wider from both sides
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
@@ -107,9 +107,7 @@ class AppSegmentedControl extends StatelessWidget {
                           child: AnimatedDefaultTextStyle(
                             duration: const Duration(milliseconds: 250),
                             style: TextStyleManager.style11Medium.copyWith(
-                              color: selectedIndex == i ? AppColors.primary : AppColors.textSecondary,
-                              fontWeight: selectedIndex == i ? FontWeight.bold : FontWeight.normal,
-                              fontFamily: TextStyleManager.style11Medium.fontFamily, // Ensure font family is explicitly kept during animation
+                              color: selectedIndex == i ? AppColors.primary : AppColors.divider,
                             ),
                             child: Text(items[i]),
                           ),

@@ -44,6 +44,7 @@
     "visit_time_label": "Visit Time :",
     "visit_location_label": "Location :",
     "view_visit": "View Visit »",
+    "details": "Details »",
     "today": "Today",
     "pm": "PM",
     "hq_location": "Fitness Day HQ",
@@ -100,8 +101,11 @@
     "nutrition": "Nutrition",
     "exercises": "Exercises",
     "activity": "Activity",
-    "edit": "Edit «",
-    "delete": "Delete «"
+    "edit": "Edit »",
+    "delete": "Delete »",
+    "select_date": "Select Day",
+    "select_time": "Select Time",
+    "confirm": "Confirm"
   },
   "add_meal": {
     "title": "Add Meal",

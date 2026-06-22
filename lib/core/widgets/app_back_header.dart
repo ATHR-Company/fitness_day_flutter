@@ -6,11 +6,13 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 class AppBackHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onBackPressed;
+  final Widget? trailingWidget;
 
   const AppBackHeader({
     super.key,
     required this.title,
     this.onBackPressed,
+    this.trailingWidget,
   });
 
   @override
@@ -19,18 +21,20 @@ class AppBackHeader extends StatelessWidget {
       height: 48.h,
       child: Row(
         children: [
-          // Back Button on the right (RTL) — plain chevron, no circle
-          InkWell(
-            onTap: onBackPressed ?? () => Navigator.of(context).pop(),
-            borderRadius: BorderRadius.circular(24.r),
-            child: Icon(
-              Icons.chevron_left,
-              color: AppColors.textPrimary,
-              size: 32.sp,
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: InkWell(
+                onTap: onBackPressed ?? () => Navigator.of(context).pop(),
+                borderRadius: BorderRadius.circular(24.r),
+                child: Icon(
+                  Icons.chevron_left,
+                  color: AppColors.textPrimary,
+                  size: 32.sp,
+                ),
+              ),
             ),
           ),
-          Spacer(),
-          // Centered Title
           Text(
             title,
             style: TextStyleManager.heading2.copyWith(
@@ -38,7 +42,12 @@ class AppBackHeader extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          Spacer(),
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: trailingWidget ?? const SizedBox(),
+            ),
+          ),
         ],
       ),
     );

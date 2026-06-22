@@ -292,9 +292,7 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
           // الأرقام دايمًا LTR
           textDirection: ui.TextDirection.ltr,
           textAlign: TextAlign.right,
-          style: TextStyleManager.heading3.copyWith(
-            color: AppColors.black,
-          ),
+          style: TextStyleManager.heading3,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(

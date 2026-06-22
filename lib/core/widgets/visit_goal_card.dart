@@ -19,14 +19,7 @@ class VisitGoalCard extends StatelessWidget {
       width: double.infinity,
       margin: EdgeInsets.symmetric(horizontal: 16.w),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFFFFFFF),
-            Color(0xFFEFFFF2),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
+        gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: AppColors.primary.withValues(alpha: 0.4),
@@ -41,7 +34,7 @@ class VisitGoalCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(10.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,15 +44,14 @@ class VisitGoalCard extends StatelessWidget {
               textAlign: TextAlign.right,
               style: TextStyleManager.style11Medium.copyWith(
                 color: AppColors.black,
-                fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 10.h),
 
             // Goals list — NO DOTS, just right-aligned text
             ...goals.map(
               (goal) => Padding(
-                padding: EdgeInsets.only(bottom: 4.h),
+                padding: EdgeInsets.only(bottom: 1.h),
                 child: Text(
                   goal,
                   textAlign: TextAlign.right,

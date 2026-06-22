@@ -4,17 +4,43 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
+import 'package:fitness_day/core/widgets/date_picker_bottom_sheet.dart';
+import 'package:fitness_day/core/widgets/time_picker_bottom_sheet.dart';
 import 'dart:ui' as ui;
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide DateFormat;
+import 'package:intl/intl.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../../../core/constant/app_assets.dart';
 
-class RescheduleVisitDialog extends StatelessWidget {
+class RescheduleVisitDialog extends StatefulWidget {
   const RescheduleVisitDialog({super.key});
 
   @override
+  State<RescheduleVisitDialog> createState() => _RescheduleVisitDialogState();
+}
+
+class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+
+  @override
   Widget build(BuildContext context) {
+    // Format date and time
+    String dateText = 'visit_details.select_date'.tr();
+    if (_selectedDate != null) {
+      final dateFormat = DateFormat('EEEE d/ M / yyyy', context.locale.languageCode);
+      dateText = dateFormat.format(_selectedDate!);
+    }
+    
+    String timeText = 'visit_details.select_time'.tr();
+    if (_selectedTime != null) {
+      final now = DateTime.now();
+      final dt = DateTime(now.year, now.month, now.day, _selectedTime!.hour, _selectedTime!.minute);
+      final timeFormat = DateFormat('hh:mm a', context.locale.languageCode);
+      timeText = timeFormat.format(dt);
+    }
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -39,7 +65,6 @@ class RescheduleVisitDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                
                 Expanded(
                   child: Text(
                     'visit_details.reschedule_title'.tr(),
@@ -49,7 +74,6 @@ class RescheduleVisitDialog extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: Icon(
@@ -60,21 +84,46 @@ class RescheduleVisitDialog extends StatelessWidget {
                 ),
               ],
             ),
-
             SizedBox(height: 32.h),
 
             // Date Field
-            _buildField(
-              icon: SvgIcons.calendar,
-              text: 'السبت 14/ 3 / 2026', // Placeholder
+            GestureDetector(
+              onTap: () async {
+                final date = await showModalBottomSheet<DateTime>(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => DatePickerBottomSheet(initialDate: _selectedDate),
+                );
+                if (date != null) {
+                  setState(() => _selectedDate = date);
+                }
+              },
+              child: _buildField(
+                icon: SvgIcons.calendar,
+                text: dateText,
+              ),
             ),
             
             SizedBox(height: 16.h),
 
             // Time Field
-            _buildField(
-              icon: SvgIcons.clock,
-              text: '12 مساءا', // Placeholder
+            GestureDetector(
+              onTap: () async {
+                final time = await showModalBottomSheet<TimeOfDay>(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => TimePickerBottomSheet(initialTime: _selectedTime),
+                );
+                if (time != null) {
+                  setState(() => _selectedTime = time);
+                }
+              },
+              child: _buildField(
+                icon: SvgIcons.clock,
+                text: timeText,
+              ),
             ),
 
             SizedBox(height: 32.h),
@@ -127,20 +176,15 @@ class RescheduleVisitDialog extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // Icon
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: SvgPicture.asset(
-              icon,
-            ),
+            child: SvgPicture.asset(icon),
           ),
-          // Vertical Divider
           Container(
             height: 24.h,
             width: 1.5.w,
             color: AppColors.primary.withValues(alpha: 0.5),
           ),
-          // Text
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),

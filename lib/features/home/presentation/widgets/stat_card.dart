@@ -24,17 +24,18 @@ class StatCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
         decoration: BoxDecoration(
-          color: isPrimary ? AppColors.greenSoftTint : AppColors.white,
+          color: isPrimary ? AppColors.greenSoftTint : null,
+          gradient: isPrimary ? null : AppColors.cardGradient,
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: isPrimary ? Colors.transparent : AppColors.divider.withOpacity(0.3),
+            color: isPrimary ? Colors.transparent : AppColors.divider.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: isPrimary
               ? []
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10.r,
                     offset: const Offset(0, 4),
                   ),

@@ -60,6 +60,7 @@ class CodegenLoader extends AssetLoader{
     "visit_time_label": "ميعاد الزيارة :",
     "visit_location_label": "مكان الزيارة :",
     "view_visit": "عرض الزيارة »",
+    "details": "تفاصيل »",
     "today": "اليوم",
     "pm": "مساءاً",
     "hq_location": "في مقر يوم الرشاقة",
@@ -116,8 +117,8 @@ class CodegenLoader extends AssetLoader{
     "nutrition": "التغذية",
     "exercises": "التمارين",
     "activity": "النشاط",
-    "edit": "تعديل «",
-    "delete": "حذف «"
+    "edit": "تعديل »",
+    "delete": "حذف »"
   },
   "add_meal": {
     "title": "اضافة وجبة",
@@ -268,6 +269,7 @@ static const Map<String,dynamic> _en = {
     "visit_time_label": "Visit Time :",
     "visit_location_label": "Location :",
     "view_visit": "View Visit »",
+    "details": "Details »",
     "today": "Today",
     "pm": "PM",
     "hq_location": "Fitness Day HQ",
@@ -324,8 +326,8 @@ static const Map<String,dynamic> _en = {
     "nutrition": "Nutrition",
     "exercises": "Exercises",
     "activity": "Activity",
-    "edit": "Edit «",
-    "delete": "Delete «"
+    "edit": "Edit »",
+    "delete": "Delete »"
   },
   "add_meal": {
     "title": "Add Meal",

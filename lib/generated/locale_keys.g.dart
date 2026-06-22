@@ -45,6 +45,7 @@ abstract class  LocaleKeys {
   static const visits_visit_time_label = 'visits.visit_time_label';
   static const visits_visit_location_label = 'visits.visit_location_label';
   static const visits_view_visit = 'visits.view_visit';
+  static const visits_details = 'visits.details';
   static const visits_today = 'visits.today';
   static const visits_pm = 'visits.pm';
   static const visits_hq_location = 'visits.hq_location';

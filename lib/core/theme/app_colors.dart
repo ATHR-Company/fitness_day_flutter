@@ -128,6 +128,25 @@ class AppColors {
     ],
   );
 
+  static const LinearGradient timeRemainingGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [
+      Color(0xFF7CD588),
+      Color(0xFFE6FFE9),
+      Color(0xFF7CD588),
+    ],
+  );
+
+  static const LinearGradient cardGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFFFFFFFF),
+      Color(0xFFEFFFF2),
+    ],
+  );
+
   // ---------------------------------------------------------------------------
   // Unified Case-Insensitive Design Tokens Map
   // ---------------------------------------------------------------------------

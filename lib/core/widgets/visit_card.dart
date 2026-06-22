@@ -14,6 +14,7 @@ class VisitCard extends StatelessWidget {
   final String clientName;
   final String visitTime;
   final String location;
+  final String buttonText;
   final VoidCallback onViewPressed;
 
   const VisitCard({
@@ -24,6 +25,7 @@ class VisitCard extends StatelessWidget {
     required this.clientName,
     required this.visitTime,
     required this.location,
+    required this.buttonText,
     required this.onViewPressed,
   });
 
@@ -32,15 +34,7 @@ class VisitCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFFFFFFF),
-            Color(0xFFF7FFF8),
-            Color(0xFFEFFFF2),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
+        gradient: AppColors.cardGradient,
         borderRadius: BorderRadiusDirectional.only(
           topStart: Radius.circular(4.r),
           topEnd: Radius.circular(4.r),
@@ -119,8 +113,8 @@ class VisitCard extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: 20.w),
                       ),
                       child: Text(
-                        'visits.view_visit'.tr(),
-                        style: TextStyleManager.style11Medium.copyWith(
+                        buttonText,
+                        style: TextStyleManager.style14Medium.copyWith(
                           color: AppColors.white,
                         ),
                       ),
@@ -139,15 +133,8 @@ class VisitCard extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF7CD588),
-                      Color(0xFFE6FFE9),
-                      Color(0xFF7CD588),
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
+                  gradient: AppColors.timeRemainingGradient,
+                  boxShadow: AppShadows.primaryShadow,
                   borderRadius: BorderRadiusDirectional.only(
                     topEnd: Radius.circular(4.r),
                     bottomStart: Radius.circular(12.r),

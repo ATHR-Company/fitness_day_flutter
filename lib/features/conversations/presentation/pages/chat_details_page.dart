@@ -24,66 +24,61 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-                children: [
-                  // Date Header
-                  Center(
-                    child: Text(
-                      'conversations.today'.tr(),
-                      style: TextStyleManager.heading3.copyWith(
-                        color: AppColors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
+      body: Column(
+        children: [
+          _buildHeader(context),
+
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+              children: [
+                // Date Header
+                Center(
+                  child: Text(
+                    'conversations.today'.tr(),
+                    style: TextStyleManager.style11Medium,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+
+                // Other Person's Message (Green Bubble on Right in RTL)
+                _buildMessageBubble(
+                  message: 'conversations.dummy_message_1'.tr(),
+                  time: '10:22 صباحا',
+                  isMe: false,
+                ),
+
+                SizedBox(height: 16.h),
+
+                // My Message (Grey Bubble on Left in RTL)
+                _buildMessageBubble(
+                  message: 'conversations.dummy_message_2'.tr(),
+                  time: '10:22 صباحا',
+                  isMe: true,
+                  isRead: true,
+                ),
+
+                SizedBox(height: 16.h),
+
+                // Typing indicator (Mock)
+                Align(
+                  alignment: AlignmentDirectional.centerStart, // 'start' in RTL is right
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
+                    child: Icon(Icons.more_horiz, color: AppColors.primary, size: 20.sp),
                   ),
-                  SizedBox(height: 24.h),
-
-                  // Other Person's Message (Green Bubble on Right in RTL)
-                  _buildMessageBubble(
-                    message: 'conversations.dummy_message_1'.tr(),
-                    time: '10:22 صباحا',
-                    isMe: false,
-                  ),
-
-                  SizedBox(height: 16.h),
-
-                  // My Message (Grey Bubble on Left in RTL)
-                  _buildMessageBubble(
-                    message: 'conversations.dummy_message_2'.tr(),
-                    time: '10:22 صباحا',
-                    isMe: true,
-                    isRead: true,
-                  ),
-
-                  SizedBox(height: 16.h),
-
-                  // Typing indicator (Mock)
-                  Align(
-                    alignment: AlignmentDirectional.centerStart, // 'start' in RTL is right
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16.r),
-                      ),
-                      child: Icon(Icons.more_horiz, color: AppColors.primary, size: 20.sp),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
-            // Input Area
-            _buildInputArea(),
-          ],
-        ),
+          // Input Area
+          _buildInputArea(),
+        ],
       ),
     );
   }
@@ -94,51 +89,52 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       decoration: const BoxDecoration(
         color: AppColors.backgroundTint,
       ),
-      child: Row(
+      child: Column(
         children: [
-          // Back Button
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Icon(
-              Icons.arrow_back_ios, // < points left
-              color: AppColors.black,
-              size: 20.sp,
-            ),
-          ),
-          SizedBox(width: 16.w),
-          
-          // Avatar
-          Stack(
+          SizedBox(height: 30.h),
+          Row(
             children: [
-              CircleAvatar(
-                radius: 20.r,
-                backgroundImage: const NetworkImage('https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80'),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  width: 10.w,
-                  height: 10.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.white, width: 2),
-                  ),
+              // Back Button
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Icon(
+                  Icons.arrow_back_ios, // < points left
+                  color: AppColors.black,
+                  size: 20.sp,
                 ),
               ),
+              SizedBox(width: 10.w),
+
+              // Avatar
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 20.r,
+                    backgroundImage: const NetworkImage('https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80'),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 10.w,
+                      height: 10.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.white, width: 2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 12.w),
+
+              // Name
+              Text(
+                'conversations.dummy_name'.tr(),
+                style: TextStyleManager.style11Medium,
+              ),
             ],
-          ),
-          SizedBox(width: 12.w),
-          
-          // Name
-          Text(
-            'conversations.dummy_name'.tr(),
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 16.sp,
-            ),
           ),
         ],
       ),
@@ -176,9 +172,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
             ),
             child: Text(
               message,
-              style: TextStyleManager.style11Medium.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyleManager.style11Medium,
             ),
           ),
           SizedBox(height: 4.h),
@@ -228,7 +222,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                       controller: _messageController,
                       decoration: InputDecoration(
                         hintText: 'conversations.write_message_hint'.tr(),
-                        hintStyle: TextStyleManager.heading3.copyWith(
+                        hintStyle: TextStyleManager.style10Medium.copyWith(
                           color: AppColors.textSecondary.withValues(alpha: 0.5),
                         ),
                         border: InputBorder.none,
@@ -251,7 +245,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                       'conversations.send'.tr(),
                       style: TextStyleManager.style9Medium.copyWith(
                         color: AppColors.white,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

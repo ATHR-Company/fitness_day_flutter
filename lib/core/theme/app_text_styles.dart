@@ -28,7 +28,7 @@ class TextStyleManager {
 
   static TextStyle heading3 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 16.sp,
+    fontSize: 14.sp,
     fontWeight: FontWeight.w500,
   );
 

@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -9,11 +10,15 @@ import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/core/widgets/visit_goal_card.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
+import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/features/visits/presentation/widgets/report_text_field.dart';
 import 'package:fitness_day/features/visits/presentation/pages/add_meal_page.dart';
 import 'package:fitness_day/features/visits/presentation/pages/add_exercise_page.dart';
 import 'package:fitness_day/features/visits/presentation/pages/add_activity_page.dart';
+import 'package:fitness_day/features/conversations/presentation/pages/conversations_page.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class VisitDetailsPage extends StatefulWidget {
@@ -46,6 +51,14 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: AppBackHeader(
                   title: 'visit_details.title'.tr(),
+                  trailingWidget: MessageIconButton(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ConversationsPage()),
+                      );
+                    },
+                  ),
                 ),
               ),
 
@@ -142,6 +155,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           clientName: 'visits.dummy_client'.tr(),
           visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
           location: 'visits.hq_location'.tr(),
+          buttonText: 'visits.view_visit'.tr(),
           onViewPressed: () {},
         ),
 
@@ -229,7 +243,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
   Widget _buildActionCard({required String title, required VoidCallback onPressed}) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.4), width: 1),
         boxShadow: [
@@ -240,16 +254,13 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           ),
         ],
       ),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             title,
-            style: TextStyleManager.heading3.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyleManager.style11Medium,
           ),
           ElevatedButton(
             onPressed: onPressed,
@@ -259,7 +270,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.r),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 5.h),
               minimumSize: const Size(0, 0),
               elevation: 0,
             ),
@@ -267,7 +278,6 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               'visit_details.add'.tr(),
               style: TextStyleManager.smallButtons.copyWith(
                 color: AppColors.white,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -288,7 +298,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     ];
 
     return Container(
-      width: 70.w,
+      width: 60.w,
       decoration: BoxDecoration(
         color: AppColors.backgroundTint,
         borderRadius: BorderRadius.horizontal(
@@ -305,7 +315,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               });
             },
             child: Container(
-              height: 60.h,
+              height: 70.h,
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primary : Colors.transparent,
                 borderRadius: isSelected
@@ -321,9 +331,8 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 child: Text(
                   days[index].replaceAll(' ', '\n'), // Put day name and number on separate lines
                   textAlign: TextAlign.center,
-                  style: TextStyleManager.heading3.copyWith(
+                  style: TextStyleManager.style10Medium.copyWith(
                     color: isSelected ? AppColors.white : AppColors.textSecondary,
-                    height: 1.5,
                   ),
                 ),
               ),
@@ -365,6 +374,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
+        boxShadow: AppShadows.primaryShadow,
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AppColors.divider.withValues(alpha: 0.5), width: 1),
@@ -376,32 +386,28 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           // Header Row
           Row(
             children: [
-              Icon(
-                Icons.check_circle,
-                color: isCompleted ? AppColors.primary : AppColors.divider,
-                size: 24.sp,
-              ),
-              SizedBox(width: 8.w),
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyleManager.heading2.copyWith(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyleManager.heading3,
                 ),
               ),
               if (time != null) ...[
-                Icon(Icons.access_time_filled, color: AppColors.primary, size: 16.sp), 
+                SvgPicture.asset(SvgIcons.clock, height: 13.sp),
                 SizedBox(width: 4.w),
                 Text(
                   time,
-                  style: TextStyleManager.heading3.copyWith(
+                  style: TextStyleManager.style9Medium.copyWith(
                     color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
+              const SizedBox(width: 7,),
+              Icon(
+                Icons.check_circle_rounded,
+                color: isCompleted ? AppColors.primary : AppColors.divider,
+                size: 22.sp,
+              ),
             ],
           ),
           
@@ -409,9 +415,8 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
             SizedBox(height: 8.h),
             Text(
               subtitle,
-              style: TextStyleManager.heading3.copyWith(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.bold,
+              style: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.textPrimary,
               ),
             ),
           ],
@@ -424,6 +429,8 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           Row(
             children: [
               // Edit Button (Green) - Right side in RTL
+              SizedBox(width: 0.w),
+              Spacer(),
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {},
@@ -445,7 +452,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                   ),
                 ),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: 10.w),
               // Delete Button (Red) - Left side in RTL
               Expanded(
                 child: ElevatedButton(
@@ -463,7 +470,6 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                     'visit_details.delete'.tr(),
                     style: TextStyleManager.smallButtons.copyWith(
                       color: AppColors.white,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -483,16 +489,16 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
       subtitle: 'شوفان بالحليب مع مكسرات وعسل',
       details: RichText(
         text: TextSpan(
-          style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+          style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary, height: 1.5),
           children: [
             const TextSpan(text: 'الكمية: شوفان : '),
-            TextSpan(text: '45g', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            TextSpan(text: '45g', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
             const TextSpan(text: ' - حليب : '),
-            TextSpan(text: '250ml', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            TextSpan(text: '250ml', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
             const TextSpan(text: ' -مكسرات : '),
-            TextSpan(text: '10g', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            TextSpan(text: '10g', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
             const TextSpan(text: ' - عسل : '),
-            TextSpan(text: '5g', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            TextSpan(text: '5g', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -509,28 +515,28 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
         children: [
           RichText(
             text: TextSpan(
-              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary,),
               children: [
                 const TextSpan(text: 'عدد المجموعات : '),
-                TextSpan(text: '5 مجموعات', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                TextSpan(text: '5 مجموعات', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary)),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary,),
               children: [
                 const TextSpan(text: 'مدة الاستراحة بين المجموعات : '),
-                TextSpan(text: '20 ثانيه', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                TextSpan(text: '20 ثانيه', style: TextStyleManager.heading3.copyWith(color: AppColors.primary)),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary,),
               children: [
                 const TextSpan(text: 'عدد التكرارات : '),
-                TextSpan(text: '5', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                TextSpan(text: '5', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary)),
               ],
             ),
           ),
@@ -548,19 +554,19 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
         children: [
           RichText(
             text: TextSpan(
-              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
               children: [
                 const TextSpan(text: 'عدد الخطوات : '),
-                TextSpan(text: '5000 خطوة', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                TextSpan(text: '5000 خطوة', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary,)),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary, height: 1.5),
+              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
               children: [
                 const TextSpan(text: 'مدة الاستراحة : '),
-                TextSpan(text: '20 ثانيه', style: TextStyleManager.heading3.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                TextSpan(text: '20 ثانيه', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary,)),
               ],
             ),
           ),

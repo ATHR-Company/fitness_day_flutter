@@ -71,9 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                   Text(
                     'login.welcome_text'.tr(),
                     textAlign: TextAlign.center,
-                    style: TextStyleManager.heading2.copyWith(
-                      color: AppColors.black,
-                    ),
+                    style: TextStyleManager.heading3,
                   ),
                   SizedBox(height: 40.h),
                   // Phone Field
