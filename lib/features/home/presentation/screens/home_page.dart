@@ -10,6 +10,7 @@ import '../widgets/home_header.dart';
 import '../widgets/performance_summary_section.dart';
 import '../widgets/section_header.dart';
 import '../widgets/task_card.dart';
+import '../../../../core/widgets/app_drawer.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -32,6 +33,7 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ),
+        endDrawer: const AppDrawer(),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Column(

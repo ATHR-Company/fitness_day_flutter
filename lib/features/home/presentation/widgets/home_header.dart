@@ -5,6 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constant/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../conversations/presentation/pages/conversations_page.dart';
+import '../../../profile/presentation/pages/profile_page.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({Key? key}) : super(key: key);
@@ -18,24 +20,32 @@ class HomeHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Avatar
-          Container(
-            width: 50.w,
-            height: 50.h,
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
-                  blurRadius: 5.r,
-                  offset: const Offset(0, 2),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
+            child: Container(
+              width: 50.w,
+              height: 50.h,
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    blurRadius: 5.r,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.white, width: 1),
+                image: const DecorationImage(
+                  image: NetworkImage(
+                    'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
+                  ),
+                  fit: BoxFit.cover,
                 ),
-              ],
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.white, width: 1),
-              image: const DecorationImage(
-                image: NetworkImage(
-                  'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
-                ),
-                fit: BoxFit.cover,
               ),
             ),
           ),
@@ -93,9 +103,24 @@ class HomeHeader extends StatelessWidget {
           // Action Buttons (SVG)
           Row(
             children: [
-              _buildSvgIconButton(SvgIcons.chatIcon),
+              _buildSvgIconButton(
+                svgPath: SvgIcons.chatIcon,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ConversationsPage(isEmpty: false),
+                    ),
+                  );
+                },
+              ),
               SizedBox(width: 8.w),
-              _buildSvgIconButton(SvgIcons.menuIcon),
+              _buildSvgIconButton(
+                svgPath: SvgIcons.menuIcon,
+                onTap: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              ),
             ],
           ),
         ],
@@ -103,27 +128,30 @@ class HomeHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildSvgIconButton(String svgPath) {
-    return Container(
-      width: 40.w,
-      height: 40.h,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 5.r,
-            offset: const Offset(0, 2),
+  Widget _buildSvgIconButton({required String svgPath, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40.w,
+        height: 40.h,
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 5.r,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: EdgeInsets.all(10.r),
+        child: SvgPicture.asset(
+          svgPath,
+          colorFilter: const ColorFilter.mode(
+            AppColors.textSecondary,
+            BlendMode.srcIn,
           ),
-        ],
-      ),
-      padding: EdgeInsets.all(10.r),
-      child: SvgPicture.asset(
-        svgPath,
-        colorFilter: const ColorFilter.mode(
-          AppColors.textSecondary,
-          BlendMode.srcIn,
         ),
       ),
     );
@@ -156,7 +184,7 @@ class _OnlineToggleSwitchState extends State<_OnlineToggleSwitch> {
         decoration: BoxDecoration(
           color: isOnline
               ? AppColors.primary
-              : AppColors.textSecondary.withOpacity(0.5),
+              : AppColors.textSecondary.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(20.r),
         ),
         padding: EdgeInsets.all(2.r),

@@ -176,6 +176,50 @@ class CodegenLoader extends AssetLoader{
     "activity_1": "المشي",
     "activity_2": "الترطيب",
     "activity_3": "الجري"
+  },
+  "notifications": {
+    "title": "الاشعارات",
+    "mark_as_read": "تمييز كمقروء",
+    "new_notifications": "جديدة",
+    "previous_notifications": "سابقة",
+    "empty_title": "لا توجد اشعارات حتى الآن",
+    "empty_subtitle": "ستظهر هنا إشعارات الزيارات والرسائل وتحديثات العملاء فور توفرها.",
+    "dummy_title_1": "زيارة خلال ساعة",
+    "dummy_subtitle_1": "لديك موعد متابعة مع احمد محمد الساعة 5:00 مساءا.",
+    "dummy_title_2": "هدف أسبوعي مكتمل",
+    "dummy_subtitle_2": "حقق العميل هدف النشاط المحدد لهذا الأسبوع."
+  },
+  "conversations": {
+    "title": "المحادثات",
+    "empty_title": "لا توجد محادثات الأن",
+    "empty_subtitle": "ستظهر هنا محادثات العملاء\nواستفساراتهم بمجرد بدء التواصل.",
+    "search_hint": "بحث عن محادثة",
+    "new_conversations": "محادثات جديدة",
+    "previous_conversations": "محادثات سابقة",
+    "today": "اليوم",
+    "write_message_hint": "اكتب هنا اسئلتك ...",
+    "send": "ارسال",
+    "dummy_name": "محمد عبدالله",
+    "dummy_message_1": "مرحباً 👋 تناول وجبة خفيفة قبل التمرين مفيد؟",
+    "dummy_message_2": "نعم، تناول وجبة خفيفة قبل التمرين يمكن أن يكون مفيداً، خاصة إذا كان هناك عدة ساعات منذ آخر وجبة. يُفضل أن تحتوي على مصدر للكربوهيدرات مع كمية خفيفة من البروتين"
+  },
+  "profile": {
+    "title": "ملفي",
+    "personal_profile": "الملف الشخصي",
+    "edit_password": "تعديل كلمة المرور",
+    "language": "اللغة",
+    "about_us": "من نحن",
+    "terms_conditions": "الشروط والأحكام",
+    "privacy_policy": "سياسة الخصوصية"
+  },
+  "drawer": {
+    "home": "الصفحة الرئيسية",
+    "today_tasks": "مهام اليوم",
+    "visits_log": "سجل الزيارات",
+    "clients": "العملاء",
+    "notifications": "الاشعارات",
+    "my_profile": "ملفي",
+    "logout": "تسجيل الخروج"
   }
 };
 static const Map<String,dynamic> _en = {
@@ -340,6 +384,50 @@ static const Map<String,dynamic> _en = {
     "activity_1": "Walking",
     "activity_2": "Hydration",
     "activity_3": "Running"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_as_read": "Mark as read",
+    "new_notifications": "New",
+    "previous_notifications": "Previous",
+    "empty_title": "No notifications yet",
+    "empty_subtitle": "Visit notifications, messages, and client updates will appear here once available.",
+    "dummy_title_1": "Visit within an hour",
+    "dummy_subtitle_1": "You have a follow-up appointment with Ahmed Mohamed at 5:00 PM.",
+    "dummy_title_2": "Weekly goal completed",
+    "dummy_subtitle_2": "The client has achieved the specified activity goal for this week."
+  },
+  "conversations": {
+    "title": "Conversations",
+    "empty_title": "No conversations now",
+    "empty_subtitle": "Client conversations and inquiries will appear here once communication begins.",
+    "search_hint": "Search for a conversation",
+    "new_conversations": "New Conversations",
+    "previous_conversations": "Previous Conversations",
+    "today": "Today",
+    "write_message_hint": "Type your questions here...",
+    "send": "Send",
+    "dummy_name": "Mohammad Abdullah",
+    "dummy_message_1": "Hello 👋 Is a light snack before workout useful?",
+    "dummy_message_2": "Yes, a light snack before a workout can be useful, especially if it has been several hours since your last meal. It is preferred to have a source of carbohydrates with a light amount of protein"
+  },
+  "profile": {
+    "title": "My Profile",
+    "personal_profile": "Personal Profile",
+    "edit_password": "Edit Password",
+    "language": "Language",
+    "about_us": "About Us",
+    "terms_conditions": "Terms and Conditions",
+    "privacy_policy": "Privacy Policy"
+  },
+  "drawer": {
+    "home": "Home",
+    "today_tasks": "Today's Tasks",
+    "visits_log": "Visits Log",
+    "clients": "Clients",
+    "notifications": "Notifications",
+    "my_profile": "My Profile",
+    "logout": "Logout"
   }
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"ar": _ar, "en": _en};

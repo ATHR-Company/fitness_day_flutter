@@ -160,5 +160,49 @@
     "activity_1": "المشي",
     "activity_2": "الترطيب",
     "activity_3": "الجري"
+  },
+  "notifications": {
+    "title": "الاشعارات",
+    "mark_as_read": "تمييز كمقروء",
+    "new_notifications": "جديدة",
+    "previous_notifications": "سابقة",
+    "empty_title": "لا توجد اشعارات حتى الآن",
+    "empty_subtitle": "ستظهر هنا إشعارات الزيارات والرسائل وتحديثات العملاء فور توفرها.",
+    "dummy_title_1": "زيارة خلال ساعة",
+    "dummy_subtitle_1": "لديك موعد متابعة مع احمد محمد الساعة 5:00 مساءا.",
+    "dummy_title_2": "هدف أسبوعي مكتمل",
+    "dummy_subtitle_2": "حقق العميل هدف النشاط المحدد لهذا الأسبوع."
+  },
+  "conversations": {
+    "title": "المحادثات",
+    "empty_title": "لا توجد محادثات الأن",
+    "empty_subtitle": "ستظهر هنا محادثات العملاء\nواستفساراتهم بمجرد بدء التواصل.",
+    "search_hint": "بحث عن محادثة",
+    "new_conversations": "محادثات جديدة",
+    "previous_conversations": "محادثات سابقة",
+    "today": "اليوم",
+    "write_message_hint": "اكتب هنا اسئلتك ...",
+    "send": "ارسال",
+    "dummy_name": "محمد عبدالله",
+    "dummy_message_1": "مرحباً 👋 تناول وجبة خفيفة قبل التمرين مفيد؟",
+    "dummy_message_2": "نعم، تناول وجبة خفيفة قبل التمرين يمكن أن يكون مفيداً، خاصة إذا كان هناك عدة ساعات منذ آخر وجبة. يُفضل أن تحتوي على مصدر للكربوهيدرات مع كمية خفيفة من البروتين"
+  },
+  "profile": {
+    "title": "ملفي",
+    "personal_profile": "الملف الشخصي",
+    "edit_password": "تعديل كلمة المرور",
+    "language": "اللغة",
+    "about_us": "من نحن",
+    "terms_conditions": "الشروط والأحكام",
+    "privacy_policy": "سياسة الخصوصية"
+  },
+  "drawer": {
+    "home": "الصفحة الرئيسية",
+    "today_tasks": "مهام اليوم",
+    "visits_log": "سجل الزيارات",
+    "clients": "العملاء",
+    "notifications": "الاشعارات",
+    "my_profile": "ملفي",
+    "logout": "تسجيل الخروج"
   }
 }

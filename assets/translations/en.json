@@ -160,5 +160,49 @@
     "activity_1": "Walking",
     "activity_2": "Hydration",
     "activity_3": "Running"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_as_read": "Mark as read",
+    "new_notifications": "New",
+    "previous_notifications": "Previous",
+    "empty_title": "No notifications yet",
+    "empty_subtitle": "Visit notifications, messages, and client updates will appear here once available.",
+    "dummy_title_1": "Visit within an hour",
+    "dummy_subtitle_1": "You have a follow-up appointment with Ahmed Mohamed at 5:00 PM.",
+    "dummy_title_2": "Weekly goal completed",
+    "dummy_subtitle_2": "The client has achieved the specified activity goal for this week."
+  },
+  "conversations": {
+    "title": "Conversations",
+    "empty_title": "No conversations now",
+    "empty_subtitle": "Client conversations and inquiries will appear here once communication begins.",
+    "search_hint": "Search for a conversation",
+    "new_conversations": "New Conversations",
+    "previous_conversations": "Previous Conversations",
+    "today": "Today",
+    "write_message_hint": "Type your questions here...",
+    "send": "Send",
+    "dummy_name": "Mohammad Abdullah",
+    "dummy_message_1": "Hello 👋 Is a light snack before workout useful?",
+    "dummy_message_2": "Yes, a light snack before a workout can be useful, especially if it has been several hours since your last meal. It is preferred to have a source of carbohydrates with a light amount of protein"
+  },
+  "profile": {
+    "title": "My Profile",
+    "personal_profile": "Personal Profile",
+    "edit_password": "Edit Password",
+    "language": "Language",
+    "about_us": "About Us",
+    "terms_conditions": "Terms and Conditions",
+    "privacy_policy": "Privacy Policy"
+  },
+  "drawer": {
+    "home": "Home",
+    "today_tasks": "Today's Tasks",
+    "visits_log": "Visits Log",
+    "clients": "Clients",
+    "notifications": "Notifications",
+    "my_profile": "My Profile",
+    "logout": "Logout"
   }
 }

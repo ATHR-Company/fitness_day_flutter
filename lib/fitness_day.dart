@@ -5,7 +5,6 @@ import 'package:fitness_day/features/auth/data/repositories/auth_repository_impl
 import 'package:fitness_day/features/auth/domain/usecases/login_usecase.dart';
 import 'package:fitness_day/features/auth/presentation/manager/auth_cubit.dart';
 import 'package:fitness_day/features/home/presentation/screens/home_page.dart';
-import 'package:fitness_day/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
