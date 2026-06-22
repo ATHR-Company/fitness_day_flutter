@@ -40,14 +40,14 @@ class AppDrawer extends StatelessWidget {
                     border: Border.all(color: AppColors.divider.withValues(alpha: 0.3)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
                     ],
                   ),
                   child: IconButton(
-                    icon: Icon(Icons.close, color: AppColors.textSecondary, size: 20.sp),
+                    icon: SvgPicture.asset(SvgIcons.cross, height: 16.h,),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -60,10 +60,6 @@ class AppDrawer extends StatelessWidget {
             SvgPicture.asset(
               SvgIcons.logo,
               height: 100.h,
-              colorFilter: const ColorFilter.mode(
-                AppColors.primary,
-                BlendMode.srcIn,
-              ),
             ),
             
             SizedBox(height: 32.h),
@@ -118,7 +114,7 @@ class AppDrawer extends StatelessWidget {
                   ),
                   _buildMenuItem(
                     index: 5,
-                    svgPath: SvgIcons.profile,
+                    svgPath: SvgIcons.person,
                     title: 'drawer.my_profile'.tr(),
                     isSelected: selectedIndex == 5,
                     onTap: () {},
@@ -183,8 +179,8 @@ class AppDrawer extends StatelessWidget {
                     iconColor,
                     BlendMode.srcIn,
                   ),
-                  width: 24.sp,
-                  height: 24.sp,
+                  width: 20.sp,
+                  height: 20.sp,
                 ),
                 SizedBox(width: 12.w),
                 Text(
@@ -202,6 +198,7 @@ class AppDrawer extends StatelessWidget {
               Icons.keyboard_double_arrow_left_rounded,
               color: isLogout ? AppColors.red : AppColors.textSecondary.withValues(alpha: 0.5),
               size: 20.sp,
+              fontWeight: FontWeight.bold,
             ): SizedBox(),
           ],
         ),

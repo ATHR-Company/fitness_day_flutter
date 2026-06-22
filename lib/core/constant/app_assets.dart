@@ -56,4 +56,7 @@ class SvgIcons {
   static const String menuIcon = '$_svgPath/menu_icon.svg';
   static const String visitsHistory = '$_svgPath/visits_history.svg';
   static const String read = '$_svgPath/read.svg';
+  static const String person = '$_svgPath/person.svg';
+  static const String cross = '$_svgPath/cross.svg';
+
 }
