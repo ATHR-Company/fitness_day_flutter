@@ -198,7 +198,16 @@
     "language": "Language",
     "about_us": "About Us",
     "terms_conditions": "Terms and Conditions",
-    "privacy_policy": "Privacy Policy"
+    "privacy_policy": "Privacy Policy",
+    "edit_language": "Edit Language",
+    "edit_name": "Edit Name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_new_password": "Confirm New Password",
+    "english": "English",
+    "arabic": "العربية"
   },
   "drawer": {
     "home": "Home",

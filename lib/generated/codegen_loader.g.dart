@@ -118,7 +118,10 @@ class CodegenLoader extends AssetLoader{
     "exercises": "التمارين",
     "activity": "النشاط",
     "edit": "تعديل »",
-    "delete": "حذف »"
+    "delete": "حذف »",
+    "select_date": "حدد اليوم",
+    "select_time": "حدد الميعاد",
+    "confirm": "تأكيد"
   },
   "add_meal": {
     "title": "اضافة وجبة",
@@ -211,7 +214,16 @@ class CodegenLoader extends AssetLoader{
     "language": "اللغة",
     "about_us": "من نحن",
     "terms_conditions": "الشروط والأحكام",
-    "privacy_policy": "سياسة الخصوصية"
+    "privacy_policy": "سياسة الخصوصية",
+    "edit_language": "تعديل اللغة",
+    "edit_name": "تعديل الاسم",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "current_password": "كلمة المرور الحالية",
+    "new_password": "كلمة المرور الجديدة",
+    "confirm_new_password": "كلمة المرور الجديدة",
+    "english": "English",
+    "arabic": "العربية"
   },
   "drawer": {
     "home": "الصفحة الرئيسية",
@@ -327,7 +339,10 @@ static const Map<String,dynamic> _en = {
     "exercises": "Exercises",
     "activity": "Activity",
     "edit": "Edit »",
-    "delete": "Delete »"
+    "delete": "Delete »",
+    "select_date": "Select Day",
+    "select_time": "Select Time",
+    "confirm": "Confirm"
   },
   "add_meal": {
     "title": "Add Meal",
@@ -420,7 +435,16 @@ static const Map<String,dynamic> _en = {
     "language": "Language",
     "about_us": "About Us",
     "terms_conditions": "Terms and Conditions",
-    "privacy_policy": "Privacy Policy"
+    "privacy_policy": "Privacy Policy",
+    "edit_language": "Edit Language",
+    "edit_name": "Edit Name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_new_password": "Confirm New Password",
+    "english": "English",
+    "arabic": "العربية"
   },
   "drawer": {
     "home": "Home",

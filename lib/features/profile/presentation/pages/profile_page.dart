@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,6 +8,10 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
+
+import 'package:fitness_day/features/profile/presentation/widgets/edit_profile_dialog.dart';
+import 'package:fitness_day/features/profile/presentation/widgets/change_password_dialog.dart';
+import 'package:fitness_day/features/profile/presentation/widgets/language_dialog.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -55,13 +60,9 @@ class ProfilePage extends StatelessWidget {
                             ),
                             child: Center(
                               child: SvgPicture.asset(
-                                SvgIcons.profile,
+                                SvgIcons.emptyProfile,
                                 width: 60.w,
                                 height: 60.h,
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.primary,
-                                  BlendMode.srcIn,
-                                ),
                               ),
                             ),
                           ),
@@ -102,17 +103,35 @@ class ProfilePage extends StatelessWidget {
                         _buildMenuItem(
                           title: 'profile.personal_profile'.tr(),
                           svgPath: SvgIcons.profile,
-                          onTap: () {},
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
+                              builder: (context) => const EditProfileDialog(),
+                            );
+                          },
                         ),
                         _buildMenuItem(
                           title: 'profile.edit_password'.tr(),
                           svgPath: SvgIcons.editPassword,
-                          onTap: () {},
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
+                              builder: (context) => const ChangePasswordDialog(),
+                            );
+                          },
                         ),
                         _buildMenuItem(
                           title: 'profile.language'.tr(),
                           svgPath: SvgIcons.lang,
-                          onTap: () {},
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
+                              builder: (context) => const LanguageDialog(),
+                            );
+                          },
                         ),
                         _buildMenuItem(
                           title: 'profile.about_us'.tr(),
@@ -153,19 +172,20 @@ class ProfilePage extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: AppColors.divider.withValues(alpha: 0.2),
-            width: 1,
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFFFFFFFF),
+              Color(0xFFFAFDFA),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(10.r), // Based on image: Radius 10px
+          border: Border.all(
+            color: const Color(0xFFF2F2F2),
+            width: 0.2.w, // Based on image: 0.2px
+          ),
+          boxShadow: AppShadows.profileItemShadow,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -181,17 +201,14 @@ class ProfilePage extends StatelessWidget {
                 SizedBox(width: 16.w),
                 Text(
                   title,
-                  style: TextStyleManager.heading3.copyWith(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyleManager.heading3,
                 ),
               ],
             ),
             
             // Right Side in RTL (Left Side visually)
             Icon(
-              Icons.arrow_back_ios, // <
+              Icons.arrow_forward_ios, // <
               color: AppColors.primary,
               size: 16.sp,
             ),

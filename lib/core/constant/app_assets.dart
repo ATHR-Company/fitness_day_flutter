@@ -58,5 +58,6 @@ class SvgIcons {
   static const String read = '$_svgPath/read.svg';
   static const String person = '$_svgPath/person.svg';
   static const String cross = '$_svgPath/cross.svg';
+  static const String emptyProfile = '$_svgPath/empty_profile.svg';
 
 }

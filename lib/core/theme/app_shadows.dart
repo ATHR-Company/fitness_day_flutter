@@ -12,4 +12,14 @@ class AppShadows {
       offset: Offset(0, 4),
     ),
   ];
+
+  /// Shadow for profile items
+  static const List<BoxShadow> profileItemShadow = [
+    BoxShadow(
+      color: Color(0x40000000), // 25% black
+      blurRadius: 4,
+      spreadRadius: 0,
+      offset: Offset(0, 0),
+    ),
+  ];
 }

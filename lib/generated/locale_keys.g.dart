@@ -103,6 +103,9 @@ abstract class  LocaleKeys {
   static const visit_details_activity = 'visit_details.activity';
   static const visit_details_edit = 'visit_details.edit';
   static const visit_details_delete = 'visit_details.delete';
+  static const visit_details_select_date = 'visit_details.select_date';
+  static const visit_details_select_time = 'visit_details.select_time';
+  static const visit_details_confirm = 'visit_details.confirm';
   static const visit_details = 'visit_details';
   static const add_meal_title = 'add_meal.title';
   static const add_meal_meal_type = 'add_meal.meal_type';
@@ -190,6 +193,15 @@ abstract class  LocaleKeys {
   static const profile_about_us = 'profile.about_us';
   static const profile_terms_conditions = 'profile.terms_conditions';
   static const profile_privacy_policy = 'profile.privacy_policy';
+  static const profile_edit_language = 'profile.edit_language';
+  static const profile_edit_name = 'profile.edit_name';
+  static const profile_save = 'profile.save';
+  static const profile_cancel = 'profile.cancel';
+  static const profile_current_password = 'profile.current_password';
+  static const profile_new_password = 'profile.new_password';
+  static const profile_confirm_new_password = 'profile.confirm_new_password';
+  static const profile_english = 'profile.english';
+  static const profile_arabic = 'profile.arabic';
   static const profile = 'profile';
   static const drawer_home = 'drawer.home';
   static const drawer_today_tasks = 'drawer.today_tasks';

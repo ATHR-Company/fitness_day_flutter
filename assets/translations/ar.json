@@ -198,7 +198,16 @@
     "language": "اللغة",
     "about_us": "من نحن",
     "terms_conditions": "الشروط والأحكام",
-    "privacy_policy": "سياسة الخصوصية"
+    "privacy_policy": "سياسة الخصوصية",
+    "edit_language": "تعديل اللغة",
+    "edit_name": "تعديل الاسم",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "current_password": "كلمة المرور الحالية",
+    "new_password": "كلمة المرور الجديدة",
+    "confirm_new_password": "كلمة المرور الجديدة",
+    "english": "English",
+    "arabic": "العربية"
   },
   "drawer": {
     "home": "الصفحة الرئيسية",
