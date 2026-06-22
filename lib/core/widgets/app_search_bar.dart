@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/theme/app_shadows.dart';
 
 class AppSearchBar extends StatelessWidget {
   final String hintText;
@@ -22,13 +23,7 @@ class AppSearchBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppShadows.primaryShadow,
       ),
       child: Center(
         child: TextFormField(
@@ -40,7 +35,7 @@ class AppSearchBar extends StatelessWidget {
           ),
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: TextStyleManager.style14Medium.copyWith(
+            hintStyle: TextStyleManager.style11Medium.copyWith(
               color: AppColors.textSecondary,
             ),
             prefixIcon: Icon(

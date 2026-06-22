@@ -9,38 +9,38 @@ class TextStyleManager {
 
   static TextStyle style12Regular = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 12.sp,
+    fontSize: 14.sp,
     fontWeight: FontWeight.w400,
   );
 
   // ============= Named Styles =============
   static TextStyle heading1 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 17.sp,
+    fontSize: 19.sp,
     fontWeight: FontWeight.w700,
   );
 
   static TextStyle heading2 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 16.sp,
+    fontSize: 18.sp,
     fontWeight: FontWeight.w700,
   );
 
   static TextStyle heading3 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 14.sp,
+    fontSize: 16.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle text2 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 13.sp,
+    fontSize: 15.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle text3 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 9.sp,
+    fontSize: 10.sp,
     fontWeight: FontWeight.w500,
   );
 
@@ -51,74 +51,74 @@ class TextStyleManager {
 
   static TextStyle sideBarText = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 12.sp,
+    fontSize: 14.sp,
     fontWeight: FontWeight.w700,
   );
 
   static TextStyle smallButtons = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 11.sp,
+    fontSize: 13.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle button = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 13.sp,
+    fontSize: 15.sp,
     fontWeight: FontWeight.w500,
   );
 
   // ============= Generic Styles =============
   static TextStyle style7Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 7.sp,
+    fontSize: 9.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style8Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 8.sp,
+    fontSize: 10.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style8Bold = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 8.sp,
+    fontSize: 10.sp,
     fontWeight: FontWeight.w700,
   );
 
   static TextStyle style9Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 9.sp,
+    fontSize: 11.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style10Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 10.sp,
+    fontSize: 12.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style11Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 11.sp,
+    fontSize: 13.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style14Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 14.sp,
+    fontSize: 16.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style15Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 15.sp,
+    fontSize: 17.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style28Bold = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 28.sp,
+    fontSize: 30.sp,
     fontWeight: FontWeight.w700,
   );
 }

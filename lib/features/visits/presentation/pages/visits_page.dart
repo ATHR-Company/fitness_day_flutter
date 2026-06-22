@@ -68,7 +68,7 @@ class _VisitsPageState extends State<VisitsPage> {
                     ),
                   ),
                   
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 20.h),
                   
                   // 3. Segmented Control
                   Padding(
@@ -87,7 +87,7 @@ class _VisitsPageState extends State<VisitsPage> {
                     ),
                   ),
                   
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 10.h),
                   
                   // 4. Visit Cards List
                   Expanded(

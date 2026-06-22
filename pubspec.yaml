@@ -91,6 +91,8 @@ flutter:
           weight: 300
         - asset: assets/fonts/29ltbukraregular.otf
           weight: 400
+        - asset: assets/fonts/29lt-bukra-medium.otf
+          weight: 500
         - asset: assets/fonts/29ltbukrabold.otf
           weight: 700
   #

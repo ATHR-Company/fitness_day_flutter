@@ -19,9 +19,8 @@ class AppHeader extends StatelessWidget {
     return SizedBox(
       height: 48.h,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Centered Title
+          Spacer(),
           Text(
             title,
             style: TextStyleManager.heading2.copyWith(
@@ -29,8 +28,7 @@ class AppHeader extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          
-          // Menu Button on the left side
+          Spacer(),
           MenuIconButton(
             onTap: onMenuPressed,
           ),

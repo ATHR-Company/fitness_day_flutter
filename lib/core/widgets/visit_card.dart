@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/theme/app_shadows.dart';
 
 class VisitCard extends StatelessWidget {
   final String timeRemaining;
@@ -46,13 +47,7 @@ class VisitCard extends StatelessWidget {
           bottomStart: Radius.circular(4.r),
           bottomEnd: Radius.circular(32.r),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: AppShadows.primaryShadow,
       ),
       child: Stack(
         children: [
@@ -83,13 +78,13 @@ class VisitCard extends StatelessWidget {
                             title,
                             style: TextStyleManager.heading3.copyWith(
                               color: AppColors.black,
-                              fontWeight: FontWeight.bold,
+                              //fontWeight: FontWeight.bold,
                             ),
                           ),
                           SizedBox(height: 4.h),
                           Text(
                             subtitle,
-                            style: TextStyleManager.style12Regular.copyWith(
+                            style: TextStyleManager.style9Medium.copyWith(
                               color: AppColors.textPrimary,
                             ),
                           ),
@@ -125,9 +120,8 @@ class VisitCard extends StatelessWidget {
                       ),
                       child: Text(
                         'visits.view_visit'.tr(),
-                        style: TextStyleManager.style14Medium.copyWith(
+                        style: TextStyleManager.style11Medium.copyWith(
                           color: AppColors.white,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -161,9 +155,8 @@ class VisitCard extends StatelessWidget {
                 ),
                 child: Text(
                   timeRemaining,
-                  style: TextStyleManager.style12Regular.copyWith(
-                    color: AppColors.greenForest,
-                    fontWeight: FontWeight.bold,
+                  style: TextStyleManager.style8Bold.copyWith(
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -178,14 +171,14 @@ class VisitCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyleManager.style12Regular.copyWith(
+          style: TextStyleManager.style9Medium.copyWith(
             color: AppColors.textPrimary,
           ),
         ),
         SizedBox(width: 4.w),
         Text(
           value,
-          style: TextStyleManager.style12Regular.copyWith(
+          style: TextStyleManager.style9Medium.copyWith(
             color: AppColors.primary,
             fontWeight: FontWeight.bold,
           ),

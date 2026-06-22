@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/theme/app_shadows.dart';
 
 enum AppSegmentedControlType { separated, unified }
 
@@ -28,19 +29,19 @@ class AppSegmentedControl extends StatelessWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () => onItemSelected(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 48.h,
+                child: Container(
+                  height: 40.h,
                   decoration: BoxDecoration(
-                    color: selectedIndex == i ? AppColors.primary : AppColors.backgroundTint,
+                    color: selectedIndex == i ? AppColors.primary : AppColors.gradientPrimary,
                     borderRadius: BorderRadius.circular(24.r),
+                    boxShadow: AppShadows.primaryShadow,
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     items[i],
                     style: TextStyleManager.style14Medium.copyWith(
                       color: selectedIndex == i ? AppColors.white : AppColors.textSecondary,
-                      fontWeight: selectedIndex == i ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -57,10 +58,7 @@ class AppSegmentedControl extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.4),
-          width: 1,
-        ),
+        boxShadow: AppShadows.primaryShadow,
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -91,14 +89,7 @@ class AppSegmentedControl extends StatelessWidget {
                       color: Colors.grey.withValues(alpha: 0.2),
                       width: 1,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
-                        blurRadius: 12,
-                        spreadRadius: 1,
-                        offset: const Offset(0, 0),
-                      ),
-                    ],
+                    boxShadow: AppShadows.primaryShadow,
                   ),
                 ),
               ),

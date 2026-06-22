@@ -4,6 +4,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/theme/app_shadows.dart';
 
 class MenuIconButton extends StatelessWidget {
   final VoidCallback? onTap;
@@ -17,13 +18,7 @@ class MenuIconButton extends StatelessWidget {
         color: AppColors.white,
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.divider.withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppShadows.primaryShadow,
       ),
       child: IconButton(
         icon: SvgPicture.asset(SvgIcons.menuIcon, height: 13.h),

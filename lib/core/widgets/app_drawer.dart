@@ -14,10 +14,15 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
     int selectedIndex = -1;
-    if (location == AppRoutes.home) selectedIndex = 0;
-    else if (location == AppRoutes.visits) selectedIndex = 2;
-    else if (location == AppRoutes.notifications) selectedIndex = 4;
-    else if (location == AppRoutes.profile) selectedIndex = 5;
+    if (location == AppRoutes.home) {
+      selectedIndex = 0;
+    } else if (location == AppRoutes.visits) {
+      selectedIndex = 2;
+    } else if (location == AppRoutes.notifications) {
+      selectedIndex = 4;
+    } else if (location == AppRoutes.profile) {
+      selectedIndex = 5;
+    }
 
     return Drawer(
       backgroundColor: AppColors.white,
