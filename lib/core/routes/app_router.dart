@@ -3,6 +3,8 @@ import 'package:fitness_day/core/routes/app_routes.dart';
 import 'package:fitness_day/features/auth/presentation/pages/login_page.dart';
 import 'package:fitness_day/features/home/presentation/screens/home_page.dart';
 import 'package:fitness_day/features/visits/presentation/pages/visits_page.dart';
+import 'package:fitness_day/features/profile/presentation/pages/profile_page.dart';
+import 'package:fitness_day/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/splash_screen.dart';
 
 class AppRouter {
@@ -24,6 +26,14 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.visits,
         builder: (context, state) => const VisitsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.profile,
+        builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (context, state) => const NotificationsPage(),
       ),
     ],
   );

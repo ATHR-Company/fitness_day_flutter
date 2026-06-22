@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../conversations/presentation/pages/conversations_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../../core/widgets/menu_icon_button.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({Key? key}) : super(key: key);
@@ -115,8 +116,7 @@ class HomeHeader extends StatelessWidget {
                 },
               ),
               SizedBox(width: 8.w),
-              _buildSvgIconButton(
-                svgPath: SvgIcons.menuIcon,
+              MenuIconButton(
                 onTap: () {
                   Scaffold.of(context).openEndDrawer();
                 },

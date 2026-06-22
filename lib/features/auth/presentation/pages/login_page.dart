@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
                             backgroundColor: AppColors.success,
                           ),
                         );
-                        context.go(AppRoutes.visits);
+                        context.go(AppRoutes.home);
                       } else if (state is AuthFailure) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

@@ -6,6 +6,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constant/app_assets.dart';
+import '../../../../core/widgets/app_drawer.dart';
+import '../../../../core/widgets/app_header.dart';
 
 class NotificationsPage extends StatelessWidget {
   final bool isEmpty;
@@ -18,54 +20,30 @@ class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.visitsBackgroundGradient,
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              SizedBox(height: 20.h),
-              
-              // Custom Header
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'notifications.title'.tr(),
-                      style: TextStyleManager.heading2.copyWith(
-                        color: AppColors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.sp,
-                      ),
+      endDrawer: const AppDrawer(),
+      body: Builder(
+        builder: (context) {
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: AppColors.visitsBackgroundGradient,
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  SizedBox(height: 20.h),
+                  
+                  // Custom Header
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: AppHeader(
+                      title: 'notifications.title'.tr(),
+                      onMenuPressed: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
                     ),
-                    // Menu Button
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.menu, color: AppColors.textSecondary),
-                        onPressed: () {
-                          // Handle menu
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
 
               SizedBox(height: 32.h),
 
@@ -75,9 +53,10 @@ class NotificationsPage extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
+      );
+    }),
+  );
+}
 
   Widget _buildEmptyState() {
     return Padding(

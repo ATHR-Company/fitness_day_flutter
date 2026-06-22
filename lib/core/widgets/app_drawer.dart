@@ -5,18 +5,20 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/notifications/presentation/pages/notifications_page.dart';
-
+import 'package:go_router/go_router.dart';
+import 'package:fitness_day/core/routes/app_routes.dart';
 class AppDrawer extends StatelessWidget {
-  final int selectedIndex;
-
-  const AppDrawer({
-    super.key,
-    this.selectedIndex = 0,
-  });
+  const AppDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.path;
+    int selectedIndex = -1;
+    if (location == AppRoutes.home) selectedIndex = 0;
+    else if (location == AppRoutes.visits) selectedIndex = 2;
+    else if (location == AppRoutes.notifications) selectedIndex = 4;
+    else if (location == AppRoutes.profile) selectedIndex = 5;
+
     return Drawer(
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
@@ -74,7 +76,9 @@ class AppDrawer extends StatelessWidget {
                     svgPath: SvgIcons.home,
                     title: 'drawer.home'.tr(),
                     isSelected: selectedIndex == 0,
-                    onTap: () {},
+                    onTap: () {
+                      context.push(AppRoutes.home);
+                    },
                   ),
                   _buildMenuItem(
                     index: 1,
@@ -88,7 +92,9 @@ class AppDrawer extends StatelessWidget {
                     svgPath: SvgIcons.visitsHistory,
                     title: 'drawer.visits_log'.tr(),
                     isSelected: selectedIndex == 2,
-                    onTap: () {},
+                    onTap: () {
+                      context.push(AppRoutes.visits);
+                    },
                   ),
                   _buildMenuItem(
                     index: 3,
@@ -103,13 +109,7 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.notifications'.tr(),
                     isSelected: selectedIndex == 4,
                     onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NotificationsPage(),
-                        ),
-                      );
+                      context.push(AppRoutes.notifications);
                     },
                   ),
                   _buildMenuItem(
@@ -117,7 +117,9 @@ class AppDrawer extends StatelessWidget {
                     svgPath: SvgIcons.person,
                     title: 'drawer.my_profile'.tr(),
                     isSelected: selectedIndex == 5,
-                    onTap: () {},
+                    onTap: () {
+                      context.push(AppRoutes.profile);
+                    },
                   ),
                   _buildMenuItem(
                     index: 6,
