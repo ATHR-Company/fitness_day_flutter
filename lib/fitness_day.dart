@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/routes/app_router.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:fitness_day/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:fitness_day/features/auth/domain/usecases/login_usecase.dart';
 import 'package:fitness_day/features/auth/presentation/manager/auth_cubit.dart';
-import 'package:fitness_day/features/home/presentation/screens/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,7 +27,7 @@ class FitnessDay extends StatelessWidget {
               ),
             ),
           ),
-          child: MaterialApp(
+          child: MaterialApp.router(
             title: 'Fitness Day',
             debugShowCheckedModeBanner: false,
             localizationsDelegates: context.localizationDelegates,
@@ -37,7 +37,7 @@ class FitnessDay extends StatelessWidget {
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
               fontFamily: TextStyleManager.fontFamily,
             ),
-            home: const HomePage(),
+            routerConfig: AppRouter.router,
           ),
         );
       },
