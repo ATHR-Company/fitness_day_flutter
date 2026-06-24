@@ -4,12 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../../../../core/constant/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/appointment_card.dart';
+import '../../../../core/widgets/visit_card.dart';
 import '../widgets/home_header.dart';
 import '../widgets/performance_summary_section.dart';
 import '../widgets/section_header.dart';
-import '../widgets/task_card.dart';
+import '../widgets/follow_up_alert_card.dart';
 import '../../../../core/widgets/app_drawer.dart';
 
 class HomePage extends StatelessWidget {
@@ -34,70 +35,123 @@ class HomePage extends StatelessWidget {
           ),
         ),
         endDrawer: const AppDrawer(),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
+        body: Stack(
+          children: [
+            // Background split
+            Column(
               children: [
-                // Header Area
                 Container(
-                  decoration: BoxDecoration(color: AppColors.visitsBackgroundGradient.colors.first),
-                  child: const HomeHeader(),
+                  height: 220.h,
+                  color: const Color(0xFFF1F8F1), // Light green top background
                 ),
-
-                SizedBox(height: 33.h),
-
-                // Main Content Area with White Background (optional based on exact design)
-                // But looking at the design, the background is tinted until below the performance summary
-                // Actually, the background is white below the summary. Let's make a container for the rest.
-                Stack(
-                  children: [
-                    // White background for the rest of the content
-                    Container(
-                      margin: EdgeInsets.only(
-                        top: 60.h,
-                      ), // Offset to put the summary card overlapping
-                      decoration: BoxDecoration(color: AppColors.white),
-                      constraints: BoxConstraints(
-                        minHeight: MediaQuery.of(context).size.height,
-                      ),
-                    ),
-
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Column(
-                        children: [
-                          const PerformanceSummarySection(),
-
-                          SizedBox(height: 32.h),
-
-                          SectionHeader(
-                            title: "home.upcoming_appointments".tr(),
-                          ),
-                          SizedBox(height: 16.h),
-                          const AppointmentCard(),
-
-                          SizedBox(height: 32.h),
-
-                          SectionHeader(
-                            title: "home.todays_tasks".tr(),
-                            onMorePressed: () {
-                              // TODO: Handle see more
-                            },
-                          ),
-                          SizedBox(height: 16.h),
-                          const TaskCard(),
-                          SizedBox(height: 16.h),
-                          const TaskCard(), // Showing a second one as per design snippet
-
-                          SizedBox(height: 32.h),
-                        ],
-                      ),
-                    ),
-                  ],
+                Expanded(
+                  child: Container(
+                    color: const Color(0xFFFAFAFA), // Light greyish background for the rest
+                  ),
                 ),
               ],
             ),
-          ),
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Header Area
+                    const HomeHeader(),
+
+                    SizedBox(height: 24.h),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: const PerformanceSummarySection(),
+                    ),
+
+                    SizedBox(height: 24.h),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: SectionHeader(
+                        title: "home.upcoming_appointments".tr(),
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    VisitCard(
+                      timeRemaining: "home.commitment_rate".tr(args: ['85']),
+                      title: "home.weekly_follow_up".tr(),
+                      subtitle: "home.weekly_follow_up_desc".tr(),
+                      clientName: "محمد عبدالله",
+                      visitTime: "اليوم 4:30 مساءا",
+                      location: "في مقر يوم الرشاقة",
+                      buttonText: "home.view_visit".tr(),
+                      onViewPressed: () {},
+                      iconPath: SvgIcons.monitor,
+                      secondaryButtonText: "home.reschedule".tr(),
+                      onSecondaryPressed: () {},
+                    ),
+
+                    SizedBox(height: 16.h),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: SectionHeader(
+                        title: "home.todays_tasks".tr(),
+                        onMorePressed: () {
+                          // TODO: Handle see more
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    VisitCard(
+                      timeRemaining: "",
+                      title: "home.measurements_review".tr(),
+                      subtitle: "home.measurements_review_desc".tr(),
+                      clientName: "محمد عبدالله",
+                      visitTime: "10:30 مساءا  1/6/24",
+                      location: "في مقر يوم الرشاقة",
+                      buttonText: "home.previous_visit".tr(),
+                      onViewPressed: () {},
+                      iconPath: SvgIcons.measureReview,
+                    ),
+                    VisitCard(
+                      timeRemaining: "",
+                      title: "home.weekly_follow_up".tr(),
+                      subtitle: "home.weekly_follow_up_desc".tr(),
+                      clientName: "محمد عبدالله",
+                      visitTime: "10:30 مساءا  1/6/24",
+                      location: "في مقر يوم الرشاقة",
+                      buttonText: "home.previous_visit".tr(),
+                      onViewPressed: () {},
+                      iconPath: SvgIcons.monitor, // User+ icon matching the design
+                    ),
+                    SizedBox(height: 24.h),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: SectionHeader(
+                        title: "home.clients_need_follow_up".tr(),
+                        onMorePressed: () {
+                          // TODO: Handle see more
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: FollowUpAlertCard(
+                        title: "home.needs_follow_up".tr(),
+                        clientName: "محمد عبدالله",
+                        alertReason: "home.low_commitment_alert".tr(),
+                        buttonText: "home.review_plan".tr(),
+                        iconPath: SvgIcons.needMonitorRed,
+                        onButtonPressed: () {},
+                      ),
+                    ),
+
+                    SizedBox(height: 32.h),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

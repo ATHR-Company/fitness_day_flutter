@@ -39,9 +39,8 @@ class AppSegmentedControl extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     items[i],
-                    style: TextStyleManager.style14Medium.copyWith(
+                    style: TextStyleManager.style11Medium.copyWith(
                       color: selectedIndex == i ? AppColors.white : AppColors.textSecondary,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),

@@ -21,9 +21,7 @@ class SectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyleManager.heading1.copyWith(
-            color: AppColors.black,
-          ),
+          style: TextStyleManager.style14Medium,
         ),
         if (onMorePressed != null)
           GestureDetector(

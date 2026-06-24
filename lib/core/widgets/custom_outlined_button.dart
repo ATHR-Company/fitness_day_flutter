@@ -50,12 +50,22 @@ class CustomOutlinedButton extends StatelessWidget {
                   strokeWidth: 2,
                 ),
               )
-            : Text(
-                text,
-                style: TextStyleManager.button.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    text.replaceAll('»', '').replaceAll('«', '').trim(),
+                    style: TextStyleManager.button.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (text.contains('»') || text.contains('«')) ...[
+                    SizedBox(width: 4.w),
+                    Icon(Icons.keyboard_double_arrow_left, size: 20.sp, color: AppColors.primary),
+                  ],
+                ],
               ),
       ),
     );

@@ -274,11 +274,18 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               minimumSize: const Size(0, 0),
               elevation: 0,
             ),
-            child: Text(
-              'visit_details.add'.tr(),
-              style: TextStyleManager.smallButtons.copyWith(
-                color: AppColors.white,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'visit_details.add'.tr().replaceAll('»', '').replaceAll('«', '').trim(),
+                  style: TextStyleManager.smallButtons.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+                SizedBox(width: 2.w),
+                Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+              ],
             ),
           ),
         ],
@@ -443,12 +450,19 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                     padding: EdgeInsets.symmetric(vertical: 8.h),
                     elevation: 0,
                   ),
-                  child: Text(
-                    'visit_details.edit'.tr(),
-                    style: TextStyleManager.smallButtons.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'visit_details.edit'.tr().replaceAll('»', '').replaceAll('«', '').trim(),
+                        style: TextStyleManager.smallButtons.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 2.w),
+                      Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                    ],
                   ),
                 ),
               ),
@@ -466,11 +480,18 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                     padding: EdgeInsets.symmetric(vertical: 8.h),
                     elevation: 0,
                   ),
-                  child: Text(
-                    'visit_details.delete'.tr(),
-                    style: TextStyleManager.smallButtons.copyWith(
-                      color: AppColors.white,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'visit_details.delete'.tr().replaceAll('»', '').replaceAll('«', '').trim(),
+                        style: TextStyleManager.smallButtons.copyWith(
+                          color: AppColors.white,
+                        ),
+                      ),
+                      SizedBox(width: 2.w),
+                      Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                    ],
                   ),
                 ),
               ),

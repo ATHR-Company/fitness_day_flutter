@@ -7,21 +7,21 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class TaskCard extends StatelessWidget {
-  const TaskCard({Key? key}) : super(key: key);
+  const TaskCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        gradient: AppColors.cardGradient,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.1),
+          color: Colors.grey.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10.r,
             offset: const Offset(0, 4),
           ),
@@ -36,21 +36,15 @@ class TaskCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 50.w,
-                height: 50.h,
+                width: 56.w,
+                height: 56.w,
                 decoration: BoxDecoration(
                   color: AppColors.greenSoftTint,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primary, width: 1.5),
+                  border: Border.all(color: AppColors.primary, width: 2),
                 ),
                 padding: EdgeInsets.all(12.r),
-                child: SvgPicture.asset(
-                  SvgIcons.review, 
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
-                    BlendMode.srcIn,
-                  ),
-                ),
+                child: SvgPicture.asset(SvgIcons.review),
               ),
               SizedBox(width: 12.w),
               Expanded(
@@ -59,14 +53,14 @@ class TaskCard extends StatelessWidget {
                   children: [
                     Text(
                       "home.measurements_review".tr(),
-                      style: TextStyleManager.heading2.copyWith(
+                      style: TextStyleManager.style14Bold.copyWith(
                         color: AppColors.black,
                       ),
                     ),
                     SizedBox(height: 4.h),
                     Text(
                       "home.measurements_review_desc".tr(),
-                      style: TextStyleManager.style12Regular.copyWith(
+                      style: TextStyleManager.style11Medium.copyWith(
                         color: AppColors.textPrimary,
                       ),
                     ),
@@ -79,16 +73,16 @@ class TaskCard extends StatelessWidget {
           
           // Details
           _buildDetailRow("home.client_name".tr(), "محمد عبدالله", true),
-          SizedBox(height: 8.h),
+          SizedBox(height: 6.h),
           _buildDetailRow("home.previous_visit_time".tr(), "10:30 مساءا  1/6/24", true),
-          SizedBox(height: 8.h),
+          SizedBox(height: 6.h),
           _buildDetailRow("home.visit_location".tr(), "في مقر يوم الرشاقة", true),
           
-          SizedBox(height: 20.h),
+          SizedBox(height: 24.h),
           
           // Button
           Align(
-            alignment: AlignmentDirectional.centerEnd,
+            alignment: AlignmentDirectional.centerEnd, // Left in RTL
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
@@ -97,15 +91,22 @@ class TaskCard extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24.r),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 elevation: 0,
               ),
-              child: Text(
-                "home.previous_visit".tr(),
-                style: TextStyleManager.style12Regular.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "home.previous_visit".tr().replaceAll('»', '').trim(),
+                    style: TextStyleManager.style11Medium.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 4.w),
+                  Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                ],
               ),
             ),
           ),
@@ -120,14 +121,14 @@ class TaskCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyleManager.style12Regular.copyWith(
-            color: AppColors.textPrimary,
+          style: TextStyleManager.style11Medium.copyWith(
+            color: AppColors.textSecondary,
           ),
         ),
         SizedBox(width: 4.w),
         Text(
           value,
-          style: TextStyleManager.style12Regular.copyWith(
+          style: TextStyleManager.style11Medium.copyWith(
             color: isValueGreen ? AppColors.primary : AppColors.textPrimary,
             fontWeight: FontWeight.bold,
           ),

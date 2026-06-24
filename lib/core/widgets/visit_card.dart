@@ -16,6 +16,9 @@ class VisitCard extends StatelessWidget {
   final String location;
   final String buttonText;
   final VoidCallback onViewPressed;
+  final String iconPath;
+  final String? secondaryButtonText;
+  final VoidCallback? onSecondaryPressed;
 
   const VisitCard({
     super.key,
@@ -27,6 +30,9 @@ class VisitCard extends StatelessWidget {
     required this.location,
     required this.buttonText,
     required this.onViewPressed,
+    this.iconPath = SvgIcons.monitor,
+    this.secondaryButtonText,
+    this.onSecondaryPressed,
   });
 
   @override
@@ -57,7 +63,7 @@ class VisitCard extends StatelessWidget {
                     // Monitor Icon in Circle
                     Center(
                       child: SvgPicture.asset(
-                        SvgIcons.monitor,
+                        iconPath,
                         width: 60.w,
                         height: 60.h,
                       ),
@@ -98,28 +104,67 @@ class VisitCard extends StatelessWidget {
                 
                 SizedBox(height: 16.h),
                 // View Visit Button
-                Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: SizedBox(
-                    height: 36.h,
-                    child: ElevatedButton(
-                      onPressed: onViewPressed,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.r),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      height: 36.h,
+                      child: ElevatedButton(
+                        onPressed: onViewPressed,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.r),
+                          ),
+                          elevation: 0,
+                          padding: EdgeInsets.symmetric(horizontal: 10.w),
                         ),
-                        elevation: 0,
-                        padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      ),
-                      child: Text(
-                        buttonText,
-                        style: TextStyleManager.style14Medium.copyWith(
-                          color: AppColors.white,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              buttonText.replaceAll('»', '').replaceAll('«', '').trim(),
+                              style: TextStyleManager.style11Medium.copyWith(
+                                color: AppColors.white,
+                              ),
+                            ),
+                            SizedBox(width: 4.w),
+                            Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                          ],
                         ),
                       ),
                     ),
-                  ),
+                    if (secondaryButtonText != null && onSecondaryPressed != null) ...[
+                      SizedBox(width: 12.w),
+                      SizedBox(
+                        height: 36.h,
+                        child: OutlinedButton(
+                          onPressed: onSecondaryPressed,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            side: const BorderSide(color: AppColors.primary, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.r),
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 10.w),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                secondaryButtonText!.replaceAll('»', '').replaceAll('«', '').trim(),
+                                style: TextStyleManager.style11Medium.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              SizedBox(width: 4.w),
+                              Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.primary),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),

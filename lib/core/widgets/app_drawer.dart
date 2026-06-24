@@ -7,6 +7,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/app_routes.dart';
+
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
@@ -18,6 +19,8 @@ class AppDrawer extends StatelessWidget {
       selectedIndex = 0;
     } else if (location == AppRoutes.visits) {
       selectedIndex = 2;
+    } else if (location == AppRoutes.clients) {
+      selectedIndex = 3;
     } else if (location == AppRoutes.notifications) {
       selectedIndex = 4;
     } else if (location == AppRoutes.profile) {
@@ -106,7 +109,9 @@ class AppDrawer extends StatelessWidget {
                     svgPath: SvgIcons.clients,
                     title: 'drawer.clients'.tr(),
                     isSelected: selectedIndex == 3,
-                    onTap: () {},
+                    onTap: () {
+                      context.push(AppRoutes.clients);
+                    },
                   ),
                   _buildMenuItem(
                     index: 4,

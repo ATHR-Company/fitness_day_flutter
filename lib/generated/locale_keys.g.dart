@@ -20,6 +20,11 @@ abstract class  LocaleKeys {
   static const home_todays_visits = 'home.todays_visits';
   static const home_upcoming_appointments = 'home.upcoming_appointments';
   static const home_todays_tasks = 'home.todays_tasks';
+  static const home_clients_need_follow_up = 'home.clients_need_follow_up';
+  static const home_alert_reason = 'home.alert_reason';
+  static const home_low_commitment_alert = 'home.low_commitment_alert';
+  static const home_review_plan = 'home.review_plan';
+  static const home_see_all = 'home.see_all';
   static const home_see_more = 'home.see_more';
   static const home_commitment_rate = 'home.commitment_rate';
   static const home_weekly_follow_up = 'home.weekly_follow_up';
@@ -204,12 +209,28 @@ abstract class  LocaleKeys {
   static const profile_arabic = 'profile.arabic';
   static const profile = 'profile';
   static const drawer_home = 'drawer.home';
-  static const drawer_today_tasks = 'drawer.today_tasks';
-  static const drawer_visits_log = 'drawer.visits_log';
+  static const drawer_visits = 'drawer.visits';
   static const drawer_clients = 'drawer.clients';
+  static const drawer_appointments = 'drawer.appointments';
+  static const drawer_conversations = 'drawer.conversations';
   static const drawer_notifications = 'drawer.notifications';
-  static const drawer_my_profile = 'drawer.my_profile';
+  static const drawer_settings = 'drawer.settings';
   static const drawer_logout = 'drawer.logout';
   static const drawer = 'drawer';
+  static const clients_page_title = 'clients_page.title';
+  static const clients_page_search_hint = 'clients_page.search_hint';
+  static const clients_page_tab_active = 'clients_page.tab_active';
+  static const clients_page_tab_needs_follow_up = 'clients_page.tab_needs_follow_up';
+  static const clients_page_tab_expired = 'clients_page.tab_expired';
+  static const clients_page_client_name = 'clients_page.client_name';
+  static const clients_page_goal = 'clients_page.goal';
+  static const clients_page_last_visit = 'clients_page.last_visit';
+  static const clients_page_current_weight = 'clients_page.current_weight';
+  static const clients_page_kg = 'clients_page.kg';
+  static const clients_page_view_profile = 'clients_page.view_profile';
+  static const clients_page_commitment_rate = 'clients_page.commitment_rate';
+  static const clients_page_inactive_subscription = 'clients_page.inactive_subscription';
+  static const clients_page_dummy_goal = 'clients_page.dummy_goal';
+  static const clients_page = 'clients_page';
 
 }

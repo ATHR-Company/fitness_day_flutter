@@ -7,20 +7,21 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class AppointmentCard extends StatelessWidget {
-  const AppointmentCard({Key? key}) : super(key: key);
+  const AppointmentCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.1),
+          color: Colors.grey.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10.r,
             offset: const Offset(0, 4),
           ),
@@ -31,11 +32,11 @@ class AppointmentCard extends StatelessWidget {
         children: [
           // Commitment Badge
           Align(
-            alignment: AlignmentDirectional.topEnd,
+            alignment: AlignmentDirectional.topEnd, // Top left in RTL
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: AppColors.greenMint,
+                color: AppColors.greenMint, // Adjust to light green mint if needed
                 borderRadius: BorderRadiusDirectional.only(
                   topEnd: Radius.circular(16.r),
                   bottomStart: Radius.circular(16.r),
@@ -44,7 +45,7 @@ class AppointmentCard extends StatelessWidget {
               child: Text(
                 "home.commitment_rate".tr(args: ['85']),
                 style: TextStyleManager.style10Medium.copyWith(
-                  color: AppColors.greenForest,
+                  color: AppColors.greenForest, // Dark green
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -52,7 +53,7 @@ class AppointmentCard extends StatelessWidget {
           ),
           
           Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+            padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -61,23 +62,7 @@ class AppointmentCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 50.w,
-                      height: 50.h,
-                      decoration: BoxDecoration(
-                        color: AppColors.greenSoftTint,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.primary, width: 1.5),
-                      ),
-                      padding: EdgeInsets.all(12.r),
-                      child: SvgPicture.asset(
-                        SvgIcons.needMonitor, // Using available icon as placeholder
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.primary,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
+                    SvgPicture.asset(SvgIcons.needMonitor, width: 70.w),
                     SizedBox(width: 12.w),
                     Expanded(
                       child: Column(
@@ -85,14 +70,12 @@ class AppointmentCard extends StatelessWidget {
                         children: [
                           Text(
                             "home.weekly_follow_up".tr(),
-                            style: TextStyleManager.heading2.copyWith(
-                              color: AppColors.black,
-                            ),
+                            style: TextStyleManager.style14Bold,
                           ),
                           SizedBox(height: 4.h),
                           Text(
                             "home.weekly_follow_up_desc".tr(),
-                            style: TextStyleManager.style12Regular.copyWith(
+                            style: TextStyleManager.style11Medium.copyWith(
                               color: AppColors.textPrimary,
                             ),
                           ),
@@ -105,56 +88,67 @@ class AppointmentCard extends StatelessWidget {
                 
                 // Details
                 _buildDetailRow("home.client_name".tr(), "محمد عبدالله", true),
-                SizedBox(height: 8.h),
+                SizedBox(height: 6.h),
                 _buildDetailRow("home.visit_time".tr(), "اليوم 4:30 مساءا", true),
-                SizedBox(height: 8.h),
-                _buildDetailRow("home.visit_location".tr(), "في مقر يوم الرشاقة", true),
+                SizedBox(height: 6.h),
+                _buildDetailRow("home.last_visit".tr(), "منذ يومين", true),
                 
-                SizedBox(height: 20.h),
+                SizedBox(height: 24.h),
                 
                 // Buttons
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.end, // Aligns to the left in RTL
                   children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24.r),
-                          ),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          elevation: 0,
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.r),
                         ),
-                        child: Text(
-                          "home.view_visit".tr(),
-                          style: TextStyleManager.style12Regular.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "home.view_visit".tr().replaceAll('»', '').trim(),
+                            style: TextStyleManager.style11Medium.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
+                          SizedBox(width: 4.w),
+                          Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                        ],
                       ),
                     ),
                     SizedBox(width: 12.w),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24.r),
-                          ),
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                    OutlinedButton(
+                      onPressed: () {},
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.r),
                         ),
-                        child: Text(
-                          "home.reschedule".tr(),
-                          style: TextStyleManager.style12Regular.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "home.reschedule".tr().replaceAll('»', '').trim(),
+                            style: TextStyleManager.style11Medium.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
+                          SizedBox(width: 4.w),
+                          Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.primary),
+                        ],
                       ),
                     ),
                   ],
@@ -173,14 +167,14 @@ class AppointmentCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyleManager.style12Regular.copyWith(
-            color: AppColors.textPrimary,
+          style: TextStyleManager.style11Medium.copyWith(
+            color: AppColors.textSecondary,
           ),
         ),
         SizedBox(width: 4.w),
         Text(
           value,
-          style: TextStyleManager.style12Regular.copyWith(
+          style: TextStyleManager.style11Medium.copyWith(
             color: isValueGreen ? AppColors.primary : AppColors.textPrimary,
             fontWeight: FontWeight.bold,
           ),

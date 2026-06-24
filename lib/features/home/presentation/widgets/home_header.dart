@@ -7,18 +7,15 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../conversations/presentation/pages/conversations_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
-import '../../../../core/widgets/menu_icon_button.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({Key? key}) : super(key: key);
+  const HomeHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 30.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Avatar
           GestureDetector(
@@ -29,18 +26,11 @@ class HomeHeader extends StatelessWidget {
               );
             },
             child: Container(
-              width: 50.w,
-              height: 50.h,
+              width: 48.w,
+              height: 48.h,
               decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    blurRadius: 5.r,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.white, width: 1),
+                border: Border.all(color: AppColors.greenSoftTint, width: 2),
                 image: const DecorationImage(
                   image: NetworkImage(
                     'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
@@ -50,78 +40,87 @@ class HomeHeader extends StatelessWidget {
               ),
             ),
           ),
-
-          // Middle Info
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "محمد عبدالله",
-                style: TextStyleManager.text2.copyWith(
-                  color: AppColors.primary,
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    size: 18.w,
+          SizedBox(width: 12.w),
+          
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "محمد عبدالله",
+                  style: TextStyleManager.style14Bold.copyWith(
                     color: AppColors.primary,
                   ),
-                  SizedBox(width: 4.w),
-                  Text(
-                    "home.specialist_role".tr(),
-                    style: TextStyleManager.style10Medium.copyWith(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w700,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        "home.specialist_role".tr(),
+                        style: TextStyleManager.style11Medium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    SizedBox(width: 4.w),
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 14.w,
+                      color: AppColors.primary,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-
-          // Online Toggle Switch + Label
+          
+          SizedBox(width: 8.w),
+          
+          // Toggle
           Column(
             children: [
               const _OnlineToggleSwitch(),
               SizedBox(height: 4.h),
               Text(
                 "home.on_duty".tr(),
-                style: TextStyleManager.style9Medium.copyWith(
+                style: TextStyleManager.style10Medium.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-
-          // Action Buttons (SVG)
-          Row(
-            children: [
-              _buildSvgIconButton(
-                svgPath: SvgIcons.chatIcon,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ConversationsPage(isEmpty: false),
-                    ),
-                  );
-                },
-              ),
-              SizedBox(width: 8.w),
-              MenuIconButton(
-                onTap: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-              ),
-            ],
+          
+          SizedBox(width: 16.w),
+          
+          // Chat Button
+          _buildSvgIconButton(
+            svgPath: SvgIcons.chatIcon,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ConversationsPage(isEmpty: false),
+                ),
+              );
+            },
+          ),
+          
+          SizedBox(width: 8.w),
+          
+          // Menu Button
+          _buildSvgIconButton(
+            svgPath: SvgIcons.menuIcon,
+            onTap: () {
+              Scaffold.of(context).openEndDrawer();
+            },
           ),
         ],
       ),
@@ -132,20 +131,14 @@ class HomeHeader extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40.w,
-        height: 40.h,
+        width: 44.w,
+        height: 44.w,
         decoration: BoxDecoration(
           color: AppColors.white,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 5.r,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 1),
         ),
-        padding: EdgeInsets.all(10.r),
+        padding: EdgeInsets.all(12.r),
         child: SvgPicture.asset(
           svgPath,
           colorFilter: const ColorFilter.mode(
@@ -159,7 +152,7 @@ class HomeHeader extends StatelessWidget {
 }
 
 class _OnlineToggleSwitch extends StatefulWidget {
-  const _OnlineToggleSwitch({Key? key}) : super(key: key);
+  const _OnlineToggleSwitch();
 
   @override
   State<_OnlineToggleSwitch> createState() => _OnlineToggleSwitchState();
@@ -179,8 +172,8 @@ class _OnlineToggleSwitchState extends State<_OnlineToggleSwitch> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
-        width: 45.w,
-        height: 27.h,
+        width: 44.w,
+        height: 24.h,
         decoration: BoxDecoration(
           color: isOnline
               ? AppColors.primary
@@ -192,8 +185,8 @@ class _OnlineToggleSwitchState extends State<_OnlineToggleSwitch> {
             ? AlignmentDirectional.centerStart
             : AlignmentDirectional.centerEnd,
         child: Container(
-          width: 18.w,
-          height: 18.h,
+          width: 20.w,
+          height: 20.h,
           decoration: const BoxDecoration(
             color: AppColors.white,
             shape: BoxShape.circle,
