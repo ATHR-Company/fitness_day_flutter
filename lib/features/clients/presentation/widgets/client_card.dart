@@ -62,7 +62,6 @@ class ClientCard extends StatelessWidget {
                 _getBadgeText(status),
                 style: TextStyleManager.style10Medium.copyWith(
                   color: _getBadgeTextColor(status),
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -163,7 +162,6 @@ class ClientCard extends StatelessWidget {
                             'clients_page.view_profile'.tr().replaceAll('»', '').trim(),
                             style: TextStyleManager.style11Medium.copyWith(
                               color: AppColors.white,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                           SizedBox(width: 4.w),
@@ -246,7 +244,7 @@ class ClientCard extends StatelessWidget {
   Color _getBadgeTextColor(ClientStatus status) {
     switch (status) {
       case ClientStatus.active:
-        return AppColors.greenForest;
+        return AppColors.primary;
       case ClientStatus.needsFollowUp:
         return const Color(0xFFB59A1D); // Darker yellow/brown
       case ClientStatus.expired:

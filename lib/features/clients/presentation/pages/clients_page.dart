@@ -5,6 +5,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/widgets/app_search_bar.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
+import 'package:fitness_day/features/clients/presentation/pages/client_profile_page.dart';
 import 'package:fitness_day/features/clients/presentation/widgets/client_card.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 
@@ -117,7 +118,12 @@ class _ClientsPageState extends State<ClientsPage> {
                           status: status,
                           commitmentRate: commitment,
                           onViewProfile: () {
-                            // Navigate to client profile
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ClientProfilePage(),
+                              ),
+                            );
                           },
                         );
                       },

@@ -7,7 +7,12 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
 class AppointmentCard extends StatelessWidget {
-  const AppointmentCard({super.key});
+  final bool isPastVisit;
+
+  const AppointmentCard({
+    super.key,
+    this.isPastVisit = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +96,7 @@ class AppointmentCard extends StatelessWidget {
                 SizedBox(height: 6.h),
                 _buildDetailRow("home.visit_time".tr(), "اليوم 4:30 مساءا", true),
                 SizedBox(height: 6.h),
-                _buildDetailRow("home.last_visit".tr(), "منذ يومين", true),
+                _buildDetailRow("home.last_visit".tr(), "منذ يومين", true), // For real data this should map appropriately
                 
                 SizedBox(height: 24.h),
                 
@@ -99,6 +104,34 @@ class AppointmentCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end, // Aligns to the left in RTL
                   children: [
+                    if (!isPastVisit) ...[
+                      OutlinedButton(
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(color: AppColors.primary, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24.r),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "home.reschedule".tr().replaceAll('»', '').trim(),
+                              style: TextStyleManager.style11Medium.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 4.w),
+                            Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.primary),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                    ],
                     ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
@@ -114,7 +147,9 @@ class AppointmentCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            "home.view_visit".tr().replaceAll('»', '').trim(),
+                            isPastVisit 
+                              ? 'clients_page.details'.tr().replaceAll('»', '').trim()
+                              : "home.view_visit".tr().replaceAll('»', '').trim(),
                             style: TextStyleManager.style11Medium.copyWith(
                               color: AppColors.white,
                               fontWeight: FontWeight.bold,
@@ -122,32 +157,6 @@ class AppointmentCard extends StatelessWidget {
                           ),
                           SizedBox(width: 4.w),
                           Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary, width: 1.5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24.r),
-                        ),
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "home.reschedule".tr().replaceAll('»', '').trim(),
-                            style: TextStyleManager.style11Medium.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(width: 4.w),
-                          Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.primary),
                         ],
                       ),
                     ),
