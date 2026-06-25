@@ -9,7 +9,14 @@
     "next_button": "التالي",
     "success_login": "تم تسجيل الدخول بنجاح",
     "search_country_hint": "ابحث عن الدولة أو الرمز",
-    "phone_local_digits_min": "رقم الجوال يجب أن يكون على الأقل {} أرقام"
+    "phone_local_digits_min": "رقم الجوال يجب أن يكون على الأقل {} أرقام",
+    "remember_me": "تذكرني",
+    "back_to_role": "العودة لاختيار الدور",
+    "or": "أو",
+    "apple": "آبل",
+    "google": "جوجل",
+    "no_account": "ليس لديك حساب ؟ ",
+    "create_account": "انشاء حساب"
   },
   "home": {
     "performance_summary_title": "ملخص الأداء",

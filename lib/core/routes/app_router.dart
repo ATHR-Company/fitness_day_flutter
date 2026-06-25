@@ -6,12 +6,12 @@ import 'package:fitness_day/features/specialist/clients/presentation/pages/clien
 import 'package:fitness_day/features/shared/splash/presentation/splash_screen.dart';
 import 'package:fitness_day/features/shared/onboarding/presentation/pages/onboarding_page.dart' as fitness_day_onboarding;
 import 'package:fitness_day/features/shared/role_selection/presentation/pages/role_selection_page.dart';
-
 import '../../features/specialist/home/presentation/screens/home_page.dart';
 import '../../features/shared/notifications/presentation/pages/notifications_page.dart';
 import '../../features/shared/visits/presentation/pages/visits_page.dart';
 import '../../features/specialist/profile/presentation/pages/profile_page.dart';
 import '../../features/specialist/tasks/presentation/pages/today_tasks_page.dart';
+import '../../features/user/auth/presentation/pages/login_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -56,6 +56,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.roleSelection,
         builder: (context, state) => const RoleSelectionPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.userLogin,
+        builder: (context, state) => const UserLoginPage(),
       ),
         GoRoute(
         path: AppRoutes.userhome,
