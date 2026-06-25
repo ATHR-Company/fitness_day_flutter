@@ -110,6 +110,12 @@ class TextStyleManager {
     fontWeight: FontWeight.w700,
   );
 
+  static TextStyle style13Medium = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 15.sp,
+    fontWeight: FontWeight.w500,
+  );
+
   static TextStyle style14Medium = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16.sp,

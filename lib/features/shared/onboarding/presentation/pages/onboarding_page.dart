@@ -63,8 +63,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _finishOnboarding() {
-    // Navigate to Login screen
-    context.go(AppRoutes.login);
+    context.go(AppRoutes.roleSelection);
   }
 
   @override
@@ -179,18 +178,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                   Text(
                                     _contents[_currentIndex].title,
                                     textAlign: TextAlign.center,
-                                    style: TextStyleManager.heading2.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.black,
-                                    ),
+                                    style: TextStyleManager.heading1,
                                   ),
                                   SizedBox(height: 16.h),
                                   Text(
                                     _contents[_currentIndex].subtitle,
                                     textAlign: TextAlign.center,
-                                    style: TextStyleManager.style14Medium.copyWith(
+                                    style: TextStyleManager.style13Medium.copyWith(
                                       color: AppColors.textSecondary,
-                                      height: 1.5,
                                     ),
                                   ),
                                 ],

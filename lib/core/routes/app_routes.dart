@@ -8,4 +8,5 @@ class AppRoutes {
   static const String clients = '/clients';
   static const String todayTasks = '/today-tasks';
   static const String onboarding = '/onboarding';
+  static const String roleSelection = '/role-selection';
 }
