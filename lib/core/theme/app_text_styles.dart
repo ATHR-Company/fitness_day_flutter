@@ -63,74 +63,74 @@ class TextStyleManager {
 
   static TextStyle button = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 15.sp,
+    fontSize: 16.sp,
     fontWeight: FontWeight.w500,
   );
 
   // ============= Generic Styles =============
   static TextStyle style7Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 9.sp,
+    fontSize: 7.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style8Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 10.sp,
+    fontSize: 8.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style8Bold = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 10.sp,
+    fontSize: 8.sp,
     fontWeight: FontWeight.w700,
   );
 
   static TextStyle style9Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 11.sp,
+    fontSize: 9.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style10Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 12.sp,
+    fontSize: 10.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style11Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 13.sp,
+    fontSize: 11.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style14Bold = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 16.sp,
+    fontSize: 14.sp,
     fontWeight: FontWeight.w700,
   );
 
   static TextStyle style13Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 15.sp,
+    fontSize: 13.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style14Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 16.sp,
+    fontSize: 14.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style15Medium = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 17.sp,
+    fontSize: 15.sp,
     fontWeight: FontWeight.w500,
   );
 
   static TextStyle style28Bold = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 30.sp,
+    fontSize: 28.sp,
     fontWeight: FontWeight.w700,
   );
 }
