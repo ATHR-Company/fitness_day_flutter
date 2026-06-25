@@ -7,4 +7,5 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String clients = '/clients';
   static const String todayTasks = '/today-tasks';
+  static const String onboarding = '/onboarding';
 }

@@ -272,4 +272,13 @@ abstract class  LocaleKeys {
   static const clients_page_weight_short = 'clients_page.weight_short';
   static const clients_page = 'clients_page';
 
+  static const onboarding_skip = 'onboarding.skip';
+  static const onboarding_title_1 = 'onboarding.title_1';
+  static const onboarding_subtitle_1 = 'onboarding.subtitle_1';
+  static const onboarding_title_2 = 'onboarding.title_2';
+  static const onboarding_subtitle_2 = 'onboarding.subtitle_2';
+  static const onboarding_title_3 = 'onboarding.title_3';
+  static const onboarding_subtitle_3 = 'onboarding.subtitle_3';
+  static const onboarding = 'onboarding';
+
 }

@@ -2,7 +2,8 @@ import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/app_routes.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/pages/login_page.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/pages/clients_page.dart';
-import 'package:fitness_day/splash_screen.dart';
+import 'package:fitness_day/features/shared/splash/presentation/splash_screen.dart';
+import 'package:fitness_day/features/shared/onboarding/presentation/pages/onboarding_page.dart' as fitness_day_onboarding;
 
 import '../../features/specialist/home/presentation/screens/home_page.dart';
 import '../../features/shared/notifications/presentation/pages/notifications_page.dart';
@@ -45,6 +46,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.todayTasks,
         builder: (context, state) => const TodayTasksPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => const fitness_day_onboarding.OnboardingPage(),
       ),
     ],
   );
