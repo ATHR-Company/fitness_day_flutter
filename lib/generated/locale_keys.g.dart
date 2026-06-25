@@ -281,4 +281,14 @@ abstract class  LocaleKeys {
   static const onboarding_subtitle_3 = 'onboarding.subtitle_3';
   static const onboarding = 'onboarding';
 
+  static const role_selection_welcome_text = 'role_selection.welcome_text';
+  static const role_selection_continue_as_user = 'role_selection.continue_as_user';
+  static const role_selection_continue_as_specialist = 'role_selection.continue_as_specialist';
+  static const role_selection_agreement_text = 'role_selection.agreement_text';
+  static const role_selection_terms_of_service = 'role_selection.terms_of_service';
+  static const role_selection_and = 'role_selection.and';
+  static const role_selection_privacy_policy = 'role_selection.privacy_policy';
+  static const role_selection_in_fitness_day = 'role_selection.in_fitness_day';
+  static const role_selection = 'role_selection';
+
 }

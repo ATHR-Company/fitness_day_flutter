@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -61,8 +63,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _finishOnboarding() {
-    // Navigate to Login screen
-    context.go(AppRoutes.login);
+    context.go(AppRoutes.roleSelection);
   }
 
   @override
@@ -100,7 +101,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           ),
                           SizedBox(width: 4.w),
                           Icon(
-                            Icons.keyboard_double_arrow_right_rounded,
+                            Directionality.of(context) == ui.TextDirection.rtl
+                                ? Icons.keyboard_double_arrow_left_rounded
+                                : Icons.keyboard_double_arrow_right_rounded,
                             size: 16.w,
                             color: AppColors.textPrimary,
                           ),
@@ -115,12 +118,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
               Expanded(
                 child: GestureDetector(
                   onHorizontalDragEnd: (details) {
-                    // RTL logic: dragging left means moving to the next page
-                    // dragging right means moving to the previous page
+                    final isRTL = Directionality.of(context) == ui.TextDirection.rtl;
+                    
                     if (details.primaryVelocity! < 0) {
-                      _nextPage();
+                      // Swiping Left (Right to Left)
+                      isRTL ? _prevPage() : _nextPage();
                     } else if (details.primaryVelocity! > 0) {
-                      _prevPage();
+                      // Swiping Right (Left to Right)
+                      isRTL ? _nextPage() : _prevPage();
                     }
                   },
                   child: Container(
@@ -173,18 +178,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                   Text(
                                     _contents[_currentIndex].title,
                                     textAlign: TextAlign.center,
-                                    style: TextStyleManager.heading2.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.black,
-                                    ),
+                                    style: TextStyleManager.heading1,
                                   ),
                                   SizedBox(height: 16.h),
                                   Text(
                                     _contents[_currentIndex].subtitle,
                                     textAlign: TextAlign.center,
-                                    style: TextStyleManager.style14Medium.copyWith(
+                                    style: TextStyleManager.style13Medium.copyWith(
                                       color: AppColors.textSecondary,
-                                      height: 1.5,
                                     ),
                                   ),
                                 ],
@@ -289,7 +290,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 child: Icon(
                   isLastPage
                       ? Icons.check
-                      : Icons.keyboard_double_arrow_right_rounded,
+                      : (Directionality.of(context) == ui.TextDirection.rtl
+                          ? Icons.keyboard_double_arrow_left_rounded
+                          : Icons.keyboard_double_arrow_right_rounded),
                   key: ValueKey<bool>(isLastPage),
                   color: AppColors.white,
                   size: 32.w,
