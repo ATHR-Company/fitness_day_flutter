@@ -9,4 +9,5 @@ class AppRoutes {
   static const String todayTasks = '/today-tasks';
   static const String onboarding = '/onboarding';
   static const String roleSelection = '/role-selection';
+  static const String userhome = '/user-home';
 }

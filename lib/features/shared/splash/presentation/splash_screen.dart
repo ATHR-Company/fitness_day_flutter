@@ -50,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Navigate to next screen after animation completes
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      context.go(AppRoutes.onboarding);
+      context.go(AppRoutes.userhome);
     }
   }
 
