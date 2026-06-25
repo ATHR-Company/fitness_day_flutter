@@ -219,6 +219,10 @@ abstract class  LocaleKeys {
   static const drawer_settings = 'drawer.settings';
   static const drawer_my_profile = 'drawer.my_profile';
   static const drawer_logout = 'drawer.logout';
+  static const drawer_logout_title = 'drawer.logout_title';
+  static const drawer_logout_message = 'drawer.logout_message';
+  static const drawer_logout_confirm = 'drawer.logout_confirm';
+  static const drawer_logout_cancel = 'drawer.logout_cancel';
   static const drawer = 'drawer';
   static const clients_page_title = 'clients_page.title';
   static const clients_page_search_hint = 'clients_page.search_hint';

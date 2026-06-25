@@ -12,12 +12,12 @@ class ClientVisitsTab extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       children: [
-        SizedBox(height: 8.h),
+        //SizedBox(height: 8.h),
         Text(
           'clients_page.upcoming_visit'.tr(),
           style: TextStyleManager.style14Bold,
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 10.h),
         VisitCard(
           timeRemaining: 'clients_page.commitment_rate'.tr(args: ['85']),
           title: 'home.weekly_follow_up'.tr(),
@@ -30,12 +30,15 @@ class ClientVisitsTab extends StatelessWidget {
           secondaryButtonText: 'home.reschedule'.tr(),
           onSecondaryPressed: () {},
         ),
-        SizedBox(height: 24.h),
-        Text(
-          'clients_page.past_visits'.tr(),
-          style: TextStyleManager.style14Bold,
+        SizedBox(height: 20.h),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'clients_page.past_visits'.tr(),
+            style: TextStyleManager.style14Bold,
+          ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 7.h),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

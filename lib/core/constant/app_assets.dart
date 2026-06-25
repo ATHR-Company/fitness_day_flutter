@@ -60,5 +60,6 @@ class SvgIcons {
   static const String cross = '$_svgPath/cross.svg';
   static const String emptyProfile = '$_svgPath/empty_profile.svg';
   static const String measureReview = '$_svgPath/measure_review.svg';
+  static const String performanceCardGradient = '$_svgPath/performance_card_gradient.svg';
 
 }

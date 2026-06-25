@@ -10,7 +10,6 @@ import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 
 import 'package:fitness_day/features/profile/presentation/widgets/edit_profile_dialog.dart';
-import 'package:fitness_day/features/profile/presentation/widgets/change_password_dialog.dart';
 import 'package:fitness_day/features/profile/presentation/widgets/language_dialog.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -108,17 +107,6 @@ class ProfilePage extends StatelessWidget {
                               context: context,
                               barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
                               builder: (context) => const EditProfileDialog(),
-                            );
-                          },
-                        ),
-                        _buildMenuItem(
-                          title: 'profile.edit_password'.tr(),
-                          svgPath: SvgIcons.editPassword,
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
-                              builder: (context) => const ChangePasswordDialog(),
                             );
                           },
                         ),

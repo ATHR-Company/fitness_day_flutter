@@ -94,14 +94,14 @@ class VisitCard extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 16.h),
-                
+
                 // Details Rows
                 _buildDetailRow('visits.client_name_label'.tr(), clientName),
                 SizedBox(height: 8.h),
                 _buildDetailRow('visits.visit_time_label'.tr(), visitTime),
                 SizedBox(height: 8.h),
                 _buildDetailRow('visits.visit_location_label'.tr(), location),
-                
+
                 SizedBox(height: 16.h),
                 // View Visit Button
                 Row(

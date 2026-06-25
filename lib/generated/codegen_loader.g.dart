@@ -241,7 +241,11 @@ class CodegenLoader extends AssetLoader{
     "notifications": "التنبيهات",
     "settings": "الإعدادات",
     "my_profile": "ملفي",
-    "logout": "تسجيل خروج"
+    "logout": "تسجيل خروج",
+    "logout_title": "تسجيل الخروج",
+    "logout_message": "هل أنت متأكد أنك تريد تسجيل الخروج من حسابك في يوم الرشاقة؟",
+    "logout_confirm": "خروج",
+    "logout_cancel": "الغاء"
   },
   "clients_page": {
     "title": "العملاء",
@@ -520,7 +524,11 @@ static const Map<String,dynamic> _en = {
     "notifications": "Notifications",
     "settings": "Settings",
     "my_profile": "My Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "logout_title": "Logout",
+    "logout_message": "Are you sure you want to log out of your account in Fitness Day?",
+    "logout_confirm": "Logout",
+    "logout_cancel": "Cancel"
   },
   "clients_page": {
     "title": "Clients",

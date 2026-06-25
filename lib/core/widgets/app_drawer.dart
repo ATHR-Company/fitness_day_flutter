@@ -7,6 +7,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/app_routes.dart';
+import 'package:fitness_day/core/widgets/logout_dialog.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -17,6 +18,8 @@ class AppDrawer extends StatelessWidget {
     int selectedIndex = -1;
     if (location == AppRoutes.home) {
       selectedIndex = 0;
+    } else if (location == AppRoutes.todayTasks) {
+      selectedIndex = 1;
     } else if (location == AppRoutes.visits) {
       selectedIndex = 2;
     } else if (location == AppRoutes.clients) {
@@ -93,7 +96,9 @@ class AppDrawer extends StatelessWidget {
                     svgPath: SvgIcons.tasks,
                     title: 'drawer.today_tasks'.tr(),
                     isSelected: selectedIndex == 1,
-                    onTap: () {},
+                    onTap: () {
+                      context.push(AppRoutes.todayTasks);
+                    },
                   ),
                   _buildMenuItem(
                     index: 2,
@@ -137,7 +142,12 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.logout'.tr(),
                     isSelected: false,
                     isLogout: true,
-                    onTap: () {},
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const LogoutDialog(),
+                      );
+                    },
                   ),
                 ],
               ),

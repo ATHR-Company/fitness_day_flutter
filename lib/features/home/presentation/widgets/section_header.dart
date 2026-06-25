@@ -7,12 +7,14 @@ import '../../../../core/theme/app_text_styles.dart';
 class SectionHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onMorePressed;
+  final Widget? trailing;
 
   const SectionHeader({
-    Key? key,
+    super.key,
     required this.title,
     this.onMorePressed,
-  }) : super(key: key);
+    this.trailing,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,9 @@ class SectionHeader extends StatelessWidget {
           title,
           style: TextStyleManager.style14Medium,
         ),
-        if (onMorePressed != null)
+        if (trailing != null)
+          trailing!
+        else if (onMorePressed != null)
           GestureDetector(
             onTap: onMorePressed,
             child: Row(

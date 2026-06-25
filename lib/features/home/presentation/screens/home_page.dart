@@ -14,7 +14,7 @@ import '../widgets/follow_up_alert_card.dart';
 import '../../../../core/widgets/app_drawer.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -69,80 +69,91 @@ class HomePage extends StatelessWidget {
 
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: SectionHeader(
-                        title: "home.upcoming_appointments".tr(),
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    VisitCard(
-                      timeRemaining: "home.commitment_rate".tr(args: ['85']),
-                      title: "home.weekly_follow_up".tr(),
-                      subtitle: "home.weekly_follow_up_desc".tr(),
-                      clientName: "محمد عبدالله",
-                      visitTime: "اليوم 4:30 مساءا",
-                      location: "في مقر يوم الرشاقة",
-                      buttonText: "home.view_visit".tr(),
-                      onViewPressed: () {},
-                      iconPath: SvgIcons.monitor,
-                      secondaryButtonText: "home.reschedule".tr(),
-                      onSecondaryPressed: () {},
-                    ),
+                      child: Column(
+                        children: [
+                          SectionHeader(
+                            title: "home.upcoming_appointments".tr(),
+                          ),
+                          SizedBox(height: 16.h),
+                          VisitCard(
+                            timeRemaining: "home.commitment_rate".tr(args: ['85']),
+                            title: "home.weekly_follow_up".tr(),
+                            subtitle: "home.weekly_follow_up_desc".tr(),
+                            clientName: "محمد عبدالله",
+                            visitTime: "اليوم 4:30 مساءا",
+                            location: "في مقر يوم الرشاقة",
+                            buttonText: "home.view_visit".tr(),
+                            onViewPressed: () {},
+                            iconPath: SvgIcons.monitor,
+                            secondaryButtonText: "home.reschedule".tr(),
+                            onSecondaryPressed: () {},
+                          ),
 
-                    SizedBox(height: 16.h),
+                          SizedBox(height: 24.h),
 
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: SectionHeader(
-                        title: "home.todays_tasks".tr(),
-                        onMorePressed: () {
-                          // TODO: Handle see more
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    VisitCard(
-                      timeRemaining: "",
-                      title: "home.measurements_review".tr(),
-                      subtitle: "home.measurements_review_desc".tr(),
-                      clientName: "محمد عبدالله",
-                      visitTime: "10:30 مساءا  1/6/24",
-                      location: "في مقر يوم الرشاقة",
-                      buttonText: "home.previous_visit".tr(),
-                      onViewPressed: () {},
-                      iconPath: SvgIcons.measureReview,
-                    ),
-                    VisitCard(
-                      timeRemaining: "",
-                      title: "home.weekly_follow_up".tr(),
-                      subtitle: "home.weekly_follow_up_desc".tr(),
-                      clientName: "محمد عبدالله",
-                      visitTime: "10:30 مساءا  1/6/24",
-                      location: "في مقر يوم الرشاقة",
-                      buttonText: "home.previous_visit".tr(),
-                      onViewPressed: () {},
-                      iconPath: SvgIcons.monitor, // User+ icon matching the design
-                    ),
-                    SizedBox(height: 24.h),
+                          SectionHeader(
+                            title: "home.todays_tasks".tr(),
+                            trailing: GestureDetector(
+                              onTap: () {
+                                // TODO: Handle menu tap
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(8.r),
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Icon(
+                                  Icons.more_horiz,
+                                  color: AppColors.textPrimary,
+                                  size: 24.w,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+                          VisitCard(
+                            timeRemaining: "",
+                            title: "home.measurements_review".tr(),
+                            subtitle: "home.measurements_review_desc".tr(),
+                            clientName: "محمد عبدالله",
+                            visitTime: "10:30 مساءا  1/6/24",
+                            location: "في مقر يوم الرشاقة",
+                            buttonText: "home.previous_visit".tr(),
+                            onViewPressed: () {},
+                            iconPath: SvgIcons.measureReview,
+                          ),
+                          SizedBox(height: 16.h),
+                          VisitCard(
+                            timeRemaining: "",
+                            title: "home.weekly_follow_up".tr(),
+                            subtitle: "home.weekly_follow_up_desc".tr(),
+                            clientName: "محمد عبدالله",
+                            visitTime: "10:30 مساءا  1/6/24",
+                            location: "في مقر يوم الرشاقة",
+                            buttonText: "home.previous_visit".tr(),
+                            onViewPressed: () {},
+                            iconPath: SvgIcons.monitor, // User+ icon matching the design
+                          ),
 
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: SectionHeader(
-                        title: "home.clients_need_follow_up".tr(),
-                        onMorePressed: () {
-                          // TODO: Handle see more
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: FollowUpAlertCard(
-                        title: "home.needs_follow_up".tr(),
-                        clientName: "محمد عبدالله",
-                        alertReason: "home.low_commitment_alert".tr(),
-                        buttonText: "home.review_plan".tr(),
-                        iconPath: SvgIcons.needMonitorRed,
-                        onButtonPressed: () {},
+                          SizedBox(height: 24.h),
+
+                          SectionHeader(
+                            title: "home.clients_need_follow_up".tr(),
+                            onMorePressed: () {
+                              // TODO: Handle see more
+                            },
+                          ),
+                          SizedBox(height: 16.h),
+                          FollowUpAlertCard(
+                            title: "home.needs_follow_up".tr(),
+                            clientName: "محمد عبدالله",
+                            alertReason: "home.low_commitment_alert".tr(),
+                            buttonText: "home.review_plan".tr(),
+                            iconPath: SvgIcons.needMonitorRed,
+                            onButtonPressed: () {},
+                          ),
+                        ],
                       ),
                     ),
 

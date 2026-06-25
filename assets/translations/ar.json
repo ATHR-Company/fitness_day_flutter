@@ -225,7 +225,11 @@
     "notifications": "التنبيهات",
     "settings": "الإعدادات",
     "my_profile": "ملفي",
-    "logout": "تسجيل خروج"
+    "logout": "تسجيل خروج",
+    "logout_title": "تسجيل الخروج",
+    "logout_message": "هل أنت متأكد أنك تريد تسجيل الخروج من حسابك في يوم الرشاقة؟",
+    "logout_confirm": "خروج",
+    "logout_cancel": "الغاء"
   },
   "clients_page": {
     "title": "العملاء",

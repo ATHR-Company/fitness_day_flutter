@@ -6,6 +6,7 @@ import 'package:fitness_day/features/visits/presentation/pages/visits_page.dart'
 import 'package:fitness_day/features/profile/presentation/pages/profile_page.dart';
 import 'package:fitness_day/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/features/clients/presentation/pages/clients_page.dart';
+import 'package:fitness_day/features/tasks/presentation/pages/today_tasks_page.dart';
 import 'package:fitness_day/splash_screen.dart';
 
 class AppRouter {
@@ -39,6 +40,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.clients,
         builder: (context, state) => const ClientsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.todayTasks,
+        builder: (context, state) => const TodayTasksPage(),
       ),
     ],
   );

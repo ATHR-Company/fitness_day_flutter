@@ -91,8 +91,9 @@ class _VisitsPageState extends State<VisitsPage> {
                   
                   // 4. Visit Cards List
                   Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.only(bottom: 24.h),
+                    child: ListView.separated(
+                      padding: EdgeInsets.all(20.h),
+                      separatorBuilder: (context, index) => SizedBox(height: 10.h),
                       itemCount: 3, // Dummy count
                       itemBuilder: (context, index) {
                         final timeRem = index == 0 ? 'visits.in_minutes'.tr(args: ['25']) : '';

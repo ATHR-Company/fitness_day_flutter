@@ -16,21 +16,29 @@ class AppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48.h,
-      child: Row(
+    return Container(
+      height: 60.h,
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Stack(
         children: [
-          Spacer(),
-          Text(
-            title,
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.bold,
+          // Perfectly centered title
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              title,
+              style: TextStyleManager.heading2.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          Spacer(),
-          MenuIconButton(
-            onTap: onMenuPressed,
+          
+          // Menu icon with padding on the end (left in RTL)
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: MenuIconButton(
+              onTap: onMenuPressed,
+            ),
           ),
         ],
       ),
