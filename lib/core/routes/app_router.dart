@@ -4,7 +4,7 @@ import 'package:fitness_day/features/specialist/auth/presentation/pages/login_pa
 import 'package:fitness_day/features/specialist/clients/presentation/pages/clients_page.dart';
 import 'package:fitness_day/splash_screen.dart';
 
-import '../../features/home/presentation/screens/home_page.dart';
+import '../../features/specialist/home/presentation/screens/home_page.dart';
 import '../../features/shared/notifications/presentation/pages/notifications_page.dart';
 import '../../features/shared/visits/presentation/pages/visits_page.dart';
 import '../../features/specialist/profile/presentation/pages/profile_page.dart';

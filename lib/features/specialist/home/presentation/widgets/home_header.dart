@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
-import '../../../../core/constant/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
-import '../../../shared/conversations/presentation/pages/conversations_page.dart';
+import '../../../../../core/constant/app_assets.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/conversations/presentation/pages/conversations_page.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/routes/app_routes.dart';
+import '../../../../../core/routes/app_routes.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
