@@ -1,13 +1,14 @@
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/app_routes.dart';
-import 'package:fitness_day/features/auth/presentation/pages/login_page.dart';
-import 'package:fitness_day/features/home/presentation/screens/home_page.dart';
-import 'package:fitness_day/features/visits/presentation/pages/visits_page.dart';
-import 'package:fitness_day/features/profile/presentation/pages/profile_page.dart';
-import 'package:fitness_day/features/notifications/presentation/pages/notifications_page.dart';
-import 'package:fitness_day/features/clients/presentation/pages/clients_page.dart';
-import 'package:fitness_day/features/tasks/presentation/pages/today_tasks_page.dart';
+import 'package:fitness_day/features/specialist/auth/presentation/pages/login_page.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/pages/clients_page.dart';
 import 'package:fitness_day/splash_screen.dart';
+
+import '../../features/home/presentation/screens/home_page.dart';
+import '../../features/shared/notifications/presentation/pages/notifications_page.dart';
+import '../../features/shared/visits/presentation/pages/visits_page.dart';
+import '../../features/specialist/profile/presentation/pages/profile_page.dart';
+import '../../features/specialist/tasks/presentation/pages/today_tasks_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(

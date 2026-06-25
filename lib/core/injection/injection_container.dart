@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:fitness_day/features/auth/data/datasources/auth_remote_datasource.dart';
-import 'package:fitness_day/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:fitness_day/features/auth/domain/repositories/auth_repository.dart';
-import 'package:fitness_day/features/auth/domain/usecases/login_usecase.dart';
-import 'package:fitness_day/features/auth/presentation/manager/auth_cubit.dart';
+import 'package:fitness_day/features/specialist/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/auth/data/repositories/auth_repository_impl.dart';
+import 'package:fitness_day/features/specialist/auth/domain/repositories/auth_repository.dart';
+import 'package:fitness_day/features/specialist/auth/domain/usecases/login_usecase.dart';
+import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';

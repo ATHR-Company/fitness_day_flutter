@@ -5,9 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constant/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../conversations/presentation/pages/conversations_page.dart';
-import '../../../profile/presentation/pages/profile_page.dart';
-
+import '../../../shared/conversations/presentation/pages/conversations_page.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/routes/app_routes.dart';
 

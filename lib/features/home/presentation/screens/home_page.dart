@@ -6,12 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constant/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/visit_card.dart';
+import '../../../../features/shared/widgets/visit_card.dart';
 import '../widgets/home_header.dart';
 import '../widgets/performance_summary_section.dart';
 import '../widgets/section_header.dart';
 import '../widgets/follow_up_alert_card.dart';
-import '../../../../core/widgets/app_drawer.dart';
+import '../../../../features/shared/widgets/app_drawer.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
