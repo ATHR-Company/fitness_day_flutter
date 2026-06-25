@@ -1,3 +1,4 @@
+import 'package:fitness_day/features/user/user_home/presentation/screens/user_home_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/app_routes.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/pages/login_page.dart';
@@ -50,6 +51,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => const fitness_day_onboarding.OnboardingPage(),
+      ),
+        GoRoute(
+        path: AppRoutes.userhome,
+        builder: (context, state) => const UserHomePage(),
       ),
     ],
   );
