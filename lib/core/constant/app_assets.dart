@@ -70,4 +70,10 @@ class SvgIcons {
   static const String specialist = '$_svgPath/specialist.svg';
   static const String success = '$_svgPath/success.svg';
   static const String decor = '$_svgPath/decor.svg';
+  static const String weight = '$_svgPath/weight.svg';
+  static const String diamond = '$_svgPath/diamond.svg';
+  static const String clendBorder = '$_svgPath/clend_border.svg';
+  static const String visitBorder = '$_svgPath/visit_border.svg';
+  static const String waterBorder = '$_svgPath/water_border.svg';
+
 }
