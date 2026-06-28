@@ -11,6 +11,8 @@ import 'package:fitness_day/features/user/auth/presentation/pages/otp_verificati
 import 'package:fitness_day/features/user/auth/presentation/pages/reset_password_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/signup_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/user_info_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/fitness_system_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/diet_system_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/home_page.dart';
 import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart';
@@ -69,6 +71,14 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.userInfo,
         builder: (context, state) => const UserInfoPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.fitnessSystem,
+        builder: (context, state) => const FitnessSystemPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.dietSystem,
+        builder: (context, state) => const DietSystemPage(),
       ),
 
       // ── User App ───────────────────────────────────────────

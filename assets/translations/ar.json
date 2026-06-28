@@ -50,7 +50,22 @@
     "activity_high": "نشاط مرتفع",
     "goal_lose": "خسارة وزن",
     "goal_gain": "زيادة عضلات",
-    "goal_maintain": "المحافظة على الوزن"
+    "goal_maintain": "المحافظة على الوزن",
+    "fitness_title": "النظام الرياضي",
+    "fitness_subtitle": "برجاء ادخال النظام الرياضي الخاص بك لنتمكن من تحديد تمارين مخصصة تتناسب مع أهدافك الصحية",
+    "weekly_exercises_hint": "عدد مرات ممارسة الرياضة أسبوعياً",
+    "daily_steps_hint": "عدد خطواتك يومياً (تقريباً)",
+    "preferred_exercises_hint": "التمارين المفضلة لديك",
+    "daily_exercise_hours_hint": "عدد ساعات التمارين يوميا",
+    "diet_title": "النظام الغذائي",
+    "diet_subtitle_select": "برجاء اختيار نظامك الغذائي المفضل",
+    "varied_diet": "نظام غذائي متنوع",
+    "vegetarian_diet": "نظام نباتي",
+    "diet_subtitle_enter": "برجاء ادخال نظامك الغذائي لكي يساعدنا لتحديد خطة غذائية لك",
+    "daily_meals_hint": "عدد وجباتك اليومية",
+    "preferred_foods_hint": "الأطعمة المفضلة",
+    "disliked_foods_hint": "الأطعمة غير المفضلة",
+    "food_allergies_hint": "الحساسية الغذائية"
   },
   "home": {
     "performance_summary_title": "ملخص الأداء",

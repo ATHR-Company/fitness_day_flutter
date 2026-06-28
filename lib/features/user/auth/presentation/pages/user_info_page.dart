@@ -43,13 +43,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
   void _onNextPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('login.success_login'.tr()),
-          backgroundColor: AppColors.success,
-        ),
-      );
-      context.go(UserAppRoutes.home);
+      context.push(UserAppRoutes.dietSystem);
     }
   }
 

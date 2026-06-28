@@ -9,11 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+/// The active role for the current session.
 enum AppRole { none, user, specialist }
 
+/// Global notifier — role_selection_page calls [RoleNotifier.setRole] after
+/// the user picks a role. Consumed by SplashScreen and LogoutDialog.
 class RoleNotifier extends ValueNotifier<AppRole> {
   RoleNotifier() : super(AppRole.none);
+
   static final instance = RoleNotifier();
+  bool bypassSplashToRoleSelection = false;
+
   void setRole(AppRole role) => value = role;
 }
 
@@ -45,6 +51,7 @@ class FitnessDay extends StatelessWidget {
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
               fontFamily: TextStyleManager.fontFamily,
             ),
+            // Single stable router — never swapped, so navigation state is preserved.
             routerConfig: AppRouter.router,
           ),
         );
