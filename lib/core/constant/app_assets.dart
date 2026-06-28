@@ -52,6 +52,10 @@ class SvgIcons {
   static const String todaysVisit = '$_svgPath/todays_visit.svg';
   static const String whatsapp = '$_svgPath/whatsapp.svg';
   static const String wieght = '$_svgPath/wieght.svg';
+  static const String gender = '$_svgPath/gender.svg';
+  static const String activity = '$_svgPath/activity.svg';
+  static const String goal = '$_svgPath/goal.svg';
+  static const String birthDate = '$_svgPath/birth_date.svg';
   static const String workout = '$_svgPath/workout.svg';
   static const String monitor = '$_svgPath/monitor.svg';
   static const String chatIcon = '$_svgPath/chat_icon.svg';

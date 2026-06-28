@@ -1,4 +1,3 @@
-import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -36,14 +35,19 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _onSignUpPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Simulate/perform sign up action, then show success snakbar and go to home page
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('login.success_login'.tr()), // or sign up success message
+          content: Text('login.success_login'.tr()),
           backgroundColor: AppColors.success,
         ),
       );
-      context.go(UserAppRoutes.home);
+      context.push(
+        UserAppRoutes.otpVerification,
+        extra: {
+          'phoneNumber': _phoneController.text.trim(),
+          'isForgotPassword': false,
+        },
+      );
     }
   }
 
@@ -210,7 +214,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         WidgetSpan(
                           child: GestureDetector(
                             onTap: () {
-                            context.go(UserAppRoutes.login);
+                              context.go(UserAppRoutes.login);
                             },
                             child: Text(
                               'login.login_now'.tr(),

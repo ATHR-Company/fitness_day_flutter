@@ -10,6 +10,7 @@ import 'package:fitness_day/features/user/auth/presentation/pages/forgot_passwor
 import 'package:fitness_day/features/user/auth/presentation/pages/otp_verification_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/reset_password_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/signup_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/user_info_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/home_page.dart';
 import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart';
@@ -43,9 +44,19 @@ class UserAppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.otpVerification,
-        builder: (context, state) => OtpVerificationPage(
-          phoneNumber: state.extra as String? ?? '',
-        ),
+        builder: (context, state) {
+          if (state.extra is Map) {
+            final map = state.extra as Map;
+            return OtpVerificationPage(
+              phoneNumber: map['phoneNumber']?.toString() ?? '',
+              isForgotPassword: map['isForgotPassword'] as bool? ?? false,
+            );
+          }
+          return OtpVerificationPage(
+            phoneNumber: state.extra?.toString() ?? '',
+            isForgotPassword: true,
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.resetPassword,
@@ -54,6 +65,10 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.signUp,
         builder: (context, state) => const SignUpPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.userInfo,
+        builder: (context, state) => const UserInfoPage(),
       ),
 
       // ── User App ───────────────────────────────────────────

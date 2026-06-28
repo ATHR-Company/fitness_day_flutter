@@ -7,6 +7,7 @@ class UserAppRoutes extends SharedRoutes {
   static const String otpVerification = '/otp-verification';
   static const String resetPassword = '/reset-password';
   static const String signUp = '/sign-up';
+  static const String userInfo = '/user-info';
 
   // ── User App ─────────────────────────────────────────────
   static const String home = '/user-home';

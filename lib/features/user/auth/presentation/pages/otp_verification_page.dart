@@ -14,10 +14,12 @@ import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String phoneNumber;
+  final bool isForgotPassword;
 
   const OtpVerificationPage({
     super.key,
     required this.phoneNumber,
+    this.isForgotPassword = false,
   });
 
   @override
@@ -90,7 +92,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       text: 'login.next'.tr(),
                       onPressed: () {
                         Navigator.pop(modalContext); // Close bottom sheet
-                        context.go(UserAppRoutes.resetPassword); // Navigate to Reset Password page
+                        context.go(widget.isForgotPassword
+                            ? UserAppRoutes.resetPassword
+                            : UserAppRoutes.userInfo);
                       },
                     ),
                     SizedBox(height: 32.h),
