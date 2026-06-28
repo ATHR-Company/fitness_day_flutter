@@ -13,6 +13,13 @@ abstract class  LocaleKeys {
   static const login_success_login = 'login.success_login';
   static const login_search_country_hint = 'login.search_country_hint';
   static const login_phone_local_digits_min = 'login.phone_local_digits_min';
+  static const login_remember_me = 'login.remember_me';
+  static const login_back_to_role = 'login.back_to_role';
+  static const login_or = 'login.or';
+  static const login_apple = 'login.apple';
+  static const login_google = 'login.google';
+  static const login_no_account = 'login.no_account';
+  static const login_create_account = 'login.create_account';
   static const login = 'login';
   static const home_performance_summary_title = 'home.performance_summary_title';
   static const home_clients_count = 'home.clients_count';
@@ -271,7 +278,6 @@ abstract class  LocaleKeys {
   static const clients_page_body_mass_short = 'clients_page.body_mass_short';
   static const clients_page_weight_short = 'clients_page.weight_short';
   static const clients_page = 'clients_page';
-
   static const onboarding_skip = 'onboarding.skip';
   static const onboarding_title_1 = 'onboarding.title_1';
   static const onboarding_subtitle_1 = 'onboarding.subtitle_1';
@@ -280,7 +286,6 @@ abstract class  LocaleKeys {
   static const onboarding_title_3 = 'onboarding.title_3';
   static const onboarding_subtitle_3 = 'onboarding.subtitle_3';
   static const onboarding = 'onboarding';
-
   static const role_selection_welcome_text = 'role_selection.welcome_text';
   static const role_selection_continue_as_user = 'role_selection.continue_as_user';
   static const role_selection_continue_as_specialist = 'role_selection.continue_as_specialist';

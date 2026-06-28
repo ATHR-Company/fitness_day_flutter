@@ -25,7 +25,14 @@ class CodegenLoader extends AssetLoader{
     "next_button": "التالي",
     "success_login": "تم تسجيل الدخول بنجاح",
     "search_country_hint": "ابحث عن الدولة أو الرمز",
-    "phone_local_digits_min": "رقم الجوال يجب أن يكون على الأقل {} أرقام"
+    "phone_local_digits_min": "رقم الجوال يجب أن يكون على الأقل {} أرقام",
+    "remember_me": "تذكرني",
+    "back_to_role": "العودة لاختيار الدور",
+    "or": "أو",
+    "apple": "آبل",
+    "google": "جوجل",
+    "no_account": "ليس لديك حساب ؟ ",
+    "create_account": "انشاء حساب"
   },
   "home": {
     "performance_summary_title": "ملخص الأداء",
@@ -294,6 +301,25 @@ class CodegenLoader extends AssetLoader{
     "ideal_weight_short": "الوزن المثالي",
     "body_mass_short": "كتلة الجسم",
     "weight_short": "الوزن"
+  },
+  "onboarding": {
+    "skip": "تخطي »",
+    "title_1": "رحلتك نحو الرشاقة تبدأ هنا!",
+    "subtitle_1": "ابدأ رحلتك نحو جسم صحي ورشيق طريقنا لخطة غذائية وتمارين شخصية، ومتابعة تقدمك خطوة بخطوة مع أخصائي غذائي.",
+    "title_2": "احصل على استشارة وفحص مجاني",
+    "subtitle_2": "ابدأ بفحص جسمك المجاني وقياس معدل الدهون لتتعرف على حالتك الصحية بدقة، وتحدد أهدافك نحو جسم أكثر صحة ورشاقة.",
+    "title_3": "خصومات تصل حتى %50!",
+    "subtitle_3": "استفد الآن من خصومات تصل حتى 50% كورس الشد والتثبيت وكورسات التنحيف، لمساعدتك للحصول على جسم أكثر رشاقة"
+  },
+  "role_selection": {
+    "welcome_text": "سعداء بعودتك من جديد سجّل الدخول لمتابعة رحلتك نحو نسختك الأقوى",
+    "continue_as_user": "المتابعة كمستخدم",
+    "continue_as_specialist": "المتابعة كأخصائي",
+    "agreement_text": "بالمتابعة, أنت توافق على ",
+    "terms_of_service": "شروط الخدمة",
+    "and": " و ",
+    "privacy_policy": "سياسة الخصوصية",
+    "in_fitness_day": " في يوم الرشاقة"
   }
 };
 static const Map<String,dynamic> _en = {

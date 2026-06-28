@@ -9,6 +9,8 @@ class SvgIcons {
 
   // ── Splash ──────────────────────────────────────────────────────────────
   static const String apple = '$_svgPath/apple.svg';
+  static const String appleLogin = '$_svgPath/apple_login.svg';
+  static const String google = '$_svgPath/google.svg';
   static const String left = '$_svgPath/left.svg';
   static const String right = '$_svgPath/right.svg';
   static const String head = '$_svgPath/head.svg';
