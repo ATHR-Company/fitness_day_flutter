@@ -2,7 +2,7 @@ import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fitness_day/core/routes/app_routes.dart';
+import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -50,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Navigate to next screen after animation completes
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      context.go(AppRoutes.onboarding);
+      context.go(SharedRoutes.onboarding);
     }
   }
 

@@ -7,7 +7,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/conversations/presentation/pages/conversations_page.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../../core/routes/app_routes.dart';
+import '../../../../../core/routes/specialist_routes/app_routes.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -21,7 +21,7 @@ class HomeHeader extends StatelessWidget {
           // Avatar
           GestureDetector(
             onTap: () {
-              context.push(AppRoutes.profile);
+              context.push(SpecialistAppRoutes.profile);
             },
             child: Container(
               width: 48.w,

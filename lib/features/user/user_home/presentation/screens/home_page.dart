@@ -1,5 +1,5 @@
 import 'dart:ui' as ui;
-import 'package:fitness_day/features/user/user_home/presentation/widgets/user_categories.dart';
+import 'package:fitness_day/features/user/user_home/presentation/widgets/categories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,12 +9,12 @@ import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/app_shadows.dart';
-import '../../../../shared/widgets/app_drawer.dart';
+import '../widgets/user_app_drawer.dart';
 import '../widgets/home_header.dart';
 import '../widgets/section_header.dart';
 
-class UserHomePage extends StatelessWidget {
-  const UserHomePage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +34,23 @@ class UserHomePage extends StatelessWidget {
             ),
           ),
         ),
-        endDrawer: const AppDrawer(),
+        endDrawer: const UserAppDrawer(),
         body: Stack(
           children: [
             // Background split: light green top, off-white bottom
-          
+            Column(
+              children: [
+                Container(height: 260.h, color: const Color(0xFFEAF6EA)),
+                Expanded(child: Container(color: const Color(0xFFF4FAF4))),
+              ],
+            ),
             SafeArea(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // ── 1. Header ───────────────────────────────────────────
-                    const userHomeHeader(),
+                    const HomeHeader(),
 
                     SizedBox(height: 12.h),
 
@@ -68,7 +73,7 @@ class UserHomePage extends StatelessWidget {
                     // ── 4. Categories Row ───────────────────────────────────
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: const UserCategories(),
+                      child: const Categories(),
                     ),
 
                     SizedBox(height: 20.h),

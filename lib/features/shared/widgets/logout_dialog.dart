@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fitness_day/core/routes/app_routes.dart';
+import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 
 class LogoutDialog extends StatelessWidget {
   const LogoutDialog({super.key});
@@ -108,7 +108,7 @@ class LogoutDialog extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       // Add real logout logic here
-                      context.go(AppRoutes.roleSelection);
+                      context.go(SharedRoutes.roleSelection);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,

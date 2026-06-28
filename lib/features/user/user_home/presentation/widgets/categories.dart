@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
-class UserCategories extends StatelessWidget {
-  const UserCategories({super.key});
+class Categories extends StatelessWidget {
+  const Categories({super.key});
 
   @override
   Widget build(BuildContext context) {
