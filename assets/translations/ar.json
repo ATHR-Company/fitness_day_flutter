@@ -2,6 +2,7 @@
   "login": {
     "welcome_text": "سعداء بعودتك من جديد سجّل الدخول لمتابعة رحلتك نحو نسختك الأقوى",
     "phone_hint": "رقم الجوال",
+    "phone_error": "الرجاء إدخال رقم الجوال",
     "password_hint": "كلمة المرور",
     "password_error": "الرجاء إدخال كلمة المرور",
     "forgot_password": "نسيت كلمة المرور؟",
@@ -16,7 +17,22 @@
     "apple": "آبل",
     "google": "جوجل",
     "no_account": "ليس لديك حساب ؟ ",
-    "create_account": "انشاء حساب"
+    "create_account": "انشاء حساب",
+    "forgot_password_title": "هل نسيت كلمة السر !",
+    "forgot_password_subtitle": "أدخل رقم الجوال لاستعادة الحساب واستكمال رحلتك بسهولة",
+    "send": "ارسال",
+    "verify_title": "أدخل رمز التحقق",
+    "verify_subtitle": "لقد أرسلنا رمز التحقق إلى رقم الجوال. الرجاء إدخال الرمز للتحقق.",
+    "verify_success_title": "تم التحقق بنجاح !",
+    "verify_success_subtitle": "الآن يمكن استخدام حسابك بكل سهولة",
+    "next": "التالي",
+    "reset_password_title": "تعيين كلمة مرور",
+    "reset_password_subtitle": "أنشئ كلمة مرور قوية لحماية حسابك والوصول إليه بأمان.",
+    "confirm_password_hint": "تأكيد كلمة المرور",
+    "passwords_dont_match": "كلمات المرور غير متطابقة",
+    "password_too_short": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+    "already_have_account": "لديك حساب بالفعل ؟ ",
+    "login_now": "تسجيل الدخول"
   },
   "home": {
     "performance_summary_title": "ملخص الأداء",

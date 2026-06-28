@@ -67,5 +67,7 @@ class SvgIcons {
   static const String barcode = '$_svgPath/barcode.svg';
   static const String achievement = '$_svgPath/achievement.svg';
   static const String performanceCardGradient = '$_svgPath/performance_card_gradient.svg';
-
+  static const String specialist = '$_svgPath/specialist.svg';
+  static const String success = '$_svgPath/success.svg';
+  static const String decor = '$_svgPath/decor.svg';
 }

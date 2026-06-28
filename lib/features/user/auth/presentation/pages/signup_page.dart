@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,34 +11,38 @@ import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/features/shared/widgets/app_phone_field.dart';
 import 'package:fitness_day/features/shared/widgets/app_password_field.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
-import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
-import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
 
-class UserLoginPage extends StatefulWidget {
-  const UserLoginPage({super.key});
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
 
   @override
-  State<UserLoginPage> createState() => _UserLoginPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _UserLoginPageState extends State<UserLoginPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _phoneController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _onLoginPressed() {
+  void _onSignUpPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthCubit>().login(
-            _phoneController.text.trim(),
-            _passwordController.text,
-          );
+      // Simulate/perform sign up action, then show success snakbar and go to home page
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('login.success_login'.tr()), // or sign up success message
+          backgroundColor: AppColors.success,
+        ),
+      );
+      context.go(AppRoutes.userhome);
     }
   }
 
@@ -87,7 +90,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                     controller: _phoneController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return LocaleKeys.login_phone_hint.tr();
+                        return 'login.phone_error'.tr();
                       }
                       return null;
                     },
@@ -102,68 +105,39 @@ class _UserLoginPageState extends State<UserLoginPage> {
                       if (value == null || value.isEmpty) {
                         return LocaleKeys.login_password_error.tr();
                       }
+                      if (value.length < 6) {
+                        return 'login.password_too_short'.tr();
+                      }
                       return null;
                     },
                   ),
 
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 20.h),
 
-                  // Forgot Password
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          context.push(AppRoutes.forgotPassword);
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          LocaleKeys.login_forgot_password.tr(),
-                          style: TextStyleManager.style13Medium.copyWith(
-                            color: AppColors.black,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
+                  // Confirm Password Field
+                  AppPasswordField(
+                    controller: _confirmPasswordController,
+                    hint: 'login.confirm_password_hint'.tr(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return LocaleKeys.login_password_error.tr();
+                      }
+                      if (value != _passwordController.text) {
+                        return 'login.passwords_dont_match'.tr();
+                      }
+                      return null;
+                    },
+                  ),
+
+                  SizedBox(height: 32.h),
+
+                  // Sign Up Button
+                  CustomButton(
+                    text: LocaleKeys.login_create_account.tr(),
+                    onPressed: _onSignUpPressed,
                   ),
 
                   SizedBox(height: 20.h),
-
-                  // Login Button
-                  BlocConsumer<AuthCubit, AuthState>(
-                    listener: (context, state) {
-                      if (state is AuthSuccess) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(LocaleKeys.login_success_login.tr()),
-                            backgroundColor: AppColors.success,
-                          ),
-                        );
-                        context.go(AppRoutes.home);
-                      } else if (state is AuthFailure) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(state.message),
-                            backgroundColor: AppColors.error,
-                          ),
-                        );
-                      }
-                    },
-                    builder: (context, state) {
-                      return CustomButton(
-                        text: LocaleKeys.login_login_button.tr(),
-                        isLoading: state is AuthLoading,
-                        onPressed: _onLoginPressed,
-                      );
-                    },
-                  ),
-
-                  SizedBox(height: 10.h),
 
                   // ── "أو" Divider ──────────────────────────────────────────
                   Row(
@@ -192,7 +166,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                     ],
                   ),
 
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 20.h),
 
                   // ── Social Buttons ─────────────────────────────────────────
                   Row(
@@ -221,9 +195,9 @@ class _UserLoginPageState extends State<UserLoginPage> {
                     ],
                   ),
 
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 24.h),
 
-                  // ── Sign Up Prompt ─────────────────────────────────────────
+                  // ── Login Prompt ─────────────────────────────────────────
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
@@ -231,14 +205,14 @@ class _UserLoginPageState extends State<UserLoginPage> {
                         color: AppColors.black,
                       ),
                       children: [
-                        TextSpan(text: LocaleKeys.login_no_account.tr()),
+                        TextSpan(text: 'login.already_have_account'.tr()),
                         WidgetSpan(
                           child: GestureDetector(
                             onTap: () {
-                              context.push(AppRoutes.signUp);
+                              context.go(AppRoutes.userLogin);
                             },
                             child: Text(
-                              LocaleKeys.login_create_account.tr(),
+                              'login.login_now'.tr(),
                               style: TextStyleManager.style14Bold.copyWith(
                                 color: AppColors.primary,
                               ),
@@ -287,7 +261,7 @@ class _SocialButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(30.r),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.5),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 3),
               ),
@@ -311,5 +285,3 @@ class _SocialButton extends StatelessWidget {
     );
   }
 }
-
-

@@ -12,6 +12,10 @@ import '../../features/shared/visits/presentation/pages/visits_page.dart';
 import '../../features/specialist/profile/presentation/pages/profile_page.dart';
 import '../../features/specialist/tasks/presentation/pages/today_tasks_page.dart';
 import '../../features/user/auth/presentation/pages/login_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/forgot_password_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/otp_verification_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/reset_password_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/signup_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -61,9 +65,27 @@ class AppRouter {
         path: AppRoutes.userLogin,
         builder: (context, state) => const UserLoginPage(),
       ),
-        GoRoute(
+      GoRoute(
         path: AppRoutes.userhome,
         builder: (context, state) => const UserHomePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.otpVerification,
+        builder: (context, state) => OtpVerificationPage(
+          phoneNumber: state.extra as String? ?? '',
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        builder: (context, state) => const ResetPasswordPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.signUp,
+        builder: (context, state) => const SignUpPage(),
       ),
     ],
   );

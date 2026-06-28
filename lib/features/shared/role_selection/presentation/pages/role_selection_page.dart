@@ -57,7 +57,7 @@ class RoleSelectionPage extends StatelessWidget {
                 // Continue as Specialist Button
                 _buildRoleButton(
                   title: LocaleKeys.role_selection_continue_as_specialist.tr(),
-                  icon: Icon(Icons.medical_information, color: AppColors.primary, size: 24.w),
+                  icon: SvgPicture.asset(SvgIcons.specialist, height: 24.h),
                   color: const Color(0xFFE2E2E2),
                   textColor: AppColors.black,
                   onTap: () => context.go(AppRoutes.login),

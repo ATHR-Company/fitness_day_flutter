@@ -2,6 +2,7 @@
   "login": {
     "welcome_text": "Happy to see you again. Log in to continue\nyour journey towards your strongest version",
     "phone_hint": "Phone Number",
+    "phone_error": "Please enter phone number",
     "password_hint": "Password",
     "password_error": "Please enter password",
     "forgot_password": "Forgot Password?",
@@ -9,7 +10,22 @@
     "next_button": "Next",
     "success_login": "Logged in successfully",
     "search_country_hint": "Search for country or code",
-    "phone_local_digits_min": "Phone number must be at least {} digits"
+    "phone_local_digits_min": "Phone number must be at least {} digits",
+    "forgot_password_title": "Forgot Password!",
+    "forgot_password_subtitle": "Enter your mobile number to recover your account and easily complete your journey.",
+    "send": "Send",
+    "verify_title": "Enter Verification Code",
+    "verify_subtitle": "We sent the verification code to the mobile number. Please enter the code to verify.",
+    "verify_success_title": "Verified Successfully!",
+    "verify_success_subtitle": "Now your account can be used with ease.",
+    "next": "Next",
+    "reset_password_title": "Set Password",
+    "reset_password_subtitle": "Create a strong password to protect your account and access it securely.",
+    "confirm_password_hint": "Confirm Password",
+    "passwords_dont_match": "Passwords do not match",
+    "password_too_short": "Password must be at least 6 characters",
+    "already_have_account": "Already have an account? ",
+    "login_now": "Login"
   },
   "home": {
     "performance_summary_title": "Performance Summary",

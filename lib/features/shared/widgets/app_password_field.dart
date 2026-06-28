@@ -9,11 +9,13 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 class AppPasswordField extends StatefulWidget {
   final TextEditingController? controller;
   final FormFieldValidator<String>? validator;
+  final String? hint;
 
   const AppPasswordField({
     super.key,
     this.controller,
     this.validator,
+    this.hint,
   });
 
   @override
@@ -74,7 +76,7 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
         color: AppColors.black,
       ),
       decoration: InputDecoration(
-        hintText: 'login.password_hint'.tr(),
+        hintText: widget.hint ?? 'login.password_hint'.tr(),
         hintStyle: TextStyleManager.heading3.copyWith(
           color: AppColors.textSecondary,
         ),
