@@ -35,14 +35,19 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _onSignUpPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Simulate/perform sign up action, then show success snakbar and go to home page
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('login.success_login'.tr()), // or sign up success message
+          content: Text('login.success_login'.tr()),
           backgroundColor: AppColors.success,
         ),
       );
-      context.go(AppRoutes.userhome);
+      context.push(
+        AppRoutes.otpVerification,
+        extra: {
+          'phoneNumber': _phoneController.text.trim(),
+          'isForgotPassword': false,
+        },
+      );
     }
   }
 

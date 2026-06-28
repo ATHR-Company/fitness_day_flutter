@@ -28,7 +28,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   void _onSendPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      context.push(AppRoutes.otpVerification, extra: _phoneController.text.trim());
+      context.push(
+        AppRoutes.otpVerification,
+        extra: {
+          'phoneNumber': _phoneController.text.trim(),
+          'isForgotPassword': true,
+        },
+      );
     }
   }
 
