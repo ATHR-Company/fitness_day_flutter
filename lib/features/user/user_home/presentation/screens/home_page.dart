@@ -37,13 +37,8 @@ class HomePage extends StatelessWidget {
         endDrawer: const UserAppDrawer(),
         body: Stack(
           children: [
-            // Background split: light green top, off-white bottom
-            Column(
-              children: [
-                Container(height: 260.h, color: const Color(0xFFEAF6EA)),
-                Expanded(child: Container(color: const Color(0xFFF4FAF4))),
-              ],
-            ),
+          
+        
             SafeArea(
               child: SingleChildScrollView(
                 child: Column(
@@ -291,7 +286,7 @@ class _StatCardsRow extends StatelessWidget {
       children: [
         Expanded(
           child: _StatCard(
-            iconPath: SvgIcons.calendar,
+            iconPath: SvgIcons.clendBorder,
             title: 'زيارتك القادمة',
             value: '4/8/2026',
             valueColor: AppColors.primary,
@@ -301,7 +296,7 @@ class _StatCardsRow extends StatelessWidget {
         SizedBox(width: 12.w),
         Expanded(
           child: _StatCard(
-            iconPath: SvgIcons.visitsHistory,
+            iconPath: SvgIcons.visitBorder,
             title: 'عدد الزيارات',
             value: '2',
           ),
@@ -329,34 +324,28 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
       decoration: BoxDecoration(
+        border: Border.all(color: AppColors.greenMint, width: 0.3.r)  ,
         // gradient: AppColors.cardGradient,
-        color: Color(0xffEFFBF1
-),
+        color: Color(0xffEFFBF1),
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: AppShadows.primaryShadow,
+        boxShadow: AppShadows.profileItemShadow,
       ),
       child: Column(
         children: [
           Container(
-            width: 48.w,
-            height: 48.w,
-            decoration: BoxDecoration(
-              color: AppColors.backgroundTint,
-              shape: BoxShape.circle,
-            ),
-            padding: EdgeInsets.all(12.r),
+          
+            // padding: EdgeInsets.all(3.r),
             child: SvgPicture.asset(
               iconPath,
-              colorFilter: const ColorFilter.mode(
-                AppColors.primary,
-                BlendMode.srcIn,
-              ),
+              width: 60.w,
+              height: 60.h,
+          
             ),
           ),
           SizedBox(height: 10.h),
           Text(
             title,
-            style: TextStyleManager.style10Medium.copyWith(
+            style: TextStyleManager.style11Medium.copyWith(
               color: AppColors.textPrimary,
             ),
             textAlign: TextAlign.center,
@@ -386,9 +375,11 @@ class _CurrentWeightCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        gradient: AppColors.cardGradient,
+        // gradient: AppColors.cardGradient,
+        color: Color(0xffEFFBF1),
+        border: Border.all(color: AppColors.greenMint, width: 0.3.r),
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: AppShadows.primaryShadow,
+        boxShadow: AppShadows.profileItemShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,7 +390,7 @@ class _CurrentWeightCard extends StatelessWidget {
             children: [
               Text(
                 'وزنك الحالي',
-                style: TextStyleManager.style14Bold.copyWith(
+                style: TextStyleManager.heading3.copyWith(
                   color: AppColors.black,
                 ),
               ),
@@ -409,23 +400,13 @@ class _CurrentWeightCard extends StatelessWidget {
           Row(
             children: [
               // Icon
-              Container(
-                width: 48.w,
-                height: 48.w,
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundTint,
-                  shape: BoxShape.circle,
-                ),
-                padding: EdgeInsets.all(10.r),
-                child: SvgPicture.asset(
-                  SvgIcons.weight,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
-                    BlendMode.srcIn,
-                  ),
-                ),
+              SvgPicture.asset(
+                SvgIcons.visitBorder,
+                width: 60.w,
+                height: 60.h,
+              
               ),
-              SizedBox(width: 16.w),
+              // SizedBox(width: 16.w),
               // Weight label + value
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
