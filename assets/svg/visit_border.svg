@@ -1,0 +1,32 @@
+<svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_dd_3014_8129)">
+<circle cx="27.5" cy="27.5" r="22.5" fill="#EFFBF1"/>
+<circle cx="27.5" cy="27.5" r="22.5" stroke="url(#paint0_linear_3014_8129)" stroke-width="2"/>
+</g>
+<path d="M32.8291 19.8438H23.1709C21.5678 19.8438 20.2656 21.1488 20.2656 22.7519V33.2481C20.2656 34.8512 21.5678 36.1562 23.1709 36.1562H32.8291C34.4322 36.1562 35.7344 34.8512 35.7344 33.2481V22.7519C35.7344 21.1488 34.4322 19.8438 32.8291 19.8438ZM28.2812 24.0597V22.4706C28.2812 22.3131 28.1547 22.1894 28 22.1894C27.8453 22.1894 27.7188 22.3131 27.7188 22.4706V24.0597C27.2884 24.1637 26.9538 24.5012 26.8469 24.9287H24.355C24.4984 23.0444 26.0791 21.5537 28 21.5537C29.9209 21.5537 31.5016 23.0444 31.645 24.9287H29.1531C29.0462 24.5012 28.7116 24.1637 28.2812 24.0597ZM28.5569 24.9287H27.4431C27.5472 24.7262 27.7553 24.5828 28 24.5828C28.2447 24.5828 28.4528 24.7262 28.5569 24.9287Z" fill="#00A417"/>
+<defs>
+<filter id="filter0_dd_3014_8129" x="0" y="0" width="55" height="55" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="2"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3014_8129"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="2"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="effect1_dropShadow_3014_8129" result="effect2_dropShadow_3014_8129"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_3014_8129" result="shape"/>
+</filter>
+<linearGradient id="paint0_linear_3014_8129" x1="40.1" y1="-3.1" x2="22.55" y2="64.85" gradientUnits="userSpaceOnUse">
+<stop stop-color="#00A417"/>
+<stop offset="0.25" stop-color="#76D183"/>
+<stop offset="0.5" stop-color="#B4FFC0"/>
+<stop offset="0.75" stop-color="#76D183"/>
+<stop offset="1" stop-color="#00A417"/>
+</linearGradient>
+</defs>
+</svg>

@@ -65,5 +65,10 @@ class SvgIcons {
   static const String barcode = '$_svgPath/barcode.svg';
   static const String achievement = '$_svgPath/achievement.svg';
   static const String performanceCardGradient = '$_svgPath/performance_card_gradient.svg';
+  static const String weight = '$_svgPath/weight.svg';
+  static const String diamond = '$_svgPath/diamond.svg';
+  static const String clendBorder = '$_svgPath/clend_border.svg';
+  static const String visitBorder = '$_svgPath/visit_border.svg';
+  static const String waterBorder = '$_svgPath/water_border.svg';
 
 }
