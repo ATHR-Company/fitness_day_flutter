@@ -21,7 +21,7 @@ class UserHomePage extends StatelessWidget {
     return Directionality(
       textDirection: ui.TextDirection.rtl,
       child: Scaffold(
-        // backgroundColor: const Color(0xFFF4FAF4),
+        backgroundColor: AppColors.white,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(0.0),
           child: AppBar(
