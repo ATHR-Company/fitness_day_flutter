@@ -5,7 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/core/routes/app_routes.dart';
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/features/shared/widgets/app_phone_field.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 
@@ -28,7 +28,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   void _onSendPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      context.push(AppRoutes.otpVerification, extra: _phoneController.text.trim());
+      context.push(UserAppRoutes.otpVerification, extra: _phoneController.text.trim());
     }
   }
 

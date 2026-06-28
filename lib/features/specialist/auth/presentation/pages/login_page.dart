@@ -12,7 +12,7 @@ import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fitness_day/core/routes/app_routes.dart';
+import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -106,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                             backgroundColor: AppColors.success,
                           ),
                         );
-                        context.go(AppRoutes.home);
+                        context.go(SpecialistAppRoutes.home);
                       } else if (state is AuthFailure) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

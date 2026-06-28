@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/core/routes/app_routes.dart';
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 
@@ -90,7 +90,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       text: 'login.next'.tr(),
                       onPressed: () {
                         Navigator.pop(modalContext); // Close bottom sheet
-                        context.go(AppRoutes.resetPassword); // Navigate to Reset Password page
+                        context.go(UserAppRoutes.resetPassword); // Navigate to Reset Password page
                       },
                     ),
                     SizedBox(height: 32.h),

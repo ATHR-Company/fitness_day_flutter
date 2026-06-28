@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/core/routes/app_routes.dart';
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/features/shared/widgets/app_phone_field.dart';
 import 'package:fitness_day/features/shared/widgets/app_password_field.dart';
@@ -42,7 +43,7 @@ class _SignUpPageState extends State<SignUpPage> {
           backgroundColor: AppColors.success,
         ),
       );
-      context.go(AppRoutes.userhome);
+      context.go(UserAppRoutes.home);
     }
   }
 
@@ -209,7 +210,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         WidgetSpan(
                           child: GestureDetector(
                             onTap: () {
-                              context.go(AppRoutes.userLogin);
+                            context.go(UserAppRoutes.login);
                             },
                             child: Text(
                               'login.login_now'.tr(),

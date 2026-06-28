@@ -6,7 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/core/routes/app_routes.dart';
+import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/features/shared/onboarding/data/models/onboarding_content.dart';
 
@@ -63,7 +63,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _finishOnboarding() {
-    context.go(AppRoutes.roleSelection);
+    context.go(SharedRoutes.roleSelection);
   }
 
   @override
@@ -163,7 +163,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         
                         // Title & Subtitle
                         SizedBox(
-                          height: 140.h, // Fixed height to prevent layout shifting
+                          // height: 150.h, // Fixed height to prevent layout shifting
                           child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 24.w),
                             child: AnimatedSwitcher(
@@ -180,7 +180,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                     textAlign: TextAlign.center,
                                     style: TextStyleManager.heading1,
                                   ),
-                                  SizedBox(height: 16.h),
+                                  SizedBox(height: 10.h),
                                   Text(
                                     _contents[_currentIndex].subtitle,
                                     textAlign: TextAlign.center,
