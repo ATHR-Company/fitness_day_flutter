@@ -91,10 +91,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     CustomButton(
                       text: 'login.next'.tr(),
                       onPressed: () {
-                        Navigator.pop(modalContext); // Close bottom sheet
+                        Navigator.pop(modalContext);
                         context.go(widget.isForgotPassword
                             ? UserAppRoutes.resetPassword
-                            : UserAppRoutes.home);
+                            : UserAppRoutes.userInfo);
                       },
                     ),
                     SizedBox(height: 32.h),

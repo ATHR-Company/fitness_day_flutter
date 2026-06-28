@@ -27,6 +27,7 @@ import 'package:fitness_day/features/user/auth/presentation/pages/forgot_passwor
 import 'package:fitness_day/features/user/auth/presentation/pages/otp_verification_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/reset_password_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/signup_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/user_info_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/home_page.dart'
     as user_home;
 
@@ -112,6 +113,10 @@ class AppRouter {
       GoRoute(
         path: UserAppRoutes.signUp,
         builder: (context, state) => const SignUpPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.userInfo,
+        builder: (context, state) => const UserInfoPage(),
       ),
 
       // ── User App ─────────────────────────────────────────────────────────
