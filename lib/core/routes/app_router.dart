@@ -91,9 +91,19 @@ class AppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.otpVerification,
-        builder: (context, state) => OtpVerificationPage(
-          phoneNumber: state.extra as String? ?? '',
-        ),
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is Map) {
+            return OtpVerificationPage(
+              phoneNumber: extra['phoneNumber']?.toString() ?? '',
+              isForgotPassword: extra['isForgotPassword'] as bool? ?? false,
+            );
+          }
+          return OtpVerificationPage(
+            phoneNumber: extra?.toString() ?? '',
+            isForgotPassword: false,
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.resetPassword,

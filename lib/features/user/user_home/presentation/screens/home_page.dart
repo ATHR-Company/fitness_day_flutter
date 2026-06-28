@@ -37,8 +37,6 @@ class HomePage extends StatelessWidget {
         endDrawer: const UserAppDrawer(),
         body: Stack(
           children: [
-          
-        
             SafeArea(
               child: SingleChildScrollView(
                 child: Column(
@@ -324,7 +322,7 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.greenMint, width: 0.3.r)  ,
+        border: Border.all(color: AppColors.greenMint, width: 0.3.r),
         // gradient: AppColors.cardGradient,
         color: Color(0xffEFFBF1),
         borderRadius: BorderRadius.circular(16.r),
@@ -333,14 +331,8 @@ class _StatCard extends StatelessWidget {
       child: Column(
         children: [
           Container(
-          
             // padding: EdgeInsets.all(3.r),
-            child: SvgPicture.asset(
-              iconPath,
-              width: 60.w,
-              height: 60.h,
-          
-            ),
+            child: SvgPicture.asset(iconPath, width: 60.w, height: 60.h),
           ),
           SizedBox(height: 10.h),
           Text(
@@ -400,12 +392,7 @@ class _CurrentWeightCard extends StatelessWidget {
           Row(
             children: [
               // Icon
-              SvgPicture.asset(
-                SvgIcons.visitBorder,
-                width: 60.w,
-                height: 60.h,
-              
-              ),
+              SvgPicture.asset(SvgIcons.visitBorder, width: 60.w, height: 60.h),
               // SizedBox(width: 16.w),
               // Weight label + value
               Column(
@@ -442,15 +429,26 @@ class _CurrentWeightCard extends StatelessWidget {
               const Spacer(),
               // Tag / badge
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 4.h),
                 decoration: BoxDecoration(
-                  color: AppColors.greenMint,
+                  border: Border.all(color: AppColors.greenMint, width: 1.r),
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF00A417),
+                      Color(0xFF76D183),
+                      Color(0xFFB4FFC0),
+                      Color(0xFF76D183),
+                      Color(0xFF00A417),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Text(
-                  'طبيعي',
+                  'صحى',
                   style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.greenForest,
+                    color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

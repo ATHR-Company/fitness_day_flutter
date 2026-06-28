@@ -94,7 +94,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         Navigator.pop(modalContext); // Close bottom sheet
                         context.go(widget.isForgotPassword
                             ? UserAppRoutes.resetPassword
-                            : UserAppRoutes.userInfo);
+                            : UserAppRoutes.home);
                       },
                     ),
                     SizedBox(height: 32.h),

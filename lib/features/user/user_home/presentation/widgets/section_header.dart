@@ -21,10 +21,7 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyleManager.style14Medium,
-        ),
+        Text(title, style: TextStyleManager.heading3),
         if (trailing != null)
           trailing!
         else if (onMorePressed != null)
@@ -43,7 +40,8 @@ class SectionHeader extends StatelessWidget {
                 Icon(
                   Icons.keyboard_double_arrow_left_rounded,
                   color: AppColors.primary,
-                  size: 16.w,
+                  size: 30.w,
+                  fontWeight: FontWeight.bold,
                 ),
               ],
             ),
