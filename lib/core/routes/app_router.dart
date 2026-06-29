@@ -18,6 +18,7 @@ import 'package:fitness_day/features/specialist/tasks/presentation/pages/today_t
 import 'package:fitness_day/features/user/auth/presentation/pages/diet_system_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/fitness_system_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/health_problems_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/bmi_report_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/forgot_password_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/login_page.dart'
     as user_login;
@@ -131,6 +132,10 @@ class AppRouter {
       GoRoute(
         path: UserAppRoutes.healthProblems,
         builder: (context, state) => const HealthProblemsPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.bmiReport,
+        builder: (context, state) => const BmiReportPage(),
       ),
 
       // ── User App ──────────────────────────────────────────────────────────
