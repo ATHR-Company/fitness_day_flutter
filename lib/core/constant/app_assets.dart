@@ -81,6 +81,9 @@ class SvgIcons {
   static const String waterBorder = '$_svgPath/water_border.svg';
   static const String varyDiet = '$_svgPath/vary_diet.svg';
   static const String vegeterianDiet = '$_svgPath/vegeterian_diet.svg';
+  static const String trueIcon = '$_svgPath/true.svg';
+  static const String falseIcon = '$_svgPath/false.svg';
+  static const String halfApple = '$_svgPath/half_apple.svg';
 
 }
 

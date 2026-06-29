@@ -17,6 +17,9 @@ import 'package:fitness_day/features/user/user_home/presentation/screens/home_pa
 import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart';
 
+import '../../../features/user/auth/presentation/pages/bmi_report_page.dart';
+import '../../../features/user/auth/presentation/pages/health_problems_page.dart';
+
 class UserAppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: SharedRoutes.splash,
@@ -79,6 +82,14 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.dietSystem,
         builder: (context, state) => const DietSystemPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.healthProblems,
+        builder: (context, state) => const HealthProblemsPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.bmiReport,
+        builder: (context, state) => const BmiReportPage(),
       ),
 
       // ── User App ───────────────────────────────────────────

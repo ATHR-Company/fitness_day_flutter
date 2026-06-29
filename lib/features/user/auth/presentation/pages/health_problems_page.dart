@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -53,7 +54,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
     }
 
     if (_formKey.currentState?.validate() ?? false) {
-      context.go(UserAppRoutes.home);
+      context.push(UserAppRoutes.bmiReport);
     }
   }
 
@@ -159,10 +160,14 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                         ),
                       ),
                       child: Center(
-                        child: Icon(
-                          Icons.check,
-                          color: isYes ? AppColors.white : AppColors.primary,
-                          size: 18.sp,
+                        child: SvgPicture.asset(
+                          SvgIcons.trueIcon,
+                          width: 14.w,
+                          height: 14.w,
+                          colorFilter: ColorFilter.mode(
+                            isYes ? AppColors.white : AppColors.primary,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                     ),
@@ -185,10 +190,14 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                         ),
                       ),
                       child: Center(
-                        child: Icon(
-                          Icons.close,
-                          color: isNo ? AppColors.white : AppColors.error,
-                          size: 18.sp,
+                        child: SvgPicture.asset(
+                          SvgIcons.falseIcon,
+                          width: 12.w,
+                          height: 12.w,
+                          colorFilter: ColorFilter.mode(
+                            isNo ? AppColors.white : AppColors.error,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
                     ),

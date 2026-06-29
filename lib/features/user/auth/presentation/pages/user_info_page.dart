@@ -722,49 +722,6 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 70.w,
-                        child: ListWheelScrollView.useDelegate(
-                          controller: _intScrollController,
-                          itemExtent: 50.h,
-                          physics: const FixedExtentScrollPhysics(),
-                          perspective: 0.005,
-                          onSelectedItemChanged: (index) {
-                            setState(() {
-                              _selectedInt = minWeight + index;
-                            });
-                          },
-                          childDelegate: ListWheelChildBuilderDelegate(
-                            childCount: maxWeight - minWeight + 1,
-                            builder: (context, index) {
-                              final val = minWeight + index;
-                              final isSelected = val == _selectedInt;
-                              return Container(
-                                height: 50.h,
-                                alignment: Alignment.center,
-                                child: Text(
-                                  '$val',
-                                  style: isSelected
-                                      ? TextStyleManager.heading2.copyWith(
-                                          color: AppColors.black,
-                                          fontWeight: FontWeight.bold,
-                                        )
-                                      : TextStyleManager.heading3.copyWith(
-                                          color: AppColors.textSecondary.withValues(alpha: 0.6),
-                                        ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '  .  ',
-                        style: TextStyleManager.heading2.copyWith(
-                          color: AppColors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(
                         width: 50.w,
                         child: ListWheelScrollView.useDelegate(
                           controller: _decimalScrollController,
@@ -781,6 +738,49 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
                             builder: (context, index) {
                               final val = index;
                               final isSelected = val == _selectedDecimal;
+                              return Container(
+                                height: 50.h,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '$val',
+                                  style: isSelected
+                                      ? TextStyleManager.heading2.copyWith(
+                                    color: AppColors.black,
+                                    fontWeight: FontWeight.bold,
+                                  )
+                                      : TextStyleManager.heading3.copyWith(
+                                    color: AppColors.textSecondary.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '  .  ',
+                        style: TextStyleManager.heading2.copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 70.w,
+                        child: ListWheelScrollView.useDelegate(
+                          controller: _intScrollController,
+                          itemExtent: 50.h,
+                          physics: const FixedExtentScrollPhysics(),
+                          perspective: 0.005,
+                          onSelectedItemChanged: (index) {
+                            setState(() {
+                              _selectedInt = minWeight + index;
+                            });
+                          },
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            childCount: maxWeight - minWeight + 1,
+                            builder: (context, index) {
+                              final val = minWeight + index;
+                              final isSelected = val == _selectedInt;
                               return Container(
                                 height: 50.h,
                                 alignment: Alignment.center,
