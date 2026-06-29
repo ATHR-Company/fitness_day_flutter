@@ -1,7 +1,5 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -9,6 +7,8 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
+import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
+import 'package:fitness_day/features/shared/widgets/app_info_field.dart';
 
 class UserInfoPage extends StatefulWidget {
   const UserInfoPage({super.key});
@@ -228,23 +228,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header Back Button Row
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Directionality.of(context) == ui.TextDirection.rtl
-                            ? Icons.arrow_forward_ios
-                            : Icons.arrow_back_ios,
-                        color: AppColors.black,
-                        size: 22.sp,
-                      ),
-                      onPressed: () => context.pop(),
-                    ),
-                  ],
+                child: AppBackHeader(
+                  title: 'login.user_info_title'.tr(),
                 ),
               ),
               Expanded(
@@ -252,20 +239,11 @@ class _UserInfoPageState extends State<UserInfoPage> {
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
                   child: Form(
                     key: _formKey,
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(height: 10.h),
-                        // Title
-                        Text(
-                          'login.user_info_title'.tr(),
-                          textAlign: TextAlign.center,
-                          style: TextStyleManager.heading2.copyWith(
-                            color: AppColors.black,
-                            height: 1.5,
-                          ),
-                        ),
-                        SizedBox(height: 12.h),
+                        //SizedBox(height: 12.h),
                         // Subtitle
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -281,7 +259,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                         SizedBox(height: 32.h),
 
                         // 1. Full Name
-                        _InfoField(
+                        AppInfoField(
                           hint: 'login.full_name_hint'.tr(),
                           iconPath: SvgIcons.person,
                           controller: _fullNameController,
@@ -292,10 +270,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
 
                         // 2. Gender
-                        _InfoField(
+                        AppInfoField(
                           hint: 'login.gender_hint'.tr(),
                           iconPath: SvgIcons.gender,
                           controller: _genderController,
@@ -312,10 +290,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
 
                         // 3. Birth Date
-                        _InfoField(
+                        AppInfoField(
                           hint: 'login.birth_date_hint'.tr(),
                           iconPath: SvgIcons.birthDate,
                           controller: _birthDateController,
@@ -327,10 +305,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
 
                         // 4. Height
-                        _InfoField(
+                        AppInfoField(
                           hint: 'login.height_hint'.tr(),
                           iconPath: SvgIcons.height,
                           controller: _heightController,
@@ -347,10 +325,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
 
                         // 5. Weight
-                        _InfoField(
+                        AppInfoField(
                           hint: 'login.weight_hint'.tr(),
                           iconPath: SvgIcons.weight,
                           controller: _weightController,
@@ -367,10 +345,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
 
                         // 6. Activity level
-                        _InfoField(
+                        AppInfoField(
                           hint: 'login.activity_hint'.tr(),
                           iconPath: SvgIcons.activity,
                           controller: _activityController,
@@ -387,10 +365,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
 
                         // 7. Goal
-                        _InfoField(
+                        AppInfoField(
                           hint: 'login.goal_hint'.tr(),
                           iconPath: SvgIcons.goal,
                           controller: _goalController,
@@ -407,10 +385,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
 
                         // 8. Nearest branch
-                        _InfoField(
+                        AppInfoField(
                           hint: 'login.branch_hint'.tr(),
                           iconPath: SvgIcons.location,
                           controller: _branchController,
@@ -442,77 +420,6 @@ class _UserInfoPageState extends State<UserInfoPage> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Reusable Info Field Widget ──────────────────────────────────────────────
-class _InfoField extends StatelessWidget {
-  final String hint;
-  final String iconPath;
-  final Widget? trailing;
-  final TextEditingController controller;
-  final VoidCallback? onTap;
-  final FormFieldValidator<String>? validator;
-
-  const _InfoField({
-    required this.hint,
-    required this.iconPath,
-    required this.controller,
-    this.trailing,
-    this.onTap,
-    this.validator,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      readOnly: onTap != null,
-      onTap: onTap,
-      validator: validator,
-      textAlign: TextAlign.right,
-      style: TextStyleManager.heading3.copyWith(
-        color: AppColors.black,
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyleManager.heading3.copyWith(
-          color: AppColors.textSecondary,
-        ),
-        // Icon on the right in RTL (prefixIcon constraint start)
-        prefixIcon: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              iconPath,
-              width: 20.w,
-              height: 20.h,
-              colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
-            ),
-          ],
-        ),
-        // Trailing arrow/chevron on the left in RTL (suffixIcon constraint end)
-        suffixIcon: trailing != null
-            ? Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                child: trailing,
-              )
-            : null,
-        contentPadding: EdgeInsets.symmetric(vertical: 15.h),
-        border: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.primary, width: 2.0),
-        ),
-        errorBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.error, width: 1.0),
         ),
       ),
     );

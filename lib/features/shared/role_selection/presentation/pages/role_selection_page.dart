@@ -50,7 +50,7 @@ class RoleSelectionPage extends StatelessWidget {
                   icon: Icon(Icons.person, color: AppColors.white, size: 24.w),
                   color: AppColors.primary,
                   textColor: AppColors.white,
-                  onTap: () => context.go(UserAppRoutes.login),
+                  onTap: () => context.push(UserAppRoutes.login),
                 ),
                 
                 SizedBox(height: 24.h),
@@ -61,7 +61,7 @@ class RoleSelectionPage extends StatelessWidget {
                   icon: SvgPicture.asset(SvgIcons.specialist, height: 24.h),
                   color: const Color(0xFFE2E2E2),
                   textColor: AppColors.black,
-                  onTap: () => context.go(SpecialistAppRoutes.login),
+                  onTap: () => context.push(SpecialistAppRoutes.login),
                 ),
                 
                 const Spacer(),

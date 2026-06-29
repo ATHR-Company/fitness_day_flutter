@@ -10,6 +10,7 @@ class UserAppRoutes extends SharedRoutes {
   static const String userInfo = '/user-info';
   static const String fitnessSystem = '/fitness-system';
   static const String dietSystem = '/diet-system';
+  static const String healthProblems = '/health-problems';
 
   // ── User App ─────────────────────────────────────────────
   static const String home = '/user-home';

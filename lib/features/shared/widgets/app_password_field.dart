@@ -71,6 +71,7 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
       keyboardType: TextInputType.visiblePassword,
       obscureText: _obscureText,
       validator: widget.validator,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       textAlign: TextAlign.right,
       style: TextStyleManager.heading3.copyWith(
         color: AppColors.black,

@@ -83,3 +83,10 @@ class SvgIcons {
   static const String vegeterianDiet = '$_svgPath/vegeterian_diet.svg';
 
 }
+
+/// PNG/JPG asset paths used throughout the application.
+class AppImages {
+  AppImages._();
+
+  static const String healthProblems = '$_imagePath/health_problems.png';
+}
