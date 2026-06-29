@@ -32,7 +32,7 @@ class FollowUpAlertCard extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.1),
+          color: AppColors.textSecondary.withValues(alpha: 0.1),
         ),
         boxShadow: AppShadows.primaryShadow,
       ),

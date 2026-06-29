@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -10,22 +11,20 @@ class Categories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categories = [
-      _CategoryItem(icon: SvgIcons.muscle, label: 'التحديات'),
-      _CategoryItem(icon: SvgIcons.achievement, label: 'التقدم'),
-      _CategoryItem(icon: SvgIcons.barcode, label: 'السعرات'),
-      _CategoryItem(icon: SvgIcons.share, label: 'مشاركة'),
+    final items = [
+      _Item(SvgIcons.muscle,      'home.category_challenges'.tr()),
+      _Item(SvgIcons.achievement, 'home.category_progress'.tr()),
+      _Item(SvgIcons.barcode,     'home.category_calories'.tr()),
+      _Item(SvgIcons.share,       'home.category_share'.tr()),
     ];
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: categories
-          .map((item) => _buildCategoryItem(item))
-          .toList(),
+      children: items.map(_buildItem).toList(),
     );
   }
 
-  Widget _buildCategoryItem(_CategoryItem item) {
+  Widget _buildItem(_Item item) {
     return Column(
       children: [
         Container(
@@ -37,7 +36,7 @@ class Categories extends StatelessWidget {
             color: AppColors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.10),
+                color: AppColors.black.withValues(alpha: 0.14),
                 blurRadius: 10.r,
                 offset: const Offset(0, 4),
               ),
@@ -63,8 +62,8 @@ class Categories extends StatelessWidget {
   }
 }
 
-class _CategoryItem {
+class _Item {
   final String icon;
   final String label;
-  const _CategoryItem({required this.icon, required this.label});
+  const _Item(this.icon, this.label);
 }

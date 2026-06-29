@@ -13,4 +13,9 @@ class UserAppRoutes extends SharedRoutes {
   static const String home = '/user-home';
   static const String notifications = '/notifications';
   static const String profile = '/profile';
+  static const String store = '/store';
+  static const String shareWithFriends = '/share-with-friends';
+  static const String visitLog = '/visit-log';
+  static const String dietPlan = '/diet-plan';
+  static const String workoutPlan = '/workout-plan';
 }

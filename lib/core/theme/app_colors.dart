@@ -147,6 +147,21 @@ class AppColors {
     ],
   );
 
+  static const Color headerBackground = Color(0xFFEAF6EA);
+  static const Color inactiveGray = Color(0xFFDDDDDD);
+
+  static const LinearGradient weightStatusGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      
+      Color(0xFF76D183),
+      Color(0xFFB4FFC0),
+      Color(0xFF76D183),
+      
+    ],
+  );
+
   // ---------------------------------------------------------------------------
   // Unified Case-Insensitive Design Tokens Map
   // ---------------------------------------------------------------------------

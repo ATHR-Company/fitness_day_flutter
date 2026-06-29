@@ -13,6 +13,8 @@ import '../widgets/section_header.dart';
 import '../widgets/follow_up_alert_card.dart';
 import '../../../../shared/widgets/app_drawer.dart';
 
+import '../../../../shared/widgets/exit_dialog.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -20,7 +22,16 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: ui.TextDirection.rtl,
-      child: Scaffold(
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          if (didPop) return;
+          showDialog(
+            context: context,
+            builder: (context) => const ExitDialog(),
+          );
+        },
+        child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(0.0),
@@ -164,6 +175,7 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

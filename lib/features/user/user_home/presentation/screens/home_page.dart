@@ -1,32 +1,145 @@
 import 'dart:ui' as ui;
-import 'package:fitness_day/features/user/user_home/presentation/widgets/categories.dart';
+import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
-import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_text_styles.dart';
-import '../../../../../core/theme/app_shadows.dart';
 import '../widgets/user_app_drawer.dart';
 import '../widgets/home_header.dart';
 import '../widgets/section_header.dart';
+import '../widgets/subscription_banner.dart';
+import '../widgets/hero_image.dart';
+import '../widgets/categories.dart';
+import '../widgets/stat_cards_row.dart';
+import '../widgets/current_weight_card.dart';
+import '../widgets/today_tasks_section.dart';
+import '../widgets/hydration_card.dart';
+import '../widgets/articles_section.dart';
+import '../widgets/unsubscribed_hero_image.dart';
+import '../widgets/subscription_package_card.dart';
+import '../widgets/subscription_packages_grid.dart';
+
+import '../../../../shared/widgets/exit_dialog.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final bool isSubscribed;
+
+  const HomePage({super.key, this.isSubscribed = true});
+
+  // ── Sample data ─────────────────────────────────────────────────────────────
+  static const List<SubscriptionPackageData> _packages = [
+    SubscriptionPackageData(
+      imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
+      name: 'باقة القمة',
+      currentPrice: 2999,
+      oldPrice: 5000,
+      isFavorite: true,
+    ),
+    SubscriptionPackageData(
+      imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400',
+      name: 'كورس الشد والتنحيف',
+      currentPrice: 1994,
+      oldPrice: 4000,
+      isFavorite: true,
+    ),
+    SubscriptionPackageData(
+      imageUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400',
+      name: 'باقة صحي',
+      currentPrice: 3500,
+      oldPrice: 5000,
+      isFavorite: true,
+    ),
+    SubscriptionPackageData(
+      imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
+      name: 'باقة تميز',
+      currentPrice: 3950,
+      oldPrice: 5000,
+      isFavorite: false,
+    ),
+    SubscriptionPackageData(
+      imageUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=400',
+      name: 'باقة الهدف',
+      currentPrice: 1800,
+      oldPrice: 5000,
+      isFavorite: false,
+    ),
+    SubscriptionPackageData(
+      imageUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
+      name: 'باقة القمة',
+      currentPrice: 2750,
+      oldPrice: 5000,
+      isFavorite: false,
+    ),
+  ];
+
+  static const List<TaskData> _tasks = [
+    TaskData(
+      imagePath:
+          'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=200',
+      title: 'وجبة الافطار',
+      description: 'شوفان بالحليب مع مكسرات وعسل',
+      time: '8:00 صباحاً',
+      extraLabel: '350',
+      extraUnit: 'كالورى',
+      extraIcon: Icons.local_fire_department,
+      done: true,
+    ),
+    TaskData(
+      imagePath:
+          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200',
+      title: 'تمرين البلانك',
+      description:
+          'تمرين البلانك يقوى عضلات البطن ويحسن الاستقرار العام للجسم.',
+      time: '8:00 صباحاً',
+      extraLabel: '1',
+      extraUnit: '3',
+      extraIcon: null,
+      done: false,
+    ),
+  ];
+
+  static const List<ArticleData> _articles = [
+    ArticleData(
+      imageUrl:
+          'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400',
+      date: '15/2/2026',
+      views: 1500,
+      title: 'اكتشف 5 أفكار وجبات خفيفة قبل التمرين ..........',
+      body:
+          'اكتشف 5 أفكار وجبات خفيفة قبل التمرين تساعدك على زيادة الطاقة وتحسين الأداء: موز مع زبدة الفول السوداني- كوب زبادي مع عسل وفواكه -حفنة مكسرات مشكلة - شرائح تفاح.....',
+    ),
+    ArticleData(
+      imageUrl:
+          'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
+      date: '10/2/2026',
+      views: 980,
+      title: 'أهمية النوم الجيد لبناء العضلات ..........',
+      body:
+          'النوم الجيد ضروري لعملية بناء العضلات وتعافيها بعد التمرين. تأكد من الحصول على 7-9 ساعات يومياً لتحقيق أفضل النتائج.',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: ui.TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(0.0),
-          child: AppBar(
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          if (didPop) return;
+          showDialog(
+            context: context,
+            builder: (context) => const ExitDialog(),
+          );
+        },
+        child: Scaffold(
+          backgroundColor: AppColors.white,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(0),
+            child: AppBar(
             elevation: 0,
-            backgroundColor: const Color(0xFFEAF6EA),
+            backgroundColor: AppColors.headerBackground,
             systemOverlayStyle: const SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.dark,
@@ -34,569 +147,125 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ),
-        endDrawer: const UserAppDrawer(),
-        body: Stack(
-          children: [
-            SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // ── 1. Header ───────────────────────────────────────────
-                    const HomeHeader(),
-
-                    SizedBox(height: 12.h),
-
-                    // ── 2. Subscription Banner ──────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: const _SubscriptionBanner(),
-                    ),
-
-                    SizedBox(height: 16.h),
-
-                    // ── 3. Hero Banner ──────────────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: const _HeroBanner(),
-                    ),
-
-                    SizedBox(height: 20.h),
-
-                    // ── 4. Categories Row ───────────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: const Categories(),
-                    ),
-
-                    SizedBox(height: 20.h),
-
-                    // ── 5. Stat Cards Row ───────────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: const _StatCardsRow(),
-                    ),
-
-                    SizedBox(height: 16.h),
-
-                    // ── 6. Current Weight Card ──────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: const _CurrentWeightCard(),
-                    ),
-
-                    SizedBox(height: 16.h),
-
-                    // ── 7. Today's Tasks Section ────────────────────────────
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: SectionHeader(
-                        title: "home.todays_tasks".tr(),
-                        onMorePressed: () {},
-                      ),
-                    ),
-
-                    SizedBox(height: 12.h),
-
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: const _TodayTasksList(),
-                    ),
-
-                    SizedBox(height: 32.h),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Subscription Banner
-// ─────────────────────────────────────────────────────────────────────────────
-class _SubscriptionBanner extends StatelessWidget {
-  const _SubscriptionBanner();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 48.h,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF7CD588), Color(0xFFE6FFE9), Color(0xFF7CD588)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(35.r),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // Heart icon
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
-            padding: EdgeInsets.all(6.r),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              shape: BoxShape.circle,
-            ),
-            width: 30.w,
-            height: 30.w,
-            child: SvgPicture.asset(SvgIcons.diamond),
-          ),
-          // End date badge on the right (RTL → visually on right)
-
-          // Subscribe text (center)
-          Expanded(
-            child: Text(
-              "انت الأن مشترك فى باقة صحى ",
-              style: TextStyleManager.style10Medium.copyWith(
-                color: AppColors.greenJungle,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
-            margin: EdgeInsets.all(0.r),
-            height: 48.h,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(35.r),
-            ),
-            child: Center(
-              child: Column(
-                children: [
-                  Text(
-                    'تاريخ الانتهاء',
-                    textAlign: TextAlign.center,
-                    style: TextStyleManager.style9Medium.copyWith(
-                      color: AppColors.white,
-
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 3.h),
-                  Text(
-                    '2026 / 16 / 7',
-                    textAlign: TextAlign.center,
-                    style: TextStyleManager.style9Medium.copyWith(
-                      color: AppColors.white,
-
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Hero Banner
-// ─────────────────────────────────────────────────────────────────────────────
-class _HeroBanner extends StatelessWidget {
-  const _HeroBanner();
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20.r),
-      child: Stack(
-        children: [
-          // Green radial background
-          Container(
-            height: 180.h,
-            decoration: const BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment.center,
-                radius: 1.0,
-                colors: [
-                  Color(0xFFB8F5BE),
-                  Color(0xFF7CD588),
-                  Color(0xFF00A417),
-                ],
-              ),
-            ),
-          ),
-
-          // Fire / logo icon top-right area
-          PositionedDirectional(
-            top: 12.h,
-            start: 16.w,
-            child: Icon(
-              Icons.local_fire_department,
-              color: AppColors.primary,
-              size: 28.sp,
-            ),
-          ),
-
-          // Bottom motivational text bar
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF00A417), Color(0xFF29B63D)],
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                ),
-              ),
-              child: Text(
-                '🏋️ التزم بخطتك الغذائية ، واقترب كل يوم من هدفك 🔥',
-                style: TextStyleManager.style11Medium.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Stat Cards Row  (عدد الزيارات  +  زيارتك القادمة)
-// ─────────────────────────────────────────────────────────────────────────────
-class _StatCardsRow extends StatelessWidget {
-  const _StatCardsRow();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            iconPath: SvgIcons.clendBorder,
-            title: 'زيارتك القادمة',
-            value: '4/8/2026',
-            valueColor: AppColors.primary,
-          ),
-        ),
-
-        SizedBox(width: 12.w),
-        Expanded(
-          child: _StatCard(
-            iconPath: SvgIcons.visitBorder,
-            title: 'عدد الزيارات',
-            value: '2',
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String iconPath;
-  final String title;
-  final String value;
-  final Color? valueColor;
-
-  const _StatCard({
-    required this.iconPath,
-    required this.title,
-    required this.value,
-    this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.greenMint, width: 0.3.r),
-        // gradient: AppColors.cardGradient,
-        color: Color(0xffEFFBF1),
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: AppShadows.profileItemShadow,
-      ),
-      child: Column(
-        children: [
-          Container(
-            // padding: EdgeInsets.all(3.r),
-            child: SvgPicture.asset(iconPath, width: 60.w, height: 60.h),
-          ),
-          SizedBox(height: 10.h),
-          Text(
-            title,
-            style: TextStyleManager.style11Medium.copyWith(
-              color: AppColors.textPrimary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            value,
-            style: TextStyleManager.style14Bold.copyWith(
-              color: valueColor ?? AppColors.primary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Current Weight Card  (وزنك الحالي)
-// ─────────────────────────────────────────────────────────────────────────────
-class _CurrentWeightCard extends StatelessWidget {
-  const _CurrentWeightCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        // gradient: AppColors.cardGradient,
-        color: Color(0xffEFFBF1),
-        border: Border.all(color: AppColors.greenMint, width: 0.3.r),
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: AppShadows.profileItemShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'وزنك الحالي',
-                style: TextStyleManager.heading3.copyWith(
-                  color: AppColors.black,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Row(
-            children: [
-              // Icon
-              SvgPicture.asset(SvgIcons.visitBorder, width: 60.w, height: 60.h),
-              // SizedBox(width: 16.w),
-              // Weight label + value
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'وزنك الحالي',
-                    style: TextStyleManager.style10Medium.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        '57.8',
-                        style: TextStyleManager.style28Bold.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        'كجم',
-                        style: TextStyleManager.style11Medium.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const Spacer(),
-              // Tag / badge
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.greenMint, width: 1.r),
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF00A417),
-                      Color(0xFF76D183),
-                      Color(0xFFB4FFC0),
-                      Color(0xFF76D183),
-                      Color(0xFF00A417),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Text(
-                  'صحى',
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Today's Tasks List  (مهام اليوم)
-// ─────────────────────────────────────────────────────────────────────────────
-class _TodayTasksList extends StatelessWidget {
-  const _TodayTasksList();
-
-  @override
-  Widget build(BuildContext context) {
-    final tasks = [
-      _TaskData(
-        icon: SvgIcons.diet,
-        title: 'خطة التغذية',
-        subtitle: 'تناول وجبة الإفطار',
-        time: '8:00 صباحاً',
-        done: true,
-      ),
-      _TaskData(
-        icon: SvgIcons.workout,
-        title: 'تمرين اليوم',
-        subtitle: 'تمرين الجزء العلوي',
-        time: '10:00 صباحاً',
-        done: false,
-      ),
-    ];
-
-    return Column(
-      children: tasks
-          .map(
-            (task) => Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
-              child: _TaskCard(task: task),
-            ),
-          )
-          .toList(),
-    );
-  }
-}
-
-class _TaskData {
-  final String icon;
-  final String title;
-  final String subtitle;
-  final String time;
-  final bool done;
-
-  const _TaskData({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.time,
-    required this.done,
-  });
-}
-
-class _TaskCard extends StatelessWidget {
-  final _TaskData task;
-
-  const _TaskCard({required this.task});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(14.w),
-      decoration: BoxDecoration(
-        gradient: AppColors.cardGradient,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: AppShadows.primaryShadow,
-      ),
-      child: Row(
-        children: [
-          // Icon circle
-          Container(
-            width: 48.w,
-            height: 48.w,
-            decoration: BoxDecoration(
-              color: AppColors.backgroundTint,
-              shape: BoxShape.circle,
-            ),
-            padding: EdgeInsets.all(12.r),
-            child: SvgPicture.asset(
-              task.icon,
-              colorFilter: const ColorFilter.mode(
-                AppColors.primary,
-                BlendMode.srcIn,
-              ),
-            ),
-          ),
-          SizedBox(width: 12.w),
-          // Text
-          Expanded(
+        endDrawer: UserAppDrawer(isSubscribed: isSubscribed),
+        body: SafeArea(
+          child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  task.title,
-                  style: TextStyleManager.style13Medium.copyWith(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.bold,
+                // 1. Header
+                const HomeHeader(),
+                SizedBox(height: 12.h),
+
+                if (isSubscribed) ...[
+                  // 2. Subscription Banner
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: const SubscriptionBanner(),
                   ),
-                ),
-                SizedBox(height: 2.h),
-                Text(
-                  task.subtitle,
-                  style: TextStyleManager.style10Medium.copyWith(
-                    color: AppColors.textPrimary,
+                  SizedBox(height: 22.h),
+
+                  // 3. Hero Image
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: const HeroImage(),
                   ),
-                ),
-                SizedBox(height: 4.h),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 12.sp,
-                      color: AppColors.textSecondary,
+                  SizedBox(height: 20.h),
+
+                  // 4. Categories
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: const Categories(),
+                  ),
+                  SizedBox(height: 20.h),
+
+                  // 5. Stat Cards
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: const StatCardsRow(),
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // 6. Current Weight
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: const CurrentWeightCard(),
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // 7. Today's Tasks
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: SectionHeader(
+                      title: 'home.todays_tasks'.tr(),
+                      onMorePressed: () {},
                     ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      task.time,
-                      style: TextStyleManager.style9Medium.copyWith(
-                        color: AppColors.textSecondary,
+                  ),
+                  SizedBox(height: 12.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: TodayTasksSection(tasks: _tasks),
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // 8. Hydration
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: const HydrationCard(),
+                  ),
+                  SizedBox(height: 20.h),
+
+                  // 9. Articles
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: SectionHeader(
+                      title: 'home.articles_title'.tr(),
+                      onMorePressed: () {},
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Padding(
+                    padding: EdgeInsets.only(right: 16.w),
+                    child: ArticlesSection(articles: _articles),
+                  ),
+                  SizedBox(height: 32.h),
+                ] else ...[
+                  // Unsubscribed Content
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: const SubscriptionBanner(isSubscribed: false),
+                  ),
+                  SizedBox(height: 22.h),
+                  
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: const UnsubscribedHeroImage(),
+                  ),
+                  SizedBox(height: 24.h),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Text(
+                      'home.choose_suitable_package'.tr(),
+                      style: TextStyleManager.heading3.copyWith(
+                        color: AppColors.black,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 16.h),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: SubscriptionPackagesGrid(packages: _packages),
+                  ),
+                  SizedBox(height: 32.h),
+                ],
               ],
             ),
           ),
-          // Done check
-          Icon(
-            task.done
-                ? Icons.check_circle_rounded
-                : Icons.radio_button_unchecked,
-            color: task.done ? AppColors.primary : AppColors.divider,
-            size: 24.sp,
-          ),
-        ],
+        ),
+      ),
       ),
     );
   }

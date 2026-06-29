@@ -10,26 +10,35 @@ import 'package:go_router/go_router.dart';
 import 'package:fitness_day/features/shared/widgets/logout_dialog.dart';
 
 class UserAppDrawer extends StatelessWidget {
-  const UserAppDrawer({super.key});
+  final bool isSubscribed;
+
+  const UserAppDrawer({super.key, this.isSubscribed = true});
 
   @override
   Widget build(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
+
+    // Determine selected index based on subscription state
     int selectedIndex = -1;
-    if (location == UserAppRoutes.home) {
-      selectedIndex = 0;
-    } else if (location == UserAppRoutes.notifications) {
-      selectedIndex = 1;
-    } else if (location == UserAppRoutes.profile) {
-      selectedIndex = 2;
+    if (isSubscribed) {
+      if (location == UserAppRoutes.home) selectedIndex = 0;
+      else if (location == UserAppRoutes.visitLog) selectedIndex = 1;
+      else if (location == UserAppRoutes.dietPlan) selectedIndex = 2;
+      else if (location == UserAppRoutes.workoutPlan) selectedIndex = 3;
+      else if (location == UserAppRoutes.store) selectedIndex = 4;
+      else if (location == UserAppRoutes.notifications) selectedIndex = 5;
+      else if (location == UserAppRoutes.profile) selectedIndex = 6;
+    } else {
+      if (location == UserAppRoutes.home) selectedIndex = 0;
+      else if (location == UserAppRoutes.store) selectedIndex = 1;
+      else if (location == UserAppRoutes.profile) selectedIndex = 2;
+      else if (location == UserAppRoutes.shareWithFriends) selectedIndex = 3;
     }
 
     return Drawer(
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(
-          right: Radius.circular(30.r),
-        ),
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(30.r)),
       ),
       child: SafeArea(
         child: Column(
@@ -49,7 +58,7 @@ class UserAppDrawer extends StatelessWidget {
                         color: AppColors.divider.withValues(alpha: 0.3)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
+                        color: AppColors.black.withValues(alpha: 0.15),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -65,55 +74,15 @@ class UserAppDrawer extends StatelessWidget {
 
             // Logo
             SvgPicture.asset(SvgIcons.logo, height: 100.h),
-
             SizedBox(height: 32.h),
 
             // Menu Items
             Expanded(
               child: ListView(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
-                children: [
-                  _buildMenuItem(
-                    svgPath: SvgIcons.home,
-                    title: 'drawer.home'.tr(),
-                    isSelected: selectedIndex == 0,
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.go(UserAppRoutes.home);
-                    },
-                  ),
-                  _buildMenuItem(
-                    svgPath: SvgIcons.notification,
-                    title: 'drawer.notifications'.tr(),
-                    isSelected: selectedIndex == 1,
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.push(UserAppRoutes.notifications);
-                    },
-                  ),
-                  _buildMenuItem(
-                    svgPath: SvgIcons.person,
-                    title: 'drawer.my_profile'.tr(),
-                    isSelected: selectedIndex == 2,
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.push(UserAppRoutes.profile);
-                    },
-                  ),
-                  _buildMenuItem(
-                    svgPath: SvgIcons.logout,
-                    title: 'drawer.logout'.tr(),
-                    isSelected: false,
-                    isLogout: true,
-                    onTap: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        builder: (context) => const LogoutDialog(),
-                      );
-                    },
-                  ),
-                ],
+                children: isSubscribed
+                    ? _subscribedItems(context, selectedIndex)
+                    : _unsubscribedItems(context, selectedIndex),
               ),
             ),
           ],
@@ -122,6 +91,130 @@ class UserAppDrawer extends StatelessWidget {
     );
   }
 
+  // ── Subscribed menu ─────────────────────────────────────────────────────────
+  List<Widget> _subscribedItems(BuildContext context, int selected) => [
+        _buildMenuItem(
+          svgPath: SvgIcons.home,
+          title: 'drawer.home'.tr(),
+          isSelected: selected == 0,
+          onTap: () {
+            Navigator.pop(context);
+            context.go(UserAppRoutes.home);
+          },
+        ),
+        _buildMenuItem(
+          svgPath: SvgIcons.visitsHistory,
+          title: 'drawer.visit_log'.tr(),
+          isSelected: selected == 1,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.visitLog);
+          },
+        ),
+        _buildMenuItem(
+          svgPath: SvgIcons.diet,
+          title: 'drawer.diet_plan'.tr(),
+          isSelected: selected == 2,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.dietPlan);
+          },
+        ),
+        _buildMenuItem(
+          svgPath: SvgIcons.workout,
+          title: 'drawer.workout_plan'.tr(),
+          isSelected: selected == 3,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.workoutPlan);
+          },
+        ),
+        _buildMenuItem(
+          svgPath: SvgIcons.barcode,
+          title: 'drawer.store'.tr(),
+          isSelected: selected == 4,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.store);
+          },
+        ),
+        _buildMenuItem(
+          svgPath: SvgIcons.notification,
+          title: 'drawer.notifications_alerts'.tr(),
+          isSelected: selected == 5,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.notifications);
+          },
+        ),
+        _buildMenuItem(
+          svgPath: SvgIcons.person,
+          title: 'drawer.my_profile'.tr(),
+          isSelected: selected == 6,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.profile);
+          },
+        ),
+        _logoutItem(context),
+      ];
+
+  // ── Unsubscribed menu ───────────────────────────────────────────────────────
+  List<Widget> _unsubscribedItems(BuildContext context, int selected) => [
+        _buildMenuItem(
+          svgPath: SvgIcons.home,
+          title: 'drawer.home'.tr(),
+          isSelected: selected == 0,
+          onTap: () {
+            Navigator.pop(context);
+            context.go(UserAppRoutes.home);
+          },
+        ),
+        _buildMenuItem(
+          svgPath: SvgIcons.barcode,
+          title: 'drawer.store'.tr(),
+          isSelected: selected == 1,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.store);
+          },
+        ),
+        _buildMenuItem(
+          svgPath: SvgIcons.person,
+          title: 'drawer.my_profile'.tr(),
+          isSelected: selected == 2,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.profile);
+          },
+        ),
+        _buildMenuItem(
+          svgPath: SvgIcons.share,
+          title: 'drawer.share_with_friends'.tr(),
+          isSelected: selected == 3,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.shareWithFriends);
+          },
+        ),
+        _logoutItem(context),
+      ];
+
+  Widget _logoutItem(BuildContext context) => _buildMenuItem(
+        svgPath: SvgIcons.logout,
+        title: 'drawer.logout'.tr(),
+        isSelected: false,
+        isLogout: true,
+        onTap: () {
+          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (_) => const LogoutDialog(),
+          );
+        },
+      );
+
+  // ── Item builder ────────────────────────────────────────────────────────────
   Widget _buildMenuItem({
     required String svgPath,
     required String title,

@@ -22,11 +22,11 @@ class AppointmentCard extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
+          color: AppColors.textSecondary.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: AppColors.black.withValues(alpha: 0.04),
             blurRadius: 10.r,
             offset: const Offset(0, 4),
           ),
