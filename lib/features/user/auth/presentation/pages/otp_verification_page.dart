@@ -11,7 +11,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
-
+import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
 class OtpVerificationPage extends StatefulWidget {
   final String phoneNumber;
   final bool isForgotPassword;
@@ -92,7 +92,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       text: 'login.next'.tr(),
                       onPressed: () {
                         Navigator.pop(modalContext);
-                        context.go(widget.isForgotPassword
+                        context.pushReplacement(widget.isForgotPassword
                             ? UserAppRoutes.resetPassword
                             : UserAppRoutes.userInfo);
                       },
@@ -162,23 +162,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header Back Button Row
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Directionality.of(context) == ui.TextDirection.rtl
-                            ? Icons.arrow_forward_ios
-                            : Icons.arrow_back_ios,
-                        color: AppColors.black,
-                        size: 22.sp,
-                      ),
-                      onPressed: () => context.pop(),
-                    ),
-                  ],
+                child: AppBackHeader(
+                  title: 'login.verify_title'.tr(),
                 ),
               ),
               Expanded(
@@ -186,18 +173,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
                   child: Form(
                     key: _formKey,
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(height: 20.h),
-                        // Title
-                        Text(
-                          'login.verify_title'.tr(),
-                          textAlign: TextAlign.center,
-                          style: TextStyleManager.heading2.copyWith(
-                            color: AppColors.black,
-                          ),
-                        ),
                         SizedBox(height: 16.h),
                         // Subtitle
                         Padding(

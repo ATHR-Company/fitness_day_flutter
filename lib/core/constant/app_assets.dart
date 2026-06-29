@@ -79,5 +79,14 @@ class SvgIcons {
   static const String clendBorder = '$_svgPath/clend_border.svg';
   static const String visitBorder = '$_svgPath/visit_border.svg';
   static const String waterBorder = '$_svgPath/water_border.svg';
+  static const String varyDiet = '$_svgPath/vary_diet.svg';
+  static const String vegeterianDiet = '$_svgPath/vegeterian_diet.svg';
 
 }
+
+/// PNG/JPG asset paths used throughout the application.
+class AppImages {
+  AppImages._();
+
+  static const String healthProblems = '$_imagePath/health_problems.png';
+}

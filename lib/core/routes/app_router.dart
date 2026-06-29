@@ -1,41 +1,43 @@
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
-import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
-
-// ── Shared pages ───────────────────────────────────────────────────────────
-import 'package:fitness_day/features/shared/splash/presentation/splash_screen.dart';
+import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/features/shared/onboarding/presentation/pages/onboarding_page.dart'
     as onboarding;
 import 'package:fitness_day/features/shared/role_selection/presentation/pages/role_selection_page.dart';
-import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
+import 'package:fitness_day/features/shared/splash/presentation/splash_screen.dart';
 import 'package:fitness_day/features/shared/visits/presentation/pages/visits_page.dart';
-
-// ── Specialist pages ───────────────────────────────────────────────────────
 import 'package:fitness_day/features/specialist/auth/presentation/pages/login_page.dart'
     as specialist_login;
+import 'package:fitness_day/features/specialist/clients/presentation/pages/clients_page.dart';
 import 'package:fitness_day/features/specialist/home/presentation/screens/home_page.dart'
     as specialist_home;
-import 'package:fitness_day/features/specialist/clients/presentation/pages/clients_page.dart';
-import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart';
+import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart'
+    as specialist_profile;
 import 'package:fitness_day/features/specialist/tasks/presentation/pages/today_tasks_page.dart';
-
-// ── User pages ─────────────────────────────────────────────────────────────
+import 'package:fitness_day/features/user/auth/presentation/pages/diet_system_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/fitness_system_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/health_problems_page.dart';
+import 'package:fitness_day/features/user/auth/presentation/pages/forgot_password_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/login_page.dart'
     as user_login;
-import 'package:fitness_day/features/user/auth/presentation/pages/forgot_password_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/otp_verification_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/reset_password_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/signup_page.dart';
 import 'package:fitness_day/features/user/auth/presentation/pages/user_info_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/home_page.dart'
     as user_home;
+import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart'
+    as user_profile;
+import 'package:go_router/go_router.dart';
 
+/// Single combined router — keeps ALL user + specialist routes so that
+/// swapping routerConfig is never needed and "Page Not Found" never occurs.
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: SharedRoutes.splash,
     routes: [
-      // ── Shared ──────────────────────────────────────────────────────────
+      // ── Shared ────────────────────────────────────────────────────────────
       GoRoute(
         path: SharedRoutes.splash,
         builder: (context, state) => const SplashScreen(),
@@ -49,13 +51,13 @@ class AppRouter {
         builder: (context, state) => const RoleSelectionPage(),
       ),
 
-      // ── Specialist Auth ──────────────────────────────────────────────────
+      // ── Specialist Auth ───────────────────────────────────────────────────
       GoRoute(
         path: SpecialistAppRoutes.login,
         builder: (context, state) => const specialist_login.LoginPage(),
       ),
 
-      // ── Specialist App ───────────────────────────────────────────────────
+      // ── Specialist App ────────────────────────────────────────────────────
       GoRoute(
         path: SpecialistAppRoutes.home,
         builder: (context, state) => const specialist_home.HomePage(),
@@ -66,7 +68,7 @@ class AppRouter {
       ),
       GoRoute(
         path: SpecialistAppRoutes.profile,
-        builder: (context, state) => const ProfilePage(),
+        builder: (context, state) => const specialist_profile.ProfilePage(),
       ),
       GoRoute(
         path: SpecialistAppRoutes.notifications,
@@ -81,7 +83,7 @@ class AppRouter {
         builder: (context, state) => const TodayTasksPage(),
       ),
 
-      // ── User Auth ────────────────────────────────────────────────────────
+      // ── User Auth ─────────────────────────────────────────────────────────
       GoRoute(
         path: UserAppRoutes.login,
         builder: (context, state) => const user_login.UserLoginPage(),
@@ -93,15 +95,15 @@ class AppRouter {
       GoRoute(
         path: UserAppRoutes.otpVerification,
         builder: (context, state) {
-          final extra = state.extra;
-          if (extra is Map) {
+          if (state.extra is Map) {
+            final map = state.extra as Map;
             return OtpVerificationPage(
-              phoneNumber: extra['phoneNumber']?.toString() ?? '',
-              isForgotPassword: extra['isForgotPassword'] as bool? ?? false,
+              phoneNumber: map['phoneNumber']?.toString() ?? '',
+              isForgotPassword: map['isForgotPassword'] as bool? ?? false,
             );
           }
           return OtpVerificationPage(
-            phoneNumber: extra?.toString() ?? '',
+            phoneNumber: state.extra?.toString() ?? '',
             isForgotPassword: false,
           );
         },
@@ -118,11 +120,31 @@ class AppRouter {
         path: UserAppRoutes.userInfo,
         builder: (context, state) => const UserInfoPage(),
       ),
+      GoRoute(
+        path: UserAppRoutes.dietSystem,
+        builder: (context, state) => const DietSystemPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.fitnessSystem,
+        builder: (context, state) => const FitnessSystemPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.healthProblems,
+        builder: (context, state) => const HealthProblemsPage(),
+      ),
 
-      // ── User App ─────────────────────────────────────────────────────────
+      // ── User App ──────────────────────────────────────────────────────────
       GoRoute(
         path: UserAppRoutes.home,
         builder: (context, state) => const user_home.HomePage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.notifications,
+        builder: (context, state) => const NotificationsPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.profile,
+        builder: (context, state) => const user_profile.ProfilePage(),
       ),
     ],
   );

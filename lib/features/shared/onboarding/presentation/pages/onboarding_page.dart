@@ -149,6 +149,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                   key: ValueKey<int>(_currentIndex),
                                   fit: BoxFit.contain,
                                   width: double.infinity,
+                                  height: 350.h,
                                 ),
                               ),
                               Positioned(

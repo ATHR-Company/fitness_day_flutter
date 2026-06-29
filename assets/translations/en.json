@@ -43,7 +43,22 @@
     "activity_high": "High Activity",
     "goal_lose": "Weight Loss",
     "goal_gain": "Gain Muscle",
-    "goal_maintain": "Maintain Weight"
+    "goal_maintain": "Maintain Weight",
+    "fitness_title": "Fitness System",
+    "fitness_subtitle": "Please enter your fitness system so we can specify customized exercises that fit your health goals",
+    "weekly_exercises_hint": "Weekly Workout Frequency",
+    "daily_steps_hint": "Approximate Daily Steps",
+    "preferred_exercises_hint": "Preferred Exercises",
+    "daily_exercise_hours_hint": "Daily Exercise Hours",
+    "diet_title": "Diet System",
+    "diet_subtitle_select": "Please select your preferred diet system",
+    "varied_diet": "Varied Diet",
+    "vegetarian_diet": "Vegetarian Diet",
+    "diet_subtitle_enter": "Please enter your nutrition system to help us specify a diet plan for you",
+    "daily_meals_hint": "Number of Daily Meals",
+    "preferred_foods_hint": "Preferred Foods",
+    "disliked_foods_hint": "Disliked Foods",
+    "food_allergies_hint": "Food Allergies"
   },
   "home": {
     "performance_summary_title": "Performance Summary",

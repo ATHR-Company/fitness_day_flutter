@@ -10,6 +10,7 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/features/shared/widgets/app_phone_field.dart';
 import 'package:fitness_day/features/shared/widgets/app_password_field.dart';
+import 'package:fitness_day/features/shared/widgets/app_social_button.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -65,10 +66,11 @@ class _SignUpPageState extends State<SignUpPage> {
             padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: Form(
               key: _formKey,
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 60.h),
+                  SizedBox(height: 40.h),
 
                   // App Logo
                   SvgPicture.asset(
@@ -76,7 +78,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     height: 130.h,
                   ),
 
-                  SizedBox(height: 40.h),
+                  SizedBox(height: 30.h),
 
                   // Welcome Text
                   Text(
@@ -88,7 +90,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
 
-                  SizedBox(height: 40.h),
+                  SizedBox(height: 20.h),
 
                   // Phone Field
                   AppPhoneField(
@@ -101,7 +103,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     },
                   ),
 
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 10.h),
 
                   // Password Field
                   AppPasswordField(
@@ -117,7 +119,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     },
                   ),
 
-                  SizedBox(height: 20.h),
+                  SizedBox(height: 10.h),
 
                   // Confirm Password Field
                   AppPasswordField(
@@ -178,7 +180,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     children: [
                       // Apple Button
                       Expanded(
-                        child: _SocialButton(
+                        child: AppSocialButton(
                           label: LocaleKeys.login_apple.tr(),
                           icon: SvgPicture.asset(SvgIcons.appleLogin, height: 22.h),
                           onTap: () {
@@ -189,7 +191,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       SizedBox(width: 16.w),
                       // Google Button
                       Expanded(
-                        child: _SocialButton(
+                        child: AppSocialButton(
                           label: LocaleKeys.login_google.tr(),
                           icon: SvgPicture.asset(SvgIcons.google, height: 22.h),
                           onTap: () {
@@ -240,53 +242,3 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 }
 
-// ── Social Button Widget ───────────────────────────────────────────────────────
-class _SocialButton extends StatelessWidget {
-  const _SocialButton({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String label;
-  final Widget icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(30.r),
-        child: Container(
-          height: 52.h,
-          decoration: BoxDecoration(
-            color: const Color(0xFFDCDBDB),
-            borderRadius: BorderRadius.circular(30.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                label,
-                style: TextStyleManager.style14Bold.copyWith(
-                  color: AppColors.black,
-                ),
-              ),
-              SizedBox(width: 8.w),
-              icon,
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
