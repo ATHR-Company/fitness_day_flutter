@@ -26,24 +26,21 @@ class RoleSelectionPage extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(height: 80.h),
-                
+
                 // Logo
-                SvgPicture.asset(
-                  SvgIcons.logo,
-                  height: 152.h,
-                ),
-                
+                SvgPicture.asset(SvgIcons.logo, height: 152.h),
+
                 SizedBox(height: 48.h),
-                
+
                 // Welcome Text
                 Text(
                   LocaleKeys.role_selection_welcome_text.tr(),
                   textAlign: TextAlign.center,
                   style: TextStyleManager.heading3,
                 ),
-                
+
                 SizedBox(height: 48.h),
-                
+
                 // Continue as User Button
                 _buildRoleButton(
                   title: LocaleKeys.role_selection_continue_as_user.tr(),
@@ -52,20 +49,20 @@ class RoleSelectionPage extends StatelessWidget {
                   textColor: AppColors.white,
                   onTap: () => context.push(UserAppRoutes.login),
                 ),
-                
+
                 SizedBox(height: 24.h),
-                
+
                 // Continue as Specialist Button
                 _buildRoleButton(
                   title: LocaleKeys.role_selection_continue_as_specialist.tr(),
                   icon: SvgPicture.asset(SvgIcons.specialist, height: 24.h),
-                  color: const Color(0xFFE2E2E2),
+                  color: AppColors.borderGrey,
                   textColor: AppColors.black,
                   onTap: () => context.push(SpecialistAppRoutes.login),
                 ),
-                
+
                 const Spacer(),
-                
+
                 // Agreement Text
                 Padding(
                   padding: EdgeInsets.only(bottom: 24.h),
@@ -76,7 +73,9 @@ class RoleSelectionPage extends StatelessWidget {
                         color: AppColors.black,
                       ),
                       children: [
-                        TextSpan(text: LocaleKeys.role_selection_agreement_text.tr()),
+                        TextSpan(
+                          text: LocaleKeys.role_selection_agreement_text.tr(),
+                        ),
                         TextSpan(
                           text: LocaleKeys.role_selection_terms_of_service.tr(),
                           style: TextStyleManager.style11Medium.copyWith(
@@ -90,7 +89,9 @@ class RoleSelectionPage extends StatelessWidget {
                             color: AppColors.primary,
                           ),
                         ),
-                        TextSpan(text: LocaleKeys.role_selection_in_fitness_day.tr()),
+                        TextSpan(
+                          text: LocaleKeys.role_selection_in_fitness_day.tr(),
+                        ),
                       ],
                     ),
                   ),
@@ -136,9 +137,7 @@ class RoleSelectionPage extends StatelessWidget {
               SizedBox(width: 12.w),
               Text(
                 title,
-                style: TextStyleManager.button.copyWith(
-                  color: textColor,
-                ),
+                style: TextStyleManager.button.copyWith(color: textColor),
               ),
             ],
           ),

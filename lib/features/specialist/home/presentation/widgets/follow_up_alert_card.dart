@@ -31,9 +31,7 @@ class FollowUpAlertCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.1),
-        ),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
         boxShadow: AppShadows.primaryShadow,
       ),
       child: Column(
@@ -56,14 +54,22 @@ class FollowUpAlertCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16.h),
-          
+
           // Details
-          _buildDetailRow('visits.client_name_label'.tr(), clientName, AppColors.primary),
+          _buildDetailRow(
+            'visits.client_name_label'.tr(),
+            clientName,
+            AppColors.primary,
+          ),
           SizedBox(height: 8.h),
-          _buildDetailRow('home.alert_reason'.tr(), alertReason, AppColors.error),
-          
+          _buildDetailRow(
+            'home.alert_reason'.tr(),
+            alertReason,
+            AppColors.error,
+          ),
+
           SizedBox(height: 24.h),
-          
+
           // Button
           Align(
             alignment: AlignmentDirectional.centerEnd,
@@ -90,7 +96,11 @@ class FollowUpAlertCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 4.w),
-                    Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                    Icon(
+                      Icons.keyboard_double_arrow_left,
+                      size: 16.sp,
+                      color: AppColors.white,
+                    ),
                   ],
                 ),
               ),
@@ -115,9 +125,7 @@ class FollowUpAlertCard extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: TextStyleManager.style9Medium.copyWith(
-              color: valueColor,
-            ),
+            style: TextStyleManager.style9Medium.copyWith(color: valueColor),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

@@ -23,7 +23,13 @@ class _TimePickerBottomSheetState extends State<TimePickerBottomSheet> {
     super.initState();
     final now = DateTime.now();
     if (widget.initialTime != null) {
-      _selectedTime = DateTime(now.year, now.month, now.day, widget.initialTime!.hour, widget.initialTime!.minute);
+      _selectedTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        widget.initialTime!.hour,
+        widget.initialTime!.minute,
+      );
     } else {
       _selectedTime = now;
     }

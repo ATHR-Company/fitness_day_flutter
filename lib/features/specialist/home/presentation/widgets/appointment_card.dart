@@ -9,10 +9,7 @@ import '../../../../../core/theme/app_text_styles.dart';
 class AppointmentCard extends StatelessWidget {
   final bool isPastVisit;
 
-  const AppointmentCard({
-    super.key,
-    this.isPastVisit = false,
-  });
+  const AppointmentCard({super.key, this.isPastVisit = false});
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +18,7 @@ class AppointmentCard extends StatelessWidget {
         gradient: AppColors.cardGradient,
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -41,7 +36,8 @@ class AppointmentCard extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: AppColors.greenMint, // Adjust to light green mint if needed
+                color:
+                    AppColors.greenMint, // Adjust to light green mint if needed
                 borderRadius: BorderRadiusDirectional.only(
                   topEnd: Radius.circular(16.r),
                   bottomStart: Radius.circular(16.r),
@@ -56,7 +52,7 @@ class AppointmentCard extends StatelessWidget {
               ),
             ),
           ),
-          
+
           Padding(
             padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
             child: Column(
@@ -90,30 +86,49 @@ class AppointmentCard extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 16.h),
-                
+
                 // Details
-                _buildDetailRow("home.client_name".tr(), "محمد عبدالله", true),
+                _buildDetailRow(
+                  "home.client_name".tr(),
+                  'spec_mock_name'.tr(),
+                  true,
+                ),
                 SizedBox(height: 6.h),
-                _buildDetailRow("home.visit_time".tr(), "اليوم 4:30 مساءا", true),
+                _buildDetailRow(
+                  "home.visit_time".tr(),
+                  'spec_mock_time3'.tr(),
+                  true,
+                ),
                 SizedBox(height: 6.h),
-                _buildDetailRow("home.last_visit".tr(), "منذ يومين", true), // For real data this should map appropriately
-                
+                _buildDetailRow(
+                  "home.last_visit".tr(),
+                  'spec_mock_last_visit'.tr(),
+                  true,
+                ), // For real data this should map appropriately
+
                 SizedBox(height: 24.h),
-                
+
                 // Buttons
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end, // Aligns to the left in RTL
+                  mainAxisAlignment:
+                      MainAxisAlignment.end, // Aligns to the left in RTL
                   children: [
                     if (!isPastVisit) ...[
                       OutlinedButton(
                         onPressed: () {},
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary, width: 1.5),
+                          side: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24.r),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 8.h,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -126,7 +141,11 @@ class AppointmentCard extends StatelessWidget {
                               ),
                             ),
                             SizedBox(width: 4.w),
-                            Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.primary),
+                            Icon(
+                              Icons.keyboard_double_arrow_left,
+                              size: 16.sp,
+                              color: AppColors.primary,
+                            ),
                           ],
                         ),
                       ),
@@ -140,23 +159,36 @@ class AppointmentCard extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24.r),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 8.h,
+                        ),
                         elevation: 0,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            isPastVisit 
-                              ? 'clients_page.details'.tr().replaceAll('»', '').trim()
-                              : "home.view_visit".tr().replaceAll('»', '').trim(),
+                            isPastVisit
+                                ? 'clients_page.details'
+                                      .tr()
+                                      .replaceAll('»', '')
+                                      .trim()
+                                : "home.view_visit"
+                                      .tr()
+                                      .replaceAll('»', '')
+                                      .trim(),
                             style: TextStyleManager.style11Medium.copyWith(
                               color: AppColors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           SizedBox(width: 4.w),
-                          Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                          Icon(
+                            Icons.keyboard_double_arrow_left,
+                            size: 16.sp,
+                            color: AppColors.white,
+                          ),
                         ],
                       ),
                     ),

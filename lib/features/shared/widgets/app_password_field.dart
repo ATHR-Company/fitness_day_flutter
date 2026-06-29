@@ -34,7 +34,7 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
     _controller = widget.controller ?? TextEditingController();
     _hasText = _controller.text.isNotEmpty;
     _controller.addListener(_onTextChanged);
-    
+
     _focusNode.addListener(() {
       setState(() {});
     });
@@ -62,8 +62,12 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
   @override
   Widget build(BuildContext context) {
     final isFocused = _focusNode.hasFocus;
-    final iconColor = (isFocused || _hasText) ? AppColors.primary : AppColors.textSecondary;
-    final dividerColor = (isFocused || _hasText) ? AppColors.primary : AppColors.divider;
+    final iconColor = (isFocused || _hasText)
+        ? AppColors.primary
+        : AppColors.textSecondary;
+    final dividerColor = (isFocused || _hasText)
+        ? AppColors.primary
+        : AppColors.divider;
 
     return TextFormField(
       focusNode: _focusNode,
@@ -72,10 +76,8 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
       obscureText: _obscureText,
       validator: widget.validator,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      textAlign: TextAlign.right,
-      style: TextStyleManager.heading3.copyWith(
-        color: AppColors.black,
-      ),
+      textAlign: TextAlign.start,
+      style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: widget.hint ?? 'login.password_hint'.tr(),
         hintStyle: TextStyleManager.heading3.copyWith(
@@ -95,18 +97,11 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
               ),
               SizedBox(width: 12.w),
               // The vertical divider
-              Container(
-                width: 1.w,
-                height: 24.h,
-                color: dividerColor,
-              ),
+              Container(width: 1.w, height: 24.h, color: dividerColor),
             ],
           ),
         ),
-        prefixIconConstraints: BoxConstraints(
-          minWidth: 48.w,
-          minHeight: 24.h,
-        ),
+        prefixIconConstraints: BoxConstraints(minWidth: 48.w, minHeight: 24.h),
         // Password visibility toggle (only visible when there is text)
         suffixIcon: _hasText
             ? IconButton(
@@ -114,7 +109,10 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
                   _obscureText ? SvgIcons.eyeClosed : SvgIcons.eye,
                   width: 20.w,
                   height: 20.h,
-                  colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.textSecondary,
+                    BlendMode.srcIn,
+                  ),
                 ),
                 onPressed: () {
                   setState(() {

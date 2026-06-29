@@ -8,6 +8,7 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/features/shared/widgets/app_phone_field.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
+
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
 
@@ -51,9 +52,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: AppBackHeader(
-                  title: 'login.forgot_password_title'.tr(),
-                ),
+                child: AppBackHeader(title: 'login.forgot_password_title'.tr()),
               ),
               Expanded(
                 child: SingleChildScrollView(

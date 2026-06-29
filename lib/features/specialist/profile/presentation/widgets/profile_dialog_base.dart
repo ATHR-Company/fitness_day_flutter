@@ -28,10 +28,7 @@ class ProfileDialogBase extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 24.w),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFFEFFFF2),
-              Color(0xFFFFFFFF),
-            ],
+            colors: [AppColors.lightGreenBackground, AppColors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -69,7 +66,7 @@ class ProfileDialogBase extends StatelessWidget {
 
             // Content
             child,
-            
+
             SizedBox(height: 32.h),
 
             // Action Buttons

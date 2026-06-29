@@ -55,7 +55,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ConversationsPage()),
+                        MaterialPageRoute(
+                          builder: (_) => const ConversationsPage(),
+                        ),
                       );
                     },
                   ),
@@ -99,7 +101,8 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 child: (_selectedTabIndex == 1 || _selectedTabIndex == 2)
                     ? CustomButton(
                         text: 'visit_details.end_visit'.tr(),
-                        color: AppColors.greenMint, // Match lighter green from design
+                        color: AppColors
+                            .greenMint, // Match lighter green from design
                         onPressed: () {},
                       )
                     : Row(
@@ -200,7 +203,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const AddExercisePage()),
+                      MaterialPageRoute(
+                        builder: (_) => const AddExercisePage(),
+                      ),
                     );
                   },
                 ),
@@ -210,7 +215,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const AddActivityPage()),
+                      MaterialPageRoute(
+                        builder: (_) => const AddActivityPage(),
+                      ),
                     );
                   },
                 ),
@@ -220,7 +227,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 _buildSectionTitle('visit_details.nutrition'.tr(), 1),
                 SizedBox(height: 12.h),
                 _buildNutritionCard(),
-                
+
                 SizedBox(height: 24.h),
                 _buildSectionTitle('visit_details.exercises'.tr(), 1),
                 SizedBox(height: 12.h),
@@ -240,12 +247,18 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     );
   }
 
-  Widget _buildActionCard({required String title, required VoidCallback onPressed}) {
+  Widget _buildActionCard({
+    required String title,
+    required VoidCallback onPressed,
+  }) {
     return Container(
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.4), width: 1),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.4),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -258,10 +271,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyleManager.style11Medium,
-          ),
+          Text(title, style: TextStyleManager.style11Medium),
           ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
@@ -278,13 +288,21 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'visit_details.add'.tr().replaceAll('»', '').replaceAll('«', '').trim(),
+                  'visit_details.add'
+                      .tr()
+                      .replaceAll('»', '')
+                      .replaceAll('«', '')
+                      .trim(),
                   style: TextStyleManager.smallButtons.copyWith(
                     color: AppColors.white,
                   ),
                 ),
                 SizedBox(width: 2.w),
-                Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                Icon(
+                  Icons.keyboard_double_arrow_left,
+                  size: 16.sp,
+                  color: AppColors.white,
+                ),
               ],
             ),
           ),
@@ -308,9 +326,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
       width: 60.w,
       decoration: BoxDecoration(
         color: AppColors.backgroundTint,
-        borderRadius: BorderRadius.horizontal(
-          right: Radius.circular(20.r),
-        ),
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(20.r)),
       ),
       child: Column(
         children: List.generate(days.length, (index) {
@@ -336,10 +352,15 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               ),
               child: Center(
                 child: Text(
-                  days[index].replaceAll(' ', '\n'), // Put day name and number on separate lines
+                  days[index].replaceAll(
+                    ' ',
+                    '\n',
+                  ), // Put day name and number on separate lines
                   textAlign: TextAlign.center,
                   style: TextStyleManager.style10Medium.copyWith(
-                    color: isSelected ? AppColors.white : AppColors.textSecondary,
+                    color: isSelected
+                        ? AppColors.white
+                        : AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -384,7 +405,10 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
         boxShadow: AppShadows.primaryShadow,
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5), width: 1),
+        border: Border.all(
+          color: AppColors.divider.withValues(alpha: 0.5),
+          width: 1,
+        ),
       ),
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -393,12 +417,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           // Header Row
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyleManager.heading3,
-                ),
-              ),
+              Expanded(child: Text(title, style: TextStyleManager.heading3)),
               if (time != null) ...[
                 SvgPicture.asset(SvgIcons.clock, height: 13.sp),
                 SizedBox(width: 4.w),
@@ -409,7 +428,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                   ),
                 ),
               ],
-              const SizedBox(width: 7,),
+              const SizedBox(width: 7),
               Icon(
                 Icons.check_circle_rounded,
                 color: isCompleted ? AppColors.primary : AppColors.divider,
@@ -417,7 +436,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               ),
             ],
           ),
-          
+
           if (subtitle != null) ...[
             SizedBox(height: 8.h),
             Text(
@@ -454,14 +473,22 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'visit_details.edit'.tr().replaceAll('»', '').replaceAll('«', '').trim(),
+                        'visit_details.edit'
+                            .tr()
+                            .replaceAll('»', '')
+                            .replaceAll('«', '')
+                            .trim(),
                         style: TextStyleManager.smallButtons.copyWith(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(width: 2.w),
-                      Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                      Icon(
+                        Icons.keyboard_double_arrow_left,
+                        size: 16.sp,
+                        color: AppColors.white,
+                      ),
                     ],
                   ),
                 ),
@@ -484,13 +511,21 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'visit_details.delete'.tr().replaceAll('»', '').replaceAll('«', '').trim(),
+                        'visit_details.delete'
+                            .tr()
+                            .replaceAll('»', '')
+                            .replaceAll('«', '')
+                            .trim(),
                         style: TextStyleManager.smallButtons.copyWith(
                           color: AppColors.white,
                         ),
                       ),
                       SizedBox(width: 2.w),
-                      Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                      Icon(
+                        Icons.keyboard_double_arrow_left,
+                        size: 16.sp,
+                        color: AppColors.white,
+                      ),
                     ],
                   ),
                 ),
@@ -504,22 +539,49 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
 
   Widget _buildNutritionCard() {
     return _buildBaseCard(
-      title: 'وجبة الافطار',
+      title: 'visit_details_mock_breakfast'.tr(),
       isCompleted: true,
-      time: '8:00 صباحا',
-      subtitle: 'شوفان بالحليب مع مكسرات وعسل',
+      time: 'visit_details_mock_breakfast_time'.tr(),
+      subtitle: 'visit_details_mock_breakfast_desc'.tr(),
       details: RichText(
         text: TextSpan(
-          style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary, height: 1.5),
+          style: TextStyleManager.style9Medium.copyWith(
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
           children: [
-            const TextSpan(text: 'الكمية: شوفان : '),
-            TextSpan(text: '45g', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-            const TextSpan(text: ' - حليب : '),
-            TextSpan(text: '250ml', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-            const TextSpan(text: ' -مكسرات : '),
-            TextSpan(text: '10g', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-            const TextSpan(text: ' - عسل : '),
-            TextSpan(text: '5g', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            TextSpan(text: 'visit_details_mock_qty_oats'.tr()),
+            TextSpan(
+              text: '45g',
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(text: 'visit_details_mock_milk'.tr()),
+            TextSpan(
+              text: '250ml',
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(text: 'visit_details_mock_nuts'.tr()),
+            TextSpan(
+              text: '10g',
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(text: 'visit_details_mock_honey'.tr()),
+            TextSpan(
+              text: '5g',
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
@@ -528,36 +590,57 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
 
   Widget _buildExerciseCard() {
     return _buildBaseCard(
-      title: 'تمرين البلانك',
+      title: 'visit_details_mock_plank'.tr(),
       isCompleted: true,
-      time: '8:00 صباحا',
+      time: 'visit_details_mock_breakfast_time'.tr(),
       details: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary,),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'عدد المجموعات : '),
-                TextSpan(text: '5 مجموعات', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary)),
+                TextSpan(text: 'visit_details_mock_sets'.tr()),
+                TextSpan(
+                  text: 'visit_details_mock_5_sets'.tr(),
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary,),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'مدة الاستراحة بين المجموعات : '),
-                TextSpan(text: '20 ثانيه', style: TextStyleManager.heading3.copyWith(color: AppColors.primary)),
+                TextSpan(text: 'visit_details_mock_rest_time'.tr()),
+                TextSpan(
+                  text: 'visit_details_mock_20_sec'.tr(),
+                  style: TextStyleManager.heading3.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary,),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'عدد التكرارات : '),
-                TextSpan(text: '5', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary)),
+                TextSpan(text: 'visit_details_mock_reps'.tr()),
+                TextSpan(
+                  text: '5',
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -568,26 +651,40 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
 
   Widget _buildActivityCard() {
     return _buildBaseCard(
-      title: 'تمرين المشي',
+      title: 'visit_details_mock_walk'.tr(),
       isCompleted: false,
       details: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'عدد الخطوات : '),
-                TextSpan(text: '5000 خطوة', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary,)),
+                TextSpan(text: 'visit_details_mock_steps'.tr()),
+                TextSpan(
+                  text: 'visit_details_mock_5000_steps'.tr(),
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'مدة الاستراحة : '),
-                TextSpan(text: '20 ثانيه', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary,)),
+                TextSpan(text: 'visit_details_mock_rest'.tr()),
+                TextSpan(
+                  text: 'visit_details_mock_20_sec'.tr(),
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),

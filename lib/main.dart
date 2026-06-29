@@ -13,8 +13,8 @@ void main() async {
       supportedLocales: const [Locale('ar'), Locale('en')],
       path:
           'assets/translations', // <-- change the path of the translation files
-      fallbackLocale: const Locale('ar'),
-      startLocale: const Locale('ar'), // Set default to Arabic
+      fallbackLocale: const Locale('en'),
+      startLocale: const Locale('en'), // Set default to English
       child: const FitnessDay(),
     ),
   );

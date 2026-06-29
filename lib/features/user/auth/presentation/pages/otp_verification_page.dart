@@ -12,6 +12,7 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
+
 class OtpVerificationPage extends StatefulWidget {
   final String phoneNumber;
   final bool isForgotPassword;
@@ -92,9 +93,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       text: 'login.next'.tr(),
                       onPressed: () {
                         Navigator.pop(modalContext);
-                        context.pushReplacement(widget.isForgotPassword
-                            ? UserAppRoutes.resetPassword
-                            : UserAppRoutes.userInfo);
+                        context.pushReplacement(
+                          widget.isForgotPassword
+                              ? UserAppRoutes.resetPassword
+                              : UserAppRoutes.userInfo,
+                        );
                       },
                     ),
                     SizedBox(height: 32.h),
@@ -105,10 +108,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               Positioned(
                 bottom: 0,
                 left: 0,
-                child: SvgPicture.asset(
-                  SvgIcons.decor,
-                  height: 180.h,
-                ),
+                child: SvgPicture.asset(SvgIcons.decor, height: 180.h),
               ),
               // Overflow checkmark badge
               Positioned(
@@ -164,9 +164,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: AppBackHeader(
-                  title: 'login.verify_title'.tr(),
-                ),
+                child: AppBackHeader(title: 'login.verify_title'.tr()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -193,7 +191,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         SizedBox(height: 48.h),
                         // OTP Pinput Fields
                         Directionality(
-                          textDirection: ui.TextDirection.ltr, // Keep pin numbers LTR ordered
+                          textDirection: ui
+                              .TextDirection
+                              .ltr, // Keep pin numbers LTR ordered
                           child: Pinput(
                             length: 5,
                             controller: _pinController,
@@ -207,7 +207,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                             preFilledWidget: Text(
                               '-',
                               style: TextStyleManager.heading2.copyWith(
-                                color: AppColors.textSecondary.withValues(alpha: 0.5),
+                                color: AppColors.textSecondary.withValues(
+                                  alpha: 0.5,
+                                ),
                               ),
                             ),
                             validator: (value) {

@@ -66,20 +66,35 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
                 color: AppColors.primary,
                 shape: BoxShape.circle,
               ),
-              selectedTextStyle: TextStyleManager.style11Medium.copyWith(color: AppColors.white),
+              selectedTextStyle: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.white,
+              ),
               todayDecoration: const BoxDecoration(
                 color: Colors.transparent,
                 shape: BoxShape.circle,
               ),
-              todayTextStyle: TextStyleManager.style11Medium.copyWith(color: AppColors.black, fontWeight: FontWeight.bold),
-              defaultTextStyle: TextStyleManager.style11Medium.copyWith(color: AppColors.textSecondary),
-              weekendTextStyle: TextStyleManager.style11Medium.copyWith(color: AppColors.textSecondary),
+              todayTextStyle: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.bold,
+              ),
+              defaultTextStyle: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              weekendTextStyle: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               outsideDaysVisible: true,
-              outsideTextStyle: TextStyleManager.style11Medium.copyWith(color: AppColors.divider),
+              outsideTextStyle: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.divider,
+              ),
             ),
             daysOfWeekStyle: DaysOfWeekStyle(
-              weekdayStyle: TextStyleManager.style9Medium.copyWith(color: AppColors.divider),
-              weekendStyle: TextStyleManager.style9Medium.copyWith(color: AppColors.divider),
+              weekdayStyle: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.divider,
+              ),
+              weekendStyle: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.divider,
+              ),
             ),
           ),
         ],
@@ -102,23 +117,39 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1, 1);
+                  _focusedDay = DateTime(
+                    _focusedDay.year,
+                    _focusedDay.month + 1,
+                    1,
+                  );
                 });
               },
-              child: Icon(Icons.chevron_left, color: AppColors.primary, size: 24.sp),
+              child: Icon(
+                Icons.chevron_left,
+                color: AppColors.primary,
+                size: 24.sp,
+              ),
             ),
             SizedBox(width: 8.w),
             GestureDetector(
               onTap: () {
                 setState(() {
-                  _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1, 1);
+                  _focusedDay = DateTime(
+                    _focusedDay.year,
+                    _focusedDay.month - 1,
+                    1,
+                  );
                 });
               },
-              child: Icon(Icons.chevron_right, color: AppColors.primary, size: 24.sp),
+              child: Icon(
+                Icons.chevron_right,
+                color: AppColors.primary,
+                size: 24.sp,
+              ),
             ),
           ],
         ),
-        
+
         // Right side: Date + Icon
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -135,7 +166,10 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
               SvgIcons.calendar,
               width: 20.sp,
               height: 20.sp,
-              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(
+                AppColors.primary,
+                BlendMode.srcIn,
+              ),
             ),
           ],
         ),

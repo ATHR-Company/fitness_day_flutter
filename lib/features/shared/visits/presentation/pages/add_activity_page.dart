@@ -28,7 +28,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
       title: 'add_activity.activity_name'.tr(),
       items: items,
       showSearch: true,
-      initialSelectedIndex: _selectedActivityName != null ? items.indexOf(_selectedActivityName!) : 0,
+      initialSelectedIndex: _selectedActivityName != null
+          ? items.indexOf(_selectedActivityName!)
+          : 0,
       onConfirm: (index) {
         setState(() {
           _selectedActivityName = items[index];
@@ -54,9 +56,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
               // Back Header
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: AppBackHeader(
-                  title: 'add_activity.title'.tr(),
-                ),
+                child: AppBackHeader(title: 'add_activity.title'.tr()),
               ),
 
               SizedBox(height: 32.h),
@@ -64,21 +64,28 @@ class _AddActivityPageState extends State<AddActivityPage> {
               // Content Area
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 16.h,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Activity Name
                       _buildLabel('add_activity.activity_name'.tr()),
                       _buildTextField(
-                        hint: _selectedActivityName ?? 'add_activity.activity_name_hint'.tr(),
+                        hint:
+                            _selectedActivityName ??
+                            'add_activity.activity_name_hint'.tr(),
                         icon: Icons.chevron_left,
                         onTap: _showActivityNameSheet,
-                        valueColor: _selectedActivityName != null ? AppColors.black : AppColors.textSecondary.withValues(alpha: 0.5),
+                        valueColor: _selectedActivityName != null
+                            ? AppColors.black
+                            : AppColors.textSecondary.withValues(alpha: 0.5),
                       ),
-                      
+
                       SizedBox(height: 20.h),
-                      
+
                       // Target Goal
                       _buildLabel('add_activity.target_goal'.tr()),
                       _buildTargetGoalField(),
@@ -94,7 +101,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                 padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                 child: CustomButton(
                   text: 'add_activity.add_button'.tr(),
-                  color: AppColors.primary, 
+                  color: AppColors.primary,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -120,7 +127,12 @@ class _AddActivityPageState extends State<AddActivityPage> {
     );
   }
 
-  Widget _buildTextField({required String hint, required IconData icon, VoidCallback? onTap, Color? valueColor}) {
+  Widget _buildTextField({
+    required String hint,
+    required IconData icon,
+    VoidCallback? onTap,
+    Color? valueColor,
+  }) {
     return TextFormField(
       readOnly: onTap != null,
       onTap: onTap,
@@ -128,7 +140,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyleManager.heading3.copyWith(color: valueColor ?? AppColors.textSecondary.withValues(alpha: 0.5)),
+        hintStyle: TextStyleManager.heading3.copyWith(
+          color: valueColor ?? AppColors.textSecondary.withValues(alpha: 0.5),
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         fillColor: AppColors.white,
         filled: true,
@@ -159,8 +173,10 @@ class _AddActivityPageState extends State<AddActivityPage> {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: 'add_activity.target_goal_hint'.tr(),
-        hintStyle: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary.withValues(alpha: 0.5)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h), 
+        hintStyle: TextStyleManager.heading3.copyWith(
+          color: AppColors.textSecondary.withValues(alpha: 0.5),
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         fillColor: AppColors.white,
         filled: true,
         border: OutlineInputBorder(
@@ -185,9 +201,15 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   decoration: BoxDecoration(
                     color: AppColors.backgroundTint,
                     borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: AppColors.divider.withValues(alpha: 0.3), width: 1),
+                    border: Border.all(
+                      color: AppColors.divider.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 8.h,
+                  ),
                   child: Row(
                     children: [
                       Text(

@@ -36,9 +36,9 @@ class _LoginPageState extends State<LoginPage> {
   void _onLoginPressed() {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthCubit>().login(
-            _phoneController.text.trim(),
-            _passwordController.text,
-          );
+        _phoneController.text.trim(),
+        _passwordController.text,
+      );
     }
   }
 
@@ -63,10 +63,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   SizedBox(height: 60.h),
                   // App Logo from SVG
-                  SvgPicture.asset(
-                    SvgIcons.logo,
-                    height: 120.h,
-                  ),
+                  SvgPicture.asset(SvgIcons.logo, height: 120.h),
                   SizedBox(height: 40.h),
                   // Welcome Text
                   Text(

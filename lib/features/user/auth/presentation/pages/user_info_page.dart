@@ -74,7 +74,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Flexible(
                   child: ListView.separated(
@@ -84,7 +84,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
                     separatorBuilder: (context, index) => SizedBox(height: 8.h),
                     itemBuilder: (context, index) {
                       final option = options[index];
-                      final isSelected = option == controller.text ||
+                      final isSelected =
+                          option == controller.text ||
                           (controller.text.isEmpty && index == 0);
 
                       return GestureDetector(
@@ -96,7 +97,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
                         },
                         child: Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 14.h,
+                          ),
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColors.backgroundTint
@@ -105,10 +109,14 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           ),
                           child: Text(
                             option,
-                            textAlign: TextAlign.right,
+                            textAlign: TextAlign.start,
                             style: TextStyleManager.heading3.copyWith(
-                              color: isSelected ? AppColors.primary : AppColors.black.withValues(alpha: 0.7),
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.black.withValues(alpha: 0.7),
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -126,8 +134,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
   void _showGenderPicker() {
     _showSelectionPopup(
-      title: 'النوع',
-      options: ['ذكر', 'أنثى'],
+      title: 'auth_user_info_gender'.tr(),
+      options: ['auth_gender_male'.tr(), 'auth_gender_female'.tr()],
       controller: _genderController,
     );
   }
@@ -161,15 +169,20 @@ class _UserInfoPageState extends State<UserInfoPage> {
       context: context,
       barrierColor: AppColors.black.withValues(alpha: 0.5),
       builder: (ctx) {
-        final currentVal = int.tryParse(_heightController.text.replaceAll(' سم', '')) ?? 170;
+        final currentVal =
+            int.tryParse(
+              _heightController.text.replaceAll(
+                ' ${'auth_height_unit'.tr()}',
+                '',
+              ),
+            ) ??
+            170;
         return HeightPickerDialog(initialHeight: currentVal);
       },
     ).then((val) {
       if (val != null) {
         setState(() {
-          _heightController.text = '$val - سم'; // or '$val سم' but wait, mockup says '169' (we can use standard format)
-          // Wait! In the first mockup, height was entered. Let's save as '$val سم'
-          _heightController.text = '$val سم';
+          _heightController.text = '$val ${'auth_height_unit'.tr()}';
         });
       }
     });
@@ -180,13 +193,20 @@ class _UserInfoPageState extends State<UserInfoPage> {
       context: context,
       barrierColor: AppColors.black.withValues(alpha: 0.5),
       builder: (ctx) {
-        final currentVal = double.tryParse(_weightController.text.replaceAll(' كجم', '')) ?? 70.0;
+        final currentVal =
+            double.tryParse(
+              _weightController.text.replaceAll(
+                ' ${'auth_weight_unit'.tr()}',
+                '',
+              ),
+            ) ??
+            70.0;
         return WeightPickerDialog(initialWeight: currentVal);
       },
     ).then((val) {
       if (val != null) {
         setState(() {
-          _weightController.text = '$val كجم';
+          _weightController.text = '$val ${'auth_weight_unit'.tr()}';
         });
       }
     });
@@ -194,24 +214,38 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
   void _showActivityPicker() {
     _showSelectionPopup(
-      title: 'النشاط',
-      options: ['خامل', 'قليل النشاط', 'متوسط النشاط', 'كثير النشاط'],
+      title: 'auth_activity_level'.tr(),
+      options: [
+        'auth_activity_low'.tr(),
+        'auth_activity_medium'.tr(),
+        'auth_activity_high'.tr(),
+        'auth_activity_very_high'.tr(),
+      ],
       controller: _activityController,
     );
   }
 
   void _showGoalPicker() {
     _showSelectionPopup(
-      title: 'الهدف',
-      options: ['إنقاص الوزن', 'زيادة الوزن', 'بناء العضلات', 'حياة صحية أفضل'],
+      title: 'auth_goal'.tr(),
+      options: [
+        'auth_goal_lose'.tr(),
+        'auth_goal_gain'.tr(),
+        'auth_goal_build'.tr(),
+        'auth_goal_maintain'.tr(),
+      ],
       controller: _goalController,
     );
   }
 
   void _showBranchPicker() {
     _showSelectionPopup(
-      title: 'الفرع',
-      options: ['مقر يوم الرشاقة القطيف', 'مقر يوم الرشاقة الدمام', 'مقر يوم الرشاقة الرياض'],
+      title: 'auth_val_err_fitness_place'.tr(),
+      options: [
+        'auth_branch_qatif'.tr(),
+        'auth_branch_dammam'.tr(),
+        'auth_branch_riyadh'.tr(),
+      ],
       controller: _branchController,
     );
   }
@@ -230,9 +264,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: AppBackHeader(
-                  title: 'login.user_info_title'.tr(),
-                ),
+                child: AppBackHeader(title: 'login.user_info_title'.tr()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -265,7 +297,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           controller: _fullNameController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال الاسم بالكامل';
+                              return 'auth_val_err_full_name'.tr();
                             }
                             return null;
                           },
@@ -285,7 +317,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           onTap: _showGenderPicker,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء اختيار الجنس';
+                              return 'auth_val_err_gender'.tr();
                             }
                             return null;
                           },
@@ -300,7 +332,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           onTap: _showDatePicker,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء اختيار تاريخ الميلاد';
+                              return 'auth_val_err_age'.tr();
                             }
                             return null;
                           },
@@ -320,7 +352,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           onTap: _showHeightPicker,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال الطول';
+                              return 'auth_val_err_height'.tr();
                             }
                             return null;
                           },
@@ -340,7 +372,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           onTap: _showWeightPicker,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال الوزن';
+                              return 'auth_val_err_weight'.tr();
                             }
                             return null;
                           },
@@ -360,7 +392,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           onTap: _showActivityPicker,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء اختيار مستوى النشاط';
+                              return 'auth_val_err_activity'.tr();
                             }
                             return null;
                           },
@@ -380,7 +412,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           onTap: _showGoalPicker,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء اختيار الهدف';
+                              return 'auth_val_err_goal'.tr();
                             }
                             return null;
                           },
@@ -400,7 +432,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           onTap: _showBranchPicker,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء اختيار الفرع';
+                              return 'auth_val_err_fitness_place'.tr();
                             }
                             return null;
                           },
@@ -449,7 +481,9 @@ class _HeightPickerDialogState extends State<HeightPickerDialog> {
       initial = 170;
     }
     _selectedHeight = initial;
-    _scrollController = FixedExtentScrollController(initialItem: _selectedHeight - minHeight);
+    _scrollController = FixedExtentScrollController(
+      initialItem: _selectedHeight - minHeight,
+    );
   }
 
   @override
@@ -493,7 +527,7 @@ class _HeightPickerDialogState extends State<HeightPickerDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'كم طولك ؟',
+              'auth_select_height'.tr(),
               style: TextStyleManager.heading2.copyWith(
                 color: AppColors.black,
                 fontWeight: FontWeight.bold,
@@ -541,7 +575,9 @@ class _HeightPickerDialogState extends State<HeightPickerDialog> {
                                     fontWeight: FontWeight.bold,
                                   )
                                 : TextStyleManager.heading3.copyWith(
-                                    color: AppColors.textSecondary.withValues(alpha: 0.6),
+                                    color: AppColors.textSecondary.withValues(
+                                      alpha: 0.6,
+                                    ),
                                   ),
                           ),
                         );
@@ -599,7 +635,7 @@ class _HeightPickerDialogState extends State<HeightPickerDialog> {
                   Navigator.pop(context, _selectedHeight);
                 },
                 child: Text(
-                  'حفظ',
+                  'auth_save'.tr(),
                   style: TextStyleManager.style14Bold.copyWith(
                     color: AppColors.white,
                   ),
@@ -639,9 +675,13 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
     }
     _selectedInt = w.toInt();
     _selectedDecimal = ((w - _selectedInt) * 10).round().clamp(0, 9);
-    
-    _intScrollController = FixedExtentScrollController(initialItem: _selectedInt - minWeight);
-    _decimalScrollController = FixedExtentScrollController(initialItem: _selectedDecimal);
+
+    _intScrollController = FixedExtentScrollController(
+      initialItem: _selectedInt - minWeight,
+    );
+    _decimalScrollController = FixedExtentScrollController(
+      initialItem: _selectedDecimal,
+    );
   }
 
   @override
@@ -696,7 +736,7 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'كم وزنك ؟',
+              'auth_select_weight'.tr(),
               style: TextStyleManager.heading2.copyWith(
                 color: AppColors.black,
                 fontWeight: FontWeight.bold,
@@ -745,12 +785,13 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
                                   '$val',
                                   style: isSelected
                                       ? TextStyleManager.heading2.copyWith(
-                                    color: AppColors.black,
-                                    fontWeight: FontWeight.bold,
-                                  )
+                                          color: AppColors.black,
+                                          fontWeight: FontWeight.bold,
+                                        )
                                       : TextStyleManager.heading3.copyWith(
-                                    color: AppColors.textSecondary.withValues(alpha: 0.6),
-                                  ),
+                                          color: AppColors.textSecondary
+                                              .withValues(alpha: 0.6),
+                                        ),
                                 ),
                               );
                             },
@@ -792,7 +833,8 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
                                           fontWeight: FontWeight.bold,
                                         )
                                       : TextStyleManager.heading3.copyWith(
-                                          color: AppColors.textSecondary.withValues(alpha: 0.6),
+                                          color: AppColors.textSecondary
+                                              .withValues(alpha: 0.6),
                                         ),
                                 ),
                               );
@@ -870,7 +912,7 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
                   Navigator.pop(context, finalWeight);
                 },
                 child: Text(
-                  'حفظ',
+                  'auth_save'.tr(),
                   style: TextStyleManager.style14Bold.copyWith(
                     color: AppColors.white,
                   ),
@@ -883,4 +925,3 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
     );
   }
 }
-

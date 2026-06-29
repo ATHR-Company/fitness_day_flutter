@@ -123,18 +123,26 @@ class VisitCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              buttonText.replaceAll('»', '').replaceAll('«', '').trim(),
+                              buttonText
+                                  .replaceAll('»', '')
+                                  .replaceAll('«', '')
+                                  .trim(),
                               style: TextStyleManager.style11Medium.copyWith(
                                 color: AppColors.white,
                               ),
                             ),
                             SizedBox(width: 4.w),
-                            Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                            Icon(
+                              Icons.keyboard_double_arrow_left,
+                              size: 16.sp,
+                              color: AppColors.white,
+                            ),
                           ],
                         ),
                       ),
                     ),
-                    if (secondaryButtonText != null && onSecondaryPressed != null) ...[
+                    if (secondaryButtonText != null &&
+                        onSecondaryPressed != null) ...[
                       SizedBox(width: 12.w),
                       SizedBox(
                         height: 36.h,
@@ -142,7 +150,10 @@ class VisitCard extends StatelessWidget {
                           onPressed: onSecondaryPressed,
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primary,
-                            side: const BorderSide(color: AppColors.primary, width: 1.5),
+                            side: const BorderSide(
+                              color: AppColors.primary,
+                              width: 1.5,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18.r),
                             ),
@@ -152,13 +163,20 @@ class VisitCard extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                secondaryButtonText!.replaceAll('»', '').replaceAll('«', '').trim(),
+                                secondaryButtonText!
+                                    .replaceAll('»', '')
+                                    .replaceAll('«', '')
+                                    .trim(),
                                 style: TextStyleManager.style11Medium.copyWith(
                                   color: AppColors.primary,
                                 ),
                               ),
                               SizedBox(width: 4.w),
-                              Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.primary),
+                              Icon(
+                                Icons.keyboard_double_arrow_left,
+                                size: 16.sp,
+                                color: AppColors.primary,
+                              ),
                             ],
                           ),
                         ),
@@ -169,7 +187,7 @@ class VisitCard extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Top Left Badge (Optional)
           if (timeRemaining.isNotEmpty)
             PositionedDirectional(

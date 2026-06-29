@@ -18,12 +18,20 @@ class ClientDataTab extends StatelessWidget {
           SizedBox(height: 16.h),
           InfoCard(
             title: 'clients_page.bmi_report'.tr(),
-            icon: Icon(Icons.monitor_weight_outlined, color: AppColors.primary, size: 24.sp),
+            icon: Icon(
+              Icons.monitor_weight_outlined,
+              color: AppColors.primary,
+              size: 24.sp,
+            ),
             data: {
-              'clients_page.body_mass'.tr(): '19.44 ${'clients_page.bmi_unit'.tr()}',
-              'clients_page.ideal_weight'.tr(): '68.00 ${'clients_page.kg'.tr()}',
-              'clients_page.calories'.tr(): '1025 ${'clients_page.calorie'.tr()}',
-              'clients_page.protein_needs'.tr(): '45 ${'clients_page.gram'.tr()}',
+              'clients_page.body_mass'.tr():
+                  '19.44 ${'clients_page.bmi_unit'.tr()}',
+              'clients_page.ideal_weight'.tr():
+                  '68.00 ${'clients_page.kg'.tr()}',
+              'clients_page.calories'.tr():
+                  '1025 ${'clients_page.calorie'.tr()}',
+              'clients_page.protein_needs'.tr():
+                  '45 ${'clients_page.gram'.tr()}',
             },
             greenValues: [
               'clients_page.body_mass'.tr(),
@@ -34,12 +42,20 @@ class ClientDataTab extends StatelessWidget {
           ),
           InfoCard(
             title: 'clients_page.diet_plan'.tr(),
-            icon: Icon(Icons.assignment_outlined, color: AppColors.primary, size: 24.sp),
+            icon: Icon(
+              Icons.assignment_outlined,
+              color: AppColors.primary,
+              size: 24.sp,
+            ),
             data: {
-              'clients_page.diet_type'.tr(): 'نظام غذائي متنوع', // "Mixed Diet"
-              'clients_page.body_mass'.tr(): '2', // Wait, design says 'كتلة الجسم : 2', we will just put '2'
-              'clients_page.favorite_foods'.tr(): 'وجبات صحية قليلة الملح', // "Low salt healthy meals"
-              'clients_page.food_allergies'.tr(): 'وجبات التي تحتوي على الفول', // "Meals containing beans"
+              'clients_page.diet_type'.tr(): 'spec_mock_diet_mixed'
+                  .tr(), // "Mixed Diet"
+              'clients_page.body_mass'.tr():
+                  '2', // Wait, design says 'كتلة الجسم : 2', we will just put '2'
+              'clients_page.favorite_foods'.tr(): 'specialist_diet_meals'
+                  .tr(), // "Low salt healthy meals"
+              'clients_page.food_allergies'.tr(): 'spec_mock_diet_allergies'
+                  .tr(), // "Meals containing beans"
             },
             greenValues: [
               'clients_page.diet_type'.tr(),
@@ -87,7 +103,10 @@ class ClientDataTab extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF7BDB88), Color(0xFF52C863)],
+                  colors: [
+                    AppColors.gradientGreenStart,
+                    AppColors.gradientGreenEnd,
+                  ],
                   begin: AlignmentDirectional.centerStart,
                   end: AlignmentDirectional.centerEnd,
                 ),
@@ -120,13 +139,17 @@ class ClientDataTab extends StatelessWidget {
                         border: Border.all(color: AppColors.divider, width: 2),
                       ),
                       child: ClipOval(
-                        child: Icon(Icons.person, size: 40.sp, color: Colors.grey),
+                        child: Icon(
+                          Icons.person,
+                          size: 40.sp,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                     SizedBox(width: 16.w),
                     Expanded(
                       child: Text(
-                        'محمد عبدالله',
+                        'spec_mock_name'.tr(),
                         style: TextStyleManager.style14Bold.copyWith(
                           color: AppColors.black,
                         ),
@@ -142,11 +165,20 @@ class ClientDataTab extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildHeaderDetail('clients_page.goal'.tr(), 'clients_page.dummy_goal'.tr()),
+                          _buildHeaderDetail(
+                            'clients_page.goal'.tr(),
+                            'clients_page.dummy_goal'.tr(),
+                          ),
                           SizedBox(height: 8.h),
-                          _buildHeaderDetail('clients_page.height_short'.tr(), '167 ${'clients_page.cm'.tr()}'),
+                          _buildHeaderDetail(
+                            'clients_page.height_short'.tr(),
+                            '167 ${'clients_page.cm'.tr()}',
+                          ),
                           SizedBox(height: 8.h),
-                          _buildHeaderDetail('النشاط', 'خامل'),
+                          _buildHeaderDetail(
+                            'spec_mock_activity'.tr(),
+                            'spec_mock_inactive'.tr(),
+                          ),
                         ],
                       ),
                     ),
@@ -156,7 +188,10 @@ class ClientDataTab extends StatelessWidget {
                         children: [
                           _buildHeaderDetail('clients_page.age'.tr(), '28'),
                           SizedBox(height: 8.h),
-                          _buildHeaderDetail('clients_page.weight'.tr(), '58 ${'clients_page.kg'.tr()}'),
+                          _buildHeaderDetail(
+                            'clients_page.weight'.tr(),
+                            '58 ${'clients_page.kg'.tr()}',
+                          ),
                         ],
                       ),
                     ),

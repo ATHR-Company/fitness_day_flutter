@@ -32,7 +32,9 @@ class AppSegmentedControl extends StatelessWidget {
                 child: Container(
                   height: 40.h,
                   decoration: BoxDecoration(
-                    color: selectedIndex == i ? AppColors.primary : AppColors.gradientPrimary,
+                    color: selectedIndex == i
+                        ? AppColors.primary
+                        : AppColors.gradientPrimary,
                     borderRadius: BorderRadius.circular(24.r),
                     boxShadow: AppShadows.primaryShadow,
                   ),
@@ -40,7 +42,9 @@ class AppSegmentedControl extends StatelessWidget {
                   child: Text(
                     items[i],
                     style: TextStyleManager.style11Medium.copyWith(
-                      color: selectedIndex == i ? AppColors.white : AppColors.textSecondary,
+                      color: selectedIndex == i
+                          ? AppColors.white
+                          : AppColors.textSecondary,
                     ),
                   ),
                 ),
@@ -69,7 +73,9 @@ class AppSegmentedControl extends StatelessWidget {
               AnimatedPositionedDirectional(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeInOut,
-                start: (selectedIndex * tabWidth), // Shift start to make it overflow
+                start:
+                    (selectedIndex *
+                    tabWidth), // Shift start to make it overflow
                 top: -1, // Cover top border
                 bottom: -1, // Cover bottom border
                 width: tabWidth, // Make it wider from both sides
@@ -77,8 +83,8 @@ class AppSegmentedControl extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [
-                        Color(0xFFEBF8ED),
-                        Color(0xFFD2F0D5),
+                        AppColors.lightGreenBackground2,
+                        AppColors.lightGreenBorder2,
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -106,7 +112,9 @@ class AppSegmentedControl extends StatelessWidget {
                           child: AnimatedDefaultTextStyle(
                             duration: const Duration(milliseconds: 250),
                             style: TextStyleManager.style11Medium.copyWith(
-                              color: selectedIndex == i ? AppColors.primary : AppColors.divider,
+                              color: selectedIndex == i
+                                  ? AppColors.primary
+                                  : AppColors.divider,
                             ),
                             child: Text(items[i]),
                           ),

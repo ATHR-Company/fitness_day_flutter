@@ -16,9 +16,7 @@ class TaskCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -70,16 +68,24 @@ class TaskCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 16.h),
-          
+
           // Details
-          _buildDetailRow("home.client_name".tr(), "محمد عبدالله", true),
+          _buildDetailRow("home.client_name".tr(), 'spec_mock_name'.tr(), true),
           SizedBox(height: 6.h),
-          _buildDetailRow("home.previous_visit_time".tr(), "10:30 مساءا  1/6/24", true),
+          _buildDetailRow(
+            "home.previous_visit_time".tr(),
+            'spec_mock_time4'.tr(),
+            true,
+          ),
           SizedBox(height: 6.h),
-          _buildDetailRow("home.visit_location".tr(), "في مقر يوم الرشاقة", true),
-          
+          _buildDetailRow(
+            "home.visit_location".tr(),
+            'spec_mock_location'.tr(),
+            true,
+          ),
+
           SizedBox(height: 24.h),
-          
+
           // Button
           Align(
             alignment: AlignmentDirectional.centerEnd, // Left in RTL
@@ -105,7 +111,11 @@ class TaskCard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 4.w),
-                  Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                  Icon(
+                    Icons.keyboard_double_arrow_left,
+                    size: 16.sp,
+                    color: AppColors.white,
+                  ),
                 ],
               ),
             ),

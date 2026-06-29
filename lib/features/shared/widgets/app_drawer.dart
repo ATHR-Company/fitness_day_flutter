@@ -34,7 +34,9 @@ class AppDrawer extends StatelessWidget {
       backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.horizontal(
-          right: Radius.circular(30.r), // Wait, in RTL the drawer is on the right. If it's an endDrawer it's on the left.
+          right: Radius.circular(
+            30.r,
+          ), // Wait, in RTL the drawer is on the right. If it's an endDrawer it's on the left.
         ),
       ),
       child: SafeArea(
@@ -50,7 +52,9 @@ class AppDrawer extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.divider.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: AppColors.divider.withValues(alpha: 0.3),
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.15),
@@ -60,7 +64,7 @@ class AppDrawer extends StatelessWidget {
                     ],
                   ),
                   child: IconButton(
-                    icon: SvgPicture.asset(SvgIcons.cross, height: 16.h,),
+                    icon: SvgPicture.asset(SvgIcons.cross, height: 16.h),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -68,13 +72,10 @@ class AppDrawer extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Logo
-            SvgPicture.asset(
-              SvgIcons.logo,
-              height: 100.h,
-            ),
-            
+            SvgPicture.asset(SvgIcons.logo, height: 100.h),
+
             SizedBox(height: 32.h),
 
             // Menu Items
@@ -166,12 +167,16 @@ class AppDrawer extends StatelessWidget {
     required VoidCallback onTap,
     bool isLogout = false,
   }) {
-    Color bgColor = AppColors.textSecondary.withValues(alpha: 0.05); // Greyish background
+    Color bgColor = AppColors.textSecondary.withValues(
+      alpha: 0.05,
+    ); // Greyish background
     Color textColor = AppColors.textSecondary;
     Color iconColor = AppColors.textSecondary;
 
     if (isSelected) {
-      bgColor = AppColors.primary.withValues(alpha: 0.05); // Light green background
+      bgColor = AppColors.primary.withValues(
+        alpha: 0.05,
+      ); // Light green background
       textColor = AppColors.primary;
       iconColor = AppColors.primary;
     } else if (isLogout) {
@@ -197,10 +202,7 @@ class AppDrawer extends StatelessWidget {
               children: [
                 SvgPicture.asset(
                   svgPath,
-                  colorFilter: ColorFilter.mode(
-                    iconColor,
-                    BlendMode.srcIn,
-                  ),
+                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
                   width: 20.sp,
                   height: 20.sp,
                 ),
@@ -214,14 +216,18 @@ class AppDrawer extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             // Second child in RTL goes to the LEFT (arrows)
-            !isSelected ?Icon(
-              Icons.keyboard_double_arrow_left_rounded,
-              color: isLogout ? AppColors.red : AppColors.textSecondary.withValues(alpha: 0.5),
-              size: 20.sp,
-              fontWeight: FontWeight.bold,
-            ): SizedBox(),
+            !isSelected
+                ? Icon(
+                    Icons.keyboard_double_arrow_left_rounded,
+                    color: isLogout
+                        ? AppColors.red
+                        : AppColors.textSecondary.withValues(alpha: 0.5),
+                    size: 20.sp,
+                    fontWeight: FontWeight.bold,
+                  )
+                : SizedBox(),
           ],
         ),
       ),

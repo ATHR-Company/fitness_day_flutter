@@ -24,10 +24,7 @@ class ProfileTextField extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 1),
       ),
       child: Row(
         children: [
@@ -35,7 +32,10 @@ class ProfileTextField extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: SvgPicture.asset(
               iconPath,
-              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+              colorFilter: const ColorFilter.mode(
+                AppColors.primary,
+                BlendMode.srcIn,
+              ),
               width: 20.w,
             ),
           ),
@@ -55,7 +55,10 @@ class ProfileTextField extends StatelessWidget {
                   color: AppColors.textSecondary,
                 ),
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 14.h,
+                ),
               ),
             ),
           ),

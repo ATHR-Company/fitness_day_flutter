@@ -33,10 +33,8 @@ class AppInfoField extends StatelessWidget {
       validator: validator,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       keyboardType: keyboardType ?? TextInputType.text,
-      textAlign: TextAlign.right,
-      style: TextStyleManager.heading3.copyWith(
-        color: AppColors.black,
-      ),
+      textAlign: TextAlign.start,
+      style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyleManager.heading3.copyWith(
@@ -50,7 +48,10 @@ class AppInfoField extends StatelessWidget {
                 iconPath!,
                 width: 20.w,
                 height: 20.h,
-                colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(
+                  AppColors.textSecondary,
+                  BlendMode.srcIn,
+                ),
               )
             else
               Container(
@@ -63,7 +64,10 @@ class AppInfoField extends StatelessWidget {
               ),
           ],
         ),
-        prefixIconConstraints: BoxConstraints(minWidth: iconPath != null ? 36.w : 16.w, minHeight: 20.h),
+        prefixIconConstraints: BoxConstraints(
+          minWidth: iconPath != null ? 36.w : 16.w,
+          minHeight: 20.h,
+        ),
         suffixIcon: trailing != null
             ? Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12.w),

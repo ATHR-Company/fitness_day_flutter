@@ -51,6 +51,8 @@ dependencies:
   flutter_time_picker_spinner: ^2.0.0
   fl_chart: ^1.2.0
   pinput: ^6.0.2
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

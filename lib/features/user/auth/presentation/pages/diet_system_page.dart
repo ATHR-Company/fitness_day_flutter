@@ -10,11 +10,13 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
 import 'package:fitness_day/features/shared/widgets/app_info_field.dart';
+
 class DietSystemPage extends StatefulWidget {
   const DietSystemPage({super.key});
   @override
   State<DietSystemPage> createState() => _DietSystemPageState();
 }
+
 class _DietSystemPageState extends State<DietSystemPage> {
   int _selectedDietType = 0; // 0 for Varied, 1 for Vegetarian
   final _dailyMealsController = TextEditingController();
@@ -30,11 +32,13 @@ class _DietSystemPageState extends State<DietSystemPage> {
     _foodAllergiesController.dispose();
     super.dispose();
   }
+
   void _onNextPressed() {
     if (_formKey.currentState?.validate() ?? false) {
       context.push(UserAppRoutes.fitnessSystem);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,9 +53,7 @@ class _DietSystemPageState extends State<DietSystemPage> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: AppBackHeader(
-                  title: 'login.diet_title'.tr(),
-                ),
+                child: AppBackHeader(title: 'login.diet_title'.tr()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -98,19 +100,26 @@ class _DietSystemPageState extends State<DietSystemPage> {
                                       border: Border.all(
                                         color: _selectedDietType == 1
                                             ? AppColors.primary
-                                            : AppColors.divider.withValues(alpha: 0.5),
-                                        width: _selectedDietType == 1 ? 2.0 : 1.0,
+                                            : AppColors.divider.withValues(
+                                                alpha: 0.5,
+                                              ),
+                                        width: _selectedDietType == 1
+                                            ? 2.0
+                                            : 1.0,
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.04),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.04,
+                                          ),
                                           blurRadius: 8,
                                           offset: const Offset(0, 4),
                                         ),
                                       ],
                                     ),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         SvgPicture.asset(
                                           SvgIcons.vegeterianDiet,
@@ -154,19 +163,26 @@ class _DietSystemPageState extends State<DietSystemPage> {
                                       border: Border.all(
                                         color: _selectedDietType == 0
                                             ? AppColors.primary
-                                            : AppColors.divider.withValues(alpha: 0.5),
-                                        width: _selectedDietType == 0 ? 2.0 : 1.0,
+                                            : AppColors.divider.withValues(
+                                                alpha: 0.5,
+                                              ),
+                                        width: _selectedDietType == 0
+                                            ? 2.0
+                                            : 1.0,
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.04),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.04,
+                                          ),
                                           blurRadius: 8,
                                           offset: const Offset(0, 4),
                                         ),
                                       ],
                                     ),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         SvgPicture.asset(
                                           SvgIcons.varyDiet,
@@ -213,7 +229,7 @@ class _DietSystemPageState extends State<DietSystemPage> {
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال عدد وجباتك اليومية';
+                              return 'auth_val_err_diet_meals'.tr();
                             }
                             return null;
                           },
@@ -225,7 +241,7 @@ class _DietSystemPageState extends State<DietSystemPage> {
                           controller: _preferredFoodsController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال الأطعمة المفضلة';
+                              return 'auth_val_err_diet_water'.tr();
                             }
                             return null;
                           },
@@ -237,7 +253,7 @@ class _DietSystemPageState extends State<DietSystemPage> {
                           controller: _dislikedFoodsController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال الأطعمة غير المفضلة';
+                              return 'auth_val_err_diet_sleep'.tr();
                             }
                             return null;
                           },
@@ -249,7 +265,7 @@ class _DietSystemPageState extends State<DietSystemPage> {
                           controller: _foodAllergiesController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال الحساسية الغذائية';
+                              return 'auth_val_err_diet_type'.tr();
                             }
                             return null;
                           },

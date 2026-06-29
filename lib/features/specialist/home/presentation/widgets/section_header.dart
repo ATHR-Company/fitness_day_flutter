@@ -21,10 +21,7 @@ class SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyleManager.style14Medium,
-        ),
+        Text(title, style: TextStyleManager.style14Medium),
         if (trailing != null)
           trailing!
         else if (onMorePressed != null)

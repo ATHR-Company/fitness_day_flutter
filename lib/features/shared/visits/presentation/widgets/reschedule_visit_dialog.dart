@@ -29,14 +29,23 @@ class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
     // Format date and time
     String dateText = 'visit_details.select_date'.tr();
     if (_selectedDate != null) {
-      final dateFormat = DateFormat('EEEE d/ M / yyyy', context.locale.languageCode);
+      final dateFormat = DateFormat(
+        'EEEE d/ M / yyyy',
+        context.locale.languageCode,
+      );
       dateText = dateFormat.format(_selectedDate!);
     }
-    
+
     String timeText = 'visit_details.select_time'.tr();
     if (_selectedTime != null) {
       final now = DateTime.now();
-      final dt = DateTime(now.year, now.month, now.day, _selectedTime!.hour, _selectedTime!.minute);
+      final dt = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        _selectedTime!.hour,
+        _selectedTime!.minute,
+      );
       final timeFormat = DateFormat('hh:mm a', context.locale.languageCode);
       timeText = timeFormat.format(dt);
     }
@@ -49,10 +58,7 @@ class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
         padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFFEFFFF2),
-              Color(0xFFFFFFFF),
-            ],
+            colors: [AppColors.lightGreenBackground, AppColors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -93,18 +99,16 @@ class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => DatePickerBottomSheet(initialDate: _selectedDate),
+                  builder: (context) =>
+                      DatePickerBottomSheet(initialDate: _selectedDate),
                 );
                 if (date != null) {
                   setState(() => _selectedDate = date);
                 }
               },
-              child: _buildField(
-                icon: SvgIcons.calendar,
-                text: dateText,
-              ),
+              child: _buildField(icon: SvgIcons.calendar, text: dateText),
             ),
-            
+
             SizedBox(height: 16.h),
 
             // Time Field
@@ -114,16 +118,14 @@ class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder: (context) => TimePickerBottomSheet(initialTime: _selectedTime),
+                  builder: (context) =>
+                      TimePickerBottomSheet(initialTime: _selectedTime),
                 );
                 if (time != null) {
                   setState(() => _selectedTime = time);
                 }
               },
-              child: _buildField(
-                icon: SvgIcons.clock,
-                text: timeText,
-              ),
+              child: _buildField(icon: SvgIcons.clock, text: timeText),
             ),
 
             SizedBox(height: 32.h),
@@ -161,10 +163,7 @@ class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),

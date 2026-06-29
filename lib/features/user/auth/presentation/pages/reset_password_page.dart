@@ -56,9 +56,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: AppBackHeader(
-                  title: 'login.reset_password_title'.tr(),
-                ),
+                child: AppBackHeader(title: 'login.reset_password_title'.tr()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -104,7 +102,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           hint: 'login.confirm_password_hint'.tr(),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'login.password_error'.tr(); // reuse same empty check
+                              return 'login.password_error'
+                                  .tr(); // reuse same empty check
                             }
                             if (value != _passwordController.text) {
                               return 'login.passwords_dont_match'.tr();

@@ -38,9 +38,9 @@ class _UserLoginPageState extends State<UserLoginPage> {
   void _onLoginPressed() {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthCubit>().login(
-            _phoneController.text.trim(),
-            _passwordController.text,
-          );
+        _phoneController.text.trim(),
+        _passwordController.text,
+      );
     }
   }
 
@@ -65,10 +65,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   SizedBox(height: 40.h),
 
                   // App Logo
-                  SvgPicture.asset(
-                    SvgIcons.logo,
-                    height: 130.h,
-                  ),
+                  SvgPicture.asset(SvgIcons.logo, height: 130.h),
 
                   SizedBox(height: 40.h),
 
@@ -76,10 +73,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   Text(
                     LocaleKeys.login_welcome_text.tr(),
                     textAlign: TextAlign.center,
-                    style: TextStyleManager.heading3.copyWith(
-                      color: AppColors.black,
-                      height: 1.6,
-                    ),
+                    style: TextStyleManager.heading3,
                   ),
 
                   SizedBox(height: 40.h),
@@ -203,7 +197,10 @@ class _UserLoginPageState extends State<UserLoginPage> {
                       Expanded(
                         child: AppSocialButton(
                           label: LocaleKeys.login_apple.tr(),
-                          icon: SvgPicture.asset(SvgIcons.appleLogin, height: 22.h),
+                          icon: SvgPicture.asset(
+                            SvgIcons.appleLogin,
+                            height: 22.h,
+                          ),
                           onTap: () {
                             // TODO: Apple Sign-In
                           },
@@ -237,7 +234,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                         WidgetSpan(
                           child: GestureDetector(
                             onTap: () {
-                            context.push(UserAppRoutes.signUp);
+                              context.push(UserAppRoutes.signUp);
                             },
                             child: Text(
                               LocaleKeys.login_create_account.tr(),
@@ -262,4 +259,3 @@ class _UserLoginPageState extends State<UserLoginPage> {
     );
   }
 }
-

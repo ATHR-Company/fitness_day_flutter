@@ -32,21 +32,19 @@ class StatCard extends StatelessWidget {
           SvgPicture.asset(iconPath, width: 45.w, height: 45.w),
           SizedBox(height: 6.h),
           Text(
-            title, 
+            title,
             style: TextStyleManager.style9Medium.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.bold,
-            ), 
+            ),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 4.h),
           Text(
-            value, 
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.primary,
-            ),
+            value,
+            style: TextStyleManager.heading2.copyWith(color: AppColors.primary),
           ),
         ],
       ),

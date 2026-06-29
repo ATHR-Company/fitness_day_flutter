@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -19,19 +20,22 @@ class HealthProblemsPage extends StatefulWidget {
 
 class _HealthProblemsPageState extends State<HealthProblemsPage> {
   final List<bool?> _answers = List.filled(9, null);
-  final List<TextEditingController> _controllers = List.generate(9, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    9,
+    (_) => TextEditingController(),
+  );
   final _formKey = GlobalKey<FormState>();
 
   final List<String> _questions = [
-    'هل تعاني من مشاكل صحية حالياً؟',
-    'هل لديك أى أمراض مزمنة؟',
-    'هل تتناول أدوية حالياً؟',
-    'هل سبق أن أجريت عمليات جراحية؟',
-    'هل أجريت تحاليل طبية مؤخراً؟',
-    'هل تم تشخيصك بنقص فيتامينات؟',
-    'هل لديك إصابات رياضية سابقة؟',
-    'هل تعاني من تساقط في الشعر؟',
-    'هل تشعر بالتعب بشكل متكرر؟',
+    'auth_health_q1',
+    'auth_health_q2',
+    'auth_health_q3',
+    'auth_health_q4',
+    'auth_health_q5',
+    'auth_health_q6',
+    'auth_health_q7',
+    'auth_health_q8',
+    'auth_health_q9',
   ];
 
   @override
@@ -45,8 +49,11 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
   void _onNextPressed() {
     if (_answers.contains(null)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى الإجابة على جميع الأسئلة', style: TextStyle(fontFamily: 'Cairo')),
+        SnackBar(
+          content: Text(
+            'auth_health_validation_err'.tr(),
+            style: const TextStyle(fontFamily: 'Cairo'),
+          ),
           backgroundColor: AppColors.error,
         ),
       );
@@ -72,7 +79,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: const AppBackHeader(title: 'المشاكل الصحية'),
+                child: AppBackHeader(title: 'auth_health_problems_title'.tr()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -95,7 +102,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                         }),
                         SizedBox(height: 32.h),
                         CustomButton(
-                          text: 'التالي',
+                          text: 'auth_next_button'.tr(),
                           onPressed: _onNextPressed,
                         ),
                         SizedBox(height: 32.h),
@@ -117,7 +124,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
     final bool isNo = answer == false;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
@@ -134,8 +141,8 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
             children: [
               Expanded(
                 child: Text(
-                  _questions[index],
-                  textAlign: TextAlign.right,
+                  _questions[index].tr(),
+                  textAlign: TextAlign.start,
                   style: TextStyleManager.style11Medium,
                 ),
               ),
@@ -155,9 +162,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: isYes ? AppColors.primary : AppColors.white,
-                        border: Border.all(
-                          color: AppColors.primary,
-                        ),
+                        border: Border.all(color: AppColors.primary),
                       ),
                       child: Center(
                         child: SvgPicture.asset(
@@ -185,9 +190,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: isNo ? AppColors.error : AppColors.white,
-                        border: Border.all(
-                          color: AppColors.error,
-                        ),
+                        border: Border.all(color: AppColors.error),
                       ),
                       child: Center(
                         child: SvgPicture.asset(
@@ -211,7 +214,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
           Padding(
             padding: EdgeInsets.only(bottom: 16.h),
             child: AppInfoField(
-              hint: 'اكتب هنا',
+              hint: 'auth_health_more_details'.tr(),
               controller: _controllers[index],
             ),
           ),

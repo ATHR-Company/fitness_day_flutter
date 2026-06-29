@@ -24,7 +24,7 @@ class LogoutDialog extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             decoration: BoxDecoration(
-              color: const Color(0xFFEBF8ED), // Light green
+              color: AppColors.lightGreenBackground2, // Light green
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(24.r),
                 topRight: Radius.circular(24.r),
@@ -47,7 +47,7 @@ class LogoutDialog extends StatelessWidget {
             width: 100.r,
             height: 100.r,
             decoration: BoxDecoration(
-              color: const Color(0xFFEBF8ED), // Light green background
+              color: AppColors.lightGreenBackground2, // Light green background
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.primary, width: 2),
             ),

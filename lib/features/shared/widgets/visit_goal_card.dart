@@ -7,11 +7,7 @@ class VisitGoalCard extends StatelessWidget {
   final String title;
   final List<String> goals;
 
-  const VisitGoalCard({
-    super.key,
-    required this.title,
-    required this.goals,
-  });
+  const VisitGoalCard({super.key, required this.title, required this.goals});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +37,7 @@ class VisitGoalCard extends StatelessWidget {
             // Title — right aligned, bold
             Text(
               title,
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.start,
               style: TextStyleManager.style11Medium.copyWith(
                 color: AppColors.black,
               ),
@@ -54,8 +50,8 @@ class VisitGoalCard extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 1.h),
                 child: Text(
                   goal,
-                  textAlign: TextAlign.right,
-                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.start,
+                  
                   style: TextStyleManager.style9Medium.copyWith(
                     color: AppColors.textPrimary,
                   ),

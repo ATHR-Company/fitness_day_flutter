@@ -44,7 +44,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                 // Other Person's Message (Green Bubble on Right in RTL)
                 _buildMessageBubble(
                   message: 'conversations.dummy_message_1'.tr(),
-                  time: '10:22 صباحا',
+                  time: '''10:22 ${'shared_mock_am'.tr()}''',
                   isMe: false,
                 ),
 
@@ -53,7 +53,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                 // My Message (Grey Bubble on Left in RTL)
                 _buildMessageBubble(
                   message: 'conversations.dummy_message_2'.tr(),
-                  time: '10:22 صباحا',
+                  time: '''10:22 ${'shared_mock_am'.tr()}''',
                   isMe: true,
                   isRead: true,
                 ),
@@ -62,14 +62,22 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
                 // Typing indicator (Mock)
                 Align(
-                  alignment: AlignmentDirectional.centerStart, // 'start' in RTL is right
+                  alignment: AlignmentDirectional
+                      .centerStart, // 'start' in RTL is right
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 8.h,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16.r),
                     ),
-                    child: Icon(Icons.more_horiz, color: AppColors.primary, size: 20.sp),
+                    child: Icon(
+                      Icons.more_horiz,
+                      color: AppColors.primary,
+                      size: 20.sp,
+                    ),
                   ),
                 ),
               ],
@@ -86,9 +94,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-      decoration: const BoxDecoration(
-        color: AppColors.backgroundTint,
-      ),
+      decoration: const BoxDecoration(color: AppColors.backgroundTint),
       child: Column(
         children: [
           SizedBox(height: 30.h),
@@ -110,7 +116,9 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                 children: [
                   CircleAvatar(
                     radius: 20.r,
-                    backgroundImage: const NetworkImage('https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80'),
+                    backgroundImage: const NetworkImage(
+                      'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
+                    ),
                   ),
                   Positioned(
                     bottom: 0,
@@ -148,18 +156,28 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     bool isRead = false,
   }) {
     return Align(
-      alignment: isMe ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+      alignment: isMe
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: Column(
-        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isMe
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           Container(
             constraints: BoxConstraints(maxWidth: 0.75.sw),
             padding: EdgeInsets.all(16.w),
             decoration: BoxDecoration(
-              color: isMe ? AppColors.white : AppColors.primary.withValues(alpha: 0.1),
+              color: isMe
+                  ? AppColors.white
+                  : AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16.r).copyWith(
-                topLeft: Radius.circular(isMe ? 0 : 16.r), // Flat top-left for me (left side)
-                topRight: Radius.circular(isMe ? 16.r : 0), // Flat top-right for other person (right side)
+                topLeft: Radius.circular(
+                  isMe ? 0 : 16.r,
+                ), // Flat top-left for me (left side)
+                topRight: Radius.circular(
+                  isMe ? 16.r : 0,
+                ), // Flat top-right for other person (right side)
               ),
               boxShadow: [
                 if (isMe)
@@ -170,10 +188,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                   ),
               ],
             ),
-            child: Text(
-              message,
-              style: TextStyleManager.style11Medium,
-            ),
+            child: Text(message, style: TextStyleManager.style11Medium),
           ),
           SizedBox(height: 4.h),
           Row(
@@ -230,13 +245,20 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                       ),
                     ),
                   ),
-                  Icon(Icons.attach_file, color: AppColors.textSecondary, size: 20.sp),
+                  Icon(
+                    Icons.attach_file,
+                    color: AppColors.textSecondary,
+                    size: 20.sp,
+                  ),
                   SizedBox(width: 12.w),
                   Icon(Icons.mic, color: AppColors.textSecondary, size: 20.sp),
                   SizedBox(width: 12.w),
                   // Send Button
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 7.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15.w,
+                      vertical: 7.h,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(24.r),

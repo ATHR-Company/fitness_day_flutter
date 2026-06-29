@@ -42,7 +42,7 @@ class _ClientsPageState extends State<ClientsPage> {
               child: Column(
                 children: [
                   SizedBox(height: 16.h),
-                  
+
                   // 1. Header
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -53,9 +53,9 @@ class _ClientsPageState extends State<ClientsPage> {
                       },
                     ),
                   ),
-                  
+
                   SizedBox(height: 24.h),
-                  
+
                   // 2. Search Bar
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -67,9 +67,9 @@ class _ClientsPageState extends State<ClientsPage> {
                       },
                     ),
                   ),
-                  
+
                   SizedBox(height: 20.h),
-                  
+
                   // 3. Segmented Control
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -87,18 +87,23 @@ class _ClientsPageState extends State<ClientsPage> {
                       },
                     ),
                   ),
-                  
+
                   SizedBox(height: 10.h),
-                  
+
                   // 4. Client Cards List
                   Expanded(
                     child: ListView.builder(
-                      padding: EdgeInsets.only(bottom: 24.h, left: 16.w, right: 16.w, top: 10.h),
+                      padding: EdgeInsets.only(
+                        bottom: 24.h,
+                        left: 16.w,
+                        right: 16.w,
+                        top: 10.h,
+                      ),
                       itemCount: 3,
                       itemBuilder: (context, index) {
                         ClientStatus status;
                         int commitment;
-                        
+
                         if (_selectedTabIndex == 0) {
                           status = ClientStatus.active;
                           commitment = 85;
@@ -111,10 +116,10 @@ class _ClientsPageState extends State<ClientsPage> {
                         }
 
                         return ClientCard(
-                          clientName: 'محمد عبدالله',
+                          clientName: 'spec_mock_name'.tr(),
                           currentWeight: '58',
-                          goal: 'زيادة الوزن',
-                          lastVisit: '3/6/2026 - 3:50 ص',
+                          goal: 'spec_mock_goal'.tr(),
+                          lastVisit: 'spec_mock_time1'.tr(),
                           status: status,
                           commitmentRate: commitment,
                           onViewProfile: () {
@@ -133,7 +138,7 @@ class _ClientsPageState extends State<ClientsPage> {
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
