@@ -4,8 +4,20 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
+
 class ChatDetailsPage extends StatefulWidget {
-  const ChatDetailsPage({super.key});
+  final String? title;
+  final bool isAi;
+  final bool isSpecialist;
+
+  const ChatDetailsPage({
+    super.key,
+    this.title,
+    this.isAi = false,
+    this.isSpecialist = false,
+  });
 
   @override
   State<ChatDetailsPage> createState() => _ChatDetailsPageState();
@@ -43,7 +55,11 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
                 // Other Person's Message (Green Bubble on Right in RTL)
                 _buildMessageBubble(
-                  message: 'conversations.dummy_message_1'.tr(),
+                  message: widget.isAi
+                      ? 'أهلاً بك! 🥳 تطبيق يوم الرشاقة يرحب بك 🍃\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك\nالصحية.'
+                      : (widget.isSpecialist
+                            ? 'أهلاً بك! 🥳 تطبيق يوم الرشاقة يرحب بك 🍃\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك\nالصحية.'
+                            : 'conversations.dummy_message_1'.tr()),
                   time: '10:22 صباحا',
                   isMe: false,
                 ),
@@ -52,7 +68,9 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
                 // My Message (Grey Bubble on Left in RTL)
                 _buildMessageBubble(
-                  message: 'conversations.dummy_message_2'.tr(),
+                  message: widget.isAi || widget.isSpecialist
+                      ? 'مرحباً 🫶\nشكراً على الترحيب هل تناول وجبة خفيفة قبل\nالتمرين مفيد؟'
+                      : 'conversations.dummy_message_2'.tr(),
                   time: '10:22 صباحا',
                   isMe: true,
                   isRead: true,
@@ -62,14 +80,22 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
                 // Typing indicator (Mock)
                 Align(
-                  alignment: AlignmentDirectional.centerStart, // 'start' in RTL is right
+                  alignment: AlignmentDirectional
+                      .centerStart, // 'start' in RTL is right
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 8.h,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16.r),
                     ),
-                    child: Icon(Icons.more_horiz, color: AppColors.primary, size: 20.sp),
+                    child: Icon(
+                      Icons.more_horiz,
+                      color: AppColors.primary,
+                      size: 20.sp,
+                    ),
                   ),
                 ),
               ],
@@ -86,9 +112,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-      decoration: const BoxDecoration(
-        color: AppColors.backgroundTint,
-      ),
+      decoration: const BoxDecoration(color: AppColors.backgroundTint),
       child: Column(
         children: [
           SizedBox(height: 30.h),
@@ -103,14 +127,28 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                   size: 20.sp,
                 ),
               ),
-              SizedBox(width: 10.w),
-
               // Avatar
               Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 20.r,
-                    backgroundImage: const NetworkImage('https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80'),
+                  Container(
+                    width: 40.r,
+                    height: 40.r,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.white,
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: widget.isAi
+                        ? Image.asset(AppImages.ai, fit: BoxFit.cover)
+                        : (widget.isSpecialist
+                              ? SvgPicture.asset(
+                                  SvgIcons.logo,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.network(
+                                  'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
+                                  fit: BoxFit.cover,
+                                )),
                   ),
                   Positioned(
                     bottom: 0,
@@ -121,18 +159,22 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.white, width: 2),
+                        border: Border.all(
+                          color: AppColors.backgroundTint,
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
               SizedBox(width: 12.w),
-
               // Name
               Text(
-                'conversations.dummy_name'.tr(),
-                style: TextStyleManager.style11Medium,
+                widget.title ?? 'conversations.dummy_name'.tr(),
+                style: TextStyleManager.style14Bold.copyWith(
+                  color: AppColors.black,
+                ),
               ),
             ],
           ),
@@ -148,18 +190,28 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     bool isRead = false,
   }) {
     return Align(
-      alignment: isMe ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+      alignment: isMe
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: Column(
-        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isMe
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           Container(
             constraints: BoxConstraints(maxWidth: 0.75.sw),
             padding: EdgeInsets.all(16.w),
             decoration: BoxDecoration(
-              color: isMe ? AppColors.white : AppColors.primary.withValues(alpha: 0.1),
+              color: isMe
+                  ? AppColors.white
+                  : AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16.r).copyWith(
-                topLeft: Radius.circular(isMe ? 0 : 16.r), // Flat top-left for me (left side)
-                topRight: Radius.circular(isMe ? 16.r : 0), // Flat top-right for other person (right side)
+                topLeft: Radius.circular(
+                  isMe ? 0 : 16.r,
+                ), // Flat top-left for me (left side)
+                topRight: Radius.circular(
+                  isMe ? 16.r : 0,
+                ), // Flat top-right for other person (right side)
               ),
               boxShadow: [
                 if (isMe)
@@ -170,10 +222,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                   ),
               ],
             ),
-            child: Text(
-              message,
-              style: TextStyleManager.style11Medium,
-            ),
+            child: Text(message, style: TextStyleManager.style11Medium),
           ),
           SizedBox(height: 4.h),
           Row(
@@ -230,13 +279,20 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                       ),
                     ),
                   ),
-                  Icon(Icons.attach_file, color: AppColors.textSecondary, size: 20.sp),
+                  Icon(
+                    Icons.attach_file,
+                    color: AppColors.textSecondary,
+                    size: 20.sp,
+                  ),
                   SizedBox(width: 12.w),
                   Icon(Icons.mic, color: AppColors.textSecondary, size: 20.sp),
                   SizedBox(width: 12.w),
                   // Send Button
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 7.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15.w,
+                      vertical: 7.h,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(24.r),

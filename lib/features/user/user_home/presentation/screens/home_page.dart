@@ -154,7 +154,7 @@ class HomePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // 1. Header
-                const HomeHeader(),
+                HomeHeader(isSubscribed: isSubscribed),
                 SizedBox(height: 12.h),
 
                 if (isSubscribed) ...[

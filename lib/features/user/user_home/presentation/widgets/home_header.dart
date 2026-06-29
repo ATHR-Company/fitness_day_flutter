@@ -7,10 +7,12 @@ import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/routes/user_routes/app_routes.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
-import '../../../../shared/conversations/presentation/pages/conversations_page.dart';
+import '../../../../user/support/presentation/pages/contact_us_page.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  final bool isSubscribed;
+
+  const HomeHeader({super.key, this.isSubscribed = true});
 
   @override
   Widget build(BuildContext context) {
@@ -67,18 +69,19 @@ class HomeHeader extends StatelessWidget {
 
           SizedBox(width: 16.w),
 
-          // Chat button
-          _IconButton(
-            svgPath: SvgIcons.chatIcon,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ConversationsPage(isEmpty: false),
+          // Chat button — only for subscribed users
+          if (isSubscribed) ...[
+            _IconButton(
+              svgPath: SvgIcons.chatIcon,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ContactUsPage(),
+                ),
               ),
             ),
-          ),
-
-          SizedBox(width: 8.w),
+            SizedBox(width: 8.w),
+          ],
 
           // Menu button
           _IconButton(

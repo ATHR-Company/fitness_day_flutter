@@ -89,4 +89,5 @@ class AppImages {
   AppImages._();
 
   static const String healthProblems = '$_imagePath/health_problems.png';
-}
+  static const String ai = '$_imagePath/ai.png';
+}
