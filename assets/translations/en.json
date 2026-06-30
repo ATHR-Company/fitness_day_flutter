@@ -561,5 +561,40 @@
     "contact_us_specialist": "Talk to a Nutritionist",
     "contact_us_ai_desc": "Ready to start? I am with you step by step 💚",
     "contact_us_specialist_title": "Nutritionist"
+  },
+  "exercise_details_dialog": {
+    "title": "Plank Exercise",
+    "tab_steps": "Steps",
+    "tab_repetitions": "Repetitions",
+    "tab_precautions": "Warnings",
+    "btn_next": "Next",
+    "btn_start": "Let's Start",
+    "step_1": "Lie on your stomach on an exercise mat, placing elbows directly under shoulders.",
+    "step_2": "Rest on your toes and lift your body off the floor.",
+    "step_3": "Keep a straight line from head to heels.",
+    "step_4": "Tighten abs and glutes to prevent dropping or lifting hips.",
+    "step_5": "Keep neck in neutral position, head in line with body.",
+    "step_6": "Breathe regularly, do not hold breath while holding. Slowly return to start.",
+    "rep_1": "Sets per session: 5 sets.",
+    "rep_2": "Rest between sets: 30-60 seconds.",
+    "rep_3": "Reps: 3-5 times based on fitness level.",
+    "warn_1": "Avoid straining neck forward or backward, keep natural head position.",
+    "warn_2": "If you feel back pain, stop immediately and review form.",
+    "warn_3": "Can be modified for beginners by resting on knees instead of toes.",
+    "warn_4": "Do not let hips drop down, causes lower back pain."
+  },
+  "workout": {
+    "warmup": "Warm up",
+    "exercises": "Exercises",
+    "cooldown": "Cool down",
+    "skip_rest": "Skip Rest",
+    "rest_time": "Rest Time",
+    "finished_exercise": "Finished Exercise",
+    "next_stage": "Next Stage",
+    "achievement_title": "Keep going... Achievement is a step away!",
+    "achievement_continue": "Let's continue",
+    "achievement_finish": "Finish",
+    "well_done": "Well Done!",
+    "well_done_desc": "You've accomplished a day of movement, keep it up to maintain health and relieve pain."
   }
 }

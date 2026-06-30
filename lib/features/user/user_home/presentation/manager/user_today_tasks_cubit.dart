@@ -45,6 +45,7 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
         extraUnit: '3',
         extraIcon: null,
         done: true,
+        isExerciseDialog: true,
       ),
     ];
 

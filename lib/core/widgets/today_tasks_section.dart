@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/widgets/exercise_details_dialog.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -22,6 +23,7 @@ class TaskData {
   final bool done;
   final bool isSvgImage;
   final String? route;
+  final bool isExerciseDialog;
 
   const TaskData({
     required this.imagePath,
@@ -34,6 +36,7 @@ class TaskData {
     required this.done,
     this.isSvgImage = false,
     this.route,
+    this.isExerciseDialog = false,
   });
 }
 
@@ -90,14 +93,17 @@ class TaskCard extends StatelessWidget {
             // ── Header ──
             Row(
               children: [
-                Text(
-                  task.title,
-                  style: TextStyleManager.heading3.copyWith(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    task.title,
+                    style: TextStyleManager.heading3.copyWith(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
+                SizedBox(width: 8.w),
                 SvgPicture.asset(
                   SvgIcons.clock,
                   width: 17.w,
@@ -105,10 +111,13 @@ class TaskCard extends StatelessWidget {
                 ),
               
                 SizedBox(width: 4.w),
-                Text(
-                  task.time,
-                  style: TextStyleManager.style10Medium.copyWith(
-                    color: AppColors.textSecondary,
+                Flexible(
+                  child: Text(
+                    task.time,
+                    style: TextStyleManager.style10Medium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 SizedBox(width: 8.w),
@@ -194,7 +203,12 @@ class TaskCard extends StatelessWidget {
               height: 38.h,
               child: ElevatedButton(
                 onPressed: () {
-                  if (task.route != null) {
+                  if (task.isExerciseDialog) {
+                    showDialog(
+                      context: context,
+                      builder: (_) => const ExerciseDetailsDialog(),
+                    );
+                  } else if (task.route != null) {
                     context.push(task.route!);
                   }
                 },
@@ -236,23 +250,26 @@ class TaskCard extends StatelessWidget {
         children: [
           Icon(task.extraIcon, color: AppColors.primary, size: 16.sp),
           SizedBox(width: 4.w),
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: task.extraLabel,
-                  style: TextStyleManager.text2.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
+          Expanded(
+            child: RichText(
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: task.extraLabel,
+                    style: TextStyleManager.text2.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                TextSpan(
-                  text: '  ${task.extraUnit}',
-                  style: TextStyleManager.style13Medium.copyWith(
-                    color: AppColors.textPrimary,
+                  TextSpan(
+                    text: '  ${task.extraUnit}',
+                    style: TextStyleManager.style13Medium.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

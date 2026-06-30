@@ -577,6 +577,41 @@ class CodegenLoader extends AssetLoader{
     "contact_us_specialist": "التحدث مع اخصائي تغذية",
     "contact_us_ai_desc": "جاهز للانطلاقة؟  أنا معاك خطوة بخطوة 💚",
     "contact_us_specialist_title": "أخصائي تغذية"
+  },
+  "exercise_details_dialog": {
+    "title": "تمرين البلانك",
+    "tab_steps": "الخطوات",
+    "tab_repetitions": "التكرار",
+    "tab_precautions": "تحذيرات",
+    "btn_next": "التالي",
+    "btn_start": "يلا نبدأ",
+    "step_1": "استلق على بطنك على حصيرة تمارين وضع المرفقين تحت الكتفين مباشرة.",
+    "step_2": "ارتكز على أصابع القدم وارفع جسمك عن الأرض.",
+    "step_3": "حافظ على خط مستقيم من الرأس إلى الكعبين.",
+    "step_4": "شد عضلات البطن والأرداف لمنع هبوط أو رفع الحوض.",
+    "step_5": "أبق الرقبة في وضع محايد، الرأس في خط الجسم.",
+    "step_6": "تنفس بانتظام، لا تحبس النفس أثناء الثبات. ببطء إلى وضع البداية.",
+    "rep_1": "عدد المجموعات في الجلسة: 5 مجموعات.",
+    "rep_2": "مدة الاستراحة بين المجموعات: 30-60 ثانية.",
+    "rep_3": "عدد التكرار: 3-5 مرات حسب مستوى اللياقة.",
+    "warn_1": "تجنب شد الرقبة للأمام أو الخلف، حافظ على الوضع الطبيعي للرأس.",
+    "warn_2": "إذا شعرت بألم في الظهر، أوقف التمرين فوراً وراجع طريقة الأداء.",
+    "warn_3": "يمكن تعديل التمرين للمبتدئين بالاستناد على الركبتين بدلاً من أصابع القدم.",
+    "warn_4": "لا تهبط بالحوض للأسفل يؤدي لآلام أسفل الظهر."
+  },
+  "workout": {
+    "warmup": "الاحماء",
+    "exercises": "التمارين",
+    "cooldown": "التبريد",
+    "skip_rest": "تخطي الاستراحة",
+    "rest_time": "وقت الراحة",
+    "finished_exercise": "انهيت التمرين",
+    "next_stage": "المرحلة التالية",
+    "achievement_title": "كمل دلوقتى... الإنجاز على بعد خطوة!",
+    "achievement_continue": "يلا نكمل",
+    "achievement_finish": "إنهاء",
+    "well_done": "احسنت!",
+    "well_done_desc": "لقد أنجزت يوم من الحركات، استمر على هذا الأداء للحفاظ على الصحة وتخفيف الألم."
   }
 };
 static const Map<String,dynamic> _en = {
@@ -1142,6 +1177,41 @@ static const Map<String,dynamic> _en = {
     "contact_us_specialist": "Talk to a Nutritionist",
     "contact_us_ai_desc": "Ready to start? I am with you step by step 💚",
     "contact_us_specialist_title": "Nutritionist"
+  },
+  "exercise_details_dialog": {
+    "title": "Plank Exercise",
+    "tab_steps": "Steps",
+    "tab_repetitions": "Repetitions",
+    "tab_precautions": "Warnings",
+    "btn_next": "Next",
+    "btn_start": "Let's Start",
+    "step_1": "Lie on your stomach on an exercise mat, placing elbows directly under shoulders.",
+    "step_2": "Rest on your toes and lift your body off the floor.",
+    "step_3": "Keep a straight line from head to heels.",
+    "step_4": "Tighten abs and glutes to prevent dropping or lifting hips.",
+    "step_5": "Keep neck in neutral position, head in line with body.",
+    "step_6": "Breathe regularly, do not hold breath while holding. Slowly return to start.",
+    "rep_1": "Sets per session: 5 sets.",
+    "rep_2": "Rest between sets: 30-60 seconds.",
+    "rep_3": "Reps: 3-5 times based on fitness level.",
+    "warn_1": "Avoid straining neck forward or backward, keep natural head position.",
+    "warn_2": "If you feel back pain, stop immediately and review form.",
+    "warn_3": "Can be modified for beginners by resting on knees instead of toes.",
+    "warn_4": "Do not let hips drop down, causes lower back pain."
+  },
+  "workout": {
+    "warmup": "Warm up",
+    "exercises": "Exercises",
+    "cooldown": "Cool down",
+    "skip_rest": "Skip Rest",
+    "rest_time": "Rest Time",
+    "finished_exercise": "Finished Exercise",
+    "next_stage": "Next Stage",
+    "achievement_title": "Keep going... Achievement is a step away!",
+    "achievement_continue": "Let's continue",
+    "achievement_finish": "Finish",
+    "well_done": "Well Done!",
+    "well_done_desc": "You've accomplished a day of movement, keep it up to maintain health and relieve pain."
   }
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"ar": _ar, "en": _en};

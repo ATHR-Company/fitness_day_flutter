@@ -105,28 +105,30 @@ class _VisitLogPageState extends State<VisitLogPage> {
               });
             },
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8.h),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primary : Colors.transparent,
                 borderRadius: BorderRadius.circular(16.r),
               ),
-              child: Column(
-                children: [
-                Text(
-                  days[index],
-                  style: TextStyleManager.style11Medium.copyWith(
-                    color: isSelected ? AppColors.white : AppColors.textPrimary,
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Column(
+                  children: [
+                  Text(
+                    days[index],
+                    style: TextStyleManager.style9Medium.copyWith(
+                      color: isSelected ? AppColors.white : AppColors.textPrimary,
+                    ),
                   ),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  dates[index],
-                  style: TextStyleManager.style14Bold.copyWith(
-                    color: isSelected ? AppColors.white : AppColors.black,
+                  SizedBox(height: 8.h),
+                  Text(
+                    dates[index],
+                    style: TextStyleManager.style14Bold.copyWith(
+                      color: isSelected ? AppColors.white : AppColors.black,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+                            ),
+              ),
           ),
         ),
         );

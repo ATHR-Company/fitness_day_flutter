@@ -52,6 +52,7 @@ class UserHomeCubit extends Cubit<UserHomeState> {
         extraUnit: '3',
         extraIcon: null,
         done: false,
+        isExerciseDialog: true,
       ),
     ];
 
