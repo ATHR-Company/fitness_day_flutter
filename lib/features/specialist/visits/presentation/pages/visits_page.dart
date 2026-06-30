@@ -122,7 +122,7 @@ class _VisitsPageState extends State<VisitsPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const VisitDetailsPage(),
+                                builder: (context) => VisitDetailsPage(isUpcoming: _selectedTabIndex == 0),
                               ),
                             );
                           },

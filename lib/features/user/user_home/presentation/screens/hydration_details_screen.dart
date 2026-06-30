@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 
 class HydrationDetailsScreen extends StatefulWidget {
@@ -126,9 +125,10 @@ class _HydrationDetailsScreenState extends State<HydrationDetailsScreen> {
                         radius: 120.r,
                         lineWidth: 10.w,
                         percent: percent,
-                        circularStrokeCap: CircularStrokeCap.round,
-                        backgroundColor:
-                            AppColors.inactiveGray.withOpacity(0.2),
+                        
+                        backgroundColor: AppColors.inactiveGray.withValues(alpha:
+                          0.2,
+                        ),
                         progressColor: const Color(0xFF23C4D7),
                         center: Column(
                           mainAxisAlignment: MainAxisAlignment.center,

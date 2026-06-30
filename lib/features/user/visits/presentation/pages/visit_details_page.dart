@@ -4,18 +4,21 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
 import 'package:fitness_day/features/shared/widgets/app_segmented_control.dart';
-import 'package:fitness_day/features/shared/widgets/custom_button.dart';
-import 'package:fitness_day/features/shared/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/features/shared/widgets/health_report_card.dart';
-import 'package:fitness_day/features/shared/widgets/plan_item_card.dart';
+
 import 'package:fitness_day/features/shared/widgets/vertical_tab_bar.dart';
 import 'package:fitness_day/features/shared/widgets/visit_card.dart';
 import 'package:fitness_day/features/shared/widgets/visit_goal_card.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/features/shared/widgets/message_icon_button.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
+import 'package:fitness_day/features/shared/widgets/today_tasks_section.dart';
+import 'package:fitness_day/features/user/user_home/presentation/widgets/activity_progress_card.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class VisitDetailsPage extends StatefulWidget {
-  final bool isUpcoming;
-  const VisitDetailsPage({super.key, this.isUpcoming = false});
+  
+  const VisitDetailsPage({super.key});
 
   @override
   State<VisitDetailsPage> createState() => _VisitDetailsPageState();
@@ -24,6 +27,62 @@ class VisitDetailsPage extends StatefulWidget {
 class _VisitDetailsPageState extends State<VisitDetailsPage> {
   int _selectedTabIndex = 0;
   int _selectedDayIndex = 0;
+
+  static const List<TaskData> _foodTasks = [
+    TaskData(
+      imagePath: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=200',
+      title: 'وجبة الافطار',
+      description: 'شوفان بالحليب مع مكسرات وعسل',
+      time: '8:00 صباحاً',
+      extraLabel: '350',
+      extraUnit: 'كالورى',
+      extraIcon: Icons.local_fire_department,
+      done: true,
+    ),
+    TaskData(
+      imagePath: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200',
+      title: 'وجبة الغداء',
+      description: '150 جم من صدور الدجاج المشوي + 6 ملاعق ارز+ سلطة خضراء',
+      time: '3:00 ظهراً',
+      extraLabel: '350',
+      extraUnit: 'كالورى',
+      extraIcon: Icons.local_fire_department,
+      done: false,
+    ),
+    TaskData(
+      imagePath: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=200',
+      title: 'وجبة العشاء',
+      description: 'سمك مشوي + سلطة خضراء + عيش السمر',
+      time: '3:00 مساءً',
+      extraLabel: '350',
+      extraUnit: 'كالورى',
+      extraIcon: Icons.local_fire_department,
+      done: false,
+    ),
+  ];
+
+  static const List<TaskData> _exerciseTasks = [
+    TaskData(
+      imagePath: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200',
+      title: 'تمرين القرفصاء',
+      description: 'تمرين البلانك يقوى عضلات البطن ويحسن الاستقرار العام للجسم',
+      time: '3:00 ظهراً',
+      extraLabel: '3',
+      extraUnit: '3',
+      extraIcon: null,
+      done: true,
+    ),
+    TaskData(
+      imagePath: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200',
+      title: 'تمرين البلانك',
+      description: 'تمرين البلانك يقوى عضلات البطن ويحسن الاستقرار العام للجسم',
+      time: '3:00 ظهراً',
+      extraLabel: '1',
+      extraUnit: '3',
+      extraIcon: null,
+      done: false,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +96,23 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: AppBackHeader(
-                title: widget.isUpcoming ? 'تفاصيل الزيارة القادمة' : 'تفاصيل الزيارة',
+                title: 'تفاصيل الزيارة',
+                trailingWidget: MessageIconButton(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ConversationsPage(),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             SizedBox(height: 24.h),
 
             // Segmented Control (2 tabs) - Only for previous visits
-            if (!widget.isUpcoming) ...[
+            
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: AppSegmentedControl(
@@ -61,87 +130,22 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 ),
               ),
               SizedBox(height: 24.h),
-            ],
-
-            // Content Area
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.only(bottom: 24.h),
-                child: widget.isUpcoming
-                    ? _buildUpcomingVisitContent()
-                    : (_selectedTabIndex == 0
-                        ? _buildPreviousVisitSummaryTab()
-                        : _buildCustomPlanTab()),
+                child: _selectedTabIndex == 0
+                    ? _buildPreviousVisitSummaryTab()
+                    : _buildCustomPlanTab(),
               ),
             ),
+            ]
+            // Content Area
 
-            // Bottom Buttons (For Upcoming Visit only)
-            if (widget.isUpcoming)
-              Container(
-                padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-                child: Row(
-                  children: [
-                    // Change Location
-                    Expanded(
-                      child: CustomButton(
-                        text: 'تغيير المكان',
-                        color: AppColors.primary,
-                        onPressed: () {},
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    // Change Time
-                    Expanded(
-                      child: CustomOutlinedButton(
-                        text: 'تغيير الميعاد',
-                        onPressed: () {},
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
         ),
       ),
     );
   }
 
-  Widget _buildUpcomingVisitContent() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Column(
-        children: [
-          // Visit Card
-          VisitCard(
-            timeRemaining: '',
-            title: 'متابعة أسبوعية',
-            subtitle: 'متابعة الوزن وتخصيص النظام الغذائي والرياضي له',
-            personName: 'د/ محمد عبدالله',
-            personNameLabel: 'اسم الأخصائي :',
-            visitTime: 'اليوم 4:30 مساءا',
-            location: 'في مقر يوم الرشاقة',
-            buttonText: 'تفاصيل »',
-            iconColor: Colors.grey, 
-            isUpcoming: true,
-            onViewPressed: () {},
-            showButton: false,
-          ),
-          SizedBox(height: 16.h),
-
-          // Goal Card
-          VisitGoalCard(
-            title: 'الهدف من الزيارة',
-            goals: const [
-              'تعديل السعرات اليومية لتناسب هدفك',
-              'تحديث خطة التمارين',
-              'ضبط توزيع البروتين والكربوهيدرات',
-              'متابعة تقدمك خلال الأسبوع الماضي',
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPreviousVisitSummaryTab() {
     return Padding(
@@ -196,21 +200,37 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               children: [
                 _buildSectionTitle('التغذية'),
                 SizedBox(height: 12.h),
-                _buildNutritionCard(),
-                SizedBox(height: 12.h),
-                _buildNutritionCard2(),
-                SizedBox(height: 12.h),
-                _buildNutritionCard3(),
+                const TodayTasksSection(tasks: _foodTasks),
 
                 SizedBox(height: 24.h),
                 _buildSectionTitle('التمارين'),
                 SizedBox(height: 12.h),
-                _buildExerciseCard(),
+                const TodayTasksSection(tasks: _exerciseTasks),
 
                 SizedBox(height: 24.h),
                 _buildSectionTitle('الأنشطة'),
                 SizedBox(height: 12.h),
-                _buildActivityCard(),
+                ActivityProgressCard(
+                  title: 'المشي',
+                  time: 'طوال اليوم',
+                  description: 'عاش يا بطل استمر',
+                  icon: SvgPicture.asset(SvgIcons.wake, width: 48.sp, height: 48.sp, fit: BoxFit.contain),
+                  current: 0,
+                  target: 5000,
+                  unit: 'خطوة',
+                  isCompleted: false,
+                ),
+                SizedBox(height: 16.h),
+                ActivityProgressCard(
+                  title: 'الجري',
+                  time: 'طوال اليوم',
+                  description: 'الجري يساعد على تحسين القدرة التحملية وزيادة حرق السعرات.',
+                  icon: SvgPicture.asset(SvgIcons.run, width: 48.sp, height: 48.sp, fit: BoxFit.contain),
+                  current: 0,
+                  target: 1000,
+                  unit: 'متر',
+                  isCompleted: false,
+                ),
               ],
             ),
           ),
@@ -251,181 +271,4 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     );
   }
 
-  Widget _buildNutritionCard() {
-    return PlanItemCard(
-      title: 'وجبة الإفطار',
-      isCompleted: true,
-      time: '8:00 صباحا',
-      subtitle: 'شوفان بالحليب مع مكسرات وعسل',
-      showActions: false,
-      details: RichText(
-        text: TextSpan(
-          style: TextStyleManager.style9Medium.copyWith(
-            color: AppColors.textSecondary,
-            height: 1.5,
-          ),
-          children: [
-            const TextSpan(text: 'سعرات : '),
-            TextSpan(
-              text: '350',
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const TextSpan(text: ' كالوري'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNutritionCard2() {
-    return PlanItemCard(
-      title: 'وجبة الغداء',
-      isCompleted: false,
-      time: '3:00 مساءا',
-      subtitle: '150 جم من صدور الدجاج المشوي + 6 ملاعق أرز + سلطة خضراء',
-      showActions: false,
-      details: RichText(
-        text: TextSpan(
-          style: TextStyleManager.style9Medium.copyWith(
-            color: AppColors.textSecondary,
-            height: 1.5,
-          ),
-          children: [
-            const TextSpan(text: 'سعرات : '),
-            TextSpan(
-              text: '350',
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const TextSpan(text: ' كالوري'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNutritionCard3() {
-    return PlanItemCard(
-      title: 'وجبة العشاء',
-      isCompleted: false,
-      time: '9:00 مساءا',
-      subtitle: 'سمك مشوي + سلطة خضراء + عيش أسمر',
-      showActions: false,
-      details: RichText(
-        text: TextSpan(
-          style: TextStyleManager.style9Medium.copyWith(
-            color: AppColors.textSecondary,
-            height: 1.5,
-          ),
-          children: [
-            const TextSpan(text: 'سعرات : '),
-            TextSpan(
-              text: '350',
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const TextSpan(text: ' كالوري'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildExerciseCard() {
-    return PlanItemCard(
-      title: 'تمرين القرفصاء',
-      isCompleted: true,
-      time: '3:00 مساءا',
-      showActions: false,
-      details: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              children: [
-                const TextSpan(text: 'عدد المجموعات : '),
-                TextSpan(
-                  text: '5',
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          RichText(
-            text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              children: [
-                const TextSpan(text: 'وقت الراحة : '),
-                TextSpan(
-                  text: '20 ثانية',
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          RichText(
-            text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              children: [
-                const TextSpan(text: 'التكرارات : '),
-                TextSpan(
-                  text: '5',
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActivityCard() {
-    return PlanItemCard(
-      title: 'المشي الجري السريع',
-      isCompleted: false,
-      showActions: false,
-      details: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              children: [
-                const TextSpan(text: 'الخطوات : '),
-                TextSpan(
-                  text: '5000 خطوة',
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

@@ -140,7 +140,7 @@ class _VisitLogPageState extends State<VisitLogPage> {
           iconColor: Colors.grey,
           isUpcoming: true,
           onViewPressed: () {
-            context.push(UserAppRoutes.visitDetails, extra: {'isUpcoming': true});
+            context.push(UserAppRoutes.upcomingVisitShow);
           },
         ),
       ],
@@ -162,7 +162,7 @@ class _VisitLogPageState extends State<VisitLogPage> {
           iconPath: SvgIcons.monitor,
           isCompleted: true,
           onViewPressed: () {
-            context.push(UserAppRoutes.visitDetails, extra: {'isUpcoming': false});
+            context.push(UserAppRoutes.visitDetails);
           },
         ),
       ],
