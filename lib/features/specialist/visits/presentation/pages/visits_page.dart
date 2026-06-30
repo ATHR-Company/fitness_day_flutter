@@ -1,4 +1,6 @@
-import 'package:fitness_day/features/shared/visits/presentation/pages/visit_details_page.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
+import 'package:fitness_day/features/shared/widgets/top_centered_constrained_box.dart';
+import 'package:fitness_day/features/specialist/visits/presentation/pages/visit_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -32,15 +34,19 @@ class _VisitsPageState extends State<VisitsPage> {
       endDrawer: const AppDrawer(),
       body: Builder(
         builder: (context) {
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: AppColors
+          return LoaderHud(
+            isCall: false,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: AppColors
                   .visitsBackgroundGradient, // Similar light green/white gradient
             ),
             child: SafeArea(
-              child: Column(
+              child: TopCenteredConstrainedBox(
+                horizontalPadding: 0,
+                child: Column(
                 children: [
                   SizedBox(height: 16.h),
 
@@ -105,7 +111,7 @@ class _VisitsPageState extends State<VisitsPage> {
                           timeRemaining: timeRem,
                           title: 'visits.dummy_title'.tr(),
                           subtitle: 'visits.dummy_subtitle'.tr(),
-                          clientName: 'visits.dummy_client'.tr(),
+                          personName: 'visits.dummy_client'.tr(),
                           visitTime:
                               '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
                           location: 'visits.hq_location'.tr(),
@@ -125,6 +131,8 @@ class _VisitsPageState extends State<VisitsPage> {
                     ),
                   ),
                 ],
+              ),
+            ),
               ),
             ),
           );

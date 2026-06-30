@@ -8,6 +8,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/shared/widgets/app_password_field.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
+import 'package:fitness_day/features/shared/widgets/top_centered_constrained_box.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
@@ -45,16 +47,20 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.splashBackgroundGradient,
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
+      body: LoaderHud(
+        isCall: false,
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: AppColors.splashBackgroundGradient,
+          ),
+          child: SafeArea(
+            child: TopCenteredConstrainedBox(
+              horizontalPadding: 0,
+              child: Column(
+                children: [
+                Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 child: AppBackHeader(title: 'login.reset_password_title'.tr()),
               ),
@@ -123,6 +129,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 ),
               ),
             ],
+          ),
+            ),
           ),
         ),
       ),

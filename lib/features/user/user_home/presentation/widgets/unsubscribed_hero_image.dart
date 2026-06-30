@@ -25,7 +25,7 @@ class UnsubscribedHeroImage extends StatelessWidget {
         child:Image.network(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox(),
+                errorBuilder: (_, _, _) => const SizedBox(),
               ),
             
       ),

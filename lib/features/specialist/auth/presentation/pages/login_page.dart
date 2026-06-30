@@ -13,6 +13,8 @@ import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_c
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
+import 'package:fitness_day/features/shared/widgets/top_centered_constrained_box.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -46,14 +48,18 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.splashBackgroundGradient.colors.first,
-      body: Container(
+      body: LoaderHud(
+        isCall: context.watch<AuthCubit>().state is AuthLoading,
+        child: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: AppColors.splashBackgroundGradient,
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
+          child: TopCenteredConstrainedBox(
+            horizontalPadding: 0,
+            child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: Form(
               key: _formKey,
@@ -117,7 +123,6 @@ class _LoginPageState extends State<LoginPage> {
                     builder: (context, state) {
                       return CustomButton(
                         text: 'login.next_button'.tr(),
-                        isLoading: state is AuthLoading,
                         onPressed: _onLoginPressed,
                       );
                     },
@@ -126,6 +131,8 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
             ),
+          ),
+          ),
           ),
         ),
       ),

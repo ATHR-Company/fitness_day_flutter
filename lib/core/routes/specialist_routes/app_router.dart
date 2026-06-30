@@ -9,9 +9,10 @@ import 'package:fitness_day/features/specialist/auth/presentation/pages/login_pa
 import 'package:fitness_day/features/specialist/home/presentation/screens/home_page.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/pages/clients_page.dart';
 import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
-import 'package:fitness_day/features/shared/visits/presentation/pages/visits_page.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart';
 import 'package:fitness_day/features/specialist/tasks/presentation/pages/today_tasks_page.dart';
+
+import '../../../features/specialist/visits/presentation/pages/visits_page.dart';
 
 class SpecialistAppRouter {
   static final GoRouter router = GoRouter(

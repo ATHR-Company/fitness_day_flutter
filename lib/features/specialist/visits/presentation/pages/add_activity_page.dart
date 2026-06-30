@@ -5,7 +5,10 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
 import 'package:fitness_day/features/shared/widgets/selection_bottom_sheet.dart';
+
+import '../../../../shared/widgets/top_centered_constrained_box.dart';
 
 class AddActivityPage extends StatefulWidget {
   const AddActivityPage({super.key});
@@ -42,14 +45,18 @@ class _AddActivityPageState extends State<AddActivityPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.visitsBackgroundGradient,
-        ),
-        child: SafeArea(
-          child: Column(
+      body: LoaderHud(
+        isCall: false,
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: AppColors.visitsBackgroundGradient,
+          ),
+          child: SafeArea(
+            child: TopCenteredConstrainedBox(
+              horizontalPadding: 0,
+              child: Column(
             children: [
               SizedBox(height: 20.h),
 
@@ -109,9 +116,10 @@ class _AddActivityPageState extends State<AddActivityPage> {
               ),
             ],
           ),
+          ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildLabel(String text) {
@@ -230,9 +238,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
+              ),
+              ),
+            ),
+            );
   }
 }

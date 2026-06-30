@@ -29,7 +29,7 @@ class TodayTasksPage extends StatelessWidget {
                       timeRemaining: '', // No badge
                       title: 'home.weekly_follow_up'.tr(),
                       subtitle: 'home.weekly_follow_up_desc'.tr(),
-                      clientName: 'spec_mock_name'.tr(),
+                      personName: 'spec_mock_name'.tr(),
                       visitTime: 'spec_mock_time3'.tr(),
                       location: 'spec_mock_location'.tr(),
                       buttonText: 'home.view_visit'.tr(),

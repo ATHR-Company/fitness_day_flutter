@@ -1,3 +1,5 @@
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
+import 'package:fitness_day/features/shared/widgets/top_centered_constrained_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -32,14 +34,18 @@ class _ClientsPageState extends State<ClientsPage> {
       endDrawer: const AppDrawer(),
       body: Builder(
         builder: (context) {
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: AppColors.visitsBackgroundGradient,
+          return LoaderHud(
+            isCall: false,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: AppColors.visitsBackgroundGradient,
             ),
             child: SafeArea(
-              child: Column(
+              child: TopCenteredConstrainedBox(
+                horizontalPadding: 0,
+                child: Column(
                 children: [
                   SizedBox(height: 16.h),
 
@@ -135,6 +141,8 @@ class _ClientsPageState extends State<ClientsPage> {
                     ),
                   ),
                 ],
+              ),
+            ),
               ),
             ),
           );

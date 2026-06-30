@@ -21,18 +21,21 @@ class UserAppDrawer extends StatelessWidget {
     // Determine selected index based on subscription state
     int selectedIndex = -1;
     if (isSubscribed) {
-      if (location == UserAppRoutes.home) selectedIndex = 0;
-      else if (location == UserAppRoutes.visitLog) selectedIndex = 1;
+      if (location == UserAppRoutes.home) {
+        selectedIndex = 0;
+      } else if (location == UserAppRoutes.visitLog) selectedIndex = 1;
       else if (location == UserAppRoutes.dietPlan) selectedIndex = 2;
       else if (location == UserAppRoutes.workoutPlan) selectedIndex = 3;
       else if (location == UserAppRoutes.store) selectedIndex = 4;
       else if (location == UserAppRoutes.notifications) selectedIndex = 5;
       else if (location == UserAppRoutes.profile) selectedIndex = 6;
     } else {
-      if (location == UserAppRoutes.home) selectedIndex = 0;
-      else if (location == UserAppRoutes.store) selectedIndex = 1;
-      else if (location == UserAppRoutes.profile) selectedIndex = 2;
-      else if (location == UserAppRoutes.shareWithFriends) selectedIndex = 3;
+      if (location == UserAppRoutes.home) {
+        selectedIndex = 0;
+      } else if (location == UserAppRoutes.visitLog) selectedIndex = 1;
+      else if (location == UserAppRoutes.store) selectedIndex = 2;
+      else if (location == UserAppRoutes.profile) selectedIndex = 3;
+      else if (location == UserAppRoutes.shareWithFriends) selectedIndex = 4;
     }
 
     return Drawer(
@@ -171,9 +174,18 @@ class UserAppDrawer extends StatelessWidget {
           },
         ),
         _buildMenuItem(
+          svgPath: SvgIcons.visitsHistory,
+          title: 'drawer.visit_log'.tr(),
+          isSelected: selected == 1,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(UserAppRoutes.visitLog);
+          },
+        ),
+        _buildMenuItem(
           svgPath: SvgIcons.barcode,
           title: 'drawer.store'.tr(),
-          isSelected: selected == 1,
+          isSelected: selected == 2,
           onTap: () {
             Navigator.pop(context);
             context.push(UserAppRoutes.store);
@@ -182,7 +194,7 @@ class UserAppDrawer extends StatelessWidget {
         _buildMenuItem(
           svgPath: SvgIcons.person,
           title: 'drawer.my_profile'.tr(),
-          isSelected: selected == 2,
+          isSelected: selected == 3,
           onTap: () {
             Navigator.pop(context);
             context.push(UserAppRoutes.profile);
@@ -191,7 +203,7 @@ class UserAppDrawer extends StatelessWidget {
         _buildMenuItem(
           svgPath: SvgIcons.share,
           title: 'drawer.share_with_friends'.tr(),
-          isSelected: selected == 3,
+          isSelected: selected == 4,
           onTap: () {
             Navigator.pop(context);
             context.push(UserAppRoutes.shareWithFriends);

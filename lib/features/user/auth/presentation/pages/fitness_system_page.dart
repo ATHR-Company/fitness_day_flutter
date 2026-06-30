@@ -1,3 +1,4 @@
+import 'package:fitness_day/features/shared/widgets/top_centered_constrained_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -8,6 +9,7 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
 import 'package:fitness_day/features/shared/widgets/app_info_field.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
 
 class FitnessSystemPage extends StatefulWidget {
   const FitnessSystemPage({super.key});
@@ -39,14 +41,18 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.splashBackgroundGradient,
-        ),
-        child: SafeArea(
-          child: Column(
+      body: LoaderHud(
+        isCall: false,
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: AppColors.splashBackgroundGradient,
+          ),
+          child: SafeArea(
+            child: TopCenteredConstrainedBox(
+              horizontalPadding: 0,
+              child: Column(
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -137,6 +143,8 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                 ),
               ),
             ],
+          ),
+          ),
           ),
         ),
       ),

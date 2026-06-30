@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
+
+import '../../../widgets/top_centered_constrained_box.dart';
 
 class ChatDetailsPage extends StatefulWidget {
   const ChatDetailsPage({super.key});
@@ -24,9 +27,13 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Column(
-        children: [
-          _buildHeader(context),
+      body: LoaderHud(
+        isCall: false,
+        child: TopCenteredConstrainedBox(
+          horizontalPadding: 0,
+          child: Column(
+            children: [
+              _buildHeader(context),
 
           Expanded(
             child: ListView(
@@ -88,7 +95,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
           _buildInputArea(),
         ],
       ),
-    );
+    )));
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -274,8 +281,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
               ),
             ),
           ),
-        ],
-      ),
+            ],
+          ),
     );
   }
 }

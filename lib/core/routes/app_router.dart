@@ -6,7 +6,6 @@ import 'package:fitness_day/features/shared/onboarding/presentation/pages/onboar
     as onboarding;
 import 'package:fitness_day/features/shared/role_selection/presentation/pages/role_selection_page.dart';
 import 'package:fitness_day/features/shared/splash/presentation/splash_screen.dart';
-import 'package:fitness_day/features/shared/visits/presentation/pages/visits_page.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/pages/login_page.dart'
     as specialist_login;
 import 'package:fitness_day/features/specialist/clients/presentation/pages/clients_page.dart';
@@ -31,6 +30,10 @@ import 'package:fitness_day/features/user/user_home/presentation/screens/home_pa
 import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart'
     as user_profile;
 import 'package:go_router/go_router.dart';
+
+import '../../features/specialist/visits/presentation/pages/visits_page.dart';
+import 'package:fitness_day/features/user/visits/presentation/pages/visit_log_page.dart';
+import 'package:fitness_day/features/user/visits/presentation/pages/visit_details_page.dart';
 
 /// Single combined router — keeps ALL user + specialist routes so that
 /// swapping routerConfig is never needed and "Page Not Found" never occurs.
@@ -150,6 +153,14 @@ class AppRouter {
       GoRoute(
         path: UserAppRoutes.profile,
         builder: (context, state) => const user_profile.ProfilePage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.visitLog,
+        builder: (context, state) => const VisitLogPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.visitDetails,
+        builder: (context, state) => const VisitDetailsPage(),
       ),
     ],
   );

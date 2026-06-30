@@ -52,7 +52,7 @@ class SubscriptionPackageCard extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: AppColors.backgroundTint,
                       child: Center(
                         child: Icon(Icons.image_outlined, color: AppColors.greenMint),

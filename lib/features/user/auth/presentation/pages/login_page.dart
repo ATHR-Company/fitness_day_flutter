@@ -15,6 +15,7 @@ import 'package:fitness_day/features/shared/widgets/app_social_button.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
 
 class UserLoginPage extends StatefulWidget {
   const UserLoginPage({super.key});
@@ -47,7 +48,9 @@ class _UserLoginPageState extends State<UserLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: LoaderHud(
+        isCall: context.watch<AuthCubit>().state is AuthLoading,
+        child: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
@@ -153,7 +156,6 @@ class _UserLoginPageState extends State<UserLoginPage> {
                     builder: (context, state) {
                       return CustomButton(
                         text: LocaleKeys.login_login_button.tr(),
-                        isLoading: state is AuthLoading,
                         onPressed: _onLoginPressed,
                       );
                     },
@@ -254,6 +256,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
               ),
             ),
           ),
+        ),
         ),
       ),
     );

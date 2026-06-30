@@ -1,4 +1,5 @@
-import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/features/shared/widgets/plan_item_card.dart';
+import 'package:fitness_day/features/shared/widgets/vertical_tab_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -11,9 +12,6 @@ import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/features/shared/widgets/message_icon_button.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
-import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../widgets/report_text_field.dart';
 import '../widgets/reschedule_visit_dialog.dart';
@@ -155,7 +153,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           timeRemaining: 'visits.in_minutes'.tr(args: ['25']),
           title: 'visits.dummy_title'.tr(),
           subtitle: 'visits.dummy_subtitle'.tr(),
-          clientName: 'visits.dummy_client'.tr(),
+          personName: 'visits.dummy_client'.tr(),
           visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
           location: 'visits.hq_location'.tr(),
           buttonText: 'visits.view_visit'.tr(),
@@ -242,7 +240,23 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           ),
         ),
         // Vertical Tab Bar (Left side in RTL)
-        _buildVerticalTabBar(),
+        VerticalTabBar(
+          items: [
+            'visit_details.day_1'.tr(),
+            'visit_details.day_2'.tr(),
+            'visit_details.day_3'.tr(),
+            'visit_details.day_4'.tr(),
+            'visit_details.day_5'.tr(),
+            'visit_details.day_6'.tr(),
+            'visit_details.day_7'.tr(),
+          ],
+          selectedIndex: _selectedDayIndex,
+          onItemSelected: (index) {
+            setState(() {
+              _selectedDayIndex = index;
+            });
+          },
+        ),
       ],
     );
   }
@@ -311,66 +325,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     );
   }
 
-  Widget _buildVerticalTabBar() {
-    final days = [
-      'visit_details.day_1'.tr(),
-      'visit_details.day_2'.tr(),
-      'visit_details.day_3'.tr(),
-      'visit_details.day_4'.tr(),
-      'visit_details.day_5'.tr(),
-      'visit_details.day_6'.tr(),
-      'visit_details.day_7'.tr(),
-    ];
-
-    return Container(
-      width: 60.w,
-      decoration: BoxDecoration(
-        color: AppColors.backgroundTint,
-        borderRadius: BorderRadius.horizontal(right: Radius.circular(20.r)),
-      ),
-      child: Column(
-        children: List.generate(days.length, (index) {
-          final isSelected = _selectedDayIndex == index;
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedDayIndex = index;
-              });
-            },
-            child: Container(
-              height: 70.h,
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
-                borderRadius: isSelected
-                    ? BorderRadius.horizontal(right: Radius.circular(20.r))
-                    : null,
-                border: !isSelected && index < days.length - 1
-                    ? const Border(
-                        bottom: BorderSide(color: AppColors.white, width: 1),
-                      )
-                    : null,
-              ),
-              child: Center(
-                child: Text(
-                  days[index].replaceAll(
-                    ' ',
-                    '\n',
-                  ), // Put day name and number on separate lines
-                  textAlign: TextAlign.center,
-                  style: TextStyleManager.style10Medium.copyWith(
-                    color: isSelected
-                        ? AppColors.white
-                        : AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
+  
   Widget _buildSectionTitle(String title, int count) {
     return Row(
       children: [
@@ -393,152 +348,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     );
   }
 
-  Widget _buildBaseCard({
-    required String title,
-    required bool isCompleted,
-    String? time,
-    String? subtitle,
-    required Widget details,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: AppShadows.primaryShadow,
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: AppColors.divider.withValues(alpha: 0.5),
-          width: 1,
-        ),
-      ),
-      padding: EdgeInsets.all(16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row
-          Row(
-            children: [
-              Expanded(child: Text(title, style: TextStyleManager.heading3)),
-              if (time != null) ...[
-                SvgPicture.asset(SvgIcons.clock, height: 13.sp),
-                SizedBox(width: 4.w),
-                Text(
-                  time,
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-              const SizedBox(width: 7),
-              Icon(
-                Icons.check_circle_rounded,
-                color: isCompleted ? AppColors.primary : AppColors.divider,
-                size: 22.sp,
-              ),
-            ],
-          ),
-
-          if (subtitle != null) ...[
-            SizedBox(height: 8.h),
-            Text(
-              subtitle,
-              style: TextStyleManager.style11Medium.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ],
-
-          SizedBox(height: 12.h),
-          details,
-          SizedBox(height: 16.h),
-
-          // Bottom Buttons
-          Row(
-            children: [
-              // Edit Button (Green) - Right side in RTL
-              SizedBox(width: 0.w),
-              Spacer(),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'visit_details.edit'
-                            .tr()
-                            .replaceAll('»', '')
-                            .replaceAll('«', '')
-                            .trim(),
-                        style: TextStyleManager.smallButtons.copyWith(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 2.w),
-                      Icon(
-                        Icons.keyboard_double_arrow_left,
-                        size: 16.sp,
-                        color: AppColors.white,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 10.w),
-              // Delete Button (Red) - Left side in RTL
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.red,
-                    foregroundColor: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'visit_details.delete'
-                            .tr()
-                            .replaceAll('»', '')
-                            .replaceAll('«', '')
-                            .trim(),
-                        style: TextStyleManager.smallButtons.copyWith(
-                          color: AppColors.white,
-                        ),
-                      ),
-                      SizedBox(width: 2.w),
-                      Icon(
-                        Icons.keyboard_double_arrow_left,
-                        size: 16.sp,
-                        color: AppColors.white,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
+  
   Widget _buildNutritionCard() {
-    return _buildBaseCard(
+    return PlanItemCard(showActions: true, 
       title: 'visit_details_mock_breakfast'.tr(),
       isCompleted: true,
       time: 'visit_details_mock_breakfast_time'.tr(),
@@ -589,7 +401,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
   }
 
   Widget _buildExerciseCard() {
-    return _buildBaseCard(
+    return PlanItemCard(showActions: true, 
       title: 'visit_details_mock_plank'.tr(),
       isCompleted: true,
       time: 'visit_details_mock_breakfast_time'.tr(),
@@ -650,7 +462,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
   }
 
   Widget _buildActivityCard() {
-    return _buildBaseCard(
+    return PlanItemCard(showActions: true, 
       title: 'visit_details_mock_walk'.tr(),
       isCompleted: false,
       details: Column(

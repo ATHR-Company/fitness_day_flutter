@@ -12,6 +12,7 @@ import 'package:fitness_day/features/shared/widgets/app_phone_field.dart';
 import 'package:fitness_day/features/shared/widgets/app_password_field.dart';
 import 'package:fitness_day/features/shared/widgets/app_social_button.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -55,7 +56,9 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: LoaderHud(
+        isCall: false,
+        child: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
@@ -233,6 +236,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
           ),
+        ),
         ),
       ),
     );

@@ -12,6 +12,8 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
+import 'package:fitness_day/features/shared/widgets/top_centered_constrained_box.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String phoneNumber;
@@ -153,16 +155,20 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     );
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.splashBackgroundGradient,
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
+      body: LoaderHud(
+        isCall: false,
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: AppColors.splashBackgroundGradient,
+          ),
+          child: SafeArea(
+            child: TopCenteredConstrainedBox(
+              horizontalPadding: 0,
+              child: Column(
+                children: [
+                  Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 child: AppBackHeader(title: 'login.verify_title'.tr()),
               ),
@@ -232,6 +238,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 ),
               ),
             ],
+          ),
+            ),
           ),
         ),
       ),
