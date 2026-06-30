@@ -3,10 +3,10 @@ import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../user/user_home/presentation/screens/hydration_details_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data Model
@@ -21,6 +21,7 @@ class TaskData {
   final IconData? extraIcon;
   final bool done;
   final bool isSvgImage;
+  final String? route;
 
   const TaskData({
     required this.imagePath,
@@ -32,6 +33,7 @@ class TaskData {
     required this.extraIcon,
     required this.done,
     this.isSvgImage = false,
+    this.route,
   });
 }
 
@@ -192,13 +194,8 @@ class TaskCard extends StatelessWidget {
               height: 38.h,
               child: ElevatedButton(
                 onPressed: () {
-                  if (task.title.contains('الماء') || task.title.contains('Water') || task.title.contains('ترطيب')) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HydrationDetailsScreen(),
-                      ),
-                    );
+                  if (task.route != null) {
+                    context.push(task.route!);
                   }
                 },
                 style: ElevatedButton.styleFrom(

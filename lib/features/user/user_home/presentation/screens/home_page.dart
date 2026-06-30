@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'dart:ui' as ui;
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/current_weight_card.dart';
@@ -21,8 +22,6 @@ import '../widgets/subscription_package_card.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/constant/app_assets.dart';
 import 'hydration_details_screen.dart';
-import '../widgets/unsubscribed_hero_image.dart';
-import '../widgets/subscription_package_card.dart';
 import '../widgets/subscription_packages_grid.dart';
 
 import '../../../../shared/widgets/exit_dialog.dart';
@@ -80,6 +79,8 @@ class HomePage extends StatelessWidget {
     ),
   ];
 
+
+
   static const List<TaskData> _tasks = [
     TaskData(
       imagePath:
@@ -91,6 +92,7 @@ class HomePage extends StatelessWidget {
       extraUnit: 'كالورى',
       extraIcon: Icons.local_fire_department,
       done: true,
+      route: UserAppRoutes.mealDetails,
     ),
     TaskData(
       imagePath:

@@ -128,6 +128,12 @@ class TextStyleManager {
     fontWeight: FontWeight.w500,
   );
 
+  static TextStyle style16Bold = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 16.sp,
+    fontWeight: FontWeight.w700,
+  );
+
   static TextStyle style28Bold = TextStyle(
     fontFamily: fontFamily,
     fontSize: 28.sp,

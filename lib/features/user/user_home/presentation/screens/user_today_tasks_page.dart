@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,8 @@ class _UserTodayTasksPageState extends State<UserTodayTasksPage> {
         'visit_details.day_7'.tr(),
       ];
 
+
+
   // ── Food tasks ─────────────────────────────────────────────────────────────
   static const List<TaskData> _foodTasks = [
     TaskData(
@@ -42,6 +45,7 @@ class _UserTodayTasksPageState extends State<UserTodayTasksPage> {
       extraUnit: 'كالورى',
       extraIcon: Icons.local_fire_department,
       done: true,
+      route: UserAppRoutes.mealDetails,
     ),
     TaskData(
       imagePath: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200',
@@ -52,6 +56,7 @@ class _UserTodayTasksPageState extends State<UserTodayTasksPage> {
       extraUnit: 'كالورى',
       extraIcon: Icons.local_fire_department,
       done: false,
+      route: UserAppRoutes.mealDetails,
     ),
     TaskData(
       imagePath: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=200',
@@ -62,6 +67,7 @@ class _UserTodayTasksPageState extends State<UserTodayTasksPage> {
       extraUnit: 'كالورى',
       extraIcon: Icons.local_fire_department,
       done: false,
+      route: UserAppRoutes.mealDetails,
     ),
   ];
 

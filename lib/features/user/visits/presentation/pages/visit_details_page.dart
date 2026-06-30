@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -28,6 +29,8 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
   int _selectedTabIndex = 0;
   int _selectedDayIndex = 0;
 
+
+
   static const List<TaskData> _foodTasks = [
     TaskData(
       imagePath: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=200',
@@ -38,6 +41,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
       extraUnit: 'كالورى',
       extraIcon: Icons.local_fire_department,
       done: true,
+      route: UserAppRoutes.mealDetails,
     ),
     TaskData(
       imagePath: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200',
@@ -48,6 +52,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
       extraUnit: 'كالورى',
       extraIcon: Icons.local_fire_department,
       done: false,
+      route: UserAppRoutes.mealDetails,
     ),
     TaskData(
       imagePath: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=200',
@@ -58,6 +63,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
       extraUnit: 'كالورى',
       extraIcon: Icons.local_fire_department,
       done: false,
+      route: UserAppRoutes.mealDetails,
     ),
   ];
 

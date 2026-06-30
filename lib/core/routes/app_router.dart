@@ -35,6 +35,8 @@ import '../../features/specialist/visits/presentation/pages/visits_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/visit_log_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/visit_details_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/user_upcoming_visit_page.dart';
+import 'package:fitness_day/features/user/visits/presentation/pages/meal_details_page.dart';
+import 'package:fitness_day/features/user/user_home/presentation/screens/hydration_details_screen.dart';
 
 /// Single combined router — keeps ALL user + specialist routes so that
 /// swapping routerConfig is never needed and "Page Not Found" never occurs.
@@ -166,6 +168,14 @@ class AppRouter {
       GoRoute(
         path: UserAppRoutes.upcomingVisitShow,
         builder: (context, state) => const UserUpcomingVisitPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.mealDetails,
+        builder: (context, state) => const MealDetailsPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.hydrationDetails,
+        builder: (context, state) => const HydrationDetailsScreen(),
       ),
     ],
   );
