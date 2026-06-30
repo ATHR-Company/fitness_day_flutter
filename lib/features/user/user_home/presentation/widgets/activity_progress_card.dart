@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
@@ -59,8 +61,12 @@ class ActivityProgressCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                Icon(Icons.access_time_filled,
-                    size: 22.sp, color: AppColors.primary),
+                SvgPicture.asset(
+                  SvgIcons.clock,
+                  width: 17.w,
+                  height: 17.h,
+                
+                ),
                 SizedBox(width: 4.w),
                 Text(
                   time,

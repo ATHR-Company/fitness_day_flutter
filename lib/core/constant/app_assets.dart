@@ -89,8 +89,14 @@ class SvgIcons {
   static const String WaterBG = '$_svgPath/WaterBG.svg';
   static const String waterGlass = '$_svgPath/waterGlass.svg';
   static const String WaterClock = '$_svgPath/WaterClock.svg';
+  static const String water3L = '$_svgPath/3L.svg';
+  static const String water5L = '$_svgPath/5L.svg';
+  static const String water75L = '$_svgPath/75L.svg';
+  static const String water1L = '$_svgPath/1l.svg';
   static const String run = '$_svgPath/run.svg';
   static const String wake = '$_svgPath/wake.svg';
+  static const String shop = '$_svgPath/shop.svg';
+  static const String dampl = '$_svgPath/dampl.svg';
 
 }
 

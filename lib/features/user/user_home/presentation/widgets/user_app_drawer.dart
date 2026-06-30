@@ -124,7 +124,7 @@ class UserAppDrawer extends StatelessWidget {
           },
         ),
         _buildMenuItem(
-          svgPath: SvgIcons.workout,
+          svgPath: SvgIcons.dampl,
           title: 'drawer.workout_plan'.tr(),
           isSelected: selected == 3,
           onTap: () {
@@ -133,7 +133,7 @@ class UserAppDrawer extends StatelessWidget {
           },
         ),
         _buildMenuItem(
-          svgPath: SvgIcons.barcode,
+          svgPath: SvgIcons.shop,
           title: 'drawer.store'.tr(),
           isSelected: selected == 4,
           onTap: () {
@@ -183,7 +183,7 @@ class UserAppDrawer extends StatelessWidget {
           },
         ),
         _buildMenuItem(
-          svgPath: SvgIcons.barcode,
+          svgPath: SvgIcons.shop,
           title: 'drawer.store'.tr(),
           isSelected: selected == 2,
           onTap: () {

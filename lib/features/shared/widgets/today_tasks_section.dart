@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -82,7 +83,7 @@ class TaskCard extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(16.w),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             // ── Header ──
             Row(
@@ -95,8 +96,12 @@ class TaskCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                Icon(Icons.access_time_filled,
-                    size: 17.sp, color: AppColors.primary),
+                SvgPicture.asset(
+                  SvgIcons.clock,
+                  width: 17.w,
+                  height: 17.h,
+                ),
+              
                 SizedBox(width: 4.w),
                 Text(
                   task.time,
