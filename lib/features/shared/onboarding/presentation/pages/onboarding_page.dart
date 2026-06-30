@@ -175,11 +175,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           ),
                         ),
 
-                        SizedBox(height: 32.h),
+                        SizedBox(height: 12.h),
 
                         // Title & Subtitle
                         SizedBox(
-                          height: 150.h, // Fixed height to prevent layout shifting
+                          height: 190.h, // Fixed height to prevent layout shifting
                           child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 24.w),
                             child: AnimatedSwitcher(
@@ -205,6 +205,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                         .copyWith(
                                           color: AppColors.textSecondary,
                                         ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines:5,
                                   ),
                                 ],
                               ),
