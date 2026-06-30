@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../screens/article_detail_page.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data Model
@@ -40,7 +41,22 @@ class ArticlesSection extends StatelessWidget {
         padding: EdgeInsets.only(left: 16.w),
         itemCount: articles.length,
         itemBuilder: (context, index) =>
-            ArticleCard(article: articles[index]),
+            ArticleCard(
+              article: articles[index],
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ArticleDetailPage(
+                      article: articles[index],
+                      relatedArticles: articles
+                          .where((a) => a != articles[index])
+                          .toList(),
+                    ),
+                  ),
+                );
+              },
+            ),
       ),
     );
   }
@@ -51,13 +67,16 @@ class ArticlesSection extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 class ArticleCard extends StatelessWidget {
   final ArticleData article;
+  final VoidCallback? onTap;
 
-  const ArticleCard({super.key, required this.article});
+  const ArticleCard({super.key, required this.article, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 260.w,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+      width: 300.w,
       margin: EdgeInsets.only(left: 12.w),
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -158,6 +177,7 @@ class ArticleCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

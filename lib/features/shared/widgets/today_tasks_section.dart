@@ -1,9 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_shadows.dart';
-import '../../../../../core/theme/app_text_styles.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_shadows.dart';
+import '../../../core/theme/app_text_styles.dart';
+import '../../user/user_home/presentation/screens/hydration_details_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data Model
@@ -17,6 +19,7 @@ class TaskData {
   final String extraUnit;
   final IconData? extraIcon;
   final bool done;
+  final bool isSvgImage;
 
   const TaskData({
     required this.imagePath,
@@ -27,6 +30,7 @@ class TaskData {
     required this.extraUnit,
     required this.extraIcon,
     required this.done,
+    this.isSvgImage = false,
   });
 }
 
@@ -122,19 +126,40 @@ class TaskCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Circular image
-                Container(
-                  width: 72.w,
-                  height: 72.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.white,
-                    border: Border.all(color: AppColors.greenMint, width: 1.5),
-                    image: DecorationImage(
-                      image: NetworkImage(task.imagePath),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+                task.isSvgImage
+                    ? Container(
+                        width: 72.w,
+                        height: 72.w,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.backgroundTint,
+                          border: Border.all(
+                              color: AppColors.greenMint, width: 1.5),
+                        ),
+                        padding: EdgeInsets.all(12.r),
+                        child: SvgPicture.asset(
+                          task.imagePath,
+                          fit: BoxFit.contain,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.primary,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        width: 72.w,
+                        height: 72.w,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.white,
+                          border: Border.all(
+                              color: AppColors.greenMint, width: 1.5),
+                          image: DecorationImage(
+                            image: NetworkImage(task.imagePath),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
                 SizedBox(width: 16.w),
                 Expanded(
                   child: Column(
@@ -161,7 +186,16 @@ class TaskCard extends StatelessWidget {
             SizedBox(
               height: 38.h,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  if (task.title.contains('الماء') || task.title.contains('Water') || task.title.contains('ترطيب')) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HydrationDetailsScreen(),
+                      ),
+                    );
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(

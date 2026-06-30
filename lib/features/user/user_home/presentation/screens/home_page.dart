@@ -1,5 +1,8 @@
 import 'dart:ui' as ui;
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/features/user/user_home/presentation/widgets/current_weight_card.dart';
+import 'package:fitness_day/features/user/user_home/presentation/widgets/stat_cards_row.dart';
+import 'package:fitness_day/features/shared/widgets/today_tasks_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,16 +14,20 @@ import '../widgets/section_header.dart';
 import '../widgets/subscription_banner.dart';
 import '../widgets/hero_image.dart';
 import '../widgets/categories.dart';
-import '../widgets/stat_cards_row.dart';
-import '../widgets/current_weight_card.dart';
-import '../widgets/today_tasks_section.dart';
-import '../widgets/hydration_card.dart';
+import '../widgets/activity_progress_card.dart';
 import '../widgets/articles_section.dart';
+import '../widgets/unsubscribed_hero_image.dart';
+import '../widgets/subscription_package_card.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../../../../core/constant/app_assets.dart';
+import 'hydration_details_screen.dart';
 import '../widgets/unsubscribed_hero_image.dart';
 import '../widgets/subscription_package_card.dart';
 import '../widgets/subscription_packages_grid.dart';
 
 import '../../../../shared/widgets/exit_dialog.dart';
+import 'user_today_tasks_page.dart';
+import 'articles_list_page.dart';
 
 class HomePage extends StatelessWidget {
   final bool isSubscribed;
@@ -118,6 +125,24 @@ class HomePage extends StatelessWidget {
       body:
           'النوم الجيد ضروري لعملية بناء العضلات وتعافيها بعد التمرين. تأكد من الحصول على 7-9 ساعات يومياً لتحقيق أفضل النتائج.',
     ),
+    ArticleData(
+      imageUrl:
+          'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400',
+      date: '5/2/2026',
+      views: 2300,
+      title: 'مشروبات طبيعية قبل التمرين لزيادة النشاط والتركيز',
+      body:
+          'تعرف على أفضل المشروبات الطبيعية التي تساعدك على زيادة طاقتك وتركيزك قبل التمرين بدون مكملات صناعية.',
+    ),
+    ArticleData(
+      imageUrl:
+          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
+      date: '1/2/2026',
+      views: 1750,
+      title: 'أفضل تمارين الإحماء قبل رفع الأثقال',
+      body:
+          'الإحماء الصحيح يقلل من خطر الإصابات ويحسن أدائك في التمرين. تعرف على أفضل تمارين الإحماء الديناميكية.',
+    ),
   ];
 
   @override
@@ -198,7 +223,14 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: SectionHeader(
                       title: 'home.todays_tasks'.tr(),
-                      onMorePressed: () {},
+                      onMorePressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const UserTodayTasksPage(),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   SizedBox(height: 12.h),
@@ -208,10 +240,34 @@ class HomePage extends StatelessWidget {
                   ),
                   SizedBox(height: 16.h),
 
-                  // 8. Hydration
+                  // 8. Activities (Hydration, Walking, Running)
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: const HydrationCard(),
+                    child: Column(
+                      children: [
+                        ActivityProgressCard(
+                          title: 'home.hydration_title'.tr(),
+                          time: 'home.hydration_all_day'.tr(),
+                          description: 'home.hydration_desc'.tr(),
+                          icon: SvgPicture.asset(SvgIcons.waterBorder, fit: BoxFit.contain),
+                          current: 2.50,
+                          target: 2.50,
+                          unit: 'home.water_unit'.tr(),
+                          isCompleted: true,
+                          onDetailsPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HydrationDetailsScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(height: 16.h),
+                      
+                      
+                      ],
+                    ),
                   ),
                   SizedBox(height: 20.h),
 
@@ -220,7 +276,14 @@ class HomePage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: SectionHeader(
                       title: 'home.articles_title'.tr(),
-                      onMorePressed: () {},
+                      onMorePressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ArticlesListPage(articles: _articles),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   SizedBox(height: 12.h),

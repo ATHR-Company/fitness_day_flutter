@@ -1,17 +1,33 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 
-class HydrationCard extends StatelessWidget {
+class ActivityProgressCard extends StatelessWidget {
+  final String title;
+  final String time;
+  final String description;
+  final Widget icon;
   final double current;
   final double target;
+  final String unit;
+  final VoidCallback? onDetailsPressed;
+  final bool isCompleted;
 
-  const HydrationCard({super.key, this.current = 2.50, this.target = 2.50});
+  const ActivityProgressCard({
+    super.key,
+    required this.title,
+    required this.time,
+    required this.description,
+    required this.icon,
+    required this.current,
+    required this.target,
+    required this.unit,
+    this.onDetailsPressed,
+    this.isCompleted = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +52,7 @@ class HydrationCard extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'home.hydration_title'.tr(),
+                  title,
                   style: TextStyleManager.heading3.copyWith(
                     color: AppColors.black,
                     fontWeight: FontWeight.bold,
@@ -47,7 +63,7 @@ class HydrationCard extends StatelessWidget {
                     size: 22.sp, color: AppColors.primary),
                 SizedBox(width: 4.w),
                 Text(
-                  'home.hydration_all_day'.tr(),
+                  time,
                   style: TextStyleManager.style10Medium
                       .copyWith(color: AppColors.primary),
                 ),
@@ -56,7 +72,7 @@ class HydrationCard extends StatelessWidget {
                   width: 28.w,
                   height: 28.w,
                   decoration: BoxDecoration(
-                    color: AppColors.divider,
+                    color: isCompleted ? AppColors.primary : AppColors.divider,
                     shape: BoxShape.circle,
                   ),
                   child:
@@ -74,8 +90,7 @@ class HydrationCard extends StatelessWidget {
                 SizedBox(
                   width: 72.w,
                   height: 72.w,
-                  child: SvgPicture.asset(SvgIcons.waterBorder,
-                      fit: BoxFit.contain),
+                  child: Center(child: icon),
                 ),
                 SizedBox(width: 16.w),
                 Expanded(
@@ -83,7 +98,7 @@ class HydrationCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'home.hydration_desc'.tr(),
+                        description,
                         style: TextStyleManager.style11Medium.copyWith(
                           color: AppColors.textPrimary,
                           height: 1.6,
@@ -93,7 +108,7 @@ class HydrationCard extends StatelessWidget {
                       RichText(
                         text: TextSpan(children: [
                           TextSpan(
-                            text: current.toStringAsFixed(2),
+                            text: current.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), ''),
                             style: TextStyleManager.style14Bold
                                 .copyWith(color: AppColors.primary),
                           ),
@@ -103,12 +118,12 @@ class HydrationCard extends StatelessWidget {
                                 .copyWith(color: AppColors.textPrimary),
                           ),
                           TextSpan(
-                            text: target.toStringAsFixed(2),
+                            text: target.toStringAsFixed(2).replaceAll(RegExp(r'\.00$'), ''),
                             style: TextStyleManager.style14Bold
                                 .copyWith(color: AppColors.textPrimary),
                           ),
                           TextSpan(
-                            text: '  ${'home.water_unit'.tr()}',
+                            text: '  $unit',
                             style: TextStyleManager.style13Medium
                                 .copyWith(color: AppColors.textPrimary),
                           ),
@@ -120,37 +135,39 @@ class HydrationCard extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: 16.h),
+            if (onDetailsPressed != null) ...[
+              SizedBox(height: 16.h),
 
-            // ── Footer ──
-            SizedBox(
-              height: 38.h,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r)),
-                  elevation: 0,
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'home.details_button'.tr(),
-                      style: TextStyleManager.style12Regular.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
+              // ── Footer ──
+              SizedBox(
+                height: 38.h,
+                child: ElevatedButton(
+                  onPressed: onDetailsPressed,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.r)),
+                    elevation: 0,
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'home.details_button'.tr(),
+                        style: TextStyleManager.style12Regular.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 4.w),
-                    Icon(Icons.keyboard_double_arrow_left,
-                        size: 16.sp, color: AppColors.white),
-                  ],
+                      SizedBox(width: 4.w),
+                      Icon(Icons.keyboard_double_arrow_left,
+                          size: 16.sp, color: AppColors.white),
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

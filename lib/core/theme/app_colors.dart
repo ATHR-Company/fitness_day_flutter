@@ -53,6 +53,18 @@ class AppColors {
   static const Color surfaceGray = Color(0xFFA0A9BA);
 
   // ---------------------------------------------------------------------------
+  // 2B. Hydration / Water-Tracking Accent
+  // ---------------------------------------------------------------------------
+
+  /// Bright cyan/teal used specifically on the Hydration screen — progress
+  /// ring, quick-add badge, outlined buttons, and manual-entry sheet.
+  static const Color waterAccent = Color(0xFF4CCFD9);
+
+  /// Very light cyan tint used for the selected state of preset amount
+  /// chips in the manual water-entry sheet.
+  static const Color waterAccentLight = Color(0xFFE3F8FA);
+
+  // ---------------------------------------------------------------------------
   // 3. Hardware / OS Overlays
   // ---------------------------------------------------------------------------
 
@@ -179,6 +191,8 @@ class AppColors {
     'backgroundTint': backgroundTint,
     'scrimOverlay': scrimOverlay,
     'surfaceGray': surfaceGray,
+    'waterAccent': waterAccent,
+    'waterAccentLight': waterAccentLight,
     'statusBar': statusBar,
     'notchMask': notchMask,
     'greenMidnight': greenMidnight,
