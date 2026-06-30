@@ -21,6 +21,7 @@ import '../../../features/user/auth/presentation/pages/bmi_report_page.dart';
 import '../../../features/user/auth/presentation/pages/health_problems_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/visit_log_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/visit_details_page.dart';
+import 'package:fitness_day/features/user/visits/presentation/pages/user_upcoming_visit_page.dart';
 
 class UserAppRouter {
   static final GoRouter router = GoRouter(
@@ -114,6 +115,10 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.visitDetails,
         builder: (context, state) => const VisitDetailsPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.upcomingVisitShow,
+        builder: (context, state) => const UserUpcomingVisitPage(),
       ),
     ],
   );

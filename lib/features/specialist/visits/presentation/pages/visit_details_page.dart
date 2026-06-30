@@ -6,21 +6,23 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
 import 'package:fitness_day/features/shared/widgets/app_segmented_control.dart';
+import 'package:fitness_day/features/shared/widgets/upcoming_visit_show_screen.dart';
 import 'package:fitness_day/features/shared/widgets/visit_card.dart';
 import 'package:fitness_day/features/shared/widgets/visit_goal_card.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/features/shared/widgets/message_icon_button.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
+import 'package:fitness_day/features/shared/widgets/reschedule_visit_dialog.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../widgets/report_text_field.dart';
-import '../widgets/reschedule_visit_dialog.dart';
 import 'add_activity_page.dart';
 import 'add_exercise_page.dart';
 import 'add_meal_page.dart';
 
 class VisitDetailsPage extends StatefulWidget {
-  const VisitDetailsPage({super.key});
+  final bool isUpcoming;
+  const VisitDetailsPage({super.key, this.isUpcoming = false});
 
   @override
   State<VisitDetailsPage> createState() => _VisitDetailsPageState();
@@ -32,6 +34,54 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isUpcoming) {
+      return UpcomingVisitShowScreen(
+        title: 'visit_details.title'.tr(),
+        trailingWidget: MessageIconButton(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ConversationsPage(),
+              ),
+            );
+          },
+        ),
+        visitTimeRemaining: 'visits.in_minutes'.tr(args: ['25']),
+        visitTitle: 'visits.dummy_title'.tr(),
+        visitSubtitle: 'visits.dummy_subtitle'.tr(),
+        personName: 'visits.dummy_client'.tr(),
+        personNameLabel: 'visits.client_name_label'.tr(),
+        visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
+        visitLocation: 'visits.hq_location'.tr(),
+        visitGoalTitle: 'visit_details.visit_goal_title'.tr(),
+        visitGoals: [
+          'visit_details.goal_1'.tr(),
+          'visit_details.goal_2'.tr(),
+          'visit_details.goal_3'.tr(),
+          'visit_details.goal_4'.tr(),
+        ],
+        bottomAction: Row(
+          children: [
+            Expanded(
+              child: CustomButton(
+                text: 'visit_details.start_visit'.tr(),
+                onPressed: () {},
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: CustomOutlinedButton(
+                text: 'visit_details.reschedule'.tr(),
+                onPressed: () {
+                  showRescheduleDialog(context);
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -65,10 +115,11 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               SizedBox(height: 32.h),
 
               // 2. Segmented Control (3 tabs) — reversed so first tab is on the right (RTL)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: AppSegmentedControl(
-                  type: AppSegmentedControlType.unified,
+              
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  child: AppSegmentedControl(
+                    type: AppSegmentedControlType.unified,
                   items: [
                     'visit_details.tab_visit_data'.tr(),
                     'visit_details.tab_report'.tr(),
@@ -80,10 +131,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                       _selectedTabIndex = index;
                     });
                   },
+                  ),
                 ),
-              ),
-
-              SizedBox(height: 24.h),
+                SizedBox(height: 24.h),
 
               // 3. Content Area
               Expanded(
@@ -146,33 +196,38 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
   }
 
   Widget _buildVisitDataTab() {
-    return Column(
-      children: [
-        // Visit Card
-        VisitCard(
-          timeRemaining: 'visits.in_minutes'.tr(args: ['25']),
-          title: 'visits.dummy_title'.tr(),
-          subtitle: 'visits.dummy_subtitle'.tr(),
-          personName: 'visits.dummy_client'.tr(),
-          visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
-          location: 'visits.hq_location'.tr(),
-          buttonText: 'visits.view_visit'.tr(),
-          onViewPressed: () {},
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          // Visit Card
+          VisitCard(
+            timeRemaining: 'visits.in_minutes'.tr(args: ['25']),
+            title: 'visits.dummy_title'.tr(),
+            subtitle: 'visits.dummy_subtitle'.tr(),
+            personName: 'visits.dummy_client'.tr(),
+            visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
+            location: 'visits.hq_location'.tr(),
+            buttonText: 'visits.view_visit'.tr(),
+            onViewPressed: () {},
+            isUpcoming: widget.isUpcoming,
+            showButton: false,
+          ),
 
-        SizedBox(height: 16.h),
+          SizedBox(height: 16.h),
 
-        // Visit Goal Card
-        VisitGoalCard(
-          title: 'visit_details.visit_goal_title'.tr(),
-          goals: [
-            'visit_details.goal_1'.tr(),
-            'visit_details.goal_2'.tr(),
-            'visit_details.goal_3'.tr(),
-            'visit_details.goal_4'.tr(),
-          ],
-        ),
-      ],
+          // Visit Goal Card
+          VisitGoalCard(
+            title: 'visit_details.visit_goal_title'.tr(),
+            goals: [
+              'visit_details.goal_1'.tr(),
+              'visit_details.goal_2'.tr(),
+              'visit_details.goal_3'.tr(),
+              'visit_details.goal_4'.tr(),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
