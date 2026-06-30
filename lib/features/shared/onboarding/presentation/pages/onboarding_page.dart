@@ -1,4 +1,6 @@
 import 'dart:ui' as ui;
+import 'dart:math' as math;
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +11,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/features/shared/onboarding/data/models/onboarding_content.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -27,17 +30,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
     super.initState();
     _contents = [
       OnboardingContent(
-        imagePath: 'assets/images/onboarding1.png',
+        imagePath: AppImages.onboarding1,
         title: LocaleKeys.onboarding_title_1.tr(),
         subtitle: LocaleKeys.onboarding_subtitle_1.tr(),
       ),
       OnboardingContent(
-        imagePath: 'assets/images/onboarding2.png',
+        imagePath: AppImages.onboarding2,
         title: LocaleKeys.onboarding_title_2.tr(),
         subtitle: LocaleKeys.onboarding_subtitle_2.tr(),
       ),
       OnboardingContent(
-        imagePath: 'assets/images/onboarding3.png',
+        imagePath: AppImages.onboarding3,
         title: LocaleKeys.onboarding_title_3.tr(),
         subtitle: LocaleKeys.onboarding_subtitle_3.tr(),
       ),
@@ -80,12 +83,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
               Align(
                 alignment: AlignmentDirectional.topEnd,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 24.w,
+                    vertical: 16.h,
+                  ),
                   child: InkWell(
                     onTap: _finishOnboarding,
                     borderRadius: BorderRadius.circular(20.r),
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.h,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.white,
                         borderRadius: BorderRadius.circular(20.r),
@@ -94,7 +103,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            LocaleKeys.onboarding_skip.tr().replaceAll('»', '').trim(),
+                            LocaleKeys.onboarding_skip
+                                .tr()
+                                .replaceAll('»', '')
+                                .trim(),
                             style: TextStyleManager.style14Medium.copyWith(
                               color: AppColors.textPrimary,
                             ),
@@ -118,8 +130,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
               Expanded(
                 child: GestureDetector(
                   onHorizontalDragEnd: (details) {
-                    final isRTL = Directionality.of(context) == ui.TextDirection.rtl;
-                    
+                    final isRTL =
+                        Directionality.of(context) == ui.TextDirection.rtl;
+
                     if (details.primaryVelocity! < 0) {
                       // Swiping Left (Right to Left)
                       isRTL ? _prevPage() : _nextPage();
@@ -129,7 +142,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     }
                   },
                   child: Container(
-                    color: Colors.transparent, // Ensure gesture detector captures touches
+                    color: Colors
+                        .transparent, // Ensure gesture detector captures touches
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -140,10 +154,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             children: [
                               AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 500),
-                                transitionBuilder: (child, animation) => FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                ),
+                                transitionBuilder: (child, animation) =>
+                                    FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    ),
                                 child: Image.asset(
                                   _contents[_currentIndex].imagePath,
                                   key: ValueKey<int>(_currentIndex),
@@ -159,20 +174,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             ],
                           ),
                         ),
-                        
+
                         SizedBox(height: 32.h),
-                        
+
                         // Title & Subtitle
                         SizedBox(
-                          // height: 150.h, // Fixed height to prevent layout shifting
+                          height: 150.h, // Fixed height to prevent layout shifting
                           child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 24.w),
                             child: AnimatedSwitcher(
                               duration: const Duration(milliseconds: 500),
-                              transitionBuilder: (child, animation) => FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  ),
                               child: Column(
                                 key: ValueKey<int>(_currentIndex),
                                 children: [
@@ -185,9 +201,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                   Text(
                                     _contents[_currentIndex].subtitle,
                                     textAlign: TextAlign.center,
-                                    style: TextStyleManager.style13Medium.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
+                                    style: TextStyleManager.style13Medium
+                                        .copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -224,9 +241,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           width: 8.w,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: _currentIndex == index
-                ? AppColors.primary
-                : AppColors.white,
+            color: _currentIndex == index ? AppColors.primary : AppColors.white,
           ),
         ),
       ),
@@ -246,14 +261,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
           alignment: Alignment.center,
           children: [
             // Circular Progress Background
-            SizedBox(
-              width: 80.w,
-              height: 80.w,
-              child: CircularProgressIndicator(
-                value: 1.0,
-                strokeWidth: 4.w,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  AppColors.primary.withValues(alpha: 0.2),
+            Transform.rotate(
+              angle: Directionality.of(context) == ui.TextDirection.rtl ? (math.pi / 2) : (-math.pi / 2),
+              child: SizedBox(
+                width: 80.w,
+                height: 80.w,
+                child: CircularProgressIndicator(
+                  // Remove hardcoded LTR so it naturally fills clockwise in LTR and counter-clockwise in RTL
+                  value: 1.0,
+                  strokeWidth: 4.w,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.primary.withValues(alpha: 0.2),
+                  ),
                 ),
               ),
             ),
@@ -263,13 +282,23 @@ class _OnboardingPageState extends State<OnboardingPage> {
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOut,
               builder: (context, value, child) {
-                return SizedBox(
-                  width: 80.w,
-                  height: 80.w,
-                  child: CircularProgressIndicator(
-                    value: value,
-                    strokeWidth: 4.w,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                return Transform.rotate(
+                  angle: Directionality.of(context) == ui.TextDirection.rtl ? (math.pi / 2) : (-math.pi / 2),
+                  child: SizedBox(
+                    width: 80.w,
+                    height: 80.w,
+                    child: Directionality(
+                      textDirection: Directionality.of(context) == ui.TextDirection.rtl 
+                          ? ui.TextDirection.ltr 
+                          : ui.TextDirection.rtl,
+                      child: CircularProgressIndicator(
+                        value: value,
+                        strokeWidth: 4.w,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColors.primary,
+                        ),
+                      ),
+                    ),
                   ),
                 );
               },
@@ -292,8 +321,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   isLastPage
                       ? Icons.check
                       : (Directionality.of(context) == ui.TextDirection.rtl
-                          ? Icons.keyboard_double_arrow_left_rounded
-                          : Icons.keyboard_double_arrow_right_rounded),
+                            ? Icons.keyboard_double_arrow_left_rounded
+                            : Icons.keyboard_double_arrow_right_rounded),
                   key: ValueKey<bool>(isLastPage),
                   color: AppColors.white,
                   size: 32.w,

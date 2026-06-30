@@ -1,4 +1,5 @@
-import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/features/shared/widgets/plan_item_card.dart';
+import 'package:fitness_day/features/shared/widgets/vertical_tab_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -11,9 +12,6 @@ import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/features/shared/widgets/message_icon_button.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
-import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../widgets/report_text_field.dart';
 import '../widgets/reschedule_visit_dialog.dart';
@@ -55,7 +53,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ConversationsPage()),
+                        MaterialPageRoute(
+                          builder: (_) => const ConversationsPage(),
+                        ),
                       );
                     },
                   ),
@@ -99,7 +99,8 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 child: (_selectedTabIndex == 1 || _selectedTabIndex == 2)
                     ? CustomButton(
                         text: 'visit_details.end_visit'.tr(),
-                        color: AppColors.greenMint, // Match lighter green from design
+                        color: AppColors
+                            .greenMint, // Match lighter green from design
                         onPressed: () {},
                       )
                     : Row(
@@ -152,7 +153,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           timeRemaining: 'visits.in_minutes'.tr(args: ['25']),
           title: 'visits.dummy_title'.tr(),
           subtitle: 'visits.dummy_subtitle'.tr(),
-          clientName: 'visits.dummy_client'.tr(),
+          personName: 'visits.dummy_client'.tr(),
           visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
           location: 'visits.hq_location'.tr(),
           buttonText: 'visits.view_visit'.tr(),
@@ -200,7 +201,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const AddExercisePage()),
+                      MaterialPageRoute(
+                        builder: (_) => const AddExercisePage(),
+                      ),
                     );
                   },
                 ),
@@ -210,7 +213,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const AddActivityPage()),
+                      MaterialPageRoute(
+                        builder: (_) => const AddActivityPage(),
+                      ),
                     );
                   },
                 ),
@@ -220,7 +225,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 _buildSectionTitle('visit_details.nutrition'.tr(), 1),
                 SizedBox(height: 12.h),
                 _buildNutritionCard(),
-                
+
                 SizedBox(height: 24.h),
                 _buildSectionTitle('visit_details.exercises'.tr(), 1),
                 SizedBox(height: 12.h),
@@ -235,17 +240,39 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           ),
         ),
         // Vertical Tab Bar (Left side in RTL)
-        _buildVerticalTabBar(),
+        VerticalTabBar(
+          items: [
+            'visit_details.day_1'.tr(),
+            'visit_details.day_2'.tr(),
+            'visit_details.day_3'.tr(),
+            'visit_details.day_4'.tr(),
+            'visit_details.day_5'.tr(),
+            'visit_details.day_6'.tr(),
+            'visit_details.day_7'.tr(),
+          ],
+          selectedIndex: _selectedDayIndex,
+          onItemSelected: (index) {
+            setState(() {
+              _selectedDayIndex = index;
+            });
+          },
+        ),
       ],
     );
   }
 
-  Widget _buildActionCard({required String title, required VoidCallback onPressed}) {
+  Widget _buildActionCard({
+    required String title,
+    required VoidCallback onPressed,
+  }) {
     return Container(
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.4), width: 1),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.4),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -258,10 +285,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyleManager.style11Medium,
-          ),
+          Text(title, style: TextStyleManager.style11Medium),
           ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
@@ -278,13 +302,21 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'visit_details.add'.tr().replaceAll('»', '').replaceAll('«', '').trim(),
+                  'visit_details.add'
+                      .tr()
+                      .replaceAll('»', '')
+                      .replaceAll('«', '')
+                      .trim(),
                   style: TextStyleManager.smallButtons.copyWith(
                     color: AppColors.white,
                   ),
                 ),
                 SizedBox(width: 2.w),
-                Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                Icon(
+                  Icons.keyboard_double_arrow_left,
+                  size: 16.sp,
+                  color: AppColors.white,
+                ),
               ],
             ),
           ),
@@ -293,63 +325,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     );
   }
 
-  Widget _buildVerticalTabBar() {
-    final days = [
-      'visit_details.day_1'.tr(),
-      'visit_details.day_2'.tr(),
-      'visit_details.day_3'.tr(),
-      'visit_details.day_4'.tr(),
-      'visit_details.day_5'.tr(),
-      'visit_details.day_6'.tr(),
-      'visit_details.day_7'.tr(),
-    ];
-
-    return Container(
-      width: 60.w,
-      decoration: BoxDecoration(
-        color: AppColors.backgroundTint,
-        borderRadius: BorderRadius.horizontal(
-          right: Radius.circular(20.r),
-        ),
-      ),
-      child: Column(
-        children: List.generate(days.length, (index) {
-          final isSelected = _selectedDayIndex == index;
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedDayIndex = index;
-              });
-            },
-            child: Container(
-              height: 70.h,
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
-                borderRadius: isSelected
-                    ? BorderRadius.horizontal(right: Radius.circular(20.r))
-                    : null,
-                border: !isSelected && index < days.length - 1
-                    ? const Border(
-                        bottom: BorderSide(color: AppColors.white, width: 1),
-                      )
-                    : null,
-              ),
-              child: Center(
-                child: Text(
-                  days[index].replaceAll(' ', '\n'), // Put day name and number on separate lines
-                  textAlign: TextAlign.center,
-                  style: TextStyleManager.style10Medium.copyWith(
-                    color: isSelected ? AppColors.white : AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
+  
   Widget _buildSectionTitle(String title, int count) {
     return Row(
       children: [
@@ -372,154 +348,52 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     );
   }
 
-  Widget _buildBaseCard({
-    required String title,
-    required bool isCompleted,
-    String? time,
-    String? subtitle,
-    required Widget details,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: AppShadows.primaryShadow,
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.divider.withValues(alpha: 0.5), width: 1),
-      ),
-      padding: EdgeInsets.all(16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Row
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyleManager.heading3,
-                ),
-              ),
-              if (time != null) ...[
-                SvgPicture.asset(SvgIcons.clock, height: 13.sp),
-                SizedBox(width: 4.w),
-                Text(
-                  time,
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-              const SizedBox(width: 7,),
-              Icon(
-                Icons.check_circle_rounded,
-                color: isCompleted ? AppColors.primary : AppColors.divider,
-                size: 22.sp,
-              ),
-            ],
-          ),
-          
-          if (subtitle != null) ...[
-            SizedBox(height: 8.h),
-            Text(
-              subtitle,
-              style: TextStyleManager.style11Medium.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ],
-
-          SizedBox(height: 12.h),
-          details,
-          SizedBox(height: 16.h),
-
-          // Bottom Buttons
-          Row(
-            children: [
-              // Edit Button (Green) - Right side in RTL
-              SizedBox(width: 0.w),
-              Spacer(),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'visit_details.edit'.tr().replaceAll('»', '').replaceAll('«', '').trim(),
-                        style: TextStyleManager.smallButtons.copyWith(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 2.w),
-                      Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 10.w),
-              // Delete Button (Red) - Left side in RTL
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.red,
-                    foregroundColor: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'visit_details.delete'.tr().replaceAll('»', '').replaceAll('«', '').trim(),
-                        style: TextStyleManager.smallButtons.copyWith(
-                          color: AppColors.white,
-                        ),
-                      ),
-                      SizedBox(width: 2.w),
-                      Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
+  
   Widget _buildNutritionCard() {
-    return _buildBaseCard(
-      title: 'وجبة الافطار',
+    return PlanItemCard(showActions: true, 
+      title: 'visit_details_mock_breakfast'.tr(),
       isCompleted: true,
-      time: '8:00 صباحا',
-      subtitle: 'شوفان بالحليب مع مكسرات وعسل',
+      time: 'visit_details_mock_breakfast_time'.tr(),
+      subtitle: 'visit_details_mock_breakfast_desc'.tr(),
       details: RichText(
         text: TextSpan(
-          style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary, height: 1.5),
+          style: TextStyleManager.style9Medium.copyWith(
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
           children: [
-            const TextSpan(text: 'الكمية: شوفان : '),
-            TextSpan(text: '45g', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-            const TextSpan(text: ' - حليب : '),
-            TextSpan(text: '250ml', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-            const TextSpan(text: ' -مكسرات : '),
-            TextSpan(text: '10g', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
-            const TextSpan(text: ' - عسل : '),
-            TextSpan(text: '5g', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            TextSpan(text: 'visit_details_mock_qty_oats'.tr()),
+            TextSpan(
+              text: '45g',
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(text: 'visit_details_mock_milk'.tr()),
+            TextSpan(
+              text: '250ml',
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(text: 'visit_details_mock_nuts'.tr()),
+            TextSpan(
+              text: '10g',
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextSpan(text: 'visit_details_mock_honey'.tr()),
+            TextSpan(
+              text: '5g',
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
@@ -527,37 +401,58 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
   }
 
   Widget _buildExerciseCard() {
-    return _buildBaseCard(
-      title: 'تمرين البلانك',
+    return PlanItemCard(showActions: true, 
+      title: 'visit_details_mock_plank'.tr(),
       isCompleted: true,
-      time: '8:00 صباحا',
+      time: 'visit_details_mock_breakfast_time'.tr(),
       details: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary,),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'عدد المجموعات : '),
-                TextSpan(text: '5 مجموعات', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary)),
+                TextSpan(text: 'visit_details_mock_sets'.tr()),
+                TextSpan(
+                  text: 'visit_details_mock_5_sets'.tr(),
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary,),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'مدة الاستراحة بين المجموعات : '),
-                TextSpan(text: '20 ثانيه', style: TextStyleManager.heading3.copyWith(color: AppColors.primary)),
+                TextSpan(text: 'visit_details_mock_rest_time'.tr()),
+                TextSpan(
+                  text: 'visit_details_mock_20_sec'.tr(),
+                  style: TextStyleManager.heading3.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary,),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'عدد التكرارات : '),
-                TextSpan(text: '5', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary)),
+                TextSpan(text: 'visit_details_mock_reps'.tr()),
+                TextSpan(
+                  text: '5',
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
@@ -567,27 +462,41 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
   }
 
   Widget _buildActivityCard() {
-    return _buildBaseCard(
-      title: 'تمرين المشي',
+    return PlanItemCard(showActions: true, 
+      title: 'visit_details_mock_walk'.tr(),
       isCompleted: false,
       details: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'عدد الخطوات : '),
-                TextSpan(text: '5000 خطوة', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary,)),
+                TextSpan(text: 'visit_details_mock_steps'.tr()),
+                TextSpan(
+                  text: 'visit_details_mock_5000_steps'.tr(),
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
               children: [
-                const TextSpan(text: 'مدة الاستراحة : '),
-                TextSpan(text: '20 ثانيه', style: TextStyleManager.style9Medium.copyWith(color: AppColors.primary,)),
+                TextSpan(text: 'visit_details_mock_rest'.tr()),
+                TextSpan(
+                  text: 'visit_details_mock_20_sec'.tr(),
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
           ),

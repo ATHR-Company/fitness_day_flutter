@@ -24,13 +24,14 @@ class ProfilePage extends StatelessWidget {
             width: double.infinity,
             height: double.infinity,
             decoration: const BoxDecoration(
-              gradient: AppColors.splashBackgroundGradient, // Similar to the light green gradient
+              gradient: AppColors
+                  .splashBackgroundGradient, // Similar to the light green gradient
             ),
             child: SafeArea(
               child: Column(
                 children: [
                   SizedBox(height: 20.h),
-                  
+
                   // Custom Header
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -73,7 +74,10 @@ class ProfilePage extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: AppColors.primary,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: AppColors.white, width: 3),
+                                border: Border.all(
+                                  color: AppColors.white,
+                                  width: 3,
+                                ),
                               ),
                             ),
                           ),
@@ -81,7 +85,8 @@ class ProfilePage extends StatelessWidget {
                       ),
                       SizedBox(height: 16.h),
                       Text(
-                        'conversations.dummy_name'.tr(), // Resuing "محمد عبدالله"
+                        'conversations.dummy_name'
+                            .tr(), // Resuing 'spec_mock_name'.tr()
                         style: TextStyleManager.heading2.copyWith(
                           color: AppColors.black,
                           fontWeight: FontWeight.bold,
@@ -104,7 +109,9 @@ class ProfilePage extends StatelessWidget {
                           onTap: () {
                             showDialog(
                               context: context,
-                              barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
+                              barrierColor: AppColors.scrimOverlay.withValues(
+                                alpha: 0.5,
+                              ),
                               builder: (context) => const EditProfileDialog(),
                             );
                           },
@@ -115,7 +122,9 @@ class ProfilePage extends StatelessWidget {
                           onTap: () {
                             showDialog(
                               context: context,
-                              barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
+                              barrierColor: AppColors.scrimOverlay.withValues(
+                                alpha: 0.5,
+                              ),
                               builder: (context) => const LanguageDialog(),
                             );
                           },
@@ -143,7 +152,7 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
@@ -160,16 +169,15 @@ class ProfilePage extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFFFFFFFF),
-              Color(0xFFFAFDFA),
-            ],
+            colors: [AppColors.white, AppColors.dialogBackground],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-          borderRadius: BorderRadius.circular(10.r), // Based on image: Radius 10px
+          borderRadius: BorderRadius.circular(
+            10.r,
+          ), // Based on image: Radius 10px
           border: Border.all(
-            color: const Color(0xFFF2F2F2),
+            color: AppColors.dividerLight,
             width: 0.2.w, // Based on image: 0.2px
           ),
           boxShadow: AppShadows.profileItemShadow,
@@ -180,19 +188,12 @@ class ProfilePage extends StatelessWidget {
             // Left Side in RTL (Right Side visually)
             Row(
               children: [
-                SvgPicture.asset(
-                  svgPath,
-                  width: 40.sp,
-                  height: 40.sp,
-                ),
+                SvgPicture.asset(svgPath, width: 40.sp, height: 40.sp),
                 SizedBox(width: 16.w),
-                Text(
-                  title,
-                  style: TextStyleManager.heading3,
-                ),
+                Text(title, style: TextStyleManager.heading3),
               ],
             ),
-            
+
             // Right Side in RTL (Left Side visually)
             Icon(
               Icons.arrow_forward_ios, // <

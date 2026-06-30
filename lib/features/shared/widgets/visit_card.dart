@@ -11,7 +11,8 @@ class VisitCard extends StatelessWidget {
   final String timeRemaining;
   final String title;
   final String subtitle;
-  final String clientName;
+  final String personName;
+  final String? personNameLabel;
   final String visitTime;
   final String location;
   final String buttonText;
@@ -19,13 +20,18 @@ class VisitCard extends StatelessWidget {
   final String iconPath;
   final String? secondaryButtonText;
   final VoidCallback? onSecondaryPressed;
+  final bool showButton;
+  final Color? iconColor;
+  final bool isCompleted;
+  final bool isUpcoming;
 
   const VisitCard({
     super.key,
     required this.timeRemaining,
     required this.title,
     required this.subtitle,
-    required this.clientName,
+    required this.personName,
+    this.personNameLabel,
     required this.visitTime,
     required this.location,
     required this.buttonText,
@@ -33,12 +39,15 @@ class VisitCard extends StatelessWidget {
     this.iconPath = SvgIcons.monitor,
     this.secondaryButtonText,
     this.onSecondaryPressed,
+    this.showButton = true,
+    this.iconColor,
+    this.isCompleted = false,
+    this.isUpcoming = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      //margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
         borderRadius: BorderRadiusDirectional.only(
@@ -61,11 +70,18 @@ class VisitCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Monitor Icon in Circle
-                    Center(
+                    Container(
+                      width: 60.w,
+                      height: 60.h,
+                      padding: EdgeInsets.all(12.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: iconColor ?? AppColors.primary, width: 2),
+                      ),
                       child: SvgPicture.asset(
                         iconPath,
-                        width: 60.w,
-                        height: 60.h,
+                        colorFilter: ColorFilter.mode(iconColor ?? AppColors.primary, BlendMode.srcIn),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -78,7 +94,6 @@ class VisitCard extends StatelessWidget {
                             title,
                             style: TextStyleManager.heading3.copyWith(
                               color: AppColors.black,
-                              //fontWeight: FontWeight.bold,
                             ),
                           ),
                           SizedBox(height: 4.h),
@@ -96,7 +111,9 @@ class VisitCard extends StatelessWidget {
                 SizedBox(height: 16.h),
 
                 // Details Rows
-                _buildDetailRow('visits.client_name_label'.tr(), clientName),
+                _buildDetailRow(
+                    personNameLabel ?? 'visits.client_name_label'.tr(),
+                    personName),
                 SizedBox(height: 8.h),
                 _buildDetailRow('visits.visit_time_label'.tr(), visitTime),
                 SizedBox(height: 8.h),
@@ -104,72 +121,91 @@ class VisitCard extends StatelessWidget {
 
                 SizedBox(height: 16.h),
                 // View Visit Button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      height: 36.h,
-                      child: ElevatedButton(
-                        onPressed: onViewPressed,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.r),
-                          ),
-                          elevation: 0,
-                          padding: EdgeInsets.symmetric(horizontal: 10.w),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              buttonText.replaceAll('»', '').replaceAll('«', '').trim(),
-                              style: TextStyleManager.style11Medium.copyWith(
-                                color: AppColors.white,
-                              ),
-                            ),
-                            SizedBox(width: 4.w),
-                            Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (secondaryButtonText != null && onSecondaryPressed != null) ...[
-                      SizedBox(width: 12.w),
+                if (showButton)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
                       SizedBox(
                         height: 36.h,
-                        child: OutlinedButton(
-                          onPressed: onSecondaryPressed,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.primary,
-                            side: const BorderSide(color: AppColors.primary, width: 1.5),
+                        child: ElevatedButton(
+                          onPressed: onViewPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18.r),
                             ),
+                            elevation: 0,
                             padding: EdgeInsets.symmetric(horizontal: 10.w),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                secondaryButtonText!.replaceAll('»', '').replaceAll('«', '').trim(),
+                                buttonText
+                                    .replaceAll('»', '')
+                                    .replaceAll('«', '')
+                                    .trim(),
                                 style: TextStyleManager.style11Medium.copyWith(
-                                  color: AppColors.primary,
+                                  color: AppColors.white,
                                 ),
                               ),
                               SizedBox(width: 4.w),
-                              Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.primary),
+                              Icon(
+                                Icons.keyboard_double_arrow_left,
+                                size: 16.sp,
+                                color: AppColors.white,
+                              ),
                             ],
                           ),
                         ),
                       ),
+                      if (secondaryButtonText != null &&
+                          onSecondaryPressed != null) ...[
+                        SizedBox(width: 12.w),
+                        SizedBox(
+                          height: 36.h,
+                          child: OutlinedButton(
+                            onPressed: onSecondaryPressed,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              side: const BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.r),
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 10.w),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  secondaryButtonText!
+                                      .replaceAll('»', '')
+                                      .replaceAll('«', '')
+                                      .trim(),
+                                  style: TextStyleManager.style11Medium.copyWith(
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                                SizedBox(width: 4.w),
+                                Icon(
+                                  Icons.keyboard_double_arrow_left,
+                                  size: 16.sp,
+                                  color: AppColors.primary,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
-                ),
+                  ),
               ],
             ),
           ),
-          
+
           // Top Left Badge (Optional)
           if (timeRemaining.isNotEmpty)
             PositionedDirectional(
@@ -193,6 +229,34 @@ class VisitCard extends StatelessWidget {
                 ),
               ),
             ),
+          
+          // if (isCompleted)
+            // PositionedDirectional(
+            //   start: 16.w,
+            //   top: 30.h,
+            //   child: Container(
+            //     padding: EdgeInsets.all(4.w),
+            //     decoration: const BoxDecoration(
+            //       color: AppColors.primary,
+            //       shape: BoxShape.circle,
+            //     ),
+            //     child: Icon(Icons.check, color: AppColors.white, size: 16.sp),
+            //   ),
+            // ),
+            
+          // if (isUpcoming)
+          //   PositionedDirectional(
+          //     start: 16.w,
+          //     top: 30.h,
+          //     child: Container(
+          //       padding: EdgeInsets.all(4.w),
+          //       decoration: const BoxDecoration(
+          //         color: Colors.grey,
+          //         shape: BoxShape.circle,
+          //       ),
+          //       child: Icon(Icons.check, color: AppColors.white, size: 16.sp),
+          //     ),
+          //   ),
         ],
       ),
     );

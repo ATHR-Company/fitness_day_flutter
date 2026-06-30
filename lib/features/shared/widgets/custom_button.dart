@@ -64,7 +64,11 @@ class CustomButton extends StatelessWidget {
                   ),
                   if (text.contains('»') || text.contains('«')) ...[
                     SizedBox(width: 4.w),
-                    Icon(Icons.keyboard_double_arrow_left, size: 20.sp, color: AppColors.white),
+                    Icon(
+                      Icons.keyboard_double_arrow_left,
+                      size: 20.sp,
+                      color: AppColors.white,
+                    ),
                   ],
                 ],
               ),

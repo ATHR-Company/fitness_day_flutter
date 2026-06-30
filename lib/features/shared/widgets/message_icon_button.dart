@@ -21,7 +21,14 @@ class MessageIconButton extends StatelessWidget {
         boxShadow: AppShadows.primaryShadow,
       ),
       child: IconButton(
-        icon: SvgPicture.asset(SvgIcons.chatIcon, height: 16.h, colorFilter: const ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn)),
+        icon: SvgPicture.asset(
+          SvgIcons.chatIcon,
+          height: 16.h,
+          colorFilter: const ColorFilter.mode(
+            AppColors.textSecondary,
+            BlendMode.srcIn,
+          ),
+        ),
         onPressed: onTap,
       ),
     );

@@ -1,8 +1,8 @@
-import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -27,7 +27,7 @@ class BmiReportPage extends StatelessWidget {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: const AppBackHeader(title: 'تقرير كتلة الجسم BMI'),
+                child: AppBackHeader(title: 'auth_bmi_report_title'.tr()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -37,63 +37,69 @@ class BmiReportPage extends StatelessWidget {
                     children: [
                       SizedBox(height: 16.h),
                       Text(
-                        'اطلع على بياناتك الصحية وBMI الخاص بك لتبدأ رحلتك\nنحو صحة ورشاقة أفضل.',
+                        'auth_bmi_report_desc'.tr(),
                         textAlign: TextAlign.center,
                         style: TextStyleManager.style14Medium.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
                       SizedBox(height: 32.h),
-                      
+
                       // 1. BMI Card
                       _buildMetricCard(
-                        title: 'كتلة الجسم',
-                        value: '19.44 كجم / متر',
-                        iconPath: SvgIcons.height, // Using height.svg to match Figma (person with tape)
+                        title: 'auth_bmi'.tr(),
+                        value: '19.44 ${'auth_bmi_unit'.tr()}',
+                        iconPath: SvgIcons.height,
                         badge: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 4.w,
+                            vertical: 4.h,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primary,
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: Text(
-                            'وزن طبيعي',
-                            style: TextStyleManager.style13Medium.copyWith(color: AppColors.white),
+                            'auth_normal_weight'.tr(),
+                            style: TextStyleManager.style13Medium.copyWith(
+                              color: AppColors.white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
                       SizedBox(height: 16.h),
-                      
+
                       // 2. Ideal Weight Card
                       _buildMetricCard(
-                        title: 'الوزن المثالى',
-                        value: '68.00 كيلوجرام',
+                        title: 'auth_ideal_weight'.tr(),
+                        value: '68.00 ${'auth_weight_unit'.tr()}',
                         iconPath: SvgIcons.perfectWieght,
                       ),
                       SizedBox(height: 16.h),
-                      
+
                       // 3. Calories Card
                       _buildMetricCard(
-                        title: 'السعرات الحرارية',
-                        value: '1025 كالورى',
-                        iconPath: SvgIcons.activity, // Will be solid green via colorFilter
+                        title: 'auth_calories'.tr(),
+                        value: '1025 ${'auth_calories_unit'.tr()}',
+                        iconPath: SvgIcons.activity,
                       ),
                       SizedBox(height: 16.h),
-                      
+
                       // 4. Protein Need Card
                       _buildMetricCard(
-                        title: 'احتياجك من البروتين',
-                        value: '45 جرام',
+                        title: 'auth_protein_need'.tr(),
+                        value: '45 ${'auth_protein_unit'.tr()}',
                         iconPath: SvgIcons.diet,
                       ),
                       SizedBox(height: 24.h),
-                      
+
                       // 5. Entered Data Container
                       Container(
                         width: double.infinity,
                         padding: EdgeInsets.all(20.w),
                         decoration: BoxDecoration(
-                          color: Color(0xffFAFEFB),
+                          color: AppColors.white,
                           borderRadius: BorderRadius.circular(12.r),
                           border: Border.all(color: AppColors.divider),
                         ),
@@ -112,27 +118,45 @@ class BmiReportPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'البيانات المدخلة',
-                                  style: TextStyleManager.heading2.copyWith(color: AppColors.black),
+                                  'auth_entered_data'.tr(),
+                                  style: TextStyleManager.heading2.copyWith(
+                                    color: AppColors.black,
+                                  ),
                                 ),
                                 SizedBox(height: 24.h),
-                                _buildDataRow('الوزن', '68.00 كيلوجرام', SvgIcons.weight),
+                                _buildDataRow(
+                                  'auth_weight'.tr(),
+                                  '68.00 ${'auth_weight_unit'.tr()}',
+                                  SvgIcons.weight,
+                                ),
                                 SizedBox(height: 16.h),
-                                _buildDataRow('الطول', '167 سنتيمتر', SvgIcons.height),
+                                _buildDataRow(
+                                  'auth_height'.tr(),
+                                  '167 ${'auth_height_unit'.tr()}',
+                                  SvgIcons.height,
+                                ),
                                 SizedBox(height: 16.h),
-                                _buildDataRow('مستوى النشاط', 'قليل النشاط', SvgIcons.activity),
+                                _buildDataRow(
+                                  'auth_activity_level'.tr(),
+                                  'auth_activity_low'.tr(),
+                                  SvgIcons.activity,
+                                ),
                                 SizedBox(height: 16.h),
-                                _buildDataRow('الهدف من التطبيق', 'زيادة الوزن', SvgIcons.goal),
+                                _buildDataRow(
+                                  'auth_goal'.tr(),
+                                  'auth_goal_gain'.tr(),
+                                  SvgIcons.goal,
+                                ),
                               ],
                             ),
                           ],
                         ),
                       ),
                       SizedBox(height: 32.h),
-                      
+
                       // Button
                       CustomButton(
-                        text: 'ابدأ الآن',
+                        text: 'auth_start_now'.tr(),
                         onPressed: () {
                           context.go(UserAppRoutes.home);
                         },
@@ -159,28 +183,30 @@ class BmiReportPage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: AppColors.white,
-        boxShadow: AppShadows.primaryShadow,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AppColors.divider),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+          Expanded(
+            child: Row(
+              children: [
               Container(
-                width: 56.w,
+                //width: 56.w,
                 height: 56.w,
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFE5F5E7),
-                  border: Border.all(color: const Color(0xFFCCEBCF)),
+                  color: AppColors.lightGreenBackground,
+                  border: Border.all(color: AppColors.lightGreenBorder),
                 ),
                 child: SvgPicture.asset(
                   iconPath,
-                  colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.primary,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
               SizedBox(width: 12.w),
@@ -189,18 +215,23 @@ class BmiReportPage extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyleManager.style14Medium.copyWith(color: AppColors.black),
+                    style: TextStyleManager.style14Medium,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 4.h),
                   Text(
                     value,
-                    style: TextStyleManager.style15Medium.copyWith(color: const Color(0xFF007E8E)),
+                    style: TextStyleManager.style15Medium.copyWith(
+                      color: AppColors.tealText,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
-            ],
+              ],
+            ),
           ),
-          if (badge != null) badge,
+          ?badge,
         ],
       ),
     );
@@ -210,17 +241,20 @@ class BmiReportPage extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 48.w,
+          //width: 48.w,
           height: 48.w,
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: const Color(0xFFE5F5E7),
-            border: Border.all(color: const Color(0xFFCCEBCF)),
+            color: AppColors.lightGreenBackground,
+            border: Border.all(color: AppColors.lightGreenBorder),
           ),
           child: SvgPicture.asset(
             iconPath,
-            colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(
+              AppColors.primary,
+              BlendMode.srcIn,
+            ),
           ),
         ),
         SizedBox(width: 16.w),
@@ -229,12 +263,18 @@ class BmiReportPage extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyleManager.style14Medium.copyWith(color: AppColors.black),
+              style: TextStyleManager.style14Medium.copyWith(
+                color: AppColors.black,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
             SizedBox(height: 4.h),
             Text(
               value,
-              style: TextStyleManager.style14Medium.copyWith(color: const Color(0xFF007E8E)),
+              style: TextStyleManager.style14Medium.copyWith(
+                color: AppColors.tealText,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

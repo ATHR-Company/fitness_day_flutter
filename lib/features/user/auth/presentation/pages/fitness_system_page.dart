@@ -1,3 +1,4 @@
+import 'package:fitness_day/features/shared/widgets/top_centered_constrained_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -8,11 +9,14 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
 import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
 import 'package:fitness_day/features/shared/widgets/app_info_field.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
+
 class FitnessSystemPage extends StatefulWidget {
   const FitnessSystemPage({super.key});
   @override
   State<FitnessSystemPage> createState() => _FitnessSystemPageState();
 }
+
 class _FitnessSystemPageState extends State<FitnessSystemPage> {
   final _weeklyExercisesController = TextEditingController();
   final _dailyStepsController = TextEditingController();
@@ -27,28 +31,32 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
     _dailyExerciseHoursController.dispose();
     super.dispose();
   }
+
   void _onNextPressed() {
     if (_formKey.currentState?.validate() ?? false) {
       context.push(UserAppRoutes.healthProblems);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.splashBackgroundGradient,
-        ),
-        child: SafeArea(
-          child: Column(
+      body: LoaderHud(
+        isCall: false,
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: AppColors.splashBackgroundGradient,
+          ),
+          child: SafeArea(
+            child: TopCenteredConstrainedBox(
+              horizontalPadding: 0,
+              child: Column(
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: AppBackHeader(
-                  title: 'login.fitness_title'.tr(),
-                ),
+                child: AppBackHeader(title: 'login.fitness_title'.tr()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -79,7 +87,7 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال عدد مرات الرياضة أسبوعياً';
+                              return 'auth_val_err_fitness_days'.tr();
                             }
                             return null;
                           },
@@ -92,7 +100,7 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال عدد خطواتك اليومية';
+                              return 'auth_val_err_fitness_time'.tr();
                             }
                             return null;
                           },
@@ -104,7 +112,7 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                           controller: _preferredExercisesController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال تمارينك المفضلة';
+                              return 'auth_val_err_fitness_tool'.tr();
                             }
                             return null;
                           },
@@ -117,7 +125,7 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                           keyboardType: TextInputType.number,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'الرجاء إدخال عدد ساعات التمارين';
+                              return 'auth_val_err_fitness_time'.tr();
                             }
                             return null;
                           },
@@ -135,6 +143,8 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                 ),
               ),
             ],
+          ),
+          ),
           ),
         ),
       ),

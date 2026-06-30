@@ -16,9 +16,9 @@ class AddMealPage extends StatefulWidget {
 
 class _AddMealPageState extends State<AddMealPage> {
   final List<Map<String, String>> _addedElements = [
-    {'name': 'شوفان', 'quantity': '45g'},
-    {'name': 'حليب', 'quantity': '250ml'},
-    {'name': 'مكسرات', 'quantity': '10g'},
+    {'name': 'shared_mock_oats'.tr(), 'quantity': '45g'},
+    {'name': 'shared_mock_milk'.tr(), 'quantity': '250ml'},
+    {'name': 'shared_mock_nuts'.tr(), 'quantity': '10g'},
   ];
 
   String? _selectedMealType;
@@ -36,7 +36,9 @@ class _AddMealPageState extends State<AddMealPage> {
       title: 'add_meal.food_type'.tr(),
       items: items,
       showSearch: false,
-      initialSelectedIndex: _selectedMealType != null ? items.indexOf(_selectedMealType!) : 0,
+      initialSelectedIndex: _selectedMealType != null
+          ? items.indexOf(_selectedMealType!)
+          : 0,
       onConfirm: (index) {
         setState(() {
           _selectedMealType = items[index];
@@ -57,7 +59,9 @@ class _AddMealPageState extends State<AddMealPage> {
       title: 'add_meal.meal_name'.tr(),
       items: items,
       showSearch: true,
-      initialSelectedIndex: _selectedMealName != null ? items.indexOf(_selectedMealName!) : 0,
+      initialSelectedIndex: _selectedMealName != null
+          ? items.indexOf(_selectedMealName!)
+          : 0,
       onConfirm: (index) {
         setState(() {
           _selectedMealName = items[index];
@@ -83,9 +87,7 @@ class _AddMealPageState extends State<AddMealPage> {
               // Back Header
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: AppBackHeader(
-                  title: 'add_meal.title'.tr(),
-                ),
+                child: AppBackHeader(title: 'add_meal.title'.tr()),
               ),
 
               SizedBox(height: 32.h),
@@ -93,38 +95,47 @@ class _AddMealPageState extends State<AddMealPage> {
               // Content Area
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 16.h,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Meal Type
                       _buildLabel('add_meal.food_type'.tr()),
                       _buildTextField(
-                        hint: _selectedMealType ?? 'add_meal.meal_type_hint'.tr(),
+                        hint:
+                            _selectedMealType ?? 'add_meal.meal_type_hint'.tr(),
                         icon: Icons.chevron_left,
                         onTap: _showMealTypeSheet,
-                        valueColor: _selectedMealType != null ? AppColors.black : AppColors.textSecondary.withValues(alpha: 0.5),
-                      ),
-                      
-                      SizedBox(height: 20.h),
-                      
-                      // Meal Name
-                      _buildLabel('add_meal.meal_name'.tr()),
-                      _buildTextField(
-                        hint: _selectedMealName ?? 'add_meal.meal_name_hint'.tr(),
-                        icon: Icons.chevron_left,
-                        onTap: _showMealNameSheet,
-                        valueColor: _selectedMealName != null ? AppColors.black : AppColors.textSecondary.withValues(alpha: 0.5),
+                        valueColor: _selectedMealType != null
+                            ? AppColors.black
+                            : AppColors.textSecondary.withValues(alpha: 0.5),
                       ),
 
                       SizedBox(height: 20.h),
-                      
+
+                      // Meal Name
+                      _buildLabel('add_meal.meal_name'.tr()),
+                      _buildTextField(
+                        hint:
+                            _selectedMealName ?? 'add_meal.meal_name_hint'.tr(),
+                        icon: Icons.chevron_left,
+                        onTap: _showMealNameSheet,
+                        valueColor: _selectedMealName != null
+                            ? AppColors.black
+                            : AppColors.textSecondary.withValues(alpha: 0.5),
+                      ),
+
+                      SizedBox(height: 20.h),
+
                       // Meal Time
                       _buildLabel('add_meal.meal_time'.tr()),
                       _buildTimeField(),
 
                       SizedBox(height: 24.h),
-                      
+
                       // Quantity & Add Element
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -151,8 +162,10 @@ class _AddMealPageState extends State<AddMealPage> {
                       SizedBox(height: 24.h),
 
                       // Added Elements List
-                      ..._addedElements.map((element) => _buildAddedElement(element)),
-                      
+                      ..._addedElements.map(
+                        (element) => _buildAddedElement(element),
+                      ),
+
                       SizedBox(height: 40.h),
                     ],
                   ),
@@ -164,7 +177,7 @@ class _AddMealPageState extends State<AddMealPage> {
                 padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                 child: CustomButton(
                   text: 'add_meal.add_button'.tr(),
-                  color: AppColors.primary, 
+                  color: AppColors.primary,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -190,7 +203,12 @@ class _AddMealPageState extends State<AddMealPage> {
     );
   }
 
-  Widget _buildTextField({required String hint, required IconData icon, VoidCallback? onTap, Color? valueColor}) {
+  Widget _buildTextField({
+    required String hint,
+    required IconData icon,
+    VoidCallback? onTap,
+    Color? valueColor,
+  }) {
     return TextFormField(
       readOnly: onTap != null,
       onTap: onTap,
@@ -198,7 +216,9 @@ class _AddMealPageState extends State<AddMealPage> {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyleManager.heading3.copyWith(color: valueColor ?? AppColors.textSecondary.withValues(alpha: 0.5)),
+        hintStyle: TextStyleManager.heading3.copyWith(
+          color: valueColor ?? AppColors.textSecondary.withValues(alpha: 0.5),
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         fillColor: AppColors.white,
         filled: true,
@@ -229,8 +249,10 @@ class _AddMealPageState extends State<AddMealPage> {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: 'add_meal.meal_time_hint'.tr(),
-        hintStyle: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary.withValues(alpha: 0.5)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h), 
+        hintStyle: TextStyleManager.heading3.copyWith(
+          color: AppColors.textSecondary.withValues(alpha: 0.5),
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         fillColor: AppColors.white,
         filled: true,
         border: OutlineInputBorder(
@@ -255,9 +277,15 @@ class _AddMealPageState extends State<AddMealPage> {
                   decoration: BoxDecoration(
                     color: AppColors.backgroundTint,
                     borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: AppColors.divider.withValues(alpha: 0.3), width: 1),
+                    border: Border.all(
+                      color: AppColors.divider.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 8.h,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -290,7 +318,9 @@ class _AddMealPageState extends State<AddMealPage> {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: 'add_meal.element_name_hint'.tr(),
-        hintStyle: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary.withValues(alpha: 0.5)),
+        hintStyle: TextStyleManager.heading3.copyWith(
+          color: AppColors.textSecondary.withValues(alpha: 0.5),
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         fillColor: AppColors.white,
         filled: true,
@@ -316,9 +346,15 @@ class _AddMealPageState extends State<AddMealPage> {
                   decoration: BoxDecoration(
                     color: AppColors.backgroundTint,
                     borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: AppColors.divider.withValues(alpha: 0.3), width: 1),
+                    border: Border.all(
+                      color: AppColors.divider.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 10.h,
+                  ),
                   child: Center(
                     child: Text(
                       'add_meal.quantity'.tr(),

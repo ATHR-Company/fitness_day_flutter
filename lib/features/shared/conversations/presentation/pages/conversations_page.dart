@@ -41,19 +41,19 @@ class _ConversationsPageState extends State<ConversationsPage> {
           child: Column(
             children: [
               SizedBox(height: 20.h),
-              
+
               // Custom Header
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: AppBackHeader(
-                  title: 'conversations.title'.tr(),
-                ),
+                child: AppBackHeader(title: 'conversations.title'.tr()),
               ),
 
               SizedBox(height: 24.h),
 
               Expanded(
-                child: widget.isEmpty ? _buildEmptyState() : _buildPopulatedState(),
+                child: widget.isEmpty
+                    ? _buildEmptyState()
+                    : _buildPopulatedState(),
               ),
             ],
           ),
@@ -127,11 +127,11 @@ class _ConversationsPageState extends State<ConversationsPage> {
                 ],
               ),
               SizedBox(height: 16.h),
-              
+
               _buildConversationCard(
                 name: 'conversations.dummy_name'.tr(),
                 message: 'conversations.dummy_message_1'.tr(),
-                time: '09:00 م',
+                time: '''09:00 ${'shared_mock_pm'.tr()}''',
                 isOnline: true,
                 isRead: false,
               ),
@@ -156,7 +156,7 @@ class _ConversationsPageState extends State<ConversationsPage> {
               _buildConversationCard(
                 name: 'conversations.dummy_name'.tr(),
                 message: 'conversations.dummy_message_1'.tr(),
-                time: '09:00 م',
+                time: '''09:00 ${'shared_mock_pm'.tr()}''',
                 isOnline: true,
                 isRead: true,
               ),
@@ -164,7 +164,7 @@ class _ConversationsPageState extends State<ConversationsPage> {
               _buildConversationCard(
                 name: 'conversations.dummy_name'.tr(),
                 message: 'conversations.dummy_message_1'.tr(),
-                time: '09:00 م',
+                time: '''09:00 ${'shared_mock_pm'.tr()}''',
                 isOnline: false,
                 isRead: true,
               ),
@@ -172,7 +172,7 @@ class _ConversationsPageState extends State<ConversationsPage> {
               _buildConversationCard(
                 name: 'conversations.dummy_name'.tr(),
                 message: 'conversations.dummy_message_1'.tr(),
-                time: '09:00 م',
+                time: '''09:00 ${'shared_mock_pm'.tr()}''',
                 isOnline: true,
                 isRead: true,
               ),
@@ -223,7 +223,9 @@ class _ConversationsPageState extends State<ConversationsPage> {
               children: [
                 CircleAvatar(
                   radius: 25.r,
-                  backgroundImage: const NetworkImage('https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80'), // dummy
+                  backgroundImage: const NetworkImage(
+                    'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
+                  ), // dummy
                 ),
                 if (isOnline)
                   Positioned(
@@ -241,7 +243,7 @@ class _ConversationsPageState extends State<ConversationsPage> {
                   ),
               ],
             ),
-            
+
             SizedBox(width: 12.w),
 
             // Content
@@ -262,7 +264,9 @@ class _ConversationsPageState extends State<ConversationsPage> {
                     children: [
                       Icon(
                         isRead ? Icons.done_all : Icons.check,
-                        color: isRead ? AppColors.primary.withValues(alpha: 0.5) : AppColors.textSecondary.withValues(alpha: 0.5),
+                        color: isRead
+                            ? AppColors.primary.withValues(alpha: 0.5)
+                            : AppColors.textSecondary.withValues(alpha: 0.5),
                         size: 16.sp,
                       ),
                       SizedBox(width: 4.w),
@@ -282,7 +286,7 @@ class _ConversationsPageState extends State<ConversationsPage> {
                 ],
               ),
             ),
-            
+
             SizedBox(width: 12.w),
 
             // Time and Arrow (Left side in RTL)

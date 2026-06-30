@@ -9,7 +9,10 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<String, AuthEntity>> login(String phone, String password) async {
+  Future<Either<String, AuthEntity>> login(
+    String phone,
+    String password,
+  ) async {
     try {
       final authModel = await remoteDataSource.login(phone, password);
       return Right(authModel);

@@ -39,7 +39,7 @@ class HomeHeader extends StatelessWidget {
             ),
           ),
           SizedBox(width: 12.w),
-          
+
           // Info
           Expanded(
             child: Column(
@@ -47,7 +47,7 @@ class HomeHeader extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "محمد عبدالله",
+                  'spec_mock_name'.tr(),
                   style: TextStyleManager.style14Bold.copyWith(
                     color: AppColors.primary,
                   ),
@@ -78,9 +78,9 @@ class HomeHeader extends StatelessWidget {
               ],
             ),
           ),
-          
+
           SizedBox(width: 16.w),
-          
+
           // Chat Button
           _buildSvgIconButton(
             svgPath: SvgIcons.chatIcon,
@@ -93,9 +93,9 @@ class HomeHeader extends StatelessWidget {
               );
             },
           ),
-          
+
           SizedBox(width: 8.w),
-          
+
           // Menu Button
           _buildSvgIconButton(
             svgPath: SvgIcons.menuIcon,
@@ -117,7 +117,10 @@ class HomeHeader extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 1),
+          border: Border.all(
+            color: Colors.grey.withValues(alpha: 0.2),
+            width: 1,
+          ),
         ),
         padding: EdgeInsets.all(12.r),
         child: SvgPicture.asset(
@@ -131,4 +134,3 @@ class HomeHeader extends StatelessWidget {
     );
   }
 }
-

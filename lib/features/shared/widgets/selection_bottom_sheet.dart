@@ -45,11 +45,14 @@ class _SelectionBottomSheetState extends State<SelectionBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         gradient: AppColors.visitsBackgroundGradient,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24.r),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
-      padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 32.h), // Extra padding at bottom for safe area
+      padding: EdgeInsets.fromLTRB(
+        20.w,
+        20.h,
+        20.w,
+        32.h,
+      ), // Extra padding at bottom for safe area
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -72,13 +75,13 @@ class _SelectionBottomSheetState extends State<SelectionBottomSheet> {
               ),
             ],
           ),
-          
+
           SizedBox(height: 24.h),
 
           // Optional Search Bar
           if (widget.showSearch) ...[
             TextFormField(
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.start,
               style: TextStyleManager.heading3.copyWith(color: AppColors.black),
               onChanged: (value) {
                 setState(() {
@@ -87,19 +90,33 @@ class _SelectionBottomSheetState extends State<SelectionBottomSheet> {
               },
               decoration: InputDecoration(
                 hintText: 'add_meal.search_meal_name'.tr(),
-                hintStyle: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary.withValues(alpha: 0.5)),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                hintStyle: TextStyleManager.heading3.copyWith(
+                  color: AppColors.textSecondary.withValues(alpha: 0.5),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 12.h,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
+                  borderSide: const BorderSide(
+                    color: AppColors.divider,
+                    width: 1.0,
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
+                  borderSide: const BorderSide(
+                    color: AppColors.divider,
+                    width: 1.0,
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
+                  borderSide: const BorderSide(
+                    color: AppColors.primary,
+                    width: 1.0,
+                  ),
                 ),
                 prefixIcon: Icon(
                   Icons.search,
@@ -129,12 +146,19 @@ class _SelectionBottomSheetState extends State<SelectionBottomSheet> {
                     });
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 16.h,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.backgroundTint : Colors.transparent,
+                      color: isSelected
+                          ? AppColors.backgroundTint
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(8.r),
                       border: Border.all(
-                        color: isSelected ? AppColors.primary : Colors.transparent,
+                        color: isSelected
+                            ? AppColors.primary
+                            : Colors.transparent,
                         width: 1,
                       ),
                     ),
@@ -145,14 +169,22 @@ class _SelectionBottomSheetState extends State<SelectionBottomSheet> {
                           child: Text(
                             item,
                             style: TextStyleManager.heading3.copyWith(
-                              color: isSelected ? AppColors.black : AppColors.textSecondary,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: isSelected
+                                  ? AppColors.black
+                                  : AppColors.textSecondary,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
                             ),
                           ),
                         ),
                         Icon(
-                          isSelected ? Icons.radio_button_checked : Icons.circle,
-                          color: isSelected ? AppColors.primary : AppColors.divider,
+                          isSelected
+                              ? Icons.radio_button_checked
+                              : Icons.circle,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.divider,
                           size: 24.sp,
                         ),
                       ],

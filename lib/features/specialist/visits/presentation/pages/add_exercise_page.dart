@@ -29,7 +29,9 @@ class _AddExercisePageState extends State<AddExercisePage> {
       title: 'add_exercise.exercise_type'.tr(),
       items: items,
       showSearch: true,
-      initialSelectedIndex: _selectedExerciseName != null ? items.indexOf(_selectedExerciseName!) : 0,
+      initialSelectedIndex: _selectedExerciseName != null
+          ? items.indexOf(_selectedExerciseName!)
+          : 0,
       onConfirm: (index) {
         setState(() {
           _selectedExerciseName = items[index];
@@ -55,9 +57,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
               // Back Header
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: AppBackHeader(
-                  title: 'add_exercise.title'.tr(),
-                ),
+                child: AppBackHeader(title: 'add_exercise.title'.tr()),
               ),
 
               SizedBox(height: 32.h),
@@ -65,27 +65,34 @@ class _AddExercisePageState extends State<AddExercisePage> {
               // Content Area
               Expanded(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 16.h,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Exercise Name
                       _buildLabel('add_exercise.exercise_name'.tr()),
                       _buildTextField(
-                        hint: _selectedExerciseName ?? 'add_exercise.exercise_name_hint'.tr(),
+                        hint:
+                            _selectedExerciseName ??
+                            'add_exercise.exercise_name_hint'.tr(),
                         icon: Icons.chevron_left,
                         onTap: _showExerciseNameSheet,
-                        valueColor: _selectedExerciseName != null ? AppColors.black : AppColors.textSecondary.withValues(alpha: 0.5),
+                        valueColor: _selectedExerciseName != null
+                            ? AppColors.black
+                            : AppColors.textSecondary.withValues(alpha: 0.5),
                       ),
-                      
+
                       SizedBox(height: 20.h),
-                      
+
                       // Exercise Time
                       _buildLabel('add_exercise.exercise_time'.tr()),
                       _buildTimeField(),
 
                       SizedBox(height: 20.h),
-                      
+
                       // Number of Sets
                       _buildLabel('add_exercise.number_of_sets'.tr()),
                       _buildSimpleTextField(
@@ -119,7 +126,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
                 padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                 child: CustomButton(
                   text: 'add_exercise.add_button'.tr(),
-                  color: AppColors.primary, 
+                  color: AppColors.primary,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -145,7 +152,12 @@ class _AddExercisePageState extends State<AddExercisePage> {
     );
   }
 
-  Widget _buildTextField({required String hint, required IconData icon, VoidCallback? onTap, Color? valueColor}) {
+  Widget _buildTextField({
+    required String hint,
+    required IconData icon,
+    VoidCallback? onTap,
+    Color? valueColor,
+  }) {
     return TextFormField(
       readOnly: onTap != null,
       onTap: onTap,
@@ -153,7 +165,9 @@ class _AddExercisePageState extends State<AddExercisePage> {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyleManager.heading3.copyWith(color: valueColor ?? AppColors.textSecondary.withValues(alpha: 0.5)),
+        hintStyle: TextStyleManager.heading3.copyWith(
+          color: valueColor ?? AppColors.textSecondary.withValues(alpha: 0.5),
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         fillColor: AppColors.white,
         filled: true,
@@ -184,7 +198,9 @@ class _AddExercisePageState extends State<AddExercisePage> {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary.withValues(alpha: 0.5)),
+        hintStyle: TextStyleManager.heading3.copyWith(
+          color: AppColors.textSecondary.withValues(alpha: 0.5),
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         fillColor: AppColors.white,
         filled: true,
@@ -210,8 +226,10 @@ class _AddExercisePageState extends State<AddExercisePage> {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: 'add_exercise.exercise_time_hint'.tr(),
-        hintStyle: TextStyleManager.heading3.copyWith(color: AppColors.textSecondary.withValues(alpha: 0.5)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h), 
+        hintStyle: TextStyleManager.heading3.copyWith(
+          color: AppColors.textSecondary.withValues(alpha: 0.5),
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         fillColor: AppColors.white,
         filled: true,
         border: OutlineInputBorder(
@@ -236,9 +254,15 @@ class _AddExercisePageState extends State<AddExercisePage> {
                   decoration: BoxDecoration(
                     color: AppColors.backgroundTint,
                     borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: AppColors.divider.withValues(alpha: 0.3), width: 1),
+                    border: Border.all(
+                      color: AppColors.divider.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 8.h,
+                  ),
                   child: Row(
                     children: [
                       Text(

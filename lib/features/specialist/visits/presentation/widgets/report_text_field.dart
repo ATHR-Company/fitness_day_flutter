@@ -42,26 +42,36 @@ class ReportTextField extends StatelessWidget {
             controller: controller,
             keyboardType: keyboardType,
             textAlign: TextAlign.right,
-            style: TextStyleManager.heading3.copyWith(
-              color: AppColors.black,
-            ),
+            style: TextStyleManager.heading3.copyWith(color: AppColors.black),
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: TextStyleManager.style9Medium.copyWith(
                 color: AppColors.divider,
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 14.h,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.r),
-                borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
+                borderSide: const BorderSide(
+                  color: AppColors.divider,
+                  width: 1.0,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.r),
-                borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
+                borderSide: const BorderSide(
+                  color: AppColors.divider,
+                  width: 1.0,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.r),
-                borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 1.0,
+                ),
               ),
               suffixIcon: suffixText != null
                   ? IntrinsicHeight(

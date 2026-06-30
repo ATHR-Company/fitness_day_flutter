@@ -12,6 +12,7 @@ import 'package:fitness_day/features/shared/widgets/app_phone_field.dart';
 import 'package:fitness_day/features/shared/widgets/app_password_field.dart';
 import 'package:fitness_day/features/shared/widgets/app_social_button.dart';
 import 'package:fitness_day/features/shared/widgets/custom_button.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -55,7 +56,9 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: LoaderHud(
+        isCall: false,
+        child: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
@@ -73,10 +76,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   SizedBox(height: 40.h),
 
                   // App Logo
-                  SvgPicture.asset(
-                    SvgIcons.logo,
-                    height: 130.h,
-                  ),
+                  SvgPicture.asset(SvgIcons.logo, height: 130.h),
 
                   SizedBox(height: 30.h),
 
@@ -84,10 +84,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   Text(
                     LocaleKeys.login_welcome_text.tr(),
                     textAlign: TextAlign.center,
-                    style: TextStyleManager.heading3.copyWith(
-                      color: AppColors.black,
-                      height: 1.6,
-                    ),
+                    style: TextStyleManager.heading3,
                   ),
 
                   SizedBox(height: 20.h),
@@ -182,7 +179,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       Expanded(
                         child: AppSocialButton(
                           label: LocaleKeys.login_apple.tr(),
-                          icon: SvgPicture.asset(SvgIcons.appleLogin, height: 22.h),
+                          icon: SvgPicture.asset(
+                            SvgIcons.appleLogin,
+                            height: 22.h,
+                          ),
                           onTap: () {
                             // TODO: Apple Sign-In
                           },
@@ -237,8 +237,8 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
           ),
         ),
+        ),
       ),
     );
   }
 }
-

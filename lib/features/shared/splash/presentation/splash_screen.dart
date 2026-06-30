@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -56,98 +57,103 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Middle section (Apple with Head, Left and Right inside)
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // Apple
-                AnimatedScale(
-                  scale: _showApple ? 1.0 : 0.0,
-                  duration: const Duration(seconds: 2),
-                  curve: Curves.elasticOut,
-                  child: SvgPicture.asset(SvgIcons.apple),
-                ),
-                
-                // Person inside the apple
-                Transform.translate(
-                  offset: const Offset(0, 8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Head
-                      Transform.translate(
-                        offset: const Offset(0, 10), // Move head slightly down
-                        child: AnimatedSlide(
-                          offset: _showHead ? Offset.zero : const Offset(0, -1),
-                          duration: const Duration(seconds: 2),
-                          curve: Curves.elasticOut,
-                          child: AnimatedOpacity(
-                            opacity: _showHead ? 1.0 : 0.0,
+    // Force RTL so the splash logo animates identically in both languages.
+    // The splash has no localised text, so this has no visible side-effect.
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Middle section (Apple with Head, Left and Right inside)
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Apple
+                  AnimatedScale(
+                    scale: _showApple ? 1.0 : 0.0,
+                    duration: const Duration(seconds: 2),
+                    curve: Curves.elasticOut,
+                    child: SvgPicture.asset(SvgIcons.apple),
+                  ),
+
+                  // Person inside the apple
+                  Transform.translate(
+                    offset: const Offset(0, 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Head
+                        Transform.translate(
+                          offset: const Offset(0, 10), // Move head slightly down
+                          child: AnimatedSlide(
+                            offset: _showHead ? Offset.zero : const Offset(0, -1),
                             duration: const Duration(seconds: 2),
-                            child: SvgPicture.asset(SvgIcons.head),
+                            curve: Curves.elasticOut,
+                            child: AnimatedOpacity(
+                              opacity: _showHead ? 1.0 : 0.0,
+                              duration: const Duration(seconds: 2),
+                              child: SvgPicture.asset(SvgIcons.head),
+                            ),
                           ),
                         ),
-                      ),
-                      
-                      // Body (Swapped left and right so they form the correct shape)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Transform.translate(
-                            offset: const Offset(0, 2), // Lower the visually right element
-                            child: AnimatedSlide(
-                              offset: _showLeftRight ? Offset.zero : const Offset(-1, 0),
-                              duration: const Duration(seconds: 2),
-                              curve: Curves.elasticOut,
-                              child: AnimatedOpacity(
-                                opacity: _showLeftRight ? 1.0 : 0.0,
+
+                        // Body (Swapped left and right so they form the correct shape)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Transform.translate(
+                              offset: const Offset(0, 2), // Lower the visually right element
+                              child: AnimatedSlide(
+                                offset: _showLeftRight ? Offset.zero : const Offset(-1, 0),
                                 duration: const Duration(seconds: 2),
-                                child: SvgPicture.asset(SvgIcons.right),
+                                curve: Curves.elasticOut,
+                                child: AnimatedOpacity(
+                                  opacity: _showLeftRight ? 1.0 : 0.0,
+                                  duration: const Duration(seconds: 2),
+                                  child: SvgPicture.asset(SvgIcons.right),
+                                ),
                               ),
                             ),
-                          ),
-                          
-                          Transform.translate(
-                            offset: const Offset(0, -10), // Raise the visually left element
-                            child: AnimatedSlide(
-                              offset: _showLeftRight ? Offset.zero : const Offset(1, 0),
-                              duration: const Duration(seconds: 2),
-                              curve: Curves.elasticOut,
-                              child: AnimatedOpacity(
-                                opacity: _showLeftRight ? 1.0 : 0.0,
-                                duration: const Duration(seconds: 1),
-                                child: SvgPicture.asset(SvgIcons.left),
+
+                            Transform.translate(
+                              offset: const Offset(0, -10), // Raise the visually left element
+                              child: AnimatedSlide(
+                                offset: _showLeftRight ? Offset.zero : const Offset(1, 0),
+                                duration: const Duration(seconds: 2),
+                                curve: Curves.elasticOut,
+                                child: AnimatedOpacity(
+                                  opacity: _showLeftRight ? 1.0 : 0.0,
+                                  duration: const Duration(seconds: 1),
+                                  child: SvgPicture.asset(SvgIcons.left),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // App Name
-            AnimatedSlide(
-              offset: _showAppName ? Offset.zero : const Offset(0, 1),
-              duration: const Duration(seconds: 2),
-              curve: Curves.elasticOut,
-              child: AnimatedOpacity(
-                opacity: _showAppName ? 1.0 : 0.0,
-                duration: const Duration(seconds: 1),
-                child: SvgPicture.asset(SvgIcons.appName),
+                ],
               ),
-            ),
-          ],
+
+              const SizedBox(height: 16),
+
+              // App Name
+              AnimatedSlide(
+                offset: _showAppName ? Offset.zero : const Offset(0, 1),
+                duration: const Duration(seconds: 2),
+                curve: Curves.elasticOut,
+                child: AnimatedOpacity(
+                  opacity: _showAppName ? 1.0 : 0.0,
+                  duration: const Duration(seconds: 1),
+                  child: SvgPicture.asset(SvgIcons.appName),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

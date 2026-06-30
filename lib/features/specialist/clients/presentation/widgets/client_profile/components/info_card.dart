@@ -45,38 +45,41 @@ class InfoCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.backgroundTint,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Center(child: icon),
               ),
               SizedBox(width: 12.w),
-              Text(
-                title,
-                style: TextStyleManager.style14Bold,
-              ),
+              Text(title, style: TextStyleManager.style14Bold),
             ],
           ),
           SizedBox(height: 16.h),
-          ...data.entries.map((entry) => Padding(
-                padding: EdgeInsets.only(bottom: 8.h),
-                child: Text.rich(
-                  TextSpan(
-                    text: '${entry.key} : ',
-                    style: TextStyleManager.style11Medium.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: entry.value,
-                        style: TextStyleManager.style11Medium.copyWith(
-                          color: greenValues.contains(entry.key) ? AppColors.primary : AppColors.textPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+          ...data.entries.map(
+            (entry) => Padding(
+              padding: EdgeInsets.only(bottom: 8.h),
+              child: Text.rich(
+                TextSpan(
+                  text: '${entry.key} : ',
+                  style: TextStyleManager.style11Medium.copyWith(
+                    color: AppColors.textPrimary,
                   ),
+                  children: [
+                    TextSpan(
+                      text: entry.value,
+                      style: TextStyleManager.style11Medium.copyWith(
+                        color: greenValues.contains(entry.key)
+                            ? AppColors.primary
+                            : AppColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-              )),
+              ),
+            ),
+          ),
         ],
       ),
     );

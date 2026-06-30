@@ -175,6 +175,13 @@ class AppColors {
   );
 
   // ---------------------------------------------------------------------------
+  // 5. Auth & Forms Custom Colors
+  // ---------------------------------------------------------------------------
+  static const Color lightGreenBackground = Color(0xFFE5F5E7);
+  static const Color lightGreenBorder = Color(0xFFCCEBCF);
+  static const Color tealText = Color(0xFF007E8E);
+
+  // ---------------------------------------------------------------------------
   // Unified Case-Insensitive Design Tokens Map
   // ---------------------------------------------------------------------------
   static Map<String, Color> get allColors => {
@@ -221,4 +228,32 @@ class AppColors {
     }
     return null;
   }
+
+  // Refactored shared components colors
+  static const Color borderGrey = Color(0xFFE2E2E2);
+  static const Color borderGreyDark = Color(0xFFDCDBDB);
+  static const Color greyBackground = Color(0xFFF5F5F5);
+  static const Color textPlaceholder = Color(0xFFB3B3B3);
+  static const Color lightGreenBackground2 = Color(0xFFEBF8ED);
+  static const Color lightGreenBorder2 = Color(0xFFD2F0D5);
+  static const Color lightRedBackground = Color(0xFFFEECEB);
+
+  // Specialist UI Colors
+  static const Color scaffoldBackground = Color(0xFFFAFAFA);
+  static const Color lightGreyBackground = Color(0xFFF8F9FB);
+  static const Color dialogBackground = Color(0xFFFAFDFA);
+  static const Color homeTopBackground = Color(0xFFF1F8F1);
+  static const Color dividerLight = Color(0xFFF2F2F2);
+  
+  static const Color progressGreenStart = Color(0xFF7CD588);
+  static const Color progressGreenMiddle = Color(0xFFE6FFE9);
+  
+  static const Color progressYellowStart = Color(0xFFE7E000);
+  static const Color progressYellowEnd = Color(0xFFDCC134);
+  static const Color progressRed = Color(0xFFFFD2D2);
+  
+  static const Color gradientGreenStart = Color(0xFF7BDB88);
+  static const Color gradientGreenEnd = Color(0xFF52C863);
+  
+  static const Color darkYellow = Color(0xFFB59A1D);
 }

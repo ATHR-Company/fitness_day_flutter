@@ -52,7 +52,11 @@ class _LanguageDialogState extends State<LanguageDialog> {
     );
   }
 
-  Widget _buildLangOption({required String langCode, required String title, required String svgPath}) {
+  Widget _buildLangOption({
+    required String langCode,
+    required String title,
+    required String svgPath,
+  }) {
     bool isSelected = _selectedLang == langCode;
     return GestureDetector(
       onTap: () => setState(() => _selectedLang = langCode),
@@ -62,7 +66,9 @@ class _LanguageDialogState extends State<LanguageDialog> {
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: isSelected ? AppColors.primary : Colors.grey.withValues(alpha: 0.2),
+            color: isSelected
+                ? AppColors.primary
+                : Colors.grey.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -74,7 +80,9 @@ class _LanguageDialogState extends State<LanguageDialog> {
                 padding: EdgeInsets.only(left: 8.w),
                 child: Icon(
                   isSelected ? Icons.check_circle : Icons.circle_outlined,
-                  color: isSelected ? AppColors.primary : Colors.grey.withValues(alpha: 0.5),
+                  color: isSelected
+                      ? AppColors.primary
+                      : Colors.grey.withValues(alpha: 0.5),
                   size: 20.sp,
                 ),
               ),

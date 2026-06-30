@@ -25,7 +25,8 @@ class AppBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: AppColors.cardGradient, // Matches the light green to white gradient
+        gradient:
+            AppColors.cardGradient, // Matches the light green to white gradient
         borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
         boxShadow: [
           BoxShadow(
@@ -35,7 +36,12 @@ class AppBottomSheet extends StatelessWidget {
           ),
         ],
       ),
-      padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, MediaQuery.of(context).padding.bottom + 24.h),
+      padding: EdgeInsets.fromLTRB(
+        24.w,
+        24.h,
+        24.w,
+        MediaQuery.of(context).padding.bottom + 24.h,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -61,10 +67,10 @@ class AppBottomSheet extends StatelessWidget {
             ],
           ),
           SizedBox(height: 24.h),
-          
+
           // Content
           child,
-          
+
           if (onConfirm != null) ...[
             SizedBox(height: 32.h),
             SizedBox(
@@ -74,7 +80,7 @@ class AppBottomSheet extends StatelessWidget {
                 onPressed: onConfirm!,
               ),
             ),
-          ]
+          ],
         ],
       ),
     );

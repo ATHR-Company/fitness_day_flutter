@@ -42,7 +42,8 @@ class AppPhoneField extends StatefulWidget {
 }
 
 class _AppPhoneFieldState extends State<AppPhoneField> {
-  final GlobalKey<FormFieldState<String>> _fieldKey = GlobalKey<FormFieldState<String>>();
+  final GlobalKey<FormFieldState<String>> _fieldKey =
+      GlobalKey<FormFieldState<String>>();
   late Map<String, String> _selectedCountry;
   final TextEditingController _searchController = TextEditingController();
   // Internal controller for the raw local digits shown in the field.
@@ -87,7 +88,7 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
     if (initial.isNotEmpty) {
       final norm = initial.startsWith('+') ? initial : '+$initial';
       final match = Countries.all.firstWhere(
-            (c) => norm.startsWith(c['code']!),
+        (c) => norm.startsWith(c['code']!),
         orElse: () => Countries.all.first,
       );
 
@@ -140,7 +141,7 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color(0xffE6E6E6),
+                      color: AppColors.borderGrey,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -156,7 +157,7 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
                         hintText: 'login.search_country_hint'.tr(),
                         prefixIcon: const Icon(Icons.search, size: 20),
                         filled: true,
-                        fillColor: const Color(0xffF5F5F5),
+                        fillColor: AppColors.greyBackground,
                         contentPadding: const EdgeInsets.symmetric(
                           vertical: 0,
                           horizontal: 16,
@@ -187,38 +188,45 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       itemCount: _filtered.length,
                       separatorBuilder: (_, _) =>
-                      const Divider(height: 1, indent: 16, endIndent: 16),
+                          const Divider(height: 1, indent: 16, endIndent: 16),
                       itemBuilder: (_, i) {
                         final country = _filtered[i];
                         final isSelected =
                             country['code'] == _selectedCountry['code'] &&
-                                country['ar'] == _selectedCountry['ar'];
+                            country['ar'] == _selectedCountry['ar'];
                         return ListTile(
                           onTap: () {
                             setState(() {
                               _selectedCountry = country;
-                              
+
                               // Truncate existing text if it exceeds the new country's digit limit
                               final newDigits = int.parse(country['digits']!);
                               final currentText = _localController.text;
                               final hasZero = currentText.startsWith('0');
-                              var stripped = hasZero ? currentText.substring(1) : currentText;
-                              
+                              var stripped = hasZero
+                                  ? currentText.substring(1)
+                                  : currentText;
+
                               if (stripped.length > newDigits) {
                                 stripped = stripped.substring(0, newDigits);
-                                _localController.text = hasZero ? '0$stripped' : stripped;
+                                _localController.text = hasZero
+                                    ? '0$stripped'
+                                    : stripped;
                               }
                             });
                             // Re-sync parent controller with new country code
                             _syncToParent(_localController.text);
                             Navigator.pop(context);
                             // Re-validate both the specific field and the parent Form.
-                            Future.delayed(const Duration(milliseconds: 50), () {
-                              if (mounted) {
-                                _fieldKey.currentState?.validate();
-                                Form.maybeOf(context)?.validate();
-                              }
-                            });
+                            Future.delayed(
+                              const Duration(milliseconds: 50),
+                              () {
+                                if (mounted) {
+                                  _fieldKey.currentState?.validate();
+                                  Form.maybeOf(context)?.validate();
+                                }
+                              },
+                            );
                           },
                           leading: Text(
                             country['flag']!,
@@ -230,11 +238,13 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
                           ),
                           trailing: Text(
                             country['code']!,
-                            style: TextStyleManager.style14Medium.copyWith(color: const Color(0xffB3B3B3)),
+                            style: TextStyleManager.style14Medium.copyWith(
+                              color: AppColors.textPlaceholder,
+                            ),
                             textDirection: ui.TextDirection.ltr,
                           ),
                           selected: isSelected,
-                          selectedTileColor: const Color(0xffF5F5F5),
+                          selectedTileColor: AppColors.greyBackground,
                         );
                       },
                     ),
@@ -268,13 +278,12 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
           onChanged: _syncToParent,
           onFieldSubmitted: widget.onFieldSubmitted,
           textInputAction: widget.textInputAction,
-          autovalidateMode: widget.autovalidateMode ?? AutovalidateMode.onUserInteraction,
+          autovalidateMode:
+              widget.autovalidateMode ?? AutovalidateMode.onUserInteraction,
           validator: (_) {
             final local = _localController.text;
             final requiredDigits = int.parse(_selectedCountry['digits']!);
-            final stripped = local.startsWith('0')
-                ? local.substring(1)
-                : local;
+            final stripped = local.startsWith('0') ? local.substring(1) : local;
             if (stripped.length < requiredDigits) {
               return 'login.phone_local_digits_min'.tr(
                 args: [requiredDigits.toString()],
@@ -291,7 +300,7 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
           readOnly: widget.readOnly,
           // الأرقام دايمًا LTR
           textDirection: ui.TextDirection.ltr,
-          textAlign: TextAlign.right,
+          textAlign: _isAr ? TextAlign.right : TextAlign.left,
           style: TextStyleManager.heading3,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
@@ -308,7 +317,9 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
             ),
             contentPadding: EdgeInsets.symmetric(vertical: 16.h),
             prefixIcon: InkWell(
-              onTap: (widget.enabled && !widget.readOnly) ? _showCountryPicker : null,
+              onTap: (widget.enabled && !widget.readOnly)
+                  ? _showCountryPicker
+                  : null,
               borderRadius: BorderRadius.circular(8.r),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12.w),

@@ -21,7 +21,8 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FB), // Light grey background like in design
+      backgroundColor:
+          AppColors.lightGreyBackground, // Light grey background like in design
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -57,9 +58,7 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
             ),
           ),
           SizedBox(height: 16.h),
-          Expanded(
-            child: _buildTabContent(),
-          ),
+          Expanded(child: _buildTabContent()),
         ],
       ),
     );

@@ -25,7 +25,7 @@ class AppSocialButton extends StatelessWidget {
         child: Container(
           height: 52.h,
           decoration: BoxDecoration(
-            color: const Color(0xFFDCDBDB),
+            color: AppColors.borderGreyDark,
             borderRadius: BorderRadius.circular(30.r),
             boxShadow: [
               BoxShadow(

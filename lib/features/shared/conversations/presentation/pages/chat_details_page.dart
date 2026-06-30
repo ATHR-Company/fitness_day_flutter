@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
+
+import '../../../widgets/top_centered_constrained_box.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -36,75 +39,87 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Column(
-        children: [
-          _buildHeader(context),
+      body: LoaderHud(
+        isCall: false,
+        child: TopCenteredConstrainedBox(
+          horizontalPadding: 0,
+          child: Column(
+            children: [
+              _buildHeader(context),
 
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-              children: [
-                // Date Header
-                Center(
-                  child: Text(
-                    'conversations.today'.tr(),
-                    style: TextStyleManager.style11Medium,
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20.w,
+                    vertical: 20.h,
                   ),
-                ),
-                SizedBox(height: 24.h),
-
-                // Other Person's Message (Green Bubble on Right in RTL)
-                _buildMessageBubble(
-                  message: widget.isAi
-                      ? 'أهلاً بك! 🥳 تطبيق يوم الرشاقة يرحب بك 🍃\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك\nالصحية.'
-                      : (widget.isSpecialist
-                            ? 'أهلاً بك! 🥳 تطبيق يوم الرشاقة يرحب بك 🍃\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك\nالصحية.'
-                            : 'conversations.dummy_message_1'.tr()),
-                  time: '10:22 صباحا',
-                  isMe: false,
-                ),
-
-                SizedBox(height: 16.h),
-
-                // My Message (Grey Bubble on Left in RTL)
-                _buildMessageBubble(
-                  message: widget.isAi || widget.isSpecialist
-                      ? 'مرحباً 🫶\nشكراً على الترحيب هل تناول وجبة خفيفة قبل\nالتمرين مفيد؟'
-                      : 'conversations.dummy_message_2'.tr(),
-                  time: '10:22 صباحا',
-                  isMe: true,
-                  isRead: true,
-                ),
-
-                SizedBox(height: 16.h),
-
-                // Typing indicator (Mock)
-                Align(
-                  alignment: AlignmentDirectional
-                      .centerStart, // 'start' in RTL is right
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 8.h,
+                  children: [
+                    // Date Header
+                    Center(
+                      child: Text(
+                        'conversations.today'.tr(),
+                        style: TextStyleManager.style11Medium,
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16.r),
+                    SizedBox(height: 24.h),
+
+                    // Other Person's Message (Green Bubble on Right in RTL)
+                    _buildMessageBubble(
+                      time: '''10:22 ${'shared_mock_am'.tr()}''',
+                      message: widget.isAi
+                          ? 'أهلاً بك! 🥳 تطبيق يوم الرشاقة يرحب بك 🍃\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك\nالصحية.'
+                          : (widget.isSpecialist
+                                ? 'أهلاً بك! 🥳 تطبيق يوم الرشاقة يرحب بك 🍃\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك\nالصحية.'
+                                : 'conversations.dummy_message_1'.tr()),
+
+                      isMe: false,
                     ),
-                    child: Icon(
-                      Icons.more_horiz,
-                      color: AppColors.primary,
-                      size: 20.sp,
+
+                    SizedBox(height: 16.h),
+
+                    // My Message (Grey Bubble on Left in RTL)
+                    _buildMessageBubble(
+                      time: '''10:22 ${'shared_mock_am'.tr()}''',
+                      message: widget.isAi || widget.isSpecialist
+                          ? 'مرحباً 🫶\nشكراً على الترحيب هل تناول وجبة خفيفة قبل\nالتمرين مفيد؟'
+                          : 'conversations.dummy_message_2'.tr(),
+
+                      isMe: true,
+                      isRead: true,
                     ),
-                  ),
+
+                    SizedBox(height: 16.h),
+
+                    // Typing indicator (Mock)
+                    Align(
+                      alignment: AlignmentDirectional
+                          .centerStart, // 'start' in RTL is right
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 8.h,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        child: Icon(
+                          Icons.more_horiz,
+                          color: AppColors.primary,
+                          size: 20.sp,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              // Input Area
+              _buildInputArea(),
+            ],
           ),
-
-          // Input Area
-          _buildInputArea(),
-        ],
+        ),
       ),
     );
   }
@@ -113,6 +128,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       decoration: const BoxDecoration(color: AppColors.backgroundTint),
+
       child: Column(
         children: [
           SizedBox(height: 30.h),
@@ -130,6 +146,12 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
               // Avatar
               Stack(
                 children: [
+                  CircleAvatar(
+                    radius: 20.r,
+                    backgroundImage: const NetworkImage(
+                      'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
+                    ),
+                  ),
                   Container(
                     width: 40.r,
                     height: 40.r,
@@ -193,10 +215,12 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       alignment: isMe
           ? AlignmentDirectional.centerEnd
           : AlignmentDirectional.centerStart,
+
       child: Column(
         crossAxisAlignment: isMe
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
+
         children: [
           Container(
             constraints: BoxConstraints(maxWidth: 0.75.sw),
@@ -205,6 +229,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
               color: isMe
                   ? AppColors.white
                   : AppColors.primary.withValues(alpha: 0.1),
+
               borderRadius: BorderRadius.circular(16.r).copyWith(
                 topLeft: Radius.circular(
                   isMe ? 0 : 16.r,
@@ -284,6 +309,11 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                     color: AppColors.textSecondary,
                     size: 20.sp,
                   ),
+                  Icon(
+                    Icons.attach_file,
+                    color: AppColors.textSecondary,
+                    size: 20.sp,
+                  ),
                   SizedBox(width: 12.w),
                   Icon(Icons.mic, color: AppColors.textSecondary, size: 20.sp),
                   SizedBox(width: 12.w),
@@ -293,6 +323,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                       horizontal: 15.w,
                       vertical: 7.h,
                     ),
+
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(24.r),

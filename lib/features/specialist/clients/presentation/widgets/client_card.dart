@@ -4,11 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 
-enum ClientStatus {
-  active,
-  needsFollowUp,
-  expired,
-}
+enum ClientStatus { active, needsFollowUp, expired }
 
 class ClientCard extends StatelessWidget {
   final String clientName;
@@ -38,9 +34,7 @@ class ClientCard extends StatelessWidget {
         gradient: AppColors.cardGradient,
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.grey.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -66,7 +60,7 @@ class ClientCard extends StatelessWidget {
               ),
             ),
           ),
-          
+
           Padding(
             padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 16.h),
             child: Column(
@@ -87,7 +81,11 @@ class ClientCard extends StatelessWidget {
                         border: Border.all(color: AppColors.divider, width: 2),
                       ),
                       child: ClipOval(
-                        child: Icon(Icons.person, size: 30.sp, color: Colors.grey),
+                        child: Icon(
+                          Icons.person,
+                          size: 30.sp,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -124,7 +122,7 @@ class ClientCard extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 16.h),
-                
+
                 // Details and Button Row
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -134,11 +132,19 @@ class ClientCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildDetailRow('clients_page.client_name'.tr(), clientName, true),
+                          _buildDetailRow(
+                            'clients_page.client_name'.tr(),
+                            clientName,
+                            true,
+                          ),
                           SizedBox(height: 6.h),
                           _buildDetailRow('clients_page.goal'.tr(), goal, true),
                           SizedBox(height: 6.h),
-                          _buildDetailRow('clients_page.last_visit'.tr(), lastVisit, false),
+                          _buildDetailRow(
+                            'clients_page.last_visit'.tr(),
+                            lastVisit,
+                            false,
+                          ),
                         ],
                       ),
                     ),
@@ -152,20 +158,30 @@ class ClientCard extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24.r),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 8.h,
+                        ),
                         elevation: 0,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'clients_page.view_profile'.tr().replaceAll('»', '').trim(),
+                            'clients_page.view_profile'
+                                .tr()
+                                .replaceAll('»', '')
+                                .trim(),
                             style: TextStyleManager.style11Medium.copyWith(
                               color: AppColors.white,
                             ),
                           ),
                           SizedBox(width: 4.w),
-                          Icon(Icons.keyboard_double_arrow_left, size: 16.sp, color: AppColors.white),
+                          Icon(
+                            Icons.keyboard_double_arrow_left,
+                            size: 16.sp,
+                            color: AppColors.white,
+                          ),
                         ],
                       ),
                     ),
@@ -214,7 +230,11 @@ class ClientCard extends StatelessWidget {
       case ClientStatus.active:
         return BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF7CD588), Color(0xFFE6FFE9), Color(0xFF7CD588)],
+            colors: [
+              AppColors.progressGreenStart,
+              AppColors.progressGreenMiddle,
+              AppColors.progressGreenStart,
+            ],
             begin: AlignmentDirectional.centerStart,
             end: AlignmentDirectional.centerEnd,
           ),
@@ -223,7 +243,11 @@ class ClientCard extends StatelessWidget {
       case ClientStatus.needsFollowUp:
         return BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFE7E000), Color(0xFFFFFFFF), Color(0xFFDCC134)],
+            colors: [
+              AppColors.progressYellowStart,
+              AppColors.white,
+              AppColors.progressYellowEnd,
+            ],
             begin: AlignmentDirectional.centerStart,
             end: AlignmentDirectional.centerEnd,
           ),
@@ -232,7 +256,11 @@ class ClientCard extends StatelessWidget {
       case ClientStatus.expired:
         return BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFFD2D2), Color(0xFFFFFFFF), Color(0xFFFFD2D2)],
+            colors: [
+              AppColors.progressRed,
+              AppColors.white,
+              AppColors.progressRed,
+            ],
             begin: AlignmentDirectional.centerStart,
             end: AlignmentDirectional.centerEnd,
           ),
@@ -246,7 +274,7 @@ class ClientCard extends StatelessWidget {
       case ClientStatus.active:
         return AppColors.primary;
       case ClientStatus.needsFollowUp:
-        return const Color(0xFFB59A1D); // Darker yellow/brown
+        return AppColors.darkYellow; // Darker yellow/brown
       case ClientStatus.expired:
         return AppColors.error;
     }
@@ -256,7 +284,9 @@ class ClientCard extends StatelessWidget {
     switch (status) {
       case ClientStatus.active:
       case ClientStatus.needsFollowUp:
-        return 'clients_page.commitment_rate'.tr(args: [commitmentRate?.toString() ?? '0']);
+        return 'clients_page.commitment_rate'.tr(
+          args: [commitmentRate?.toString() ?? '0'],
+        );
       case ClientStatus.expired:
         return 'clients_page.inactive_subscription'.tr();
     }

@@ -33,7 +33,7 @@ class NotificationsPage extends StatelessWidget {
               child: Column(
                 children: [
                   SizedBox(height: 20.h),
-                  
+
                   // Custom Header
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -45,18 +45,21 @@ class NotificationsPage extends StatelessWidget {
                     ),
                   ),
 
-              SizedBox(height: 32.h),
+                  SizedBox(height: 32.h),
 
-              Expanded(
-                child: isEmpty ? _buildEmptyState() : _buildPopulatedState(),
+                  Expanded(
+                    child: isEmpty
+                        ? _buildEmptyState()
+                        : _buildPopulatedState(),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      );
-    }),
-  );
-}
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   Widget _buildEmptyState() {
     return Padding(
@@ -64,9 +67,7 @@ class NotificationsPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(
-            SvgIcons.notification,
-          ),
+          SvgPicture.asset(SvgIcons.notification),
           SizedBox(height: 32.h),
           Text(
             'notifications.empty_title'.tr(),
@@ -117,11 +118,11 @@ class NotificationsPage extends StatelessWidget {
           ],
         ),
         SizedBox(height: 16.h),
-        
+
         _buildNotificationCard(
           title: 'notifications.dummy_title_1'.tr(),
           subtitle: 'notifications.dummy_subtitle_1'.tr(),
-          time: '09:00 م',
+          time: '''09:00 ${'shared_mock_pm'.tr()}''',
           isRead: false,
         ),
 
@@ -145,28 +146,28 @@ class NotificationsPage extends StatelessWidget {
         _buildNotificationCard(
           title: 'notifications.dummy_title_2'.tr(),
           subtitle: 'notifications.dummy_subtitle_2'.tr(),
-          time: '09:00 م',
+          time: '''09:00 ${'shared_mock_pm'.tr()}''',
           isRead: true,
         ),
         SizedBox(height: 12.h),
         _buildNotificationCard(
           title: 'notifications.dummy_title_1'.tr(),
           subtitle: 'notifications.dummy_subtitle_1'.tr(),
-          time: '09:00 م',
+          time: '''09:00 ${'shared_mock_pm'.tr()}''',
           isRead: true,
         ),
         SizedBox(height: 12.h),
         _buildNotificationCard(
           title: 'notifications.dummy_title_1'.tr(),
           subtitle: 'notifications.dummy_subtitle_1'.tr(),
-          time: '09:00 م',
+          time: '''09:00 ${'shared_mock_pm'.tr()}''',
           isRead: true,
         ),
         SizedBox(height: 12.h),
         _buildNotificationCard(
           title: 'notifications.dummy_title_1'.tr(),
           subtitle: 'notifications.dummy_subtitle_1'.tr(),
-          time: '09:00 م',
+          time: '''09:00 ${'shared_mock_pm'.tr()}''',
           isRead: true,
         ),
         SizedBox(height: 24.h),
@@ -185,7 +186,9 @@ class NotificationsPage extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: isRead ? AppColors.divider.withValues(alpha: 0.5) : AppColors.primary.withValues(alpha: 0.3),
+          color: isRead
+              ? AppColors.divider.withValues(alpha: 0.5)
+              : AppColors.primary.withValues(alpha: 0.3),
           width: 1,
         ),
         boxShadow: [
@@ -224,7 +227,7 @@ class NotificationsPage extends StatelessWidget {
               size: 20.sp,
             ),
           ),
-          
+
           SizedBox(width: 12.w),
 
           // Content
@@ -264,15 +267,13 @@ class NotificationsPage extends StatelessWidget {
               ],
             ),
           ),
-          
+
           SizedBox(width: 12.w),
 
           // Checkmark (Left side in RTL)
           Padding(
             padding: EdgeInsets.only(top: 4.h),
-            child: SvgPicture.asset(
-              SvgIcons.read,
-            ),
+            child: SvgPicture.asset(SvgIcons.read),
           ),
         ],
       ),

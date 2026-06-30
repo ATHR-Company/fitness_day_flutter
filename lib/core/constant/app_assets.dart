@@ -99,5 +99,9 @@ class AppImages {
   AppImages._();
 
   static const String healthProblems = '$_imagePath/health_problems.png';
+
+  static const String onboarding1 = '$_imagePath/onboarding1.png';
+  static const String onboarding2 = '$_imagePath/onboarding2.png';
+  static const String onboarding3 = '$_imagePath/onboarding3.png';
   static const String ai = '$_imagePath/ai.png';
 }

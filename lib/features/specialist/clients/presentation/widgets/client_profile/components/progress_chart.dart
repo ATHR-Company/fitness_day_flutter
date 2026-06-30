@@ -24,7 +24,9 @@ class ProgressChart extends StatelessWidget {
               children: [
                 Text(
                   'clients_page.current_weight'.tr(),
-                  style: TextStyleManager.style11Medium.copyWith(color: AppColors.textSecondary),
+                  style: TextStyleManager.style11Medium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 Text(
                   ' 60 ${'clients_page.kg'.tr()}',
@@ -34,7 +36,7 @@ class ProgressChart extends StatelessWidget {
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
         SizedBox(height: 16.h),
@@ -53,16 +55,26 @@ class ProgressChart extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '1/6/2026 4:30 مساءا',
-                  style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
+                  'spec_mock_time2'.tr(),
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
             Row(
               children: [
-                Icon(Icons.keyboard_double_arrow_right, color: AppColors.divider, size: 20.sp),
+                Icon(
+                  Icons.keyboard_double_arrow_right,
+                  color: AppColors.divider,
+                  size: 20.sp,
+                ),
                 SizedBox(width: 8.w),
-                Icon(Icons.keyboard_double_arrow_left, color: AppColors.primary, size: 20.sp),
+                Icon(
+                  Icons.keyboard_double_arrow_left,
+                  color: AppColors.primary,
+                  size: 20.sp,
+                ),
               ],
             ),
           ],
@@ -102,19 +114,29 @@ class ProgressChart extends StatelessWidget {
                       return Padding(
                         padding: EdgeInsets.only(top: 8.h),
                         child: Text(
-                          'ز ${value.toInt()}',
+                          '''${'spec_mock_z'.tr()}${value.toInt()}''',
                           style: TextStyleManager.style9Medium.copyWith(
-                            color: isActive ? AppColors.primary : AppColors.textPrimary,
-                            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                            color: isActive
+                                ? AppColors.primary
+                                : AppColors.textPrimary,
+                            fontWeight: isActive
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
                       );
                     },
                   ),
                 ),
-                leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
               ),
               gridData: const FlGridData(show: false),
               borderData: FlBorderData(show: false),
@@ -142,7 +164,9 @@ class ProgressChart extends StatelessWidget {
       barRods: [
         BarChartRodData(
           toY: y,
-          color: isActive ? AppColors.greenMint : AppColors.greenMint.withValues(alpha: 0.6),
+          color: isActive
+              ? AppColors.greenMint
+              : AppColors.greenMint.withValues(alpha: 0.6),
           width: 32.w,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(2.r),

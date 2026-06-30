@@ -8,11 +8,7 @@ class AppHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onMenuPressed;
 
-  const AppHeader({
-    super.key,
-    required this.title,
-    this.onMenuPressed,
-  });
+  const AppHeader({super.key, required this.title, this.onMenuPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +28,11 @@ class AppHeader extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Menu icon with padding on the end (left in RTL)
           Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: MenuIconButton(
-              onTap: onMenuPressed,
-            ),
+            child: MenuIconButton(onTap: onMenuPressed),
           ),
         ],
       ),

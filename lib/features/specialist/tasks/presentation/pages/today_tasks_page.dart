@@ -16,9 +16,7 @@ class TodayTasksPage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            AppHeader(
-              title: 'drawer.today_tasks'.tr(),
-            ),
+            AppHeader(title: 'drawer.today_tasks'.tr()),
             SizedBox(height: 16.h),
             Expanded(
               child: ListView.builder(
@@ -31,9 +29,9 @@ class TodayTasksPage extends StatelessWidget {
                       timeRemaining: '', // No badge
                       title: 'home.weekly_follow_up'.tr(),
                       subtitle: 'home.weekly_follow_up_desc'.tr(),
-                      clientName: 'محمد عبدالله',
-                      visitTime: 'اليوم 4:30 مساءا',
-                      location: 'في مقر يوم الرشاقة',
+                      personName: 'spec_mock_name'.tr(),
+                      visitTime: 'spec_mock_time3'.tr(),
+                      location: 'spec_mock_location'.tr(),
                       buttonText: 'home.view_visit'.tr(),
                       onViewPressed: () {},
                       secondaryButtonText: 'home.reschedule'.tr(),

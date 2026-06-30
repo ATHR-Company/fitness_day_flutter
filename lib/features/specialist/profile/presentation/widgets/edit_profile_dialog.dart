@@ -27,7 +27,10 @@ class EditProfileDialog extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 2),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    width: 2,
+                  ),
                 ),
                 child: Center(
                   child: SvgPicture.asset(
@@ -56,7 +59,11 @@ class EditProfileDialog extends StatelessWidget {
                       color: AppColors.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.edit, color: AppColors.white, size: 14.sp),
+                    child: Icon(
+                      Icons.edit,
+                      color: AppColors.white,
+                      size: 14.sp,
+                    ),
                   ),
                 ),
               ),
