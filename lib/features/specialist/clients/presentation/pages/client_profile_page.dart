@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/shared/widgets/app_segmented_control.dart';
+import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/tabs/client_data_tab.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/tabs/client_visits_tab.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/tabs/client_progress_tab.dart';

@@ -6,14 +6,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../shared/widgets/visit_card.dart';
-import '../widgets/home_header.dart';
-import '../widgets/performance_summary_section.dart';
-import '../widgets/section_header.dart';
-import '../widgets/follow_up_alert_card.dart';
-import '../../../../shared/widgets/app_drawer.dart';
+import 'package:fitness_day/core/widgets/visit_card.dart';
+import 'package:fitness_day/features/specialist/home/presentation/widgets/home_header.dart';
+import 'package:fitness_day/features/specialist/home/presentation/widgets/performance_summary_section.dart';
+import 'package:fitness_day/features/specialist/home/presentation/widgets/section_header.dart';
+import 'package:fitness_day/features/specialist/home/presentation/widgets/follow_up_alert_card.dart';
+import 'package:fitness_day/core/widgets/app_drawer.dart';
 
-import '../../../../shared/widgets/exit_dialog.dart';
+import 'package:fitness_day/core/widgets/exit_dialog.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

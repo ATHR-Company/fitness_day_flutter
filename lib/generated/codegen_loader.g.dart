@@ -134,7 +134,20 @@ class CodegenLoader extends AssetLoader{
     "choose_suitable_package": "اختر الباقة المناسبة لك",
     "smart_plans_desc": "خطط ذكية تناسب احتياجاتك لتصل لوزنك المثالي",
     "sar": "ر.س",
-    "needs_follow_up_alert": "يحتاج متابعة"
+    "needs_follow_up_alert": "يحتاج متابعة",
+    "home_package_1": "باقة القمة",
+    "home_package_2": "كورس الشد والتنحيف",
+    "home_task_1_title": "وجبة الافطار",
+    "home_task_1_desc": "شوفان بالحليب مع مكسرات وعسل",
+    "home_task_1_time": "8:00 صباحاً",
+    "home_calories_unit": "كالورى",
+    "home_task_2_title": "تمرين البلانك",
+    "home_task_2_desc": "تمرين البلانك يقوى عضلات البطن ويحسن الاستقرار العام للجسم.",
+    "home_task_2_time": "8:00 صباحاً",
+    "home_article_1_title": "اكتشف 5 أفكار وجبات خفيفة قبل التمرين ..........",
+    "home_article_1_desc": "اكتشف 5 أفكار وجبات خفيفة قبل التمرين تساعدك على زيادة الطاقة وتحسين الأداء: موز مع زبدة الفول السوداني- كوب زبادي مع عسل وفواكه -حفنة مكسرات مشكلة - شرائح تفاح.....",
+    "home_article_2_title": "أهمية النوم الجيد لبناء العضلات ..........",
+    "home_article_2_desc": "النوم الجيد ضروري لعملية بناء العضلات وتعافيها بعد التمرين. تأكد من الحصول على 7-9 ساعات يومياً لتحقيق أفضل النتائج."
   },
   "visits": {
     "title": "سجل الزيارات",
@@ -291,7 +304,9 @@ class CodegenLoader extends AssetLoader{
     "send": "ارسال",
     "dummy_name": "محمد عبدالله",
     "dummy_message_1": "مرحباً 👋 تناول وجبة خفيفة قبل التمرين مفيد؟",
-    "dummy_message_2": "نعم، تناول وجبة خفيفة قبل التمرين يمكن أن يكون مفيداً، خاصة إذا كان هناك عدة ساعات منذ آخر وجبة. يُفضل أن تحتوي على مصدر للكربوهيدرات مع كمية خفيفة من البروتين"
+    "dummy_message_2": "نعم، تناول وجبة خفيفة قبل التمرين يمكن أن يكون مفيداً، خاصة إذا كان هناك عدة ساعات منذ آخر وجبة. يُفضل أن تحتوي على مصدر للكربوهيدرات مع كمية خفيفة من البروتين",
+    "dummy_welcome": "أهلاً بك! 🥳 تطبيق يوم الرشاقة يرحب بك 🍃\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك\nالصحية.",
+    "dummy_reply": "مرحباً 🫶\nشكراً على الترحيب هل تناول وجبة خفيفة قبل\nالتمرين مفيد؟"
   },
   "profile": {
     "title": "ملفي",
@@ -554,7 +569,15 @@ class CodegenLoader extends AssetLoader{
   "auth_select_weight": "اختيار الوزن",
   "auth_save": "حفظ",
   "auth_next_button": "التالي",
-  "auth_val_err_full_name": "الرجاء إدخال الاسم بالكامل"
+  "auth_val_err_full_name": "الرجاء إدخال الاسم بالكامل",
+  "contact_us": {
+    "contact_us_title": "تواصل معنا",
+    "contact_us_subtitle": "لنرافقك في رحلتك نحو جسم صحي ورشيق بخطة\nمدروسة ودعم متخصص.",
+    "contact_us_ai_coach": "مدربك الذكي",
+    "contact_us_specialist": "التحدث مع اخصائي تغذية",
+    "contact_us_ai_desc": "جاهز للانطلاقة؟  أنا معاك خطوة بخطوة 💚",
+    "contact_us_specialist_title": "أخصائي تغذية"
+  }
 };
 static const Map<String,dynamic> _en = {
   "login": {
@@ -676,7 +699,20 @@ static const Map<String,dynamic> _en = {
     "category_share": "Share",
     "choose_suitable_package": "Choose the suitable package for you",
     "smart_plans_desc": "Smart plans tailored to your needs to reach your ideal weight",
-    "sar": "SAR"
+    "sar": "SAR",
+    "home_package_1": "Peak Package",
+    "home_package_2": "Tightening and Slimming Course",
+    "home_task_1_title": "Breakfast",
+    "home_task_1_desc": "Oats with milk, nuts and honey",
+    "home_task_1_time": "8:00 AM",
+    "home_calories_unit": "cal",
+    "home_task_2_title": "Plank Exercise",
+    "home_task_2_desc": "Plank exercise strengthens abdominal muscles and improves overall body stability.",
+    "home_task_2_time": "8:00 AM",
+    "home_article_1_title": "Discover 5 pre-workout snack ideas ..........",
+    "home_article_1_desc": "Discover 5 pre-workout snack ideas to help you boost energy and improve performance: Banana with peanut butter - Yogurt cup with honey and fruits - Handful of mixed nuts - Apple slices.....",
+    "home_article_2_title": "The importance of good sleep for muscle building ..........",
+    "home_article_2_desc": "Good sleep is essential for the process of muscle building and recovery after exercise. Make sure to get 7-9 hours daily to achieve best results."
   },
   "visits": {
     "title": "Visits Log",
@@ -833,7 +869,9 @@ static const Map<String,dynamic> _en = {
     "send": "Send",
     "dummy_name": "Mohammad Abdullah",
     "dummy_message_1": "Hello 👋 Is a light snack before workout useful?",
-    "dummy_message_2": "Yes, a light snack before a workout can be useful, especially if it has been several hours since your last meal. It is preferred to have a source of carbohydrates with a light amount of protein"
+    "dummy_message_2": "Yes, a light snack before a workout can be useful, especially if it has been several hours since your last meal. It is preferred to have a source of carbohydrates with a light amount of protein",
+    "dummy_welcome": "Welcome! 🥳 Fitness Day app welcomes you 🍃\nWe wish you a wonderful experience and a successful journey towards your health goals.",
+    "dummy_reply": "Hello 🫶\nThanks for the welcome. Is having a light snack before workout useful?"
   },
   "profile": {
     "title": "My Profile",
@@ -869,7 +907,7 @@ static const Map<String,dynamic> _en = {
     "visit_log": "Visit Log",
     "diet_plan": "Diet Plan",
     "workout_plan": "Workout Plan",
-    "notifications_alerts": "Notifications & Alerts",
+    "notifications_alerts": "Notifications ",
     "logout": "Logout",
     "logout_title": "Logout",
     "logout_message": "Are you sure you want to log out of your account in Fitness Day?",
@@ -1096,7 +1134,15 @@ static const Map<String,dynamic> _en = {
   "auth_select_weight": "Select Weight",
   "auth_save": "Save",
   "auth_next_button": "Next",
-  "auth_val_err_full_name": "Please enter your full name"
+  "auth_val_err_full_name": "Please enter your full name",
+  "contact_us": {
+    "contact_us_title": "Contact Us",
+    "contact_us_subtitle": "We accompany you on your journey towards a healthy body with a well-studied plan and expert support.",
+    "contact_us_ai_coach": "Smart Coach",
+    "contact_us_specialist": "Talk to a Nutritionist",
+    "contact_us_ai_desc": "Ready to start? I am with you step by step 💚",
+    "contact_us_specialist_title": "Nutritionist"
+  }
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"ar": _ar, "en": _en};
 }

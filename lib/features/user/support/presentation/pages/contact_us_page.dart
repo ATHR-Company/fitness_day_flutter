@@ -6,6 +6,8 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/chat_details_page.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/generated/locale_keys.g.dart';
 
 class ContactUsPage extends StatelessWidget {
   const ContactUsPage({super.key});
@@ -32,7 +34,7 @@ class ContactUsPage extends StatelessWidget {
                     ),
                     Expanded(
                       child: Text(
-                        'تواصل معنا',
+                        LocaleKeys.contact_us_contact_us_title.tr(),
                         textAlign: TextAlign.center,
                         style: TextStyleManager.heading2
                             .copyWith(color: AppColors.black),
@@ -49,7 +51,7 @@ class ContactUsPage extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
                 child: Text(
-                  'لنرافقك في رحلتك نحو جسم صحي ورشيق بخطة\nمدروسة ودعم متخصص.',
+                  LocaleKeys.contact_us_contact_us_subtitle.tr(),
                   textAlign: TextAlign.start,
                   style: TextStyleManager.style11Medium.copyWith(
                     color: AppColors.textSecondary,
@@ -64,8 +66,8 @@ class ContactUsPage extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
                 child: _ContactCard(
-                  title: 'مدربك الذكي',
-                  subtitle: "جاهز للانطلاقة؟  أنا معاك خطوة بخطوة 💚",
+                  title: LocaleKeys.contact_us_contact_us_ai_coach.tr(),
+                  subtitle: LocaleKeys.contact_us_contact_us_ai_desc.tr(),
                   rawImage: true,
                   image: Image.asset(
                     AppImages.ai,
@@ -76,8 +78,8 @@ class ContactUsPage extends StatelessWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const ChatDetailsPage(
-                        title: 'مدربك الذكي',
+                      builder: (_) => ChatDetailsPage(
+                        title: LocaleKeys.contact_us_contact_us_ai_coach.tr(),
                         isAi: true,
                       ),
                     ),
@@ -91,14 +93,14 @@ class ContactUsPage extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
                 child: _ContactCard(
-                  title: 'التحدث مع اخصائي تغذية',
-                  subtitle: "جاهز للانطلاقة؟  أنا معاك خطوة بخطوة 💚",
+                  title: LocaleKeys.contact_us_contact_us_specialist.tr(),
+                  subtitle: LocaleKeys.contact_us_contact_us_ai_desc.tr(),
                   image: SvgPicture.asset(SvgIcons.logo, width: 70.r, height: 70.r),
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const ChatDetailsPage(
-                        title: 'أخصائي تغذية',
+                      builder: (_) => ChatDetailsPage(
+                        title: LocaleKeys.contact_us_contact_us_specialist_title.tr(),
                         isSpecialist: true,
                       ),
                     ),

@@ -119,6 +119,19 @@ abstract class  LocaleKeys {
   static const home_smart_plans_desc = 'home.smart_plans_desc';
   static const home_sar = 'home.sar';
   static const home_needs_follow_up_alert = 'home.needs_follow_up_alert';
+  static const home_home_package_1 = 'home.home_package_1';
+  static const home_home_package_2 = 'home.home_package_2';
+  static const home_home_task_1_title = 'home.home_task_1_title';
+  static const home_home_task_1_desc = 'home.home_task_1_desc';
+  static const home_home_task_1_time = 'home.home_task_1_time';
+  static const home_home_calories_unit = 'home.home_calories_unit';
+  static const home_home_task_2_title = 'home.home_task_2_title';
+  static const home_home_task_2_desc = 'home.home_task_2_desc';
+  static const home_home_task_2_time = 'home.home_task_2_time';
+  static const home_home_article_1_title = 'home.home_article_1_title';
+  static const home_home_article_1_desc = 'home.home_article_1_desc';
+  static const home_home_article_2_title = 'home.home_article_2_title';
+  static const home_home_article_2_desc = 'home.home_article_2_desc';
   static const home = 'home';
   static const visits_title = 'visits.title';
   static const visits_search_hint = 'visits.search_hint';
@@ -269,6 +282,8 @@ abstract class  LocaleKeys {
   static const conversations_dummy_name = 'conversations.dummy_name';
   static const conversations_dummy_message_1 = 'conversations.dummy_message_1';
   static const conversations_dummy_message_2 = 'conversations.dummy_message_2';
+  static const conversations_dummy_welcome = 'conversations.dummy_welcome';
+  static const conversations_dummy_reply = 'conversations.dummy_reply';
   static const conversations = 'conversations';
   static const profile_title = 'profile.title';
   static const profile_personal_profile = 'profile.personal_profile';
@@ -527,5 +542,12 @@ abstract class  LocaleKeys {
   static const auth_save = 'auth_save';
   static const auth_next_button = 'auth_next_button';
   static const auth_val_err_full_name = 'auth_val_err_full_name';
+  static const contact_us_contact_us_title = 'contact_us.contact_us_title';
+  static const contact_us_contact_us_subtitle = 'contact_us.contact_us_subtitle';
+  static const contact_us_contact_us_ai_coach = 'contact_us.contact_us_ai_coach';
+  static const contact_us_contact_us_specialist = 'contact_us.contact_us_specialist';
+  static const contact_us_contact_us_ai_desc = 'contact_us.contact_us_ai_desc';
+  static const contact_us_contact_us_specialist_title = 'contact_us.contact_us_specialist_title';
+  static const contact_us = 'contact_us';
 
 }

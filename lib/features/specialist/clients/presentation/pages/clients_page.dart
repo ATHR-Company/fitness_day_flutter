@@ -1,15 +1,15 @@
-import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
-import 'package:fitness_day/features/shared/widgets/top_centered_constrained_box.dart';
+import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
-import 'package:fitness_day/features/shared/widgets/app_header.dart';
-import 'package:fitness_day/features/shared/widgets/app_search_bar.dart';
-import 'package:fitness_day/features/shared/widgets/app_segmented_control.dart';
+import 'package:fitness_day/core/widgets/app_header.dart';
+import 'package:fitness_day/core/widgets/app_search_bar.dart';
+import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/pages/client_profile_page.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_card.dart';
-import 'package:fitness_day/features/shared/widgets/app_drawer.dart';
+import 'package:fitness_day/core/widgets/app_drawer.dart';
 
 class ClientsPage extends StatefulWidget {
   const ClientsPage({super.key});

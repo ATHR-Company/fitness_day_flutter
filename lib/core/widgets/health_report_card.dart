@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fitness_day/features/shared/widgets/info_table_card.dart';
+import 'package:fitness_day/core/widgets/info_table_card.dart';
 
 class HealthReportCard extends StatelessWidget {
   const HealthReportCard({super.key});

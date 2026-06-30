@@ -3,9 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
+import 'package:fitness_day/core/widgets/loader_hud.dart';
 
-import '../../../widgets/top_centered_constrained_box.dart';
+import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -67,9 +67,9 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                     _buildMessageBubble(
                       time: '''10:22 ${'shared_mock_am'.tr()}''',
                       message: widget.isAi
-                          ? 'أهلاً بك! 🥳 تطبيق يوم الرشاقة يرحب بك 🍃\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك\nالصحية.'
+                          ? 'conversations.dummy_welcome'.tr()
                           : (widget.isSpecialist
-                                ? 'أهلاً بك! 🥳 تطبيق يوم الرشاقة يرحب بك 🍃\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك\nالصحية.'
+                                ? 'conversations.dummy_welcome'.tr()
                                 : 'conversations.dummy_message_1'.tr()),
 
                       isMe: false,
@@ -81,7 +81,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                     _buildMessageBubble(
                       time: '''10:22 ${'shared_mock_am'.tr()}''',
                       message: widget.isAi || widget.isSpecialist
-                          ? 'مرحباً 🫶\nشكراً على الترحيب هل تناول وجبة خفيفة قبل\nالتمرين مفيد؟'
+                          ? 'conversations.dummy_reply'.tr()
                           : 'conversations.dummy_message_2'.tr(),
 
                       isMe: true,

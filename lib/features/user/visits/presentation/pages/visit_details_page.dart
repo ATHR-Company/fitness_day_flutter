@@ -3,17 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
-import 'package:fitness_day/features/shared/widgets/app_segmented_control.dart';
-import 'package:fitness_day/features/shared/widgets/health_report_card.dart';
+import 'package:fitness_day/core/widgets/app_back_header.dart';
+import 'package:fitness_day/core/widgets/app_segmented_control.dart';
+import 'package:fitness_day/core/widgets/health_report_card.dart';
 
-import 'package:fitness_day/features/shared/widgets/vertical_tab_bar.dart';
-import 'package:fitness_day/features/shared/widgets/visit_card.dart';
-import 'package:fitness_day/features/shared/widgets/visit_goal_card.dart';
+import 'package:fitness_day/core/widgets/vertical_tab_bar.dart';
+import 'package:fitness_day/core/widgets/visit_card.dart';
+import 'package:fitness_day/core/widgets/visit_goal_card.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
-import 'package:fitness_day/features/shared/widgets/message_icon_button.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/generated/locale_keys.g.dart';
+import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
-import 'package:fitness_day/features/shared/widgets/today_tasks_section.dart';
+import 'package:fitness_day/core/widgets/today_tasks_section.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/activity_progress_card.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -102,7 +104,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: AppBackHeader(
-                title: 'تفاصيل الزيارة',
+                title: LocaleKeys.visit_details_title.tr(),
                 trailingWidget: MessageIconButton(
                   onTap: () {
                     Navigator.push(
@@ -123,9 +125,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: AppSegmentedControl(
                   type: AppSegmentedControlType.unified,
-                  items: const [
-                    'ملخص الزيارة',
-                    'النظام المخصص',
+                  items: [
+                    LocaleKeys.visit_details_tab_visit_data.tr(),
+                    LocaleKeys.visit_details_tab_custom_plan.tr(),
                   ],
                   selectedIndex: _selectedTabIndex,
                   onItemSelected: (index) {
@@ -161,15 +163,15 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           // Visit Card
           VisitCard(
             timeRemaining: '',
-            title: 'متابعة أسبوعية',
-            subtitle: 'متابعة الوزن وتخصيص النظام الغذائي والرياضي له',
-            personName: 'د/ محمد عبدالله',
-            personNameLabel: 'اسم الأخصائي :',
-            visitTime: 'اليوم 4:30 مساءا',
-            location: 'في مقر يوم الرشاقة',
-            buttonText: 'تفاصيل »',
+            title: LocaleKeys.home_weekly_follow_up.tr(),
+            subtitle: LocaleKeys.home_weekly_follow_up_desc.tr(),
+            personName: LocaleKeys.spec_mock_name.tr(),
+            personNameLabel: LocaleKeys.visits_client_name_label.tr(),
+            visitTime: '${LocaleKeys.visits_today.tr()} 4:30 ${LocaleKeys.visits_pm.tr()}',
+            location: LocaleKeys.visits_hq_location.tr(),
+            buttonText: LocaleKeys.home_details_button.tr(),
             iconPath: SvgIcons.monitor,
-            isCompleted: true, // Assuming this is how we show the green checked icon (Wait, VisitCard doesn't have isCompleted, I need to check VisitCard. For now let's just use it as is)
+            isCompleted: true,
             onViewPressed: () {},
             showButton: false,
           ),
@@ -204,17 +206,17 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
             padding: EdgeInsets.fromLTRB(20.w, 0, 16.w, 0),
             child: Column(
               children: [
-                _buildSectionTitle('التغذية'),
+                _buildSectionTitle(LocaleKeys.visit_details_nutrition.tr()),
                 SizedBox(height: 12.h),
                 const TodayTasksSection(tasks: _foodTasks),
 
                 SizedBox(height: 24.h),
-                _buildSectionTitle('التمارين'),
+                _buildSectionTitle(LocaleKeys.visit_details_exercises.tr()),
                 SizedBox(height: 12.h),
                 const TodayTasksSection(tasks: _exerciseTasks),
 
                 SizedBox(height: 24.h),
-                _buildSectionTitle('الأنشطة'),
+                _buildSectionTitle(LocaleKeys.visit_details_activity.tr()),
                 SizedBox(height: 12.h),
                 ActivityProgressCard(
                   title: 'المشي',
@@ -243,14 +245,14 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
         ),
         // Vertical Tab Bar (Left side in RTL)
         VerticalTabBar(
-          items: const [
-            'اليوم الأول',
-            'اليوم الثاني',
-            'اليوم الثالث',
-            'اليوم الرابع',
-            'اليوم الخامس',
-            'اليوم السادس',
-            'اليوم السابع',
+          items: [
+            LocaleKeys.visit_details_day_1.tr(),
+            LocaleKeys.visit_details_day_2.tr(),
+            LocaleKeys.visit_details_day_3.tr(),
+            LocaleKeys.visit_details_day_4.tr(),
+            LocaleKeys.visit_details_day_5.tr(),
+            LocaleKeys.visit_details_day_6.tr(),
+            LocaleKeys.visit_details_day_7.tr(),
           ],
           selectedIndex: _selectedDayIndex,
           onItemSelected: (index) {

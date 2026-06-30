@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
-import 'package:fitness_day/features/shared/widgets/app_search_bar.dart';
+import 'package:fitness_day/core/widgets/app_back_header.dart';
+import 'package:fitness_day/core/widgets/app_search_bar.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/chat_details_page.dart';
 
 class ConversationsPage extends StatefulWidget {
