@@ -30,18 +30,22 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
   bool _isPlaying = false;
   int _maxCountdown = 8;
   int _countdown = 8;
+  bool _isMuted = false;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    // Dummy video player initialization
-    _videoController = VideoPlayerController.networkUrl(
-      Uri.parse('https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4'),
+    // Initialize local video asset
+    _videoController = VideoPlayerController.asset(
+      'assets/video/workout.mp4',
     )..initialize().then((_) {
-        _videoController.setVolume(0.0);
+        _videoController.setVolume(_isMuted ? 0.0 : 1.0); // Respect initial mute state
         _videoController.setLooping(true);
-        setState(() {});
+        setState(() {
+          _maxCountdown = _videoController.value.duration.inSeconds;
+          _countdown = _maxCountdown;
+        });
       });
   }
 
@@ -59,24 +63,29 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
   }
 
   void _onNextStage() {
+    _videoController.seekTo(Duration.zero);
     if (_currentPhase == ExercisePhase.warmup) {
       setState(() {
         _currentPhase = ExercisePhase.exercise;
         _selectedTab = 1;
-        _maxCountdown = 15;
-        _countdown = 15;
+        _maxCountdown = _videoController.value.duration.inSeconds;
+        _countdown = _maxCountdown;
       });
-      if (_isPlaying) _startTimer();
+      if (_isPlaying) {
+        _startTimer();
+        _videoController.play();
+      }
     } else if (_currentPhase == ExercisePhase.exercise) {
       if (_currentSet < _totalSets) {
         _videoController.pause();
         _timer?.cancel();
         context.push(UserAppRoutes.workoutRest).then((_) {
           if (!mounted) return;
+          _videoController.seekTo(Duration.zero);
           setState(() {
             _currentSet++;
-            _maxCountdown = 15;
-            _countdown = 15;
+            _maxCountdown = _videoController.value.duration.inSeconds;
+            _countdown = _maxCountdown;
           });
           if (_isPlaying) {
             _startTimer();
@@ -87,10 +96,13 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
         setState(() {
           _currentPhase = ExercisePhase.cooldown;
           _selectedTab = 2;
-          _maxCountdown = 10;
-          _countdown = 10;
+          _maxCountdown = _videoController.value.duration.inSeconds;
+          _countdown = _maxCountdown;
         });
-        if (_isPlaying) _startTimer();
+        if (_isPlaying) {
+          _startTimer();
+          _videoController.play();
+        }
       }
     } else if (_currentPhase == ExercisePhase.cooldown) {
       _timer?.cancel();
@@ -204,8 +216,17 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.volume_up, color: AppColors.black, size: 24.sp),
-            onPressed: () {},
+            icon: Icon(
+              _isMuted ? Icons.volume_off : Icons.volume_up,
+              color: AppColors.black,
+              size: 24.sp,
+            ),
+            onPressed: () {
+              setState(() {
+                _isMuted = !_isMuted;
+                _videoController.setVolume(_isMuted ? 0.0 : 1.0);
+              });
+            },
           ),
           SizedBox(width: 8.w),
         ],
@@ -274,27 +295,35 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.divider,
                         borderRadius: BorderRadius.circular(24.r),
-                        image: const DecorationImage(
-                          image: NetworkImage('https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=800'),
-                          fit: BoxFit.cover,
-                        ),
                       ),
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: _togglePlayPause,
-                          child: Container(
-                            padding: EdgeInsets.all(16.r),
-                            decoration: BoxDecoration(
-                              color: AppColors.white.withValues(alpha: 0.6),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              _isPlaying ? Icons.pause : Icons.play_arrow,
-                              color: AppColors.white,
-                              size: 40.sp,
+                      clipBehavior: Clip.antiAlias,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (_videoController.value.isInitialized)
+                            Positioned.fill(
+                              child: VideoPlayer(_videoController),
+                            )
+                          else
+                            const Center(child: CircularProgressIndicator()),
+                          
+                          // Play/Pause Overlay
+                          GestureDetector(
+                            onTap: _togglePlayPause,
+                            child: Container(
+                              padding: EdgeInsets.all(16.r),
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withValues(alpha: _isPlaying ? 0.0 : 0.6),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                _isPlaying ? Icons.pause : Icons.play_arrow,
+                                color: _isPlaying ? Colors.transparent : AppColors.white,
+                                size: 40.sp,
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ),
