@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/shared/widgets/app_bottom_sheet.dart';
+import 'package:fitness_day/core/widgets/app_bottom_sheet.dart';
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';

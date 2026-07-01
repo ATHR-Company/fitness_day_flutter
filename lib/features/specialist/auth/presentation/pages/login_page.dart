@@ -6,15 +6,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/shared/widgets/app_phone_field.dart';
-import 'package:fitness_day/features/shared/widgets/app_password_field.dart';
-import 'package:fitness_day/features/shared/widgets/custom_button.dart';
+import 'package:fitness_day/core/widgets/app_phone_field.dart';
+import 'package:fitness_day/core/widgets/app_password_field.dart';
+import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
-import 'package:fitness_day/features/shared/widgets/loader_hud.dart';
-import 'package:fitness_day/features/shared/widgets/top_centered_constrained_box.dart';
+import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

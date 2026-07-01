@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
-import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
-import 'package:fitness_day/features/shared/widgets/visit_card.dart';
-import 'package:fitness_day/features/shared/widgets/visit_goal_card.dart';
+import 'package:fitness_day/core/widgets/app_back_header.dart';
+import 'package:fitness_day/core/widgets/visit_card.dart';
+import 'package:fitness_day/core/widgets/visit_goal_card.dart';
 
 class UpcomingVisitShowScreen extends StatelessWidget {
   final String title;

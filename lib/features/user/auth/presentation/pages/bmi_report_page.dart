@@ -7,8 +7,8 @@ import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
-import 'package:fitness_day/features/shared/widgets/app_back_header.dart';
-import 'package:fitness_day/features/shared/widgets/custom_button.dart';
+import 'package:fitness_day/core/widgets/app_back_header.dart';
+import 'package:fitness_day/core/widgets/custom_button.dart';
 
 class BmiReportPage extends StatelessWidget {
   const BmiReportPage({super.key});

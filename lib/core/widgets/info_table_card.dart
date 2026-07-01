@@ -4,8 +4,27 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 
-class HealthReportCard extends StatelessWidget {
-  const HealthReportCard({super.key});
+class TableRowData {
+  final String label;
+  final String value;
+  final String? unit;
+
+  const TableRowData({
+    required this.label,
+    required this.value,
+    this.unit,
+  });
+}
+
+class InfoTableCard extends StatelessWidget {
+  final String title;
+  final List<TableRowData> data;
+
+  const InfoTableCard({
+    super.key,
+    required this.title,
+    required this.data,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +53,7 @@ class HealthReportCard extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'تقريرك الصحي',
+                title,
                 style: TextStyleManager.heading2.copyWith(
                   color: AppColors.white,
                   fontWeight: FontWeight.bold,
@@ -44,15 +63,19 @@ class HealthReportCard extends StatelessWidget {
           ),
           
           // Data Rows
-          _buildRow('الوزن :', '58.4', unit: 'كجم', isEven: false),
-          _buildRow('الطول :', '167', unit: 'سم', isEven: true),
-          _buildRow('BMI :', '22.0', unit: 'طبيعي', isEven: false),
-          _buildRow('معدل الحرق :', '1284.4', isEven: true),
-          _buildRow('وزن الدهون :', '15.7', unit: 'كجم', isEven: false),
-          _buildRow('نسبة الدهون :', '24%', isEven: true),
-          _buildRow('وزن العضلات :', '3.7', unit: 'كجم', isEven: false),
-          _buildRow('نسبة العضلات :', '24%', isEven: true),
-          _buildRow('البروتين :', '17.8', isEven: false, isLast: true),
+          ...data.asMap().entries.map((entry) {
+            int index = entry.key;
+            TableRowData rowData = entry.value;
+            bool isEven = index % 2 != 0; // 0 is odd in UI, 1 is even visually in HealthReportCard
+            bool isLast = index == data.length - 1;
+            return _buildRow(
+              rowData.label,
+              rowData.value,
+              unit: rowData.unit,
+              isEven: isEven,
+              isLast: isLast,
+            );
+          }),
         ],
       ),
     );

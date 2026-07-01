@@ -6,10 +6,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
-import 'package:fitness_day/features/shared/widgets/app_drawer.dart';
-import 'package:fitness_day/features/shared/widgets/app_header.dart';
-import '../widgets/edit_profile_dialog.dart';
-import '../widgets/language_dialog.dart';
+import 'package:fitness_day/core/widgets/app_drawer.dart';
+import 'package:fitness_day/core/widgets/app_header.dart';
+import 'package:fitness_day/features/specialist/profile/presentation/widgets/edit_profile_dialog.dart';
+import 'package:fitness_day/features/specialist/profile/presentation/widgets/language_dialog.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});

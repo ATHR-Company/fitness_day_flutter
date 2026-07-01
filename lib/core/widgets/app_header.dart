@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/shared/widgets/menu_icon_button.dart';
+import 'package:fitness_day/core/widgets/menu_icon_button.dart';
 
 class AppHeader extends StatelessWidget {
   final String title;

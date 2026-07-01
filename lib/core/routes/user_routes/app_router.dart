@@ -22,6 +22,11 @@ import '../../../features/user/auth/presentation/pages/health_problems_page.dart
 import 'package:fitness_day/features/user/visits/presentation/pages/visit_log_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/visit_details_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/user_upcoming_visit_page.dart';
+import 'package:fitness_day/features/user/visits/presentation/pages/meal_details_page.dart';
+import 'package:fitness_day/features/user/user_home/presentation/screens/hydration_details_screen.dart';
+import 'package:fitness_day/features/user/workout/presentation/screens/workout_video_screen.dart';
+import 'package:fitness_day/features/user/workout/presentation/screens/workout_rest_screen.dart';
+import 'package:fitness_day/features/user/workout/presentation/screens/workout_map_screen.dart';
 
 class UserAppRouter {
   static final GoRouter router = GoRouter(
@@ -119,6 +124,26 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.upcomingVisitShow,
         builder: (context, state) => const UserUpcomingVisitPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.mealDetails,
+        builder: (context, state) => const MealDetailsPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.hydrationDetails,
+        builder: (context, state) => const HydrationDetailsScreen(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.workoutVideo,
+        builder: (context, state) => const WorkoutVideoScreen(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.workoutRest,
+        builder: (context, state) => const WorkoutRestScreen(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.workoutMap,
+        builder: (context, state) => const WorkoutMapScreen(),
       ),
     ],
   );

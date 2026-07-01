@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/shared/widgets/custom_button.dart';
+import 'package:fitness_day/core/widgets/custom_button.dart';
 
 class SelectionBottomSheet extends StatefulWidget {
   final String title;

@@ -6,8 +6,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constant/app_assets.dart';
-import '../../../widgets/app_drawer.dart';
-import '../../../widgets/app_header.dart';
+import 'package:fitness_day/core/widgets/app_drawer.dart';
+import 'package:fitness_day/core/widgets/app_header.dart';
 
 class NotificationsPage extends StatelessWidget {
   final bool isEmpty;

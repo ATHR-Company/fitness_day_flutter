@@ -1,6 +1,7 @@
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 
@@ -81,13 +82,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
                   // Person inside the apple
                   Transform.translate(
-                    offset: const Offset(0, 8),
+                    offset: Offset(0, 8.h),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Head
                         Transform.translate(
-                          offset: const Offset(0, 10), // Move head slightly down
+                          offset: Offset(0, 10.h), // Move head slightly down
                           child: AnimatedSlide(
                             offset: _showHead ? Offset.zero : const Offset(0, -1),
                             duration: const Duration(seconds: 2),
@@ -105,7 +106,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Transform.translate(
-                              offset: const Offset(0, 2), // Lower the visually right element
+                              offset: Offset(0, 2.h), // Lower the visually right element
                               child: AnimatedSlide(
                                 offset: _showLeftRight ? Offset.zero : const Offset(-1, 0),
                                 duration: const Duration(seconds: 2),
@@ -119,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen> {
                             ),
 
                             Transform.translate(
-                              offset: const Offset(0, -10), // Raise the visually left element
+                              offset: Offset(0, -10.h), // Raise the visually left element
                               child: AnimatedSlide(
                                 offset: _showLeftRight ? Offset.zero : const Offset(1, 0),
                                 duration: const Duration(seconds: 2),
@@ -139,7 +140,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ],
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
 
               // App Name
               AnimatedSlide(

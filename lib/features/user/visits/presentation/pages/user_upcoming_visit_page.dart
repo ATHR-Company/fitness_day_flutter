@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
-import 'package:fitness_day/features/shared/widgets/custom_button.dart';
-import 'package:fitness_day/features/shared/widgets/custom_outlined_button.dart';
-import 'package:fitness_day/features/shared/widgets/message_icon_button.dart';
-import 'package:fitness_day/features/shared/widgets/upcoming_visit_show_screen.dart';
+import 'package:fitness_day/core/widgets/custom_button.dart';
+import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
+import 'package:fitness_day/core/widgets/message_icon_button.dart';
+import 'package:fitness_day/core/widgets/upcoming_visit_show_screen.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
-import 'package:fitness_day/features/shared/widgets/reschedule_visit_dialog.dart';
+import 'package:fitness_day/core/widgets/reschedule_visit_dialog.dart';
 
 class UserUpcomingVisitPage extends StatelessWidget {
   const UserUpcomingVisitPage({super.key});

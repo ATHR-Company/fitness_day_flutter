@@ -1,12 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/widgets/exercise_details_dialog.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_shadows.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../user/user_home/presentation/screens/hydration_details_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data Model
@@ -21,6 +22,8 @@ class TaskData {
   final IconData? extraIcon;
   final bool done;
   final bool isSvgImage;
+  final String? route;
+  final bool isExerciseDialog;
 
   const TaskData({
     required this.imagePath,
@@ -32,6 +35,8 @@ class TaskData {
     required this.extraIcon,
     required this.done,
     this.isSvgImage = false,
+    this.route,
+    this.isExerciseDialog = false,
   });
 }
 
@@ -88,14 +93,17 @@ class TaskCard extends StatelessWidget {
             // ── Header ──
             Row(
               children: [
-                Text(
-                  task.title,
-                  style: TextStyleManager.heading3.copyWith(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    task.title,
+                    style: TextStyleManager.heading3.copyWith(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
+                SizedBox(width: 8.w),
                 SvgPicture.asset(
                   SvgIcons.clock,
                   width: 17.w,
@@ -103,10 +111,13 @@ class TaskCard extends StatelessWidget {
                 ),
               
                 SizedBox(width: 4.w),
-                Text(
-                  task.time,
-                  style: TextStyleManager.style10Medium.copyWith(
-                    color: AppColors.textSecondary,
+                Flexible(
+                  child: Text(
+                    task.time,
+                    style: TextStyleManager.style10Medium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 SizedBox(width: 8.w),
@@ -192,13 +203,13 @@ class TaskCard extends StatelessWidget {
               height: 38.h,
               child: ElevatedButton(
                 onPressed: () {
-                  if (task.title.contains('الماء') || task.title.contains('Water') || task.title.contains('ترطيب')) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HydrationDetailsScreen(),
-                      ),
+                  if (task.isExerciseDialog) {
+                    showDialog(
+                      context: context,
+                      builder: (_) => const ExerciseDetailsDialog(),
                     );
+                  } else if (task.route != null) {
+                    context.push(task.route!);
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -239,23 +250,26 @@ class TaskCard extends StatelessWidget {
         children: [
           Icon(task.extraIcon, color: AppColors.primary, size: 16.sp),
           SizedBox(width: 4.w),
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: task.extraLabel,
-                  style: TextStyleManager.text2.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
+          Expanded(
+            child: RichText(
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: task.extraLabel,
+                    style: TextStyleManager.text2.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                TextSpan(
-                  text: '  ${task.extraUnit}',
-                  style: TextStyleManager.style13Medium.copyWith(
-                    color: AppColors.textPrimary,
+                  TextSpan(
+                    text: '  ${task.extraUnit}',
+                    style: TextStyleManager.style13Medium.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
