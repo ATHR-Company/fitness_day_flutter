@@ -125,9 +125,9 @@ class _HydrationDetailsScreenState extends State<HydrationDetailsScreen> {
                         radius: 120.r,
                         lineWidth: 10.w,
                         percent: percent,
-                        
-                        backgroundColor: AppColors.inactiveGray.withValues(alpha:
-                          0.2,
+
+                        backgroundColor: AppColors.inactiveGray.withValues(
+                          alpha: 0.2,
                         ),
                         progressColor: const Color(0xFF23C4D7),
                         center: Column(
@@ -363,10 +363,9 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return   Stack(
-              alignment: Alignment.center,
+    return Stack(
+      alignment: Alignment.center,
       children: [
-          
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -384,21 +383,20 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                                // أيقونة الماء في المنتصف
-                    Column(
-                      children: [
-                        SvgPicture.asset(
-                          SvgIcons.water_wave,
-                          width: 48.w,
-                          height: 48.h,
-                        ),
-                      ],
+                // أيقونة الماء في المنتصف
+                Column(
+                  children: [
+                    SvgPicture.asset(
+                      SvgIcons.water_wave,
+                      width: 48.w,
+                      height: 48.h,
                     ),
-                    // زر X في الزاوية اليمنى
-                
-              
+                  ],
+                ),
+
+                // زر X في الزاوية اليمنى
                 SizedBox(height: 12.h),
-        
+
                 // العنوان
                 Text(
                   'أدخل الكمية يدوياً',
@@ -408,7 +406,7 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
                   ),
                 ),
                 SizedBox(height: 12.h),
-        
+
                 // الكمية المختارة
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -429,7 +427,7 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
                   ),
                 ),
                 SizedBox(height: 20.h),
-        
+
                 // صفوف الاختيارات (زجاجات / أكواب)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -463,11 +461,11 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
                               style: TextStyleManager.style10Medium.copyWith(
                                 color: isSelected
                                     ? const Color(0xFF23C4D7)
-                                    : AppColors.textPrimary,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                fontSize: 9.sp,
+                                    : AppColors.black,
+                                fontWeight: 
+                                     FontWeight.bold
+                                  
+                              
                               ),
                             ),
                           ],
@@ -477,7 +475,7 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
                   }),
                 ),
                 SizedBox(height: 24.h),
-        
+
                 // زر الحفظ
                 SizedBox(
                   width: double.infinity,
@@ -509,30 +507,30 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
             ),
           ),
         ),
-      Positioned(
-                  right: 0,
-                  top: 0,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Padding(
-                      padding:  EdgeInsets.all(10.r),
-                      child: Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF23C4D7),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 20.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
+        Positioned(
+          right: 0,
+          top: 0,
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Padding(
+              padding: EdgeInsets.all(10.r),
+              child: Container(
+                width: 40.w,
+                height: 40.w,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF23C4D7),
+                  shape: BoxShape.circle,
                 ),
+                child: Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 20.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -557,7 +555,11 @@ class _WaterOption {
   final String label;
   final String iconAsset;
 
-  const _WaterOption({required this.amount, required this.label, required this.iconAsset});
+  const _WaterOption({
+    required this.amount,
+    required this.label,
+    required this.iconAsset,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -590,10 +592,7 @@ class _WaterReminderScreenState extends State<_WaterReminderScreen> {
       context: context,
       initialTime: isStart ? _startTime : _endTime,
       builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: child!,
-        );
+        return Directionality(textDirection: TextDirection.rtl, child: child!);
       },
     );
     if (picked != null) {
@@ -814,7 +813,9 @@ class _WaterReminderScreenState extends State<_WaterReminderScreen> {
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 20.w, vertical: 10.h),
+                          horizontal: 20.w,
+                          vertical: 10.h,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? const Color(0xFF23C4D7)
@@ -824,7 +825,9 @@ class _WaterReminderScreenState extends State<_WaterReminderScreen> {
                         child: Text(
                           '$mins دقيقة',
                           style: TextStyleManager.style11Medium.copyWith(
-                            color: isSelected ? Colors.white : AppColors.textPrimary,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -879,7 +882,9 @@ class _WaterReminderScreenState extends State<_WaterReminderScreen> {
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                            horizontal: 20.w, vertical: 10.h),
+                          horizontal: 20.w,
+                          vertical: 10.h,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? const Color(0xFF23C4D7)
@@ -889,7 +894,9 @@ class _WaterReminderScreenState extends State<_WaterReminderScreen> {
                         child: Text(
                           '$count مرات',
                           style: TextStyleManager.style11Medium.copyWith(
-                            color: isSelected ? Colors.white : AppColors.textPrimary,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
