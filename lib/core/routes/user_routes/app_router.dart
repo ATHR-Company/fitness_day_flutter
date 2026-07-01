@@ -26,7 +26,6 @@ import 'package:fitness_day/features/user/visits/presentation/pages/meal_details
 import 'package:fitness_day/features/user/user_home/presentation/screens/hydration_details_screen.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_video_screen.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_rest_screen.dart';
-import 'package:fitness_day/features/user/workout/presentation/screens/workout_map_screen.dart';
 
 class UserAppRouter {
   static final GoRouter router = GoRouter(
@@ -140,10 +139,6 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.workoutRest,
         builder: (context, state) => const WorkoutRestScreen(),
-      ),
-      GoRoute(
-        path: UserAppRoutes.workoutMap,
-        builder: (context, state) => const WorkoutMapScreen(),
       ),
     ],
   );

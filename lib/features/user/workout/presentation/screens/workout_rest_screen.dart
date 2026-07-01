@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
-import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 class WorkoutRestScreen extends StatefulWidget {
@@ -40,8 +41,7 @@ class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
   }
 
   void _onNextStage() {
-    // Go to next exercise or map screen. For demonstration, we'll go to map.
-    context.push(UserAppRoutes.workoutMap);
+    context.pop();
   }
 
   @override
@@ -110,15 +110,17 @@ class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
                 // Tabs (inactive for rest, but showing current context)
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: AppSegmentedControl(
-                    type: AppSegmentedControlType.unified,
-                    items: [
-                      LocaleKeys.workout_warmup.tr(),
-                      LocaleKeys.workout_exercises.tr(),
-                      LocaleKeys.workout_cooldown.tr(),
-                    ],
-                    selectedIndex: 1, // Still on exercises, but resting
-                    onItemSelected: (index) {},
+                  child: IgnorePointer(
+                    child: AppSegmentedControl(
+                      type: AppSegmentedControlType.unified,
+                      items: [
+                        LocaleKeys.workout_warmup.tr(),
+                        LocaleKeys.workout_exercises.tr(),
+                        LocaleKeys.workout_cooldown.tr(),
+                      ],
+                      selectedIndex: 1, // Still on exercises, but resting
+                      onItemSelected: (index) {},
+                    ),
                   ),
                 ),
                 SizedBox(height: 32.h),
@@ -157,18 +159,12 @@ class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
 
                 // Hourglass Icon (using an icon instead of svg for simplicity, or we can use a custom widget)
                 Center(
-                  child: Container(
+                  child: SizedBox(
                     width: 200.r,
                     height: 200.r,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 16.w),
-                    ),
                     child: Center(
-                      child: Icon(
-                        Icons.hourglass_bottom,
-                        size: 80.sp,
-                        color: AppColors.primary.withValues(alpha: 0.5),
+                      child: SvgPicture.asset(
+                        SvgIcons.breakIcon,
                       ),
                     ),
                   ),

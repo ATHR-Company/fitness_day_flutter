@@ -97,6 +97,8 @@ class SvgIcons {
   static const String wake = '$_svgPath/wake.svg';
   static const String shop = '$_svgPath/shop.svg';
   static const String dampl = '$_svgPath/dampl.svg';
+  static const String breakIcon = '$_svgPath/break.svg';
+  static const String workoutPopup = '$_svgPath/workout_popup.svg';
 
 }
 

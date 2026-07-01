@@ -9,6 +9,10 @@ import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fitness_day/features/user/workout/presentation/widgets/workout_success_dialog.dart';
+import 'package:fitness_day/features/user/workout/presentation/widgets/workout_pause_dialog.dart';
+
+enum ExercisePhase { warmup, exercise, cooldown }
 
 class WorkoutVideoScreen extends StatefulWidget {
   const WorkoutVideoScreen({super.key});
@@ -18,9 +22,13 @@ class WorkoutVideoScreen extends StatefulWidget {
 }
 
 class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
-  int _selectedTab = 1;
+  ExercisePhase _currentPhase = ExercisePhase.warmup;
+  int _selectedTab = 0;
+  int _currentSet = 1;
+  final int _totalSets = 3;
   late VideoPlayerController _videoController;
   bool _isPlaying = false;
+  int _maxCountdown = 8;
   int _countdown = 8;
   Timer? _timer;
 
@@ -31,6 +39,8 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
     _videoController = VideoPlayerController.networkUrl(
       Uri.parse('https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4'),
     )..initialize().then((_) {
+        _videoController.setVolume(0.0);
+        _videoController.setLooping(true);
         setState(() {});
       });
   }
@@ -49,7 +59,51 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
   }
 
   void _onNextStage() {
-    context.push(UserAppRoutes.workoutRest);
+    if (_currentPhase == ExercisePhase.warmup) {
+      setState(() {
+        _currentPhase = ExercisePhase.exercise;
+        _selectedTab = 1;
+        _maxCountdown = 15;
+        _countdown = 15;
+      });
+      if (_isPlaying) _startTimer();
+    } else if (_currentPhase == ExercisePhase.exercise) {
+      if (_currentSet < _totalSets) {
+        _videoController.pause();
+        _timer?.cancel();
+        context.push(UserAppRoutes.workoutRest).then((_) {
+          if (!mounted) return;
+          setState(() {
+            _currentSet++;
+            _maxCountdown = 15;
+            _countdown = 15;
+          });
+          if (_isPlaying) {
+            _startTimer();
+            _videoController.play();
+          }
+        });
+      } else {
+        setState(() {
+          _currentPhase = ExercisePhase.cooldown;
+          _selectedTab = 2;
+          _maxCountdown = 10;
+          _countdown = 10;
+        });
+        if (_isPlaying) _startTimer();
+      }
+    } else if (_currentPhase == ExercisePhase.cooldown) {
+      _timer?.cancel();
+      _videoController.pause();
+      setState(() => _isPlaying = false);
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const WorkoutSuccessDialog(),
+      ).then((_) {
+        if (mounted) Navigator.of(context).pop();
+      });
+    }
   }
 
   @override
@@ -57,6 +111,32 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
     _videoController.dispose();
     _timer?.cancel();
     super.dispose();
+  }
+
+  Future<bool> _onBackPressed() async {
+    _videoController.pause();
+    _timer?.cancel();
+    setState(() => _isPlaying = false);
+    
+    bool? shouldPop = await showDialog<bool>(
+      context: context,
+      builder: (context) => WorkoutPauseDialog(
+        onEnd: () {
+          Navigator.of(context).pop(true);
+        },
+        onContinue: () {
+          Navigator.of(context).pop(false);
+        },
+      ),
+    );
+    
+    if (shouldPop == false) {
+      setState(() => _isPlaying = true);
+      _videoController.play();
+      _startTimer();
+      return false;
+    }
+    return true;
   }
 
   void _togglePlayPause() {
@@ -70,21 +150,42 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
       } else {
         _videoController.pause();
         _timer?.cancel();
+        showDialog(
+          context: context,
+          builder: (context) => WorkoutPauseDialog(
+            onEnd: () {
+              Navigator.of(context).pop();
+              if (mounted) Navigator.of(context).pop();
+            },
+            onContinue: () {
+              Navigator.of(context).pop();
+              setState(() => _isPlaying = true);
+              _videoController.play();
+              _startTimer();
+            },
+          ),
+        );
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.headerBackground,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: AppColors.black, size: 20.sp),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () async {
+            if (await _onBackPressed()) {
+              if (mounted) Navigator.of(context).pop();
+            }
+          },
         ),
         title: Column(
           children: [
@@ -96,7 +197,7 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
               ),
             ),
             Text(
-              '1 / 3',
+              '${_currentPhase == ExercisePhase.warmup ? 0 : _currentSet} / $_totalSets',
               style: TextStyleManager.style14Medium.copyWith(color: AppColors.primary),
             ),
           ],
@@ -134,35 +235,35 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
                 // Tabs
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: AppSegmentedControl(
-                    type: AppSegmentedControlType.unified,
-                    items: [
-                      LocaleKeys.workout_warmup.tr(),
-                      LocaleKeys.workout_exercises.tr(),
-                      LocaleKeys.workout_cooldown.tr(),
-                    ],
-                    selectedIndex: _selectedTab,
-                    onItemSelected: (index) {
-                      setState(() => _selectedTab = index);
-                    },
+                  child: IgnorePointer(
+                    child: AppSegmentedControl(
+                      type: AppSegmentedControlType.unified,
+                      items: [
+                        LocaleKeys.workout_warmup.tr(),
+                        LocaleKeys.workout_exercises.tr(),
+                        LocaleKeys.workout_cooldown.tr(),
+                      ],
+                      selectedIndex: _selectedTab,
+                      onItemSelected: (index) {},
+                    ),
                   ),
                 ),
                 SizedBox(height: 24.h),
 
                 // Timers
                 Text(
-                  '00:0$_countdown',
+                  '00:${_countdown.toString().padLeft(2, '0')}',
                   style: TextStyle(
                     fontSize: 48.sp,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
                 ),
-                Text(
-                  'متبقي 00:12',
-                  style: TextStyleManager.style12Regular.copyWith(color: AppColors.textSecondary),
-                ),
-                SizedBox(height: 24.h),
+                // Text(
+                //   'متبقي 00:12',
+                //   style: TextStyleManager.style12Regular.copyWith(color: AppColors.textSecondary),
+                // ),
+                // SizedBox(height: 24.h),
 
                 // Video Area
                 Padding(
@@ -244,7 +345,7 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
                                 thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6.r),
                               ),
                               child: Slider(
-                                value: (8 - _countdown) / 8,
+                                value: _maxCountdown == 0 ? 0 : (_maxCountdown - _countdown) / _maxCountdown,
                                 onChanged: (val) {},
                               ),
                             ),
@@ -298,6 +399,6 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 }
