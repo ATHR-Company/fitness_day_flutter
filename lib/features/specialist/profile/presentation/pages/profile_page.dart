@@ -9,7 +9,7 @@ import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/widgets/edit_profile_dialog.dart';
-import 'package:fitness_day/features/specialist/profile/presentation/widgets/language_dialog.dart';
+import 'package:fitness_day/core/widgets/profile/language_dialog.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});

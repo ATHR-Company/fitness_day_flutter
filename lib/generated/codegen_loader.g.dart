@@ -326,6 +326,15 @@ class CodegenLoader extends AssetLoader{
     "english": "English",
     "arabic": "العربية"
   },
+  "profile_page": {
+    "change_photo": "تغيير الصورة الشخصية",
+    "email": "البريد الإلكتروني",
+    "achievements": "الانجازات",
+    "awards": "الجوائز",
+    "delete_account": "حذف الحساب",
+    "delete_account_confirm": "هل أنت متأكد من رغبتك في حذف الحساب نهائياً؟",
+    "rate_app": "قيم التطبيق"
+  },
   "drawer": {
     "home": "الرئيسية",
     "today_tasks": "مهام اليوم",
@@ -925,6 +934,15 @@ static const Map<String,dynamic> _en = {
     "confirm_new_password": "Confirm New Password",
     "english": "English",
     "arabic": "العربية"
+  },
+  "profile_page": {
+    "change_photo": "Change Profile Photo",
+    "email": "Email",
+    "achievements": "Achievements",
+    "awards": "Awards",
+    "delete_account": "Delete Account",
+    "delete_account_confirm": "Are you sure you want to delete your account permanently?",
+    "rate_app": "Rate App"
   },
   "drawer": {
     "home": "Home",

@@ -99,7 +99,11 @@ class SvgIcons {
   static const String dampl = '$_svgPath/dampl.svg';
   static const String breakIcon = '$_svgPath/break.svg';
   static const String workoutPopup = '$_svgPath/workout_popup.svg';
-
+  static const String deleteAccount = '$_svgPath/delete_account.svg';
+  static const String progress = '$_svgPath/progress.svg';
+  static const String rewards = '$_svgPath/rewards.svg';
+  static const String achievements = '$_svgPath/achievements.svg';
+  static const String notifications = '$_svgPath/notifications.svg';
 }
 
 /// PNG/JPG asset paths used throughout the application.

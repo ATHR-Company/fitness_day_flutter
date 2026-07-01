@@ -27,8 +27,8 @@ import 'package:fitness_day/features/user/auth/presentation/pages/signup_page.da
 import 'package:fitness_day/features/user/auth/presentation/pages/user_info_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/home_page.dart'
     as user_home;
-import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart'
-    as user_profile;
+import 'package:fitness_day/features/user/profile/presentation/pages/user_profile_page.dart';
+import 'package:fitness_day/features/user/profile/presentation/pages/personal_profile_page.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/specialist/visits/presentation/pages/visits_page.dart';
@@ -156,7 +156,11 @@ class AppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.profile,
-        builder: (context, state) => const user_profile.ProfilePage(),
+        builder: (context, state) => const UserProfilePage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.personalProfile,
+        builder: (context, state) => const PersonalProfilePage(),
       ),
       GoRoute(
         path: UserAppRoutes.visitLog,
