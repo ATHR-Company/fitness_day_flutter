@@ -130,6 +130,15 @@ class AppColors {
     ],
   );
 
+  static const LinearGradient profileGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.center,
+    colors: [
+      Color(0xFFEEFBF0),
+      Color(0xFFFFFFFF),
+    ],
+  );
+
   static const LinearGradient visitsBackgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.center,

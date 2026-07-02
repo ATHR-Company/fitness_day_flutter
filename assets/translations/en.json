@@ -326,6 +326,15 @@
     "english": "English",
     "arabic": "العربية"
   },
+  "profile_page": {
+    "change_photo": "Change Profile Photo",
+    "email": "Email",
+    "achievements": "Achievements",
+    "awards": "Awards",
+    "delete_account": "Delete Account",
+    "delete_account_confirm": "Are you sure you want to delete your account permanently?",
+    "rate_app": "Rate App"
+  },
   "drawer": {
     "home": "Home",
     "today_tasks": "Today's Tasks",

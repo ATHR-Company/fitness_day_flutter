@@ -318,6 +318,14 @@ abstract class  LocaleKeys {
   static const profile_english = 'profile.english';
   static const profile_arabic = 'profile.arabic';
   static const profile = 'profile';
+  static const profile_page_change_photo = 'profile_page.change_photo';
+  static const profile_page_email = 'profile_page.email';
+  static const profile_page_achievements = 'profile_page.achievements';
+  static const profile_page_awards = 'profile_page.awards';
+  static const profile_page_delete_account = 'profile_page.delete_account';
+  static const profile_page_delete_account_confirm = 'profile_page.delete_account_confirm';
+  static const profile_page_rate_app = 'profile_page.rate_app';
+  static const profile_page = 'profile_page';
   static const drawer_home = 'drawer.home';
   static const drawer_today_tasks = 'drawer.today_tasks';
   static const drawer_visits_log = 'drawer.visits_log';

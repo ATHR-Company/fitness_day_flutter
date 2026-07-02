@@ -97,6 +97,18 @@ class SvgIcons {
   static const String wake = '$_svgPath/wake.svg';
   static const String shop = '$_svgPath/shop.svg';
   static const String dampl = '$_svgPath/dampl.svg';
+  static const String breakIcon = '$_svgPath/break.svg';
+  static const String workoutPopup = '$_svgPath/workout_popup.svg';
+  static const String deleteAccount = '$_svgPath/delete_account.svg';
+  static const String progress = '$_svgPath/progress.svg';
+  static const String rewards = '$_svgPath/rewards.svg';
+  static const String achievements = '$_svgPath/achievements.svg';
+  static const String notifications = '$_svgPath/notifications.svg';
+  static const String rate = '$_svgPath/rate.svg';
+  static const String editProfile = '$_svgPath/edit_profile.svg';
+  static const String editInfo = '$_svgPath/edit_info.svg';
+  static const String profilePhoto = '$_svgPath/profile_photo.svg';
+  static const String editName = '$_svgPath/edit_name.svg';
   static const String water_bg = '$_svgPath/water_bg.svg';
 
 }

@@ -5,6 +5,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 
 class ProfileDialogBase extends StatelessWidget {
   final String title;
@@ -45,19 +47,19 @@ class ProfileDialogBase extends StatelessWidget {
                   child: Text(
                     title,
                     textAlign: TextAlign.right,
-                    style: TextStyleManager.heading3.copyWith(
-                      color: AppColors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyleManager.heading3,
                   ),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
-                  child: Icon(
-                    Icons.close,
-                    color: AppColors.primary,
-                    size: 28.sp,
-                    weight: 700,
+                  child: SvgPicture.asset(
+                    SvgIcons.cross,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.primary,
+                      BlendMode.srcIn,
+                    ),
+                    width: 20.r,
+                    height: 20.r,
                   ),
                 ),
               ],

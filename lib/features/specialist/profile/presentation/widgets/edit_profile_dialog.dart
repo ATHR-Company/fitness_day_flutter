@@ -4,8 +4,8 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
-import 'profile_dialog_base.dart';
-import 'profile_text_field.dart';
+import 'package:fitness_day/core/widgets/profile/profile_dialog_base.dart';
+import 'package:fitness_day/core/widgets/profile/profile_text_field.dart';
 
 class EditProfileDialog extends StatelessWidget {
   const EditProfileDialog({super.key});

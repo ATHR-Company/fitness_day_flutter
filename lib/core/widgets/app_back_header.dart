@@ -37,10 +37,7 @@ class AppBackHeader extends StatelessWidget {
           ),
           Text(
             title,
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyleManager.heading2,
           ),
           Expanded(
             child: Align(

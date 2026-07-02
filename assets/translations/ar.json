@@ -326,6 +326,15 @@
     "english": "English",
     "arabic": "العربية"
   },
+  "profile_page": {
+    "change_photo": "تغيير الصورة الشخصية",
+    "email": "البريد الإلكتروني",
+    "achievements": "الانجازات",
+    "awards": "الجوائز",
+    "delete_account": "حذف الحساب",
+    "delete_account_confirm": "هل أنت متأكد من رغبتك في حذف الحساب نهائياً؟",
+    "rate_app": "قيم التطبيق"
+  },
   "drawer": {
     "home": "الرئيسية",
     "today_tasks": "مهام اليوم",

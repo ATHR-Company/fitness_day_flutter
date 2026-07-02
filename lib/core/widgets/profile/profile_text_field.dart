@@ -9,12 +9,16 @@ class ProfileTextField extends StatelessWidget {
   final String hintText;
   final String iconPath;
   final bool isPassword;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
 
   const ProfileTextField({
     super.key,
     required this.hintText,
     required this.iconPath,
     this.isPassword = false,
+    this.controller,
+    this.keyboardType,
   });
 
   @override
@@ -32,10 +36,6 @@ class ProfileTextField extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: SvgPicture.asset(
               iconPath,
-              colorFilter: const ColorFilter.mode(
-                AppColors.primary,
-                BlendMode.srcIn,
-              ),
               width: 20.w,
             ),
           ),
@@ -46,8 +46,10 @@ class ProfileTextField extends StatelessWidget {
           ),
           Expanded(
             child: TextField(
+              controller: controller,
               obscureText: isPassword,
               textAlign: TextAlign.right,
+              keyboardType: keyboardType,
               textDirection: ui.TextDirection.rtl,
               decoration: InputDecoration(
                 hintText: hintText,
