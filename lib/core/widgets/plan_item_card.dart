@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -98,7 +99,6 @@ class PlanItemCard extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.r),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
                       elevation: 0,
                     ),
                     child: Row(
@@ -117,44 +117,9 @@ class PlanItemCard extends StatelessWidget {
                         ),
                         SizedBox(width: 2.w),
                         Icon(
-                          Icons.keyboard_double_arrow_left,
-                          size: 16.sp,
-                          color: AppColors.white,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10.w),
-                // Delete Button (Red) - Left side in RTL
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: onDeletePressed ?? () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.red,
-                      foregroundColor: AppColors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
-                      elevation: 0,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'visit_details.delete'
-                              .tr()
-                              .replaceAll('»', '')
-                              .replaceAll('«', '')
-                              .trim(),
-                          style: TextStyleManager.smallButtons.copyWith(
-                            color: AppColors.white,
-                          ),
-                        ),
-                        SizedBox(width: 2.w),
-                        Icon(
-                          Icons.keyboard_double_arrow_left,
+                          Directionality.of(context) == ui.TextDirection.rtl
+                              ? Icons.keyboard_double_arrow_left
+                              : Icons.keyboard_double_arrow_right,
                           size: 16.sp,
                           color: AppColors.white,
                         ),
@@ -193,7 +158,9 @@ class PlanItemCard extends StatelessWidget {
                         ),
                         SizedBox(width: 2.w),
                         Icon(
-                          Icons.keyboard_double_arrow_left,
+                          Directionality.of(context) == ui.TextDirection.rtl
+                              ? Icons.keyboard_double_arrow_left
+                              : Icons.keyboard_double_arrow_right,
                           size: 16.sp,
                           color: AppColors.white,
                         ),

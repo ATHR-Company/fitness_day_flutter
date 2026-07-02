@@ -21,7 +21,7 @@ class VerticalTabBar extends StatelessWidget {
       width: 60.w,
       decoration: BoxDecoration(
         color: AppColors.backgroundTint,
-        borderRadius: BorderRadius.horizontal(right: Radius.circular(20.r)),
+        borderRadius: BorderRadiusDirectional.horizontal(start: Radius.circular(20.r)),
       ),
       child: Column(
         children: List.generate(items.length, (index) {
@@ -33,7 +33,7 @@ class VerticalTabBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primary : Colors.transparent,
                 borderRadius: isSelected
-                    ? BorderRadius.horizontal(right: Radius.circular(20.r))
+                    ? BorderRadiusDirectional.horizontal(start: Radius.circular(20.r))
                     : null,
                 border: !isSelected && index < items.length - 1
                     ? const Border(

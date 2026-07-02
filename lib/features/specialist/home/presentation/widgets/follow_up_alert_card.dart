@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -97,7 +99,9 @@ class FollowUpAlertCard extends StatelessWidget {
                     ),
                     SizedBox(width: 4.w),
                     Icon(
-                      Icons.keyboard_double_arrow_left,
+                      Directionality.of(context) == ui.TextDirection.rtl
+                          ? Icons.keyboard_double_arrow_left
+                          : Icons.keyboard_double_arrow_right,
                       size: 16.sp,
                       color: AppColors.white,
                     ),

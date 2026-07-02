@@ -41,7 +41,7 @@ class ReportTextField extends StatelessWidget {
           child: TextFormField(
             controller: controller,
             keyboardType: keyboardType,
-            textAlign: TextAlign.right,
+            //textAlign: TextAlign.right,
             style: TextStyleManager.heading3.copyWith(color: AppColors.black),
             decoration: InputDecoration(
               hintText: hintText,

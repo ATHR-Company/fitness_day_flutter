@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:fitness_day/core/widgets/plan_item_card.dart';
 import 'package:fitness_day/core/widgets/vertical_tab_bar.dart';
 import 'package:flutter/material.dart';
@@ -368,7 +369,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 ),
                 SizedBox(width: 2.w),
                 Icon(
-                  Icons.keyboard_double_arrow_left,
+                  Directionality.of(context) == ui.TextDirection.rtl
+                      ? Icons.keyboard_double_arrow_left
+                      : Icons.keyboard_double_arrow_right,
                   size: 16.sp,
                   color: AppColors.white,
                 ),

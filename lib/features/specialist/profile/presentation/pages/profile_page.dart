@@ -17,139 +17,132 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       endDrawer: const AppDrawer(),
       body: Builder(
         builder: (context) {
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: AppColors
-                  .splashBackgroundGradient, // Similar to the light green gradient
-            ),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  SizedBox(height: 20.h),
+          return SafeArea(
+            child: Column(
+              children: [
+                SizedBox(height: 20.h),
 
-                  // Custom Header
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: AppHeader(
-                      title: 'profile.title'.tr(),
-                      onMenuPressed: () {
-                        Scaffold.of(context).openEndDrawer();
-                      },
-                    ),
+                // Custom Header
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: AppHeader(
+                    title: 'profile.title'.tr(),
+                    onMenuPressed: () {
+                      Scaffold.of(context).openEndDrawer();
+                    },
                   ),
+                ),
 
-                  SizedBox(height: 32.h),
+                SizedBox(height: 32.h),
 
-                  // Avatar Section
-                  Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Container(
-                            width: 100.w,
-                            height: 100.h,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: SvgPicture.asset(
-                                SvgIcons.emptyProfile,
-                                width: 60.w,
-                                height: 60.h,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 8.h,
-                            left: 8.w, // Bottom left
-                            child: Container(
-                              width: 16.w,
-                              height: 16.h,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppColors.white,
-                                  width: 3,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        'conversations.dummy_name'
-                            .tr(), // Resuing 'spec_mock_name'.tr()
-                        style: TextStyleManager.heading2.copyWith(
-                          color: AppColors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.sp,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 32.h),
-
-                  // Menu Items List
-                  Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.symmetric(horizontal: 24.w),
+                // Avatar Section
+                Column(
+                  children: [
+                    Stack(
                       children: [
-                        _buildMenuItem(
-                          title: 'profile.personal_profile'.tr(),
-                          svgPath: SvgIcons.profile,
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              barrierColor: AppColors.scrimOverlay.withValues(
-                                alpha: 0.5,
+                        Container(
+                          width: 100.w,
+                          height: 100.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              SvgIcons.emptyProfile,
+                              width: 60.w,
+                              height: 60.h,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 8.h,
+                          left: 8.w, // Bottom left
+                          child: Container(
+                            width: 16.w,
+                            height: 16.h,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.white,
+                                width: 3,
                               ),
-                              builder: (context) => const EditProfileDialog(),
-                            );
-                          },
+                            ),
+                          ),
                         ),
-                        _buildMenuItem(
-                          title: 'profile.language'.tr(),
-                          svgPath: SvgIcons.lang,
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              barrierColor: AppColors.scrimOverlay.withValues(
-                                alpha: 0.5,
-                              ),
-                              builder: (context) => const LanguageDialog(),
-                            );
-                          },
-                        ),
-                        _buildMenuItem(
-                          title: 'profile.about_us'.tr(),
-                          svgPath: SvgIcons.aboutUs,
-                          onTap: () {},
-                        ),
-                        _buildMenuItem(
-                          title: 'profile.terms_conditions'.tr(),
-                          svgPath: SvgIcons.conditions,
-                          onTap: () {},
-                        ),
-                        _buildMenuItem(
-                          title: 'profile.privacy_policy'.tr(),
-                          svgPath: SvgIcons.privacy,
-                          onTap: () {},
-                        ),
-                        SizedBox(height: 40.h),
                       ],
                     ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'conversations.dummy_name'
+                          .tr(), // Resuing 'spec_mock_name'.tr()
+                      style: TextStyleManager.heading2.copyWith(
+                        color: AppColors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.sp,
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 32.h),
+
+                // Menu Items List
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    children: [
+                      _buildMenuItem(
+                        title: 'profile.personal_profile'.tr(),
+                        svgPath: SvgIcons.profile,
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            barrierColor: AppColors.scrimOverlay.withValues(
+                              alpha: 0.5,
+                            ),
+                            builder: (context) => const EditProfileDialog(),
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        title: 'profile.language'.tr(),
+                        svgPath: SvgIcons.lang,
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            barrierColor: AppColors.scrimOverlay.withValues(
+                              alpha: 0.5,
+                            ),
+                            builder: (context) => const LanguageDialog(),
+                          );
+                        },
+                      ),
+                      _buildMenuItem(
+                        title: 'profile.about_us'.tr(),
+                        svgPath: SvgIcons.aboutUs,
+                        onTap: () {},
+                      ),
+                      _buildMenuItem(
+                        title: 'profile.terms_conditions'.tr(),
+                        svgPath: SvgIcons.conditions,
+                        onTap: () {},
+                      ),
+                      _buildMenuItem(
+                        title: 'profile.privacy_policy'.tr(),
+                        svgPath: SvgIcons.privacy,
+                        onTap: () {},
+                      ),
+                      SizedBox(height: 40.h),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },

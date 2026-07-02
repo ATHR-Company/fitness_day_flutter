@@ -109,6 +109,7 @@ class SvgIcons {
   static const String editInfo = '$_svgPath/edit_info.svg';
   static const String profilePhoto = '$_svgPath/profile_photo.svg';
   static const String editName = '$_svgPath/edit_name.svg';
+  static const String moreArrows = '$_svgPath/more_arrows.svg';
 }
 
 /// PNG/JPG asset paths used throughout the application.

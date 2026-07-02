@@ -60,18 +60,15 @@ class _SelectionBottomSheetState extends State<SelectionBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text(
+                widget.title,
+                style: TextStyleManager.button,
+              ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: Icon(Icons.close, color: AppColors.black, size: 24.sp),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-              ),
-              Text(
-                widget.title,
-                style: TextStyleManager.heading2.copyWith(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
             ],
           ),
@@ -82,7 +79,7 @@ class _SelectionBottomSheetState extends State<SelectionBottomSheet> {
           if (widget.showSearch) ...[
             TextFormField(
               textAlign: TextAlign.start,
-              style: TextStyleManager.heading3.copyWith(color: AppColors.black),
+              style: TextStyleManager.style11Medium.copyWith(color: AppColors.black),
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value;
@@ -168,7 +165,7 @@ class _SelectionBottomSheetState extends State<SelectionBottomSheet> {
                         Expanded(
                           child: Text(
                             item,
-                            style: TextStyleManager.heading3.copyWith(
+                            style: TextStyleManager.style13Medium.copyWith(
                               color: isSelected
                                   ? AppColors.black
                                   : AppColors.textSecondary,

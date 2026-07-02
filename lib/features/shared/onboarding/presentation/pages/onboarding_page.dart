@@ -1,14 +1,12 @@
 import 'dart:ui' as ui;
 import 'dart:math' as math;
-
-
+import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/features/shared/onboarding/data/models/onboarding_content.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -66,7 +64,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _finishOnboarding() {
-    context.go(SharedRoutes.roleSelection);
+    context.go(SpecialistAppRoutes.login);
   }
 
   @override

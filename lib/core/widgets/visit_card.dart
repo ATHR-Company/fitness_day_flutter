@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -61,7 +62,7 @@ class VisitCard extends StatelessWidget {
       child: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(15.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -70,21 +71,10 @@ class VisitCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Monitor Icon in Circle
-                    Container(
-                      width: 60.w,
-                      height: 60.h,
-                      padding: EdgeInsets.all(12.w),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: iconColor ?? AppColors.primary, width: 2),
-                      ),
-                      child: SvgPicture.asset(
-                        iconPath,
-                        colorFilter: ColorFilter.mode(iconColor ?? AppColors.primary, BlendMode.srcIn),
-                      ),
+                    SvgPicture.asset(
+                      iconPath,
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: 5.w),
                     // Title & Subtitle
                     Expanded(
                       child: Column(
@@ -151,7 +141,9 @@ class VisitCard extends StatelessWidget {
                               ),
                               SizedBox(width: 4.w),
                               Icon(
-                                Icons.keyboard_double_arrow_left,
+                                Directionality.of(context) == ui.TextDirection.rtl
+                                    ? Icons.keyboard_double_arrow_left
+                                    : Icons.keyboard_double_arrow_right,
                                 size: 16.sp,
                                 color: AppColors.white,
                               ),
@@ -191,7 +183,9 @@ class VisitCard extends StatelessWidget {
                                 ),
                                 SizedBox(width: 4.w),
                                 Icon(
-                                  Icons.keyboard_double_arrow_left,
+                                  Directionality.of(context) == ui.TextDirection.rtl
+                                      ? Icons.keyboard_double_arrow_left
+                                      : Icons.keyboard_double_arrow_right,
                                   size: 16.sp,
                                   color: AppColors.primary,
                                 ),

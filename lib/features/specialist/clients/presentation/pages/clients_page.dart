@@ -31,17 +31,12 @@ class _ClientsPageState extends State<ClientsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.white,
       endDrawer: const AppDrawer(),
       body: Builder(
         builder: (context) {
           return LoaderHud(
             isCall: false,
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: AppColors.visitsBackgroundGradient,
-            ),
             child: SafeArea(
               child: TopCenteredConstrainedBox(
                 horizontalPadding: 0,
@@ -143,8 +138,7 @@ class _ClientsPageState extends State<ClientsPage> {
                 ],
               ),
             ),
-              ),
-            ),
+          ),
           );
         },
       ),

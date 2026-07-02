@@ -1,9 +1,11 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
+import 'package:fitness_day/core/widgets/app_text_field.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/selection_bottom_sheet.dart';
 
@@ -103,11 +105,17 @@ class _AddMealPageState extends State<AddMealPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Meal Type
-                      _buildLabel('add_meal.food_type'.tr()),
-                      _buildTextField(
-                        hint:
+                      AppFieldLabel(text: 'add_meal.food_type'.tr()),
+                      AppTextField(
+                        hintText:
                             _selectedMealType ?? 'add_meal.meal_type_hint'.tr(),
-                        icon: Icons.chevron_left,
+                        suffixIcon: Icon(
+                          Directionality.of(context) == ui.TextDirection.rtl
+                              ? Icons.chevron_left
+                              : Icons.chevron_right,
+                          color: AppColors.textSecondary.withValues(alpha: 0.5),
+                          size: 24.sp,
+                        ),
                         onTap: _showMealTypeSheet,
                         valueColor: _selectedMealType != null
                             ? AppColors.black
@@ -117,11 +125,17 @@ class _AddMealPageState extends State<AddMealPage> {
                       SizedBox(height: 20.h),
 
                       // Meal Name
-                      _buildLabel('add_meal.meal_name'.tr()),
-                      _buildTextField(
-                        hint:
+                      AppFieldLabel(text: 'add_meal.meal_name'.tr()),
+                      AppTextField(
+                        hintText:
                             _selectedMealName ?? 'add_meal.meal_name_hint'.tr(),
-                        icon: Icons.chevron_left,
+                        suffixIcon: Icon(
+                          Directionality.of(context) == ui.TextDirection.rtl
+                              ? Icons.chevron_left
+                              : Icons.chevron_right,
+                          color: AppColors.textSecondary.withValues(alpha: 0.5),
+                          size: 24.sp,
+                        ),
                         onTap: _showMealNameSheet,
                         valueColor: _selectedMealName != null
                             ? AppColors.black
@@ -131,7 +145,7 @@ class _AddMealPageState extends State<AddMealPage> {
                       SizedBox(height: 20.h),
 
                       // Meal Time
-                      _buildLabel('add_meal.meal_time'.tr()),
+                      AppFieldLabel(text: 'add_meal.meal_time'.tr()),
                       _buildTimeField(),
 
                       SizedBox(height: 24.h),
@@ -140,18 +154,14 @@ class _AddMealPageState extends State<AddMealPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildLabel('add_meal.quantity'.tr()),
+                          AppFieldLabel(text: 'add_meal.quantity'.tr()),
                           GestureDetector(
                             onTap: () {},
                             child: Padding(
                               padding: EdgeInsets.only(bottom: 8.h),
                               child: Text(
                                 'add_meal.add_element'.tr(),
-                                style: TextStyleManager.heading3.copyWith(
-                                  color: AppColors.primaryDark,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12.sp,
-                                ),
+                                style: TextStyleManager.style8Medium,
                               ),
                             ),
                           ),
@@ -190,184 +200,91 @@ class _AddMealPageState extends State<AddMealPage> {
     );
   }
 
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8.h),
-      child: Text(
-        text,
-        style: TextStyleManager.heading3.copyWith(
-          color: AppColors.black,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
 
-  Widget _buildTextField({
-    required String hint,
-    required IconData icon,
-    VoidCallback? onTap,
-    Color? valueColor,
-  }) {
-    return TextFormField(
-      readOnly: onTap != null,
-      onTap: onTap,
-      textAlign: TextAlign.right,
-      style: TextStyleManager.heading3.copyWith(color: AppColors.black),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyleManager.heading3.copyWith(
-          color: valueColor ?? AppColors.textSecondary.withValues(alpha: 0.5),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        fillColor: AppColors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-        ),
-        suffixIcon: Icon(
-          icon,
-          color: AppColors.textSecondary.withValues(alpha: 0.5),
-          size: 24.sp,
-        ),
-      ),
-    );
-  }
 
   Widget _buildTimeField() {
-    return TextFormField(
-      textAlign: TextAlign.right,
-      style: TextStyleManager.heading3.copyWith(color: AppColors.black),
-      decoration: InputDecoration(
-        hintText: 'add_meal.meal_time_hint'.tr(),
-        hintStyle: TextStyleManager.heading3.copyWith(
-          color: AppColors.textSecondary.withValues(alpha: 0.5),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        fillColor: AppColors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-        ),
-        suffixIcon: IntrinsicHeight(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(4.w),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundTint,
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(
-                      color: AppColors.divider.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 8.h,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        'add_meal.am'.tr(),
-                        style: TextStyleManager.heading3.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 4.w),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        color: AppColors.primary,
-                        size: 20.sp,
-                      ),
-                    ],
+    return AppTextField(
+      hintText: 'add_meal.meal_time_hint'.tr(),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      suffixIcon: IntrinsicHeight(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(4.w),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundTint,
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(
+                    color: AppColors.divider.withValues(alpha: 0.3),
+                    width: 1,
                   ),
                 ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 12.w,
+                  vertical: 8.h,
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'add_meal.am'.tr(),
+                      style: TextStyleManager.style10Medium.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: AppColors.primary,
+                      size: 20.sp,
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildQuantityField() {
-    return TextFormField(
-      textAlign: TextAlign.right,
-      style: TextStyleManager.heading3.copyWith(color: AppColors.black),
-      decoration: InputDecoration(
-        hintText: 'add_meal.element_name_hint'.tr(),
-        hintStyle: TextStyleManager.heading3.copyWith(
-          color: AppColors.textSecondary.withValues(alpha: 0.5),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        fillColor: AppColors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-        ),
-        suffixIcon: IntrinsicHeight(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(4.w),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundTint,
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(
-                      color: AppColors.divider.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
+    return AppTextField(
+      hintText: 'add_meal.element_name_hint'.tr(),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      suffixIcon: IntrinsicHeight(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(4.w),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundTint,
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(
+                    color: AppColors.divider.withValues(alpha: 0.3),
+                    width: 1,
                   ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 10.h,
-                  ),
-                  child: Center(
-                    child: Text(
-                      'add_meal.quantity'.tr(),
-                      style: TextStyleManager.heading3.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.w,
+                  vertical: 10.h,
+                ),
+                child: Center(
+                  child: Text(
+                    'add_meal.quantity'.tr(),
+                    style: TextStyleManager.style10Medium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -383,14 +300,14 @@ class _AddMealPageState extends State<AddMealPage> {
             children: [
               Text(
                 '${element['name']} : ',
-                style: TextStyleManager.heading3.copyWith(
+                style: TextStyleManager.style11Medium.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
                 element['quantity']!,
-                style: TextStyleManager.heading3.copyWith(
+                style: TextStyleManager.style11Medium.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
                 ),

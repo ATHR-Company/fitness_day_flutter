@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -7,6 +8,7 @@ import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/selection_bottom_sheet.dart';
+import 'package:fitness_day/core/widgets/app_text_field.dart';
 
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 
@@ -79,12 +81,18 @@ class _AddActivityPageState extends State<AddActivityPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Activity Name
-                      _buildLabel('add_activity.activity_name'.tr()),
-                      _buildTextField(
-                        hint:
+                      AppFieldLabel(text: 'add_activity.activity_name'.tr()),
+                      AppTextField(
+                        hintText:
                             _selectedActivityName ??
                             'add_activity.activity_name_hint'.tr(),
-                        icon: Icons.chevron_left,
+                        suffixIcon: Icon(
+                          Directionality.of(context) == ui.TextDirection.rtl
+                              ? Icons.chevron_left
+                              : Icons.chevron_right,
+                          color: AppColors.textSecondary.withValues(alpha: 0.5),
+                          size: 24.sp,
+                        ),
                         onTap: _showActivityNameSheet,
                         valueColor: _selectedActivityName != null
                             ? AppColors.black
@@ -94,7 +102,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                       SizedBox(height: 20.h),
 
                       // Target Goal
-                      _buildLabel('add_activity.target_goal'.tr()),
+                      AppFieldLabel(text: 'add_activity.target_goal'.tr()),
                       _buildTargetGoalField(),
 
                       SizedBox(height: 40.h),
@@ -122,125 +130,52 @@ class _AddActivityPageState extends State<AddActivityPage> {
     ));
   }
 
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8.h),
-      child: Text(
-        text,
-        style: TextStyleManager.heading3.copyWith(
-          color: AppColors.black,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
 
-  Widget _buildTextField({
-    required String hint,
-    required IconData icon,
-    VoidCallback? onTap,
-    Color? valueColor,
-  }) {
-    return TextFormField(
-      readOnly: onTap != null,
-      onTap: onTap,
-      textAlign: TextAlign.right,
-      style: TextStyleManager.heading3.copyWith(color: AppColors.black),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyleManager.heading3.copyWith(
-          color: valueColor ?? AppColors.textSecondary.withValues(alpha: 0.5),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        fillColor: AppColors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-        ),
-        suffixIcon: Icon(
-          icon,
-          color: AppColors.textSecondary.withValues(alpha: 0.5),
-          size: 24.sp,
-        ),
-      ),
-    );
-  }
 
   Widget _buildTargetGoalField() {
-    return TextFormField(
-      textAlign: TextAlign.right,
-      style: TextStyleManager.heading3.copyWith(color: AppColors.black),
-      decoration: InputDecoration(
-        hintText: 'add_activity.target_goal_hint'.tr(),
-        hintStyle: TextStyleManager.heading3.copyWith(
-          color: AppColors.textSecondary.withValues(alpha: 0.5),
-        ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        fillColor: AppColors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.0),
-        ),
-        suffixIcon: IntrinsicHeight(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(4.w),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundTint,
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(
-                      color: AppColors.divider.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 8.h,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        'add_activity.step'.tr(),
-                        style: TextStyleManager.heading3.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 4.w),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        color: AppColors.primary,
-                        size: 20.sp,
-                      ),
-                    ],
+    return AppTextField(
+      hintText: 'add_activity.target_goal_hint'.tr(),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      suffixIcon: IntrinsicHeight(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(4.w),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundTint,
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(
+                    color: AppColors.divider.withValues(alpha: 0.3),
+                    width: 1,
                   ),
                 ),
-              ),
-            ],
-              ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 12.w,
+                  vertical: 8.h,
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'add_activity.step'.tr(),
+                      style: TextStyleManager.style10Medium.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: AppColors.primary,
+                      size: 20.sp,
+                    ),
+                  ],
+                ),
               ),
             ),
-            );
+          ],
+        ),
+      ),
+    );
   }
 }

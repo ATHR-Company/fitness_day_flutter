@@ -22,7 +22,7 @@ class TextStyleManager {
 
   static TextStyle heading2 = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 18.sp,
+    fontSize: 16.sp,
     fontWeight: FontWeight.w700,
   );
 

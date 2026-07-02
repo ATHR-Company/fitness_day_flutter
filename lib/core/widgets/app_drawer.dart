@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -219,13 +220,17 @@ class AppDrawer extends StatelessWidget {
 
             // Second child in RTL goes to the LEFT (arrows)
             !isSelected
-                ? Icon(
-                    Icons.keyboard_double_arrow_left_rounded,
-                    color: isLogout
-                        ? AppColors.red
-                        : AppColors.textSecondary.withValues(alpha: 0.5),
-                    size: 20.sp,
-                    fontWeight: FontWeight.bold,
+                ? Builder(
+                    builder: (context) => Icon(
+                      Directionality.of(context) == ui.TextDirection.rtl
+                          ? Icons.keyboard_double_arrow_left_rounded
+                          : Icons.keyboard_double_arrow_right_rounded,
+                      color: isLogout
+                          ? AppColors.red
+                          : AppColors.textSecondary.withValues(alpha: 0.5),
+                      size: 20.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   )
                 : SizedBox(),
           ],

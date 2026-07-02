@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -279,12 +280,16 @@ class UserAppDrawer extends StatelessWidget {
               ],
             ),
             if (!isSelected)
-              Icon(
-                Icons.keyboard_double_arrow_left_rounded,
-                color: isLogout
-                    ? AppColors.red
-                    : AppColors.textSecondary.withValues(alpha: 0.5),
-                size: 20.sp,
+              Builder(
+                builder: (context) => Icon(
+                  Directionality.of(context) == ui.TextDirection.rtl
+                      ? Icons.keyboard_double_arrow_left_rounded
+                      : Icons.keyboard_double_arrow_right_rounded,
+                  color: isLogout
+                      ? AppColors.red
+                      : AppColors.textSecondary.withValues(alpha: 0.5),
+                  size: 20.sp,
+                ),
               ),
           ],
         ),

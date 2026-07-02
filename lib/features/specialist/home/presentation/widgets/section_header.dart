@@ -1,6 +1,9 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_svg/svg.dart';
+import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 
@@ -18,6 +21,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == ui.TextDirection.rtl;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -37,11 +41,20 @@ class SectionHeader extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 4.w),
-                Icon(
-                  Icons.keyboard_double_arrow_left_rounded,
-                  color: AppColors.primary,
-                  size: 16.w,
-                ),
+                isRtl
+                    ? SvgPicture.asset(
+                        SvgIcons.moreArrows,
+                        width: 17.w,
+                        height: 10.h,
+                      )
+                    : Transform.flip(
+                        flipX: true,
+                        child: SvgPicture.asset(
+                          SvgIcons.moreArrows,
+                          width: 17.w,
+                          height: 10.h,
+                        ),
+                      ),
               ],
             ),
           )

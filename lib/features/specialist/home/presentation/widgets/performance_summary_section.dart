@@ -45,7 +45,7 @@ class PerformanceSummarySection extends StatelessWidget {
               children: [
                 Text(
                   "home.performance_summary_title".tr(),
-                  style: TextStyleManager.heading2.copyWith(
+                  style: TextStyleManager.style14Medium.copyWith(
                     color: AppColors.primary,
                   ),
                 ),
