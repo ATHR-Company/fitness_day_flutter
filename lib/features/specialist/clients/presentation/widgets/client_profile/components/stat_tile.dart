@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 
@@ -7,14 +8,16 @@ class StatTile extends StatelessWidget {
   final String label;
   final String value;
   final String? measurement;
-  final IconData icon;
+  final String iconPath;
+  final bool isCircle;
 
   const StatTile({
     super.key,
     required this.label,
     required this.value,
     this.measurement,
-    required this.icon,
+    required this.iconPath,
+    this.isCircle = false,
   });
 
   @override
@@ -39,14 +42,13 @@ class StatTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: EdgeInsets.all(6.r),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Icon(icon, color: AppColors.white, size: 16.sp),
-              ),
+              SvgPicture.asset(
+                    iconPath,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.primary,
+                      BlendMode.srcIn,
+                    ),
+                  ),
               SizedBox(width: 8.w),
               Text(
                 label,

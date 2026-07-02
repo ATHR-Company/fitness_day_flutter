@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 
+import 'package:fitness_day/core/theme/app_shadows.dart';
+
 class InfoCard extends StatelessWidget {
   final String title;
   final Widget icon;
@@ -24,15 +26,13 @@ class InfoCard extends StatelessWidget {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10.r,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadiusDirectional.only(
+          topStart: Radius.circular(4.r),
+          topEnd: Radius.circular(4.r),
+          bottomStart: Radius.circular(4.r),
+          bottomEnd: Radius.circular(32.r),
+        ),
+        boxShadow: AppShadows.primaryShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

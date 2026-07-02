@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/components/info_card.dart';
 
 class ClientDataTab extends StatelessWidget {
@@ -84,15 +85,13 @@ class ClientDataTab extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10.r,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadiusDirectional.only(
+          topStart: Radius.circular(4.r),
+          topEnd: Radius.circular(4.r),
+          bottomStart: Radius.circular(4.r),
+          bottomEnd: Radius.circular(32.r),
+        ),
+        boxShadow: AppShadows.primaryShadow,
       ),
       child: Stack(
         children: [
@@ -102,23 +101,17 @@ class ClientDataTab extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    AppColors.gradientGreenStart,
-                    AppColors.gradientGreenEnd,
-                  ],
-                  begin: AlignmentDirectional.centerStart,
-                  end: AlignmentDirectional.centerEnd,
-                ),
+                gradient: AppColors.timeRemainingGradient,
                 borderRadius: BorderRadiusDirectional.only(
-                  topEnd: Radius.circular(16.r),
-                  bottomStart: Radius.circular(16.r),
+                  topEnd: Radius.circular(4.r),
+                  bottomStart: Radius.circular(12.r),
                 ),
+                boxShadow: AppShadows.primaryShadow,
               ),
               child: Text(
                 'clients_page.commitment_rate'.tr(args: ['85']),
                 style: TextStyleManager.style10Medium.copyWith(
-                  color: AppColors.greenForest,
+                  color: AppColors.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),

@@ -32,9 +32,9 @@ class VerticalTabBar extends StatelessWidget {
               height: 70.h,
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primary : Colors.transparent,
-                borderRadius: isSelected
-                    ? BorderRadiusDirectional.horizontal(start: Radius.circular(20.r))
-                    : null,
+                borderRadius: isSelected && index == 0
+                    ? BorderRadiusDirectional.only(topStart: Radius.circular(20.r))
+                    :  isSelected && index == items.length - 1? BorderRadiusDirectional.only(bottomStart: Radius.circular(20.r)) : null,
                 border: !isSelected && index < items.length - 1
                     ? const Border(
                         bottom: BorderSide(color: AppColors.white, width: 1),

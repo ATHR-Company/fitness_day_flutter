@@ -13,7 +13,7 @@ class AppHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60.h,
+      height: 40.h,
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Stack(
         children: [

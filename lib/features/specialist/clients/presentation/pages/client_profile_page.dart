@@ -20,46 +20,50 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor:
-          AppColors.lightGreyBackground, // Light grey background like in design
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          'clients_page.client_profile'.tr(),
-          style: TextStyleManager.style15Medium.copyWith(
-            color: AppColors.black,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: AppColors.black, size: 20.sp),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: AppColors.profileGradient,
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 8.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: AppSegmentedControl(
-              items: [
-                'clients_page.client_data'.tr(),
-                'clients_page.visits'.tr(),
-                'clients_page.progress'.tr(),
-              ],
-              selectedIndex: _selectedIndex,
-              onItemSelected: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: Text(
+            'clients_page.client_profile'.tr(),
+            style: TextStyleManager.style15Medium.copyWith(
+              color: AppColors.black,
             ),
           ),
-          SizedBox(height: 16.h),
-          Expanded(child: _buildTabContent()),
-        ],
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: AppColors.black, size: 20.sp),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+        body: Column(
+          children: [
+            SizedBox(height: 8.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: AppSegmentedControl(
+                items: [
+                  'clients_page.client_data'.tr(),
+                  'clients_page.visits'.tr(),
+                  'clients_page.progress'.tr(),
+                ],
+                selectedIndex: _selectedIndex,
+                onItemSelected: (index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Expanded(child: _buildTabContent()),
+          ],
+        ),
       ),
     );
   }

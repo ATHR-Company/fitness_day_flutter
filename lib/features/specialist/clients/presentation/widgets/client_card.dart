@@ -1,8 +1,11 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/theme/app_shadows.dart';
 
 enum ClientStatus { active, needsFollowUp, expired }
 
@@ -32,16 +35,13 @@ class ClientCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10.r,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadiusDirectional.only(
+          topStart: Radius.circular(4.r),
+          topEnd: Radius.circular(4.r),
+          bottomStart: Radius.circular(4.r),
+          bottomEnd: Radius.circular(32.r),
+        ),
+        boxShadow: AppShadows.primaryShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,7 +178,9 @@ class ClientCard extends StatelessWidget {
                           ),
                           SizedBox(width: 4.w),
                           Icon(
-                            Icons.keyboard_double_arrow_left,
+                            Directionality.of(context) == ui.TextDirection.rtl
+                                ? Icons.keyboard_double_arrow_left
+                                : Icons.keyboard_double_arrow_right,
                             size: 16.sp,
                             color: AppColors.white,
                           ),
@@ -222,23 +224,16 @@ class ClientCard extends StatelessWidget {
 
   BoxDecoration _getBadgeDecoration(ClientStatus status) {
     final borderRadius = BorderRadiusDirectional.only(
-      topEnd: Radius.circular(16.r),
-      bottomStart: Radius.circular(16.r),
+      topEnd: Radius.circular(4.r),
+      bottomStart: Radius.circular(12.r),
     );
 
     switch (status) {
       case ClientStatus.active:
         return BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              AppColors.progressGreenStart,
-              AppColors.progressGreenMiddle,
-              AppColors.progressGreenStart,
-            ],
-            begin: AlignmentDirectional.centerStart,
-            end: AlignmentDirectional.centerEnd,
-          ),
+          gradient: AppColors.timeRemainingGradient,
           borderRadius: borderRadius,
+          boxShadow: AppShadows.primaryShadow,
         );
       case ClientStatus.needsFollowUp:
         return BoxDecoration(
@@ -252,6 +247,7 @@ class ClientCard extends StatelessWidget {
             end: AlignmentDirectional.centerEnd,
           ),
           borderRadius: borderRadius,
+          boxShadow: AppShadows.primaryShadow,
         );
       case ClientStatus.expired:
         return BoxDecoration(
@@ -265,6 +261,7 @@ class ClientCard extends StatelessWidget {
             end: AlignmentDirectional.centerEnd,
           ),
           borderRadius: borderRadius,
+          boxShadow: AppShadows.primaryShadow,
         );
     }
   }

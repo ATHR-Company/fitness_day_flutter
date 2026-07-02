@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/components/progress_chart.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/components/stat_tile.dart';
 
@@ -25,24 +26,28 @@ class ClientProgressTab extends StatelessWidget {
           label: 'clients_page.weight_short'.tr(),
           value: '60',
           measurement: 'clients_page.kg'.tr(),
-          icon: Icons.monitor_weight_outlined,
+          iconPath: SvgIcons.weight,
+          isCircle: false,
         ),
         StatTile(
           label: 'clients_page.height_short'.tr(),
           value: '167',
           measurement: 'clients_page.cm'.tr(),
-          icon: Icons.height,
+          iconPath: SvgIcons.height,
+          isCircle: false,
         ),
         StatTile(
           label: 'clients_page.ideal_weight_short'.tr(),
           value: '65',
           measurement: 'clients_page.kg'.tr(),
-          icon: Icons.scale_outlined,
+          iconPath: SvgIcons.perfectWieght,
+          isCircle: false,
         ),
         StatTile(
           label: 'clients_page.body_mass_short'.tr(),
           value: '20.4',
-          icon: Icons.accessibility_new,
+          iconPath: SvgIcons.bodyMass,
+          isCircle: true,
         ),
         SizedBox(height: 24.h),
       ],

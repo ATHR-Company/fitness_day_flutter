@@ -82,76 +82,111 @@ class ProgressChart extends StatelessWidget {
         SizedBox(height: 16.h),
         SizedBox(
           height: 150.h,
-          child: BarChart(
-            BarChartData(
-              alignment: BarChartAlignment.spaceAround,
-              maxY: 80,
-              minY: 0,
-              barTouchData: BarTouchData(
-                enabled: false,
-                touchTooltipData: BarTouchTooltipData(
-                  getTooltipColor: (group) => Colors.transparent,
-                  tooltipPadding: EdgeInsets.zero,
-                  tooltipMargin: 4,
-                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                    return BarTooltipItem(
-                      '${rod.toY.toInt()} ${'clients_page.kg'.tr()}',
-                      TextStyleManager.style8Medium.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              titlesData: FlTitlesData(
-                show: true,
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (double value, TitleMeta meta) {
-                      final isActive = value.toInt() == 6;
-                      return Padding(
-                        padding: EdgeInsets.only(top: 8.h),
-                        child: Text(
-                          '''${'spec_mock_z'.tr()}${value.toInt()}''',
-                          style: TextStyleManager.style9Medium.copyWith(
-                            color: isActive
-                                ? AppColors.primary
-                                : AppColors.textPrimary,
-                            fontWeight: isActive
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      );
-                    },
+          child: Stack(
+            children: [
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 28.h,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundTint.withValues(alpha: 0.8),
                   ),
                 ),
-                leftTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                rightTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                topTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
+              ),
+              BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: 80,
+                  minY: 0,
+                  barTouchData: BarTouchData(
+                    enabled: false,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (group) => Colors.transparent,
+                      tooltipPadding: EdgeInsets.zero,
+                      tooltipMargin: 4,
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        return BarTooltipItem(
+                          '${rod.toY.toInt()} ${'clients_page.kg'.tr()}',
+                          TextStyleManager.style8Medium.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  titlesData: FlTitlesData(
+                    show: true,
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 28.h,
+                        getTitlesWidget: (double value, TitleMeta meta) {
+                          final isActive = value.toInt() == 6;
+                          final text = Text(
+                            '''${'spec_mock_z'.tr()}${value.toInt()}''',
+                            style: TextStyleManager.style9Medium.copyWith(
+                              color: isActive
+                                  ? AppColors.primary
+                                  : AppColors.textPrimary,
+                              fontWeight: isActive
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          );
+                          if (isActive) {
+                            return SideTitleWidget(
+                              meta: meta,
+                              space: 2.h,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8.w,
+                                  vertical: 2.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: text,
+                              ),
+                            );
+                          }
+                          return SideTitleWidget(
+                            meta: meta,
+                            space: 2.h,
+                            child: text,
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
+                  gridData: const FlGridData(show: false),
+                  borderData: FlBorderData(show: false),
+                  barGroups: [
+                    _buildBar(1, 58, false),
+                    _buildBar(2, 60, false),
+                    _buildBar(3, 58, false),
+                    _buildBar(4, 62, false),
+                    _buildBar(5, 60, false),
+                    _buildBar(6, 60, true),
+                    _buildBar(7, 0, false),
+                    _buildBar(8, 0, false),
+                    _buildBar(9, 0, false),
+                  ],
                 ),
               ),
-              gridData: const FlGridData(show: false),
-              borderData: FlBorderData(show: false),
-              barGroups: [
-                _buildBar(1, 58, false),
-                _buildBar(2, 60, false),
-                _buildBar(3, 58, false),
-                _buildBar(4, 62, false),
-                _buildBar(5, 60, false),
-                _buildBar(6, 60, true), // Active visit
-                _buildBar(7, 0, false),
-                _buildBar(8, 0, false),
-                _buildBar(9, 0, false),
-              ],
-            ),
+            ],
           ),
         ),
       ],
