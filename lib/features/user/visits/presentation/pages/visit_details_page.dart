@@ -1,4 +1,6 @@
+import 'package:fitness_day/core/entities/task_data.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
+import 'package:fitness_day/core/widgets/task_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -16,7 +18,7 @@ import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
 import 'package:fitness_day/core/widgets/today_tasks_section.dart';
-import 'package:fitness_day/features/user/user_home/presentation/widgets/activity_progress_card.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 
 class VisitDetailsPage extends StatefulWidget {
@@ -218,26 +220,32 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                 SizedBox(height: 24.h),
                 _buildSectionTitle(LocaleKeys.visit_details_activity.tr()),
                 SizedBox(height: 12.h),
-                ActivityProgressCard(
-                  title: 'المشي',
-                  time: 'طوال اليوم',
-                  description: 'عاش يا بطل استمر',
-                  icon: SvgPicture.asset(SvgIcons.wake, width: 48.sp, height: 48.sp, fit: BoxFit.contain),
-                  current: 0,
-                  target: 5000,
-                  unit: 'خطوة',
-                  isCompleted: false,
+                TaskCard(
+                  task: const TaskData(
+                    title: 'المشي',
+                    time: 'طوال اليوم',
+                    description: 'عاش يا بطل استمر',
+                    imagePath: SvgIcons.wake,
+                    isSvgImage: true,
+                    extraLabel: '0',
+                    extraUnit: '5000 خطوة',
+                    extraIcon: null,
+                    done: false,
+                  ),
                 ),
                 SizedBox(height: 16.h),
-                ActivityProgressCard(
-                  title: 'الجري',
-                  time: 'طوال اليوم',
-                  description: 'الجري يساعد على تحسين القدرة التحملية وزيادة حرق السعرات.',
-                  icon: SvgPicture.asset(SvgIcons.run, width: 48.sp, height: 48.sp, fit: BoxFit.contain),
-                  current: 0,
-                  target: 1000,
-                  unit: 'متر',
-                  isCompleted: false,
+                TaskCard(
+                  task: const TaskData(
+                    title: 'الجري',
+                    time: 'طوال اليوم',
+                    description: 'الجري يساعد على تحسين القدرة التحملية وزيادة حرق السعرات.',
+                    imagePath: SvgIcons.run,
+                    isSvgImage: true,
+                    extraLabel: '0',
+                    extraUnit: '1000 متر',
+                    extraIcon: null,
+                    done: false,
+                  ),
                 ),
               ],
             ),

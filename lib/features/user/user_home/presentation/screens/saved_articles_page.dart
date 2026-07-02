@@ -5,6 +5,8 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/articles_section.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'article_detail_page.dart';
 
 class SavedArticlesPage extends StatelessWidget {
@@ -56,7 +58,7 @@ class SavedArticlesPage extends StatelessWidget {
       elevation: 0,
       centerTitle: true,
       title: Text(
-        'المقالات المحفوظة',
+        LocaleKeys.home_saved_articles_title.tr(),
         style: TextStyleManager.heading2.copyWith(
           color: AppColors.black,
           fontWeight: FontWeight.bold,
@@ -88,7 +90,7 @@ class SavedArticlesPage extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
           Text(
-            'لا توجد مقالات محفوظة',
+            LocaleKeys.home_no_saved_articles.tr(),
             style: TextStyleManager.heading3.copyWith(
               color: AppColors.textSecondary,
             ),

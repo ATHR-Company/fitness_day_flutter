@@ -1,28 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_shadows.dart';
-import '../../../../../core/theme/app_text_styles.dart';
+import 'package:fitness_day/features/user/user_home/domain/entities/article_data.dart';
+import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/theme/app_shadows.dart';
+import 'package:fitness_day/core/theme/app_text_styles.dart';
 import '../screens/article_detail_page.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Data Model
-// ─────────────────────────────────────────────────────────────────────────────
-class ArticleData {
-  final String imageUrl;
-  final String date;
-  final int views;
-  final String title;
-  final String body;
-
-  const ArticleData({
-    required this.imageUrl,
-    required this.date,
-    required this.views,
-    required this.title,
-    required this.body,
-  });
-}
+export 'package:fitness_day/features/user/user_home/domain/entities/article_data.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Articles Horizontal List
@@ -98,7 +82,7 @@ class ArticleCard extends StatelessWidget {
               height: 150.h,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
+              errorBuilder: (_, __, ___) => Container(
                 height: 150.h,
                 color: AppColors.backgroundTint,
                 child: Icon(Icons.image_outlined,
