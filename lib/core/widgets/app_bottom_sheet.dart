@@ -11,6 +11,8 @@ class AppBottomSheet extends StatelessWidget {
   final VoidCallback? onConfirm;
   final String? confirmText;
   final Color? closeIconColor;
+  final Color? confirmColor;
+  final LinearGradient? backgroundGradient;
 
   const AppBottomSheet({
     super.key,
@@ -19,14 +21,15 @@ class AppBottomSheet extends StatelessWidget {
     this.onConfirm,
     this.confirmText,
     this.closeIconColor,
+    this.confirmColor,
+    this.backgroundGradient,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient:
-            AppColors.cardGradient, // Matches the light green to white gradient
+        gradient: backgroundGradient ?? AppColors.cardGradient,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
         boxShadow: [
           BoxShadow(
@@ -78,6 +81,7 @@ class AppBottomSheet extends StatelessWidget {
               child: CustomButton(
                 text: confirmText ?? 'visit_details.confirm'.tr(),
                 onPressed: onConfirm!,
+                color: confirmColor,
               ),
             ),
           ],

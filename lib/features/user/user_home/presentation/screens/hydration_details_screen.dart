@@ -5,6 +5,7 @@ import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../../core/widgets/time_picker_bottom_sheet.dart';
 
 class HydrationDetailsScreen extends StatefulWidget {
   const HydrationDetailsScreen({super.key});
@@ -383,13 +384,14 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                SizedBox(height: 40.h),
                 // أيقونة الماء في المنتصف
                 Column(
                   children: [
                     SvgPicture.asset(
-                      SvgIcons.water_wave,
-                      width: 48.w,
-                      height: 48.h,
+                      SvgIcons.water_bg,
+                      width: 60.w,
+                      height: 80.h,
                     ),
                   ],
                 ),
@@ -441,7 +443,7 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
                         padding: EdgeInsets.all(8.w),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? const Color(0xFFDAF6FF)
+                              ?  Colors.white
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12.r),
                           border: Border.all(
@@ -478,7 +480,7 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
 
                 // زر الحفظ
                 SizedBox(
-                  width: double.infinity,
+                  width: MediaQuery.of(context).size.width*0.6.w,
                   height: 48.h,
                   child: ElevatedButton(
                     onPressed: () {
@@ -486,7 +488,7 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF23C4D7),
+                      backgroundColor: const Color(0xFF8ED0F2),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.r),
@@ -496,7 +498,7 @@ class _ManualAddSheetState extends State<_ManualAddSheet> {
                     child: Text(
                       'حفظ',
                       style: TextStyleManager.heading3.copyWith(
-                        color: Colors.white,
+                        color: Color(0xFF017D9E),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -574,11 +576,148 @@ class _WaterReminderScreen extends StatefulWidget {
 }
 
 class _WaterReminderScreenState extends State<_WaterReminderScreen> {
+  // القيم الحالية (قابلة للتعديل)
   TimeOfDay _startTime = const TimeOfDay(hour: 8, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 8, minute: 10);
   int _intervalMinutes = 10;
   int _reminderCount = 3;
   final double _dailyGoal = 2.25;
+
+  // القيم الأصلية لمقارنة التغييرات
+  late TimeOfDay _originalStartTime;
+  late TimeOfDay _originalEndTime;
+  late int _originalIntervalMinutes;
+  late int _originalReminderCount;
+
+  @override
+  void initState() {
+    super.initState();
+    _originalStartTime = _startTime;
+    _originalEndTime = _endTime;
+    _originalIntervalMinutes = _intervalMinutes;
+    _originalReminderCount = _reminderCount;
+  }
+
+  bool get _hasChanges =>
+      _startTime != _originalStartTime ||
+      _endTime != _originalEndTime ||
+      _intervalMinutes != _originalIntervalMinutes ||
+      _reminderCount != _originalReminderCount;
+
+  Future<bool> _onWillPop() async {
+    if (!_hasChanges) return true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.4),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
+        child: Container(
+          padding: EdgeInsets.all(24.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24.r),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF23C4D7).withValues(alpha: 0.12),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                SvgIcons.water_bg,
+                width: 80.w,
+                height: 80.h,
+              ),
+              SizedBox(height: 33.h),
+              Text(
+                'حفظ التغييرات؟',
+                style: TextStyleManager.heading3.copyWith(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 18.h),
+              Text(
+                'لديك تغييرات غير محفوظة في إعدادات التذكير',
+                textAlign: TextAlign.center,
+                style: TextStyleManager.style11Medium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              SizedBox(height: 50.h),
+              Row(
+                children: [
+                  // زر تجاهل
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(ctx, false),
+                      child: Container(
+                        height: 44.h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDAF6FF),
+                          borderRadius: BorderRadius.circular(22.r),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'تجاهل',
+                          style: TextStyleManager.style11Medium.copyWith(
+                            color: const Color(0xFF23C4D7),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  // زر حفظ
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(ctx, true),
+                      child: Container(
+                        height: 44.h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF23C4D7),
+                          borderRadius: BorderRadius.circular(22.r),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'حفظ',
+                          style: TextStyleManager.style11Medium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (result == true) {
+      // حفظ → نحدّث القيم الأصلية ثم نرجع
+      _originalStartTime = _startTime;
+      _originalEndTime = _endTime;
+      _originalIntervalMinutes = _intervalMinutes;
+      _originalReminderCount = _reminderCount;
+      return true;
+    } else if (result == false) {
+      // تجاهل → نرجع بدون حفظ
+      return true;
+    }
+    // أغلق الـ dialog بدون اختيار → نبقى في الشاشة
+    return false;
+  }
 
   String _formatTime(TimeOfDay time) {
     final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
@@ -588,12 +727,12 @@ class _WaterReminderScreenState extends State<_WaterReminderScreen> {
   }
 
   Future<void> _pickTime({required bool isStart}) async {
-    final picked = await showTimePicker(
+    final picked = await showModalBottomSheet<TimeOfDay>(
       context: context,
-      initialTime: isStart ? _startTime : _endTime,
-      builder: (context, child) {
-        return Directionality(textDirection: TextDirection.rtl, child: child!);
-      },
+      backgroundColor: Colors.transparent,
+      builder: (_) => TimePickerBottomSheet(
+        initialTime: isStart ? _startTime : _endTime,
+      ),
     );
     if (picked != null) {
       setState(() {
@@ -608,7 +747,14 @@ class _WaterReminderScreenState extends State<_WaterReminderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && context.mounted) Navigator.of(context).pop();
+      },
+      child: Scaffold(
       backgroundColor: AppColors.white,
       body: Stack(
         children: [
@@ -649,7 +795,12 @@ class _WaterReminderScreenState extends State<_WaterReminderScreen> {
                       ),
                       const Spacer(),
                       GestureDetector(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () async {
+                          final shouldPop = await _onWillPop();
+                          if (shouldPop && context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        },
                         child: Icon(
                           Icons.arrow_forward_ios,
                           size: 20.sp,
@@ -725,7 +876,8 @@ class _WaterReminderScreenState extends State<_WaterReminderScreen> {
           ),
         ],
       ),
-    );
+    ),   // Scaffold
+    );   // PopScope
   }
 
   Widget _buildSettingCard({

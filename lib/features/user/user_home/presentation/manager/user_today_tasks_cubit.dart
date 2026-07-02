@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/entities/task_data.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_today_tasks_state.dart';

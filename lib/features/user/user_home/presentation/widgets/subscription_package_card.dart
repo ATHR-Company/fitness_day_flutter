@@ -1,25 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_shadows.dart';
-import '../../../../../core/theme/app_text_styles.dart';
+import 'package:fitness_day/features/user/user_home/domain/entities/subscription_package_data.dart';
+import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/theme/app_shadows.dart';
+import 'package:fitness_day/core/theme/app_text_styles.dart';
 
-class SubscriptionPackageData {
-  final String imageUrl;
-  final String name;
-  final int currentPrice;
-  final int oldPrice;
-  final bool isFavorite;
-
-  const SubscriptionPackageData({
-    required this.imageUrl,
-    required this.name,
-    required this.currentPrice,
-    required this.oldPrice,
-    this.isFavorite = false,
-  });
-}
+export 'package:fitness_day/features/user/user_home/domain/entities/subscription_package_data.dart';
 
 class SubscriptionPackageCard extends StatelessWidget {
   final SubscriptionPackageData package;
@@ -52,7 +39,7 @@ class SubscriptionPackageCard extends StatelessWidget {
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
+                    errorBuilder: (_, __, ___) => Container(
                       color: AppColors.backgroundTint,
                       child: Center(
                         child: Icon(Icons.image_outlined, color: AppColors.greenMint),
@@ -85,7 +72,7 @@ class SubscriptionPackageCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch, // ✅ يمدد العناصر لعرض الكارت كامل
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   package.name,
@@ -95,11 +82,11 @@ class SubscriptionPackageCard extends StatelessWidget {
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.start, // ✅ العنوان يبدأ من البداية (يمين في RTL / شمال في LTR)
+                  textAlign: TextAlign.start,
                 ),
                 SizedBox(height: 6.h),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start, // ✅ السعر يبدأ من البداية بدل النص
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
@@ -130,7 +117,7 @@ class SubscriptionPackageCard extends StatelessWidget {
                 ),
                 SizedBox(height: 8.h),
                 Align(
-                  alignment: Alignment.centerLeft, // ✅ الزرار في آخر السطر
+                  alignment: Alignment.centerLeft,
                   child: SizedBox(
                     height: 32.h,
                     child: ElevatedButton(
@@ -141,14 +128,13 @@ class SubscriptionPackageCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                         elevation: 0,
-                        padding: EdgeInsets.symmetric(horizontal: 10.w), // ✅ بديل لـ EdgeInsets.zero عشان الزرار ميبقاش ملتصق
+                        padding: EdgeInsets.symmetric(horizontal: 10.w),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           SizedBox(width: 4.w),
-
                           Text(
                             'home.details_button'.tr(),
                             style: TextStyleManager.style11Medium.copyWith(

@@ -1,9 +1,10 @@
+import 'package:fitness_day/core/entities/task_data.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_home_state.dart';
-import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
+import 'package:fitness_day/features/user/user_home/domain/entities/subscription_package_data.dart';
+import 'package:fitness_day/features/user/user_home/domain/entities/article_data.dart';
 import 'package:fitness_day/core/widgets/today_tasks_section.dart';
-import 'package:fitness_day/features/user/user_home/presentation/widgets/articles_section.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 

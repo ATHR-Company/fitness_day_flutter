@@ -18,13 +18,14 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/section
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_banner.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/hero_image.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/categories.dart';
-import 'package:fitness_day/core/widgets/activity_progress_card.dart';
+import 'package:fitness_day/core/widgets/task_card.dart';
+import 'package:fitness_day/core/entities/task_data.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/articles_section.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/unsubscribed_hero_image.dart';
-import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/constant/app_assets.dart';
 import 'hydration_details_screen.dart';
+import 'steps_details_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_packages_grid.dart';
 
 import 'package:fitness_day/core/widgets/exit_dialog.dart';
@@ -146,7 +147,7 @@ class _HomePageContent extends StatelessWidget {
                   SizedBox(height: 12.h),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: TodayTasksSection(tasks: state.tasks.cast<TaskData>()),
+                    child: TodayTasksSection(tasks: state.tasks),
                   ),
                   SizedBox(height: 16.h),
 
@@ -155,27 +156,30 @@ class _HomePageContent extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Column(
                       children: [
-                        ActivityProgressCard(
-                          title: 'home.hydration_title'.tr(),
-                          time: 'home.hydration_all_day'.tr(),
-                          description: 'home.hydration_desc'.tr(),
-                          icon: SvgPicture.asset(SvgIcons.waterBorder, fit: BoxFit.contain),
-                          current: 2.50,
-                          target: 2.50,
-                          unit: 'home.water_unit'.tr(),
-                          isCompleted: true,
-                          onDetailsPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HydrationDetailsScreen(),
-                              ),
-                            );
-                          },
+                        TaskCard(
+                          task: TaskData(
+                            imagePath: SvgIcons.waterBorder,
+                            isSvgImage: true,
+                            title: 'home.hydration_title'.tr(),
+                            time: 'home.hydration_all_day'.tr(),
+                            description: 'home.hydration_desc'.tr(),
+                            extraLabel: '2.50 / 2.50',
+                            extraUnit: 'home.water_unit'.tr(),
+                            extraIcon: null,
+                            done: true,
+                            onDetailsPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const HydrationDetailsScreen(),
+                                ),
+                              );
+                            },
+                          ),
                         ),
+                      
+                      
                         SizedBox(height: 16.h),
-                      
-                      
                       ],
                     ),
                   ),
@@ -190,7 +194,7 @@ class _HomePageContent extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ArticlesListPage(articles: state.articles.cast<ArticleData>()),
+                            builder: (_) => ArticlesListPage(articles: state.articles),
                           ),
                         );
                       },
@@ -199,7 +203,7 @@ class _HomePageContent extends StatelessWidget {
                   SizedBox(height: 12.h),
                   Padding(
                     padding: EdgeInsets.only(right: 16.w),
-                    child: ArticlesSection(articles: state.articles.cast<ArticleData>()),
+                    child: ArticlesSection(articles: state.articles),
                   ),
                   SizedBox(height: 32.h),
                 ] else ...[
@@ -230,7 +234,7 @@ class _HomePageContent extends StatelessWidget {
 
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: SubscriptionPackagesGrid(packages: state.packages.cast<SubscriptionPackageData>()),
+                    child: SubscriptionPackagesGrid(packages: state.packages),
                   ),
                   SizedBox(height: 32.h),
                 ],

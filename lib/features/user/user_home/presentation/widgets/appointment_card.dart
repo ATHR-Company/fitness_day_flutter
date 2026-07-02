@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import 'package:fitness_day/generated/locale_keys.g.dart';
 
 class AppointmentCard extends StatelessWidget {
   final bool isPastVisit;
@@ -92,11 +93,11 @@ class AppointmentCard extends StatelessWidget {
                 SizedBox(height: 16.h),
                 
                 // Details
-                _buildDetailRow("home.client_name".tr(), "محمد عبدالله", true),
+                _buildDetailRow("home.client_name".tr(), LocaleKeys.home_appointment_client_name.tr(), true),
                 SizedBox(height: 6.h),
-                _buildDetailRow("home.visit_time".tr(), "اليوم 4:30 مساءا", true),
+                _buildDetailRow("home.visit_time".tr(), LocaleKeys.home_appointment_visit_time.tr(), true),
                 SizedBox(height: 6.h),
-                _buildDetailRow("home.last_visit".tr(), "منذ يومين", true), // For real data this should map appropriately
+                _buildDetailRow(LocaleKeys.home_last_visit.tr(), LocaleKeys.home_appointment_last_visit.tr(), true), // For real data this should map appropriately
                 
                 SizedBox(height: 24.h),
                 
