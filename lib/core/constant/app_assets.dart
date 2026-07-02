@@ -104,6 +104,11 @@ class SvgIcons {
   static const String rewards = '$_svgPath/rewards.svg';
   static const String achievements = '$_svgPath/achievements.svg';
   static const String notifications = '$_svgPath/notifications.svg';
+  static const String rate = '$_svgPath/rate.svg';
+  static const String editProfile = '$_svgPath/edit_profile.svg';
+  static const String editInfo = '$_svgPath/edit_info.svg';
+  static const String profilePhoto = '$_svgPath/profile_photo.svg';
+  static const String editName = '$_svgPath/edit_name.svg';
 }
 
 /// PNG/JPG asset paths used throughout the application.

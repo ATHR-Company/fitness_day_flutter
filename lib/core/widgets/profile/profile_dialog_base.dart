@@ -47,10 +47,7 @@ class ProfileDialogBase extends StatelessWidget {
                   child: Text(
                     title,
                     textAlign: TextAlign.right,
-                    style: TextStyleManager.heading3.copyWith(
-                      color: AppColors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyleManager.heading3,
                   ),
                 ),
                 GestureDetector(

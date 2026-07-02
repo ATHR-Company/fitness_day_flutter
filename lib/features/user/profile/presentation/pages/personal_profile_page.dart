@@ -6,6 +6,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
+import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/features/user/profile/presentation/widgets/edit_field_dialog.dart';
 import 'package:fitness_day/features/user/profile/presentation/widgets/edit_phone_dialog.dart';
 import 'package:fitness_day/features/user/profile/presentation/widgets/edit_goal_dialog.dart';
@@ -29,215 +30,153 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.headerBackground,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black),
-          onPressed: () => Navigator.of(context).pop(),
+      backgroundColor: Colors.transparent,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: AppColors.profileGradient,
         ),
-        title: Text(
-          'profile.personal_profile'.tr(),
-          style: TextStyleManager.heading2.copyWith(
-            color: AppColors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          // Header background arch
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 60.h,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.headerBackground,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(100),
-                  bottomRight: Radius.circular(100),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                child: AppBackHeader(
+                  title: 'profile.personal_profile'.tr(),
                 ),
               ),
-            ),
-          ),
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Column(
-                children: [
-                  SizedBox(height: 24.h),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    children: [
 
-                  // Profile Picture
-                  Center(
-                    child: Column(
-                      children: [
-                        Stack(
-                          clipBehavior: Clip.none,
+                      // Profile Picture
+                      Center(
+                        child: Column(
                           children: [
-                            Container(
-                              width: 100.r,
-                              height: 100.r,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
-                                  width: 2,
-                                ),
-                              ),
-                              child: Center(
-                                child: SvgPicture.asset(
-                                  SvgIcons.profile,
-                                  width: 50.r,
-                                  colorFilter: const ColorFilter.mode(
-                                    AppColors.primary,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
+                            Center(
+                              child: SvgPicture.asset(
+                                SvgIcons.profilePhoto,
+                                width: 100.r,
                               ),
                             ),
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              child: Container(
-                                padding: EdgeInsets.all(4.r),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.white,
-                                  shape: BoxShape.circle,
+                            SizedBox(height: 10.h),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                    'profile_page.change_photo'.tr(),
+                                    style: TextStyleManager.style9Medium
                                 ),
-                                child: Container(
-                                  padding: EdgeInsets.all(6.r),
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.primary,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.edit,
-                                    color: AppColors.white,
-                                    size: 14.r,
-                                  ),
-                                ),
-                              ),
+                                SizedBox(width: 7.w),
+                                GestureDetector(child: SvgPicture.asset(SvgIcons.editInfo))
+                              ],
                             ),
                           ],
                         ),
-                        SizedBox(height: 12.h),
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'profile_page.change_photo'.tr(), // "تغيير الصورة الشخصية"
-                            style: TextStyleManager.style11Medium.copyWith(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.underline,
+                      ),
+
+                      SizedBox(height: 30.h),
+
+                      // Detail Rows
+                      _buildProfileRow(
+                        label: 'login.full_name_hint'.tr(), // "الاسم"
+                        value: _name,
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => EditFieldDialog(
+                              title: 'login.full_name_hint'.tr(),
+                              hintText: _name,
+                              iconPath: SvgIcons.editName,
+                              onSave: (val) => setState(() => _name = val),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
+                          );
+                        },
+                      ),
+                      _buildProfileRow(
+                        label: 'profile_page.email'.tr(), // "البريد الإلكتروني"
+                        value: _email,
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => EditFieldDialog(
+                              title: 'profile_page.email'.tr(),
+                              hintText: _email,
+                              iconPath: SvgIcons.email,
+                              onSave: (val) => setState(() => _email = val),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildProfileRow(
+                        label: 'login.phone_hint'.tr(), // "رقم الجوال"
+                        value: _phone,
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => EditPhoneDialog(
+                              initialPhone: _phone,
+                              onSave: (val) => setState(() => _phone = val),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildProfileRow(
+                        label: 'login.weight_hint'.tr(), // "الوزن"
+                        value: '$_weight ${'visit_details.kg'.tr()}',
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => EditFieldDialog(
+                              title: 'login.weight_hint'.tr(),
+                              hintText: _weight,
+                              iconPath: SvgIcons.wieght,
+                              keyboardType: TextInputType.number,
+                              onSave: (val) => setState(() => _weight = val),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildProfileRow(
+                        label: 'login.height_hint'.tr(), // "الطول"
+                        value: '$_height ${'visit_details.cm'.tr()}',
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => EditFieldDialog(
+                              title: 'login.height_hint'.tr(),
+                              hintText: _height,
+                              iconPath: SvgIcons.height,
+                              keyboardType: TextInputType.number,
+                              onSave: (val) => setState(() => _height = val),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildProfileRow(
+                        label: 'login.goal_hint'.tr(), // "الهدف من التطبيق"
+                        value: _goal.tr(),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => EditGoalDialog(
+                              currentGoal: _goal,
+                              onSave: (val) => setState(() => _goal = val),
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 40.h),
+                    ],
                   ),
-
-                  SizedBox(height: 24.h),
-
-                  // Detail Rows
-                  _buildProfileRow(
-                    label: 'login.full_name_hint'.tr(), // "الاسم"
-                    value: _name,
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => EditFieldDialog(
-                          title: 'login.full_name_hint'.tr(),
-                          hintText: _name,
-                          iconPath: SvgIcons.person,
-                          onSave: (val) => setState(() => _name = val),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildProfileRow(
-                    label: 'profile_page.email'.tr(), // "البريد الإلكتروني"
-                    value: _email,
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => EditFieldDialog(
-                          title: 'profile_page.email'.tr(),
-                          hintText: _email,
-                          iconPath: SvgIcons.email,
-                          onSave: (val) => setState(() => _email = val),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildProfileRow(
-                    label: 'login.phone_hint'.tr(), // "رقم الجوال"
-                    value: _phone,
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => EditPhoneDialog(
-                          initialPhone: _phone,
-                          onSave: (val) => setState(() => _phone = val),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildProfileRow(
-                    label: 'login.weight_hint'.tr(), // "الوزن"
-                    value: '$_weight ${'visit_details.kg'.tr()}',
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => EditFieldDialog(
-                          title: 'login.weight_hint'.tr(),
-                          hintText: _weight,
-                          iconPath: SvgIcons.weight,
-                          keyboardType: TextInputType.number,
-                          onSave: (val) => setState(() => _weight = val),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildProfileRow(
-                    label: 'login.height_hint'.tr(), // "الطول"
-                    value: '$_height ${'visit_details.cm'.tr()}',
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => EditFieldDialog(
-                          title: 'login.height_hint'.tr(),
-                          hintText: _height,
-                          iconPath: SvgIcons.height,
-                          keyboardType: TextInputType.number,
-                          onSave: (val) => setState(() => _height = val),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildProfileRow(
-                    label: 'login.goal_hint'.tr(), // "الهدف من التطبيق"
-                    value: _goal.tr(),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => EditGoalDialog(
-                          currentGoal: _goal,
-                          onSave: (val) => setState(() => _goal = val),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 40.h),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -278,13 +217,13 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(width: 5.w),
+              SizedBox(width: 12.w),
               GestureDetector(
                 onTap: onTap,
-                child: Icon(
-                  Icons.edit,
-                  color: AppColors.primary,
-                  size: 15.r,
+                child: SvgPicture.asset(
+                  SvgIcons.editInfo,
+                  width: 11.r,
+                  height: 11.r,
                 ),
               ),
             ],

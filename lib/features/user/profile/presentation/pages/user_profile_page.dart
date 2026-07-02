@@ -118,17 +118,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             onTap: () {
                               context.push(UserAppRoutes.personalProfile);
                             },
-                            child: Container(
-                              padding: EdgeInsets.all(8.r),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(color: AppColors.primary, width: 1.5),
-                              ),
-                              child: Icon(
-                                Icons.edit,
-                                color: AppColors.primary,
-                                size: 18.sp,
-                              ),
+                            child: SvgPicture.asset(
+                              SvgIcons.editProfile,
+                              width: 30.r,
+                              height: 30.r,
                             ),
                           ),
                         ],
@@ -283,7 +276,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         ),
         _buildMenuItem(
           title: 'profile_page.rate_app'.tr(), // "قيم التطبيق"
-          iconWidget: _buildCircleIcon(iconPath: SvgIcons.review),
+          iconWidget: _buildCircleIcon(iconPath: SvgIcons.rate),
           onTap: () {},
         ),
         SizedBox(height: 24.h),
@@ -293,7 +286,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget _buildCircleIcon({
     String? iconPath,
     IconData? iconData,
-    Color backgroundColor = const Color(0xFFE0F7E9),
+    Color backgroundColor = const Color(0xFFFAFDFA),
     Color iconColor = AppColors.primary,
   }) {
     return Center(
@@ -345,7 +338,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               children: [
                 iconWidget,
                 SizedBox(width: 16.w),
-                Text(title, style: TextStyleManager.heading3),
+                Text(title, style: TextStyleManager.style11Medium),
               ],
             ),
 

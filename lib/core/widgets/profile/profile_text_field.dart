@@ -36,10 +36,6 @@ class ProfileTextField extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: SvgPicture.asset(
               iconPath,
-              colorFilter: const ColorFilter.mode(
-                AppColors.primary,
-                BlendMode.srcIn,
-              ),
               width: 20.w,
             ),
           ),
