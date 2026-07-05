@@ -108,6 +108,7 @@ class AppRouter {
             final map = state.extra as Map;
             return OtpVerificationPage(
               phoneNumber: map['phoneNumber']?.toString() ?? '',
+              signupToken: map['signupToken']?.toString(),
               isForgotPassword: map['isForgotPassword'] as bool? ?? false,
             );
           }

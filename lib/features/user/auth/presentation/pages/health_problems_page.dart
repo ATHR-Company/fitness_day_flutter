@@ -1,5 +1,6 @@
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,10 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
+import 'package:fitness_day/features/user/auth/data/models/health_questions_model.dart';
+import 'package:fitness_day/features/user/auth/data/models/submit_health_answers_models.dart';
 
 class HealthProblemsPage extends StatefulWidget {
   const HealthProblemsPage({super.key});
@@ -21,24 +26,18 @@ class HealthProblemsPage extends StatefulWidget {
 }
 
 class _HealthProblemsPageState extends State<HealthProblemsPage> {
-  final List<bool?> _answers = List.filled(9, null);
-  final List<TextEditingController> _controllers = List.generate(
-    9,
-    (_) => TextEditingController(),
-  );
+  List<HealthQuestion> _apiQuestions = [];
+  List<bool?> _answers = [];
+  List<TextEditingController> _controllers = [];
   final _formKey = GlobalKey<FormState>();
 
-  final List<String> _questions = [
-    'auth_health_q1',
-    'auth_health_q2',
-    'auth_health_q3',
-    'auth_health_q4',
-    'auth_health_q5',
-    'auth_health_q6',
-    'auth_health_q7',
-    'auth_health_q8',
-    'auth_health_q9',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UserSetupCubit>().fetchHealthQuestions();
+    });
+  }
 
   @override
   void dispose() {
@@ -49,7 +48,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
   }
 
   void _onNextPressed() {
-    if (_answers.contains(null)) {
+    if (_answers.contains(null) || _answers.length < _apiQuestions.length) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -63,66 +62,119 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
     }
 
     if (_formKey.currentState?.validate() ?? false) {
-      context.push(UserAppRoutes.bmiReport);
+      final answersList = <HealthAnswerItem>[];
+      for (int i = 0; i < _apiQuestions.length; i++) {
+        answersList.add(
+          HealthAnswerItem(
+            questionId: _apiQuestions[i].id,
+            answer: _answers[i] ?? false,
+            details: _answers[i] == true ? _controllers[i].text.trim() : null,
+          ),
+        );
+      }
+      context.read<UserSetupCubit>().submitHealthAnswers(answersList);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LoaderHud(
-        isCall: false,
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: AppColors.splashBackgroundGradient,
-          ),
-          child: SafeArea(
-            child: TopCenteredConstrainedBox(
-              horizontalPadding: 0,
-              child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: AppBackHeader(title: 'auth_health_problems_title'.tr()),
+    return BlocConsumer<UserSetupCubit, UserSetupState>(
+      listener: (context, state) {
+        if (state is HealthQuestionsLoadSuccess) {
+          setState(() {
+            _apiQuestions = state.questions;
+            _answers = List.filled(_apiQuestions.length, null);
+            _controllers = List.generate(
+              _apiQuestions.length,
+              (_) => TextEditingController(),
+            );
+          });
+        } else if (state is SubmitHealthAnswersSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.message,
+                style: const TextStyle(fontFamily: 'Cairo'),
               ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(height: 20.h),
-                        Image.asset(
-                          AppImages.healthProblems,
-                          width: 140.w,
-                          height: 140.w,
-                          fit: BoxFit.contain,
+              backgroundColor: AppColors.primary,
+            ),
+          );
+          context.push(UserAppRoutes.bmiReport);
+        } else if (state is UserSetupFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is UserSetupLoading;
+        return Scaffold(
+          body: LoaderHud(
+            isCall: isLoading,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: AppColors.splashBackgroundGradient,
+              ),
+              child: SafeArea(
+                child: TopCenteredConstrainedBox(
+                  horizontalPadding: 0,
+                  child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                    child: AppBackHeader(title: 'auth_health_problems_title'.tr()),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(horizontal: 24.w),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: 20.h),
+                            Image.asset(
+                              AppImages.healthProblems,
+                              width: 140.w,
+                              height: 140.w,
+                              fit: BoxFit.contain,
+                            ),
+                            SizedBox(height: 32.h),
+                            if (_apiQuestions.isEmpty && !isLoading)
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 40.h),
+                                child: Text(
+                                  'لا توجد أسئلة صحية متاحة حالياً.',
+                                  style: TextStyleManager.style14Medium,
+                                ),
+                              ),
+                            ...List.generate(_apiQuestions.length, (index) {
+                              return _buildQuestionItem(index);
+                            }),
+                            SizedBox(height: 32.h),
+                            CustomButton(
+                              text: 'auth_next_button'.tr(),
+                              onPressed: _onNextPressed,
+                            ),
+                            SizedBox(height: 32.h),
+                          ],
                         ),
-                        SizedBox(height: 32.h),
-                        ...List.generate(_questions.length, (index) {
-                          return _buildQuestionItem(index);
-                        }),
-                        SizedBox(height: 32.h),
-                        CustomButton(
-                          text: 'auth_next_button'.tr(),
-                          onPressed: _onNextPressed,
-                        ),
-                        SizedBox(height: 32.h),
-                      ],
+                      ),
                     ),
                   ),
+                ],
+              ),
                 ),
               ),
-            ],
+            ),
           ),
-          ),
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -149,7 +201,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
             children: [
               Expanded(
                 child: Text(
-                  _questions[index].tr(),
+                  _apiQuestions[index].text,
                   textAlign: TextAlign.start,
                   style: TextStyleManager.style11Medium,
                 ),

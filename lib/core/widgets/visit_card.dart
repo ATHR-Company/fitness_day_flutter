@@ -151,49 +151,6 @@ class VisitCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (secondaryButtonText != null &&
-                          onSecondaryPressed != null) ...[
-                        SizedBox(width: 12.w),
-                        SizedBox(
-                          height: 36.h,
-                          child: OutlinedButton(
-                            onPressed: onSecondaryPressed,
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.primary,
-                              side: const BorderSide(
-                                color: AppColors.primary,
-                                width: 1.5,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18.r),
-                              ),
-                              padding: EdgeInsets.symmetric(horizontal: 10.w),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  secondaryButtonText!
-                                      .replaceAll('»', '')
-                                      .replaceAll('«', '')
-                                      .trim(),
-                                  style: TextStyleManager.style11Medium.copyWith(
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                                SizedBox(width: 4.w),
-                                Icon(
-                                  Directionality.of(context) == ui.TextDirection.rtl
-                                      ? Icons.keyboard_double_arrow_left
-                                      : Icons.keyboard_double_arrow_right,
-                                  size: 16.sp,
-                                  color: AppColors.primary,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
               ],

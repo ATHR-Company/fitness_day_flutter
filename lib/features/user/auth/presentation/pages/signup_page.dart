@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,6 +15,9 @@ import 'package:fitness_day/core/widgets/app_password_field.dart';
 import 'package:fitness_day/core/widgets/app_social_button.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
+import 'package:fitness_day/features/user/auth/data/models/user_signup_models.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -37,208 +42,232 @@ class _SignUpPageState extends State<SignUpPage> {
 
   void _onSignUpPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('login.success_login'.tr()),
-          backgroundColor: AppColors.success,
-        ),
+      final request = UserSignupRequest(
+        phone: _phoneController.text.trim(),
+        password: _passwordController.text,
+        passwordConfirm: _confirmPasswordController.text,
+        fcmToken: 'test_fcm_token',
+        deviceType: Platform.isIOS ? 'ios' : 'android',
       );
-      context.push(
-        UserAppRoutes.otpVerification,
-        extra: {
-          'phoneNumber': _phoneController.text.trim(),
-          'isForgotPassword': false,
-        },
-      );
+      context.read<UserAuthCubit>().signup(request);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LoaderHud(
-        isCall: false,
-        child: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.splashBackgroundGradient,
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: Form(
-              key: _formKey,
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(height: 40.h),
-
-                  // App Logo
-                  SvgPicture.asset(SvgIcons.logo, height: 130.h),
-
-                  SizedBox(height: 30.h),
-
-                  // Welcome Text
-                  Text(
-                    LocaleKeys.login_welcome_text.tr(),
-                    textAlign: TextAlign.center,
-                    style: TextStyleManager.heading3,
-                  ),
-
-                  SizedBox(height: 20.h),
-
-                  // Phone Field
-                  AppPhoneField(
-                    controller: _phoneController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'login.phone_error'.tr();
-                      }
-                      return null;
-                    },
-                  ),
-
-                  SizedBox(height: 10.h),
-
-                  // Password Field
-                  AppPasswordField(
-                    controller: _passwordController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return LocaleKeys.login_password_error.tr();
-                      }
-                      if (value.length < 6) {
-                        return 'login.password_too_short'.tr();
-                      }
-                      return null;
-                    },
-                  ),
-
-                  SizedBox(height: 10.h),
-
-                  // Confirm Password Field
-                  AppPasswordField(
-                    controller: _confirmPasswordController,
-                    hint: 'login.confirm_password_hint'.tr(),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return LocaleKeys.login_password_error.tr();
-                      }
-                      if (value != _passwordController.text) {
-                        return 'login.passwords_dont_match'.tr();
-                      }
-                      return null;
-                    },
-                  ),
-
-                  SizedBox(height: 32.h),
-
-                  // Sign Up Button
-                  CustomButton(
-                    text: LocaleKeys.login_create_account.tr(),
-                    onPressed: _onSignUpPressed,
-                  ),
-
-                  SizedBox(height: 20.h),
-
-                  // ── "أو" Divider ──────────────────────────────────────────
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          color: AppColors.primary.withValues(alpha: 0.3),
-                          thickness: 1,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12.w),
-                        child: Text(
-                          LocaleKeys.login_or.tr(),
-                          style: TextStyleManager.style14Medium.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Divider(
-                          color: AppColors.primary.withValues(alpha: 0.3),
-                          thickness: 1,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 20.h),
-
-                  // ── Social Buttons ─────────────────────────────────────────
-                  Row(
-                    children: [
-                      // Apple Button
-                      Expanded(
-                        child: AppSocialButton(
-                          label: LocaleKeys.login_apple.tr(),
-                          icon: SvgPicture.asset(
-                            SvgIcons.appleLogin,
-                            height: 22.h,
-                          ),
-                          onTap: () {
-                            // TODO: Apple Sign-In
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      // Google Button
-                      Expanded(
-                        child: AppSocialButton(
-                          label: LocaleKeys.login_google.tr(),
-                          icon: SvgPicture.asset(SvgIcons.google, height: 22.h),
-                          onTap: () {
-                            // TODO: Google Sign-In
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 24.h),
-
-                  // ── Login Prompt ─────────────────────────────────────────
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      style: TextStyleManager.style14Medium.copyWith(
-                        color: AppColors.black,
-                      ),
+    return BlocConsumer<UserAuthCubit, UserAuthState>(
+      listener: (context, state) {
+        if (state is UserSignupSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.response.message),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          context.push(
+            UserAppRoutes.otpVerification,
+            extra: {
+              'phoneNumber': _phoneController.text.trim(),
+              'signupToken': state.response.signupToken,
+              'isForgotPassword': false,
+            },
+          );
+        } else if (state is UserAuthFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is UserAuthLoading;
+        return Scaffold(
+          body: LoaderHud(
+            isCall: isLoading,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: AppColors.splashBackgroundGradient,
+              ),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        TextSpan(text: 'login.already_have_account'.tr()),
-                        WidgetSpan(
-                          child: GestureDetector(
-                            onTap: () {
-                              context.go(UserAppRoutes.login);
-                            },
-                            child: Text(
-                              'login.login_now'.tr(),
-                              style: TextStyleManager.style14Bold.copyWith(
-                                color: AppColors.primary,
+                        SizedBox(height: 40.h),
+
+                        // App Logo
+                        SvgPicture.asset(SvgIcons.logo, height: 130.h),
+
+                        SizedBox(height: 30.h),
+
+                        // Welcome Text
+                        Text(
+                          LocaleKeys.login_welcome_text.tr(),
+                          textAlign: TextAlign.center,
+                          style: TextStyleManager.heading3,
+                        ),
+
+                        SizedBox(height: 20.h),
+
+                        // Phone Field
+                        AppPhoneField(
+                          controller: _phoneController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'login.phone_error'.tr();
+                            }
+                            return null;
+                          },
+                        ),
+
+                        SizedBox(height: 10.h),
+
+                        // Password Field
+                        AppPasswordField(
+                          controller: _passwordController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return LocaleKeys.login_password_error.tr();
+                            }
+                            if (value.length < 6) {
+                              return 'login.password_too_short'.tr();
+                            }
+                            return null;
+                          },
+                        ),
+
+                        SizedBox(height: 10.h),
+
+                        // Confirm Password Field
+                        AppPasswordField(
+                          controller: _confirmPasswordController,
+                          hint: 'login.confirm_password_hint'.tr(),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return LocaleKeys.login_password_error.tr();
+                            }
+                            if (value != _passwordController.text) {
+                              return 'login.passwords_dont_match'.tr();
+                            }
+                            return null;
+                          },
+                        ),
+
+                        SizedBox(height: 32.h),
+
+                        // Sign Up Button
+                        CustomButton(
+                          text: LocaleKeys.login_create_account.tr(),
+                          onPressed: _onSignUpPressed,
+                        ),
+
+                        SizedBox(height: 20.h),
+
+                        // ── "أو" Divider ──────────────────────────────────────────
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Divider(
+                                color: AppColors.primary.withValues(alpha: 0.3),
+                                thickness: 1,
                               ),
                             ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12.w),
+                              child: Text(
+                                LocaleKeys.login_or.tr(),
+                                style: TextStyleManager.style14Medium.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Divider(
+                                color: AppColors.primary.withValues(alpha: 0.3),
+                                thickness: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(height: 20.h),
+
+                        // ── Social Buttons ─────────────────────────────────────────
+                        Row(
+                          children: [
+                            // Apple Button
+                            Expanded(
+                              child: AppSocialButton(
+                                label: LocaleKeys.login_apple.tr(),
+                                icon: SvgPicture.asset(
+                                  SvgIcons.appleLogin,
+                                  height: 22.h,
+                                ),
+                                onTap: () {
+                                  // TODO: Apple Sign-In
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 16.w),
+                            // Google Button
+                            Expanded(
+                              child: AppSocialButton(
+                                label: LocaleKeys.login_google.tr(),
+                                icon: SvgPicture.asset(SvgIcons.google, height: 22.h),
+                                onTap: () {
+                                  // TODO: Google Sign-In
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(height: 24.h),
+
+                        // ── Login Prompt ─────────────────────────────────────────
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: TextStyleManager.style14Medium.copyWith(
+                              color: AppColors.black,
+                            ),
+                            children: [
+                              TextSpan(text: 'login.already_have_account'.tr()),
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    context.go(UserAppRoutes.login);
+                                  },
+                                  child: Text(
+                                    'login.login_now'.tr(),
+                                    style: TextStyleManager.style14Bold.copyWith(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const TextSpan(text: ' !'),
+                            ],
                           ),
                         ),
-                        const TextSpan(text: ' !'),
+
+                        SizedBox(height: 32.h),
                       ],
                     ),
                   ),
-
-                  SizedBox(height: 32.h),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

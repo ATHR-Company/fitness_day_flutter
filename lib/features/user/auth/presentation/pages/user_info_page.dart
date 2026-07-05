@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,9 @@ import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
+import 'package:fitness_day/features/user/auth/data/models/user_lookups_model.dart';
 
 class UserInfoPage extends StatefulWidget {
   const UserInfoPage({super.key});
@@ -31,6 +35,17 @@ class _UserInfoPageState extends State<UserInfoPage> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cubit = context.read<UserSetupCubit>();
+      if (cubit.goals.isEmpty || cubit.activityLevels.isEmpty || cubit.branches.isEmpty) {
+        cubit.fetchLookups();
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _fullNameController.dispose();
     _genderController.dispose();
@@ -45,6 +60,53 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
   void _onNextPressed() {
     if (_formKey.currentState?.validate() ?? false) {
+      final cubit = context.read<UserSetupCubit>();
+      
+      final selectedGoalName = _goalController.text;
+      final selectedActivityName = _activityController.text;
+      final selectedBranchName = _branchController.text;
+      
+      final goalItem = cubit.goals.firstWhere(
+        (e) => e.name == selectedGoalName,
+        orElse: () => cubit.goals.isNotEmpty ? cubit.goals.first : const LookupItem(id: '6a411c3b54870ff442172d77', name: '', type: '', order: 0),
+      );
+      
+      final activityItem = cubit.activityLevels.firstWhere(
+        (e) => e.name == selectedActivityName,
+        orElse: () => cubit.activityLevels.isNotEmpty ? cubit.activityLevels.first : const LookupItem(id: '6a411c3b54870ff442172d73', name: '', type: '', order: 0),
+      );
+      
+      final branchItem = cubit.branches.firstWhere(
+        (e) => e.name == selectedBranchName,
+        orElse: () => cubit.branches.isNotEmpty ? cubit.branches.first : const LookupItem(id: '6a411c3b54870ff442172d7b', name: '', type: '', order: 0),
+      );
+
+      final double htVal = double.tryParse(_heightController.text.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 170.0;
+      final double wtVal = double.tryParse(_weightController.text.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 70.0;
+
+      final genderVal = (_genderController.text == 'auth_gender_female'.tr() || _genderController.text == 'Female' || _genderController.text == 'أنثى')
+          ? 'female'
+          : 'male';
+
+      String birthDateIso = '1998-05-15T00:00:00.000Z';
+      try {
+        final parsedDate = DateFormat('yyyy / MM / dd').parse(_birthDateController.text);
+        birthDateIso = parsedDate.toUtc().toIso8601String();
+      } catch (_) {
+        // Fallback to ISO string format if already parsed or invalid
+      }
+
+      cubit.savePersonalData(
+        fullName: _fullNameController.text.trim(),
+        gender: genderVal,
+        birthDate: birthDateIso,
+        height: htVal,
+        weight: wtVal,
+        activityLevelId: activityItem.id,
+        goalId: goalItem.id,
+        branchId: branchItem.id,
+      );
+
       context.push(UserAppRoutes.dietSystem);
     }
   }
@@ -215,49 +277,44 @@ class _UserInfoPageState extends State<UserInfoPage> {
   }
 
   void _showActivityPicker() {
+    final cubit = context.read<UserSetupCubit>();
+    final options = cubit.activityLevels.map((e) => e.name).toList();
     _showSelectionPopup(
       title: 'auth_activity_level'.tr(),
-      options: [
-        'auth_activity_low'.tr(),
-        'auth_activity_medium'.tr(),
-        'auth_activity_high'.tr(),
-        'auth_activity_very_high'.tr(),
-      ],
+      options: options,
       controller: _activityController,
     );
   }
 
   void _showGoalPicker() {
+    final cubit = context.read<UserSetupCubit>();
+    final options = cubit.goals.map((e) => e.name).toList();
     _showSelectionPopup(
       title: 'auth_goal'.tr(),
-      options: [
-        'auth_goal_lose'.tr(),
-        'auth_goal_gain'.tr(),
-        'auth_goal_build'.tr(),
-        'auth_goal_maintain'.tr(),
-      ],
+      options: options,
       controller: _goalController,
     );
   }
 
   void _showBranchPicker() {
+    final cubit = context.read<UserSetupCubit>();
+    final options = cubit.branches.map((e) => e.name).toList();
     _showSelectionPopup(
       title: 'auth_val_err_fitness_place'.tr(),
-      options: [
-        'auth_branch_qatif'.tr(),
-        'auth_branch_dammam'.tr(),
-        'auth_branch_riyadh'.tr(),
-      ],
+      options: options,
       controller: _branchController,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LoaderHud(
-        isCall: false,
-        child: Container(
+    return BlocBuilder<UserSetupCubit, UserSetupState>(
+      builder: (context, state) {
+        final isLoading = state is UserSetupLoading;
+        return Scaffold(
+          body: LoaderHud(
+            isCall: isLoading,
+            child: Container(
           width: double.infinity,
           height: double.infinity,
           decoration: const BoxDecoration(
@@ -462,6 +519,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

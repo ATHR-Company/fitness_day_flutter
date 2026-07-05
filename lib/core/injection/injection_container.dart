@@ -1,9 +1,30 @@
 import 'package:dio/dio.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/cache/secure_cache.dart';
+import 'package:fitness_day/core/network/api_service.dart';
+import 'package:fitness_day/core/network/token_interceptor.dart';
+import 'package:fitness_day/core/constant/api_endpoints.dart';
+
+// Specialist Auth
 import 'package:fitness_day/features/specialist/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:fitness_day/features/specialist/auth/data/repositories/auth_repository_impl.dart';
 import 'package:fitness_day/features/specialist/auth/domain/repositories/auth_repository.dart';
 import 'package:fitness_day/features/specialist/auth/domain/usecases/login_usecase.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
+
+// User Auth & Registration Setup
+import 'package:fitness_day/features/user/auth/data/datasources/user_auth_remote_datasource.dart';
+import 'package:fitness_day/features/user/auth/data/repositories/user_auth_repository_impl.dart';
+import 'package:fitness_day/features/user/auth/domain/repositories/user_auth_repository.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/user_signup_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/user_verify_otp_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/get_user_lookups_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/complete_personal_data_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/get_health_questions_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/submit_health_answers_usecase.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -32,25 +53,25 @@ Future<void> init() async {
   //                    CACHE
   // ═════════════════════════════════════════════════
 
-  // TODO: Implement AppCache and SecureCache in lib/core/cache/
-  // getIt.registerLazySingleton<AppCache>(
-  //   () => AppCacheImpl(getIt<GetStorage>()),
-  // );
-  // getIt.registerLazySingleton<SecureCache>(
-  //   () => SecureCacheImpl(getIt<FlutterSecureStorage>()),
-  // );
+  getIt.registerLazySingleton<AppCache>(
+    () => AppCacheImpl(getIt<GetStorage>()),
+  );
+  getIt.registerLazySingleton<SecureCache>(
+    () => SecureCacheImpl(getIt<FlutterSecureStorage>()),
+  );
 
   // ═════════════════════════════════════════════════
   //                   NETWORK
   // ═════════════════════════════════════════════════
 
-  // TODO: Implement NetworkChecker in lib/core/network/
-  // getIt.registerLazySingleton<NetworkChecker>(() => NetworkCheckerImpl());
+  getIt.registerLazySingleton<TokenInterceptor>(
+    () => TokenInterceptor(getIt<SecureCache>()),
+  );
 
   getIt.registerLazySingleton<Dio>(() {
     final dio = Dio(
       BaseOptions(
-        baseUrl: "https://api.example.com", // TODO: Move to ApiConstants
+        baseUrl: ApiEndpoints.baseUrl,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 30),
@@ -63,9 +84,8 @@ Future<void> init() async {
       ),
     );
 
-    // TODO: Add Interceptors once implemented
-    // dio.interceptors.add(TokenInterceptor(...));
-    // dio.interceptors.add(LanguageInterceptor(...));
+    // Add interceptors
+    dio.interceptors.add(getIt<TokenInterceptor>());
 
     if (kDebugMode) {
       dio.interceptors.add(
@@ -84,15 +104,18 @@ Future<void> init() async {
     return dio;
   });
 
-  // TODO: Implement ApiService in lib/core/network/
-  // getIt.registerLazySingleton<ApiService>(() => ApiService(getIt<Dio>()));
+  getIt.registerLazySingleton<ApiService>(() => ApiService(getIt<Dio>()));
 
   // ═════════════════════════════════════════════════
   //                 DATA SOURCES
   // ═════════════════════════════════════════════════
 
   getIt.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(), // Inject ApiService once ready
+    () => AuthRemoteDataSourceImpl(),
+  );
+
+  getIt.registerLazySingleton<UserAuthRemoteDataSource>(
+    () => UserAuthRemoteDataSourceImpl(getIt<ApiService>()),
   );
 
   // ═════════════════════════════════════════════════
@@ -101,7 +124,13 @@ Future<void> init() async {
 
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
-      getIt<AuthRemoteDataSource>(), // Using the registered DataSource
+      getIt<AuthRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<UserAuthRepository>(
+    () => UserAuthRepositoryImpl(
+      getIt<UserAuthRemoteDataSource>(),
     ),
   );
 
@@ -113,11 +142,53 @@ Future<void> init() async {
     () => LoginUseCase(getIt<AuthRepository>()),
   );
 
+  getIt.registerLazySingleton<UserSignupUseCase>(
+    () => UserSignupUseCase(getIt<UserAuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<UserVerifyOtpUseCase>(
+    () => UserVerifyOtpUseCase(getIt<UserAuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetUserLookupsUseCase>(
+    () => GetUserLookupsUseCase(getIt<UserAuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<CompletePersonalDataUseCase>(
+    () => CompletePersonalDataUseCase(getIt<UserAuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetHealthQuestionsUseCase>(
+    () => GetHealthQuestionsUseCase(getIt<UserAuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<SubmitHealthAnswersUseCase>(
+    () => SubmitHealthAnswersUseCase(getIt<UserAuthRepository>()),
+  );
+
   // ═════════════════════════════════════════════════
   //                    BLoCs
   // ═════════════════════════════════════════════════
 
   getIt.registerFactory<AuthCubit>(
     () => AuthCubit(loginUseCase: getIt<LoginUseCase>()),
+  );
+
+  getIt.registerFactory<UserAuthCubit>(
+    () => UserAuthCubit(
+      signupUseCase: getIt<UserSignupUseCase>(),
+      verifyOtpUseCase: getIt<UserVerifyOtpUseCase>(),
+      secureCache: getIt<SecureCache>(),
+      appCache: getIt<AppCache>(),
+    ),
+  );
+
+  getIt.registerFactory<UserSetupCubit>(
+    () => UserSetupCubit(
+      getUserLookupsUseCase: getIt<GetUserLookupsUseCase>(),
+      completePersonalDataUseCase: getIt<CompletePersonalDataUseCase>(),
+      getHealthQuestionsUseCase: getIt<GetHealthQuestionsUseCase>(),
+      submitHealthAnswersUseCase: getIt<SubmitHealthAnswersUseCase>(),
+    ),
   );
 }

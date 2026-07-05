@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,14 +15,21 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
+import 'package:fitness_day/features/user/auth/data/models/user_verify_otp_models.dart';
+
+import '../manager/user_setup_cubit.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String phoneNumber;
+  final String? signupToken;
   final bool isForgotPassword;
 
   const OtpVerificationPage({
     super.key,
     required this.phoneNumber,
+    this.signupToken,
     this.isForgotPassword = false,
   });
 
@@ -41,11 +49,29 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
   void _onVerifyPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      _showSuccessBottomSheet(context);
+      if (widget.isForgotPassword) {
+        _showSuccessBottomSheet(
+          context,
+          isPersonalDataComplete: false,
+          isSurveyComplete: false,
+          message: 'login.verify_success_title'.tr(),
+        );
+      } else {
+        final request = UserVerifyOtpRequest(
+          signupToken: widget.signupToken ?? '',
+          otp: _pinController.text.trim(),
+        );
+        context.read<UserAuthCubit>().verifyOtp(request);
+      }
     }
   }
 
-  void _showSuccessBottomSheet(BuildContext context) {
+  void _showSuccessBottomSheet(
+    BuildContext context, {
+    required bool isPersonalDataComplete,
+    required bool isSurveyComplete,
+    required String message,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -74,19 +100,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     SizedBox(height: 64.h),
                     // Title
                     Text(
-                      'login.verify_success_title'.tr(),
+                      message,
+                      textAlign: TextAlign.center,
                       style: TextStyleManager.heading2.copyWith(
                         color: AppColors.black,
-                      ),
-                    ),
-                    SizedBox(height: 20.h),
-                    // Subtitle
-                    Text(
-                      'login.verify_success_subtitle'.tr(),
-                      textAlign: TextAlign.center,
-                      style: TextStyleManager.style12Regular.copyWith(
-                        color: AppColors.textSecondary,
-                        height: 1.6,
                       ),
                     ),
                     SizedBox(height: 64.h),
@@ -95,11 +112,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       text: 'login.next'.tr(),
                       onPressed: () {
                         Navigator.pop(modalContext);
-                        context.pushReplacement(
-                          widget.isForgotPassword
-                              ? UserAppRoutes.resetPassword
-                              : UserAppRoutes.userInfo,
-                        );
+                        if (widget.isForgotPassword) {
+                          context.pushReplacement(UserAppRoutes.resetPassword);
+                        } else {
+                          if (!isPersonalDataComplete) {
+                            context.pushReplacement(UserAppRoutes.userInfo);
+                          } else if (!isSurveyComplete) {
+                            context.pushReplacement(UserAppRoutes.healthProblems);
+                          } else {
+                            context.pushReplacement(UserAppRoutes.home);
+                          }
+                        }
                       },
                     ),
                     SizedBox(height: 32.h),
@@ -128,8 +151,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   Widget build(BuildContext context) {
     // Custom Pinput Theme Config
     final defaultPinTheme = PinTheme(
-      width: 54.w,
-      height: 54.h,
+      width: 48.w,
+      height: 48.h,
       textStyle: TextStyleManager.heading2.copyWith(color: AppColors.black),
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -154,95 +177,116 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       ),
     );
 
-    return Scaffold(
-      body: LoaderHud(
-        isCall: false,
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: AppColors.splashBackgroundGradient,
-          ),
-          child: SafeArea(
-            child: TopCenteredConstrainedBox(
-              horizontalPadding: 0,
-              child: Column(
-                children: [
-                  Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: AppBackHeader(title: 'login.verify_title'.tr()),
+    return BlocConsumer<UserAuthCubit, UserAuthState>(
+      listener: (context, state) {
+        if (state is UserVerifyOtpSuccess) {
+          // Fetch lookups using the new token
+          context.read<UserSetupCubit>().fetchLookups();
+          _showSuccessBottomSheet(
+            context,
+            isPersonalDataComplete: state.response.isPersonalDataComplete,
+            isSurveyComplete: state.response.isSurveyComplete,
+            message: state.response.message,
+          );
+        } else if (state is UserAuthFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is UserAuthLoading;
+        return Scaffold(
+          body: LoaderHud(
+            isCall: isLoading,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: AppColors.splashBackgroundGradient,
               ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: Form(
-                    key: _formKey,
-
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(height: 20.h),
-                        SizedBox(height: 16.h),
-                        // Subtitle
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: Text(
-                            'login.verify_subtitle'.tr(),
-                            textAlign: TextAlign.center,
-                            style: TextStyleManager.style12Regular.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 48.h),
-                        // OTP Pinput Fields
-                        Directionality(
-                          textDirection: ui
-                              .TextDirection
-                              .ltr, // Keep pin numbers LTR ordered
-                          child: Pinput(
-                            length: 5,
-                            controller: _pinController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            defaultPinTheme: defaultPinTheme,
-                            focusedPinTheme: focusedPinTheme,
-                            submittedPinTheme: submittedPinTheme,
-                            preFilledWidget: Text(
-                              '-',
-                              style: TextStyleManager.heading2.copyWith(
-                                color: AppColors.textSecondary.withValues(
-                                  alpha: 0.5,
+              child: SafeArea(
+                child: TopCenteredConstrainedBox(
+                  horizontalPadding: 0,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                        child: AppBackHeader(title: 'login.verify_title'.tr()),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.symmetric(horizontal: 24.w),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(height: 20.h),
+                                SizedBox(height: 16.h),
+                                // Subtitle
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                  child: Text(
+                                    'login.verify_subtitle'.tr(),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyleManager.style12Regular.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                SizedBox(height: 48.h),
+                                // OTP Pinput Fields (6 digits)
+                                Directionality(
+                                  textDirection: ui.TextDirection.ltr, // Keep pin numbers LTR ordered
+                                  child: Pinput(
+                                    length: 6,
+                                    controller: _pinController,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                    ],
+                                    defaultPinTheme: defaultPinTheme,
+                                    focusedPinTheme: focusedPinTheme,
+                                    submittedPinTheme: submittedPinTheme,
+                                    preFilledWidget: Text(
+                                      '-',
+                                      style: TextStyleManager.heading2.copyWith(
+                                        color: AppColors.textSecondary.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.length < 6) {
+                                        return ''; // simple invisible invalid state or standard text
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                SizedBox(height: 48.h),
+                                // Send Button
+                                CustomButton(
+                                  text: 'login.send'.tr(),
+                                  onPressed: _onVerifyPressed,
+                                ),
+                              ],
                             ),
-                            validator: (value) {
-                              if (value == null || value.length < 5) {
-                                return ''; // simple invisible invalid state or standard text
-                              }
-                              return null;
-                            },
                           ),
                         ),
-                        SizedBox(height: 48.h),
-                        // Send Button
-                        CustomButton(
-                          text: 'login.send'.tr(),
-                          onPressed: _onVerifyPressed,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

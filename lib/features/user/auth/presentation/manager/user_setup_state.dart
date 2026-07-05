@@ -1,0 +1,52 @@
+import 'package:fitness_day/features/user/auth/data/models/user_lookups_model.dart';
+import 'package:fitness_day/features/user/auth/data/models/health_questions_model.dart';
+import 'package:fitness_day/features/user/auth/data/models/submit_health_answers_models.dart';
+
+sealed class UserSetupState {
+  const UserSetupState();
+}
+
+class UserSetupInitial extends UserSetupState {
+  const UserSetupInitial();
+}
+
+class UserSetupLoading extends UserSetupState {
+  const UserSetupLoading();
+}
+
+class UserLookupsLoadSuccess extends UserSetupState {
+  final List<LookupItem> goals;
+  final List<LookupItem> activityLevels;
+  final List<LookupItem> branches;
+  const UserLookupsLoadSuccess({
+    required this.goals,
+    required this.activityLevels,
+    required this.branches,
+  });
+}
+
+class CompletePersonalDataSuccess extends UserSetupState {
+  final String message;
+  const CompletePersonalDataSuccess(this.message);
+}
+
+class HealthQuestionsLoadSuccess extends UserSetupState {
+  final List<HealthQuestion> questions;
+  const HealthQuestionsLoadSuccess(this.questions);
+}
+
+class SubmitHealthAnswersSuccess extends UserSetupState {
+  final BodyReportModel bodyReport;
+  final bool isSubscribed;
+  final String message;
+  const SubmitHealthAnswersSuccess({
+    required this.bodyReport,
+    required this.isSubscribed,
+    required this.message,
+  });
+}
+
+class UserSetupFailure extends UserSetupState {
+  final String message;
+  const UserSetupFailure(this.message);
+}

@@ -1,5 +1,6 @@
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,6 +13,7 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 
 class DietSystemPage extends StatefulWidget {
   const DietSystemPage({super.key});
@@ -37,6 +39,17 @@ class _DietSystemPageState extends State<DietSystemPage> {
 
   void _onNextPressed() {
     if (_formKey.currentState?.validate() ?? false) {
+      final dietTypeStr = _selectedDietType == 1 ? 'VEGETARIAN' : 'MIXED';
+      final dailyMealsVal = int.tryParse(_dailyMealsController.text) ?? 3;
+      
+      context.read<UserSetupCubit>().saveDietData(
+        dietType: dietTypeStr,
+        dailyMeals: dailyMealsVal,
+        preferredFoods: _preferredFoodsController.text.trim(),
+        dislikedFoods: _dislikedFoodsController.text.trim(),
+        foodAllergies: _foodAllergiesController.text.trim(),
+      );
+      
       context.push(UserAppRoutes.fitnessSystem);
     }
   }

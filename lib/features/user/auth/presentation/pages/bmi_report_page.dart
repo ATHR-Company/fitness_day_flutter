@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -9,12 +10,38 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 
 class BmiReportPage extends StatelessWidget {
   const BmiReportPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final report = context.read<UserSetupCubit>().bodyReport;
+
+    // Fallbacks if report is null (e.g. if loaded directly/no survey completed)
+    final bmiVal = report?.bmi.value ?? 25.47;
+    final bmiStatus = report?.bmi.status ?? 'صحي';
+    final bmiUnit = report?.bmi.unit ?? 'كجم/متر²';
+    
+    final idealWeightVal = report?.idealWeight.value ?? 68.0;
+    final idealWeightUnit = report?.idealWeight.unit ?? 'كيلوجرام';
+
+    final caloriesVal = report?.calories.value ?? 1025.0;
+    final caloriesUnit = report?.calories.unit ?? 'كالوري';
+
+    final proteinVal = report?.proteinNeeds.value ?? 45.0;
+    final proteinUnit = report?.proteinNeeds.unit ?? 'جرام';
+
+    final currentWeight = report?.currentData.weight ?? 78.0;
+    final currentWeightUnit = report?.currentData.weightUnit ?? 'كيلوجرام';
+
+    final currentHeight = report?.currentData.height ?? 175.0;
+    final currentHeightUnit = report?.currentData.heightUnit ?? 'سنتيمتر';
+
+    final activityLevelStr = report?.currentData.activityLevel ?? 'خامل';
+    final goalStr = report?.currentData.goal ?? 'إنقاص الوزن';
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -48,11 +75,11 @@ class BmiReportPage extends StatelessWidget {
                       // 1. BMI Card
                       _buildMetricCard(
                         title: 'auth_bmi'.tr(),
-                        value: '19.44 ${'auth_bmi_unit'.tr()}',
+                        value: '$bmiVal $bmiUnit',
                         iconPath: SvgIcons.height,
                         badge: Container(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 4.w,
+                            horizontal: 8.w,
                             vertical: 4.h,
                           ),
                           decoration: BoxDecoration(
@@ -60,7 +87,7 @@ class BmiReportPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: Text(
-                            'auth_normal_weight'.tr(),
+                            bmiStatus,
                             style: TextStyleManager.style13Medium.copyWith(
                               color: AppColors.white,
                             ),
@@ -73,7 +100,7 @@ class BmiReportPage extends StatelessWidget {
                       // 2. Ideal Weight Card
                       _buildMetricCard(
                         title: 'auth_ideal_weight'.tr(),
-                        value: '68.00 ${'auth_weight_unit'.tr()}',
+                        value: '$idealWeightVal $idealWeightUnit',
                         iconPath: SvgIcons.perfectWieght,
                       ),
                       SizedBox(height: 16.h),
@@ -81,7 +108,7 @@ class BmiReportPage extends StatelessWidget {
                       // 3. Calories Card
                       _buildMetricCard(
                         title: 'auth_calories'.tr(),
-                        value: '1025 ${'auth_calories_unit'.tr()}',
+                        value: '$caloriesVal $caloriesUnit',
                         iconPath: SvgIcons.activity,
                       ),
                       SizedBox(height: 16.h),
@@ -89,7 +116,7 @@ class BmiReportPage extends StatelessWidget {
                       // 4. Protein Need Card
                       _buildMetricCard(
                         title: 'auth_protein_need'.tr(),
-                        value: '45 ${'auth_protein_unit'.tr()}',
+                        value: '$proteinVal $proteinUnit',
                         iconPath: SvgIcons.diet,
                       ),
                       SizedBox(height: 24.h),
@@ -126,25 +153,25 @@ class BmiReportPage extends StatelessWidget {
                                 SizedBox(height: 24.h),
                                 _buildDataRow(
                                   'auth_weight'.tr(),
-                                  '68.00 ${'auth_weight_unit'.tr()}',
+                                  '$currentWeight $currentWeightUnit',
                                   SvgIcons.weight,
                                 ),
                                 SizedBox(height: 16.h),
                                 _buildDataRow(
                                   'auth_height'.tr(),
-                                  '167 ${'auth_height_unit'.tr()}',
+                                  '$currentHeight $currentHeightUnit',
                                   SvgIcons.height,
                                 ),
                                 SizedBox(height: 16.h),
                                 _buildDataRow(
                                   'auth_activity_level'.tr(),
-                                  'auth_activity_low'.tr(),
+                                  activityLevelStr,
                                   SvgIcons.activity,
                                 ),
                                 SizedBox(height: 16.h),
                                 _buildDataRow(
                                   'auth_goal'.tr(),
-                                  'auth_goal_gain'.tr(),
+                                  goalStr,
                                   SvgIcons.goal,
                                 ),
                               ],
@@ -192,42 +219,41 @@ class BmiReportPage extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-              Container(
-                //width: 56.w,
-                height: 56.w,
-                padding: EdgeInsets.all(12.w),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.lightGreenBackground,
-                  border: Border.all(color: AppColors.lightGreenBorder),
-                ),
-                child: SvgPicture.asset(
-                  iconPath,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary,
-                    BlendMode.srcIn,
+                Container(
+                  height: 56.w,
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.lightGreenBackground,
+                    border: Border.all(color: AppColors.lightGreenBorder),
                   ),
-                ),
-              ),
-              SizedBox(width: 12.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyleManager.style14Medium,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    value,
-                    style: TextStyleManager.style15Medium.copyWith(
-                      color: AppColors.tealText,
+                  child: SvgPicture.asset(
+                    iconPath,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.primary,
+                      BlendMode.srcIn,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ],
-              ),
+                ),
+                SizedBox(width: 12.w),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyleManager.style14Medium,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      value,
+                      style: TextStyleManager.style15Medium.copyWith(
+                        color: AppColors.tealText,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -241,7 +267,6 @@ class BmiReportPage extends StatelessWidget {
     return Row(
       children: [
         Container(
-          //width: 48.w,
           height: 48.w,
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
