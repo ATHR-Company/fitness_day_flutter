@@ -27,6 +27,26 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
   final _dailyExerciseHoursController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cubit = context.read<UserSetupCubit>();
+      if (cubit.weeklyWorkouts != null) {
+        _weeklyExercisesController.text = cubit.weeklyWorkouts.toString();
+      }
+      if (cubit.dailySteps != null) {
+        _dailyStepsController.text = cubit.dailySteps.toString();
+      }
+      if (cubit.preferredExercises != null && cubit.preferredExercises!.isNotEmpty) {
+        _preferredExercisesController.text = cubit.preferredExercises!;
+      }
+      if (cubit.dailyWorkoutHours != null) {
+        _dailyExerciseHoursController.text = cubit.dailyWorkoutHours.toString();
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _weeklyExercisesController.dispose();
     _dailyStepsController.dispose();

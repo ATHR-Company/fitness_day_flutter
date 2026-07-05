@@ -42,6 +42,21 @@ class _UserInfoPageState extends State<UserInfoPage> {
       if (cubit.goals.isEmpty || cubit.activityLevels.isEmpty || cubit.branches.isEmpty) {
         cubit.fetchLookups();
       }
+      // Restore previously entered data
+      if (cubit.fullName != null && cubit.fullName!.isNotEmpty) {
+        _fullNameController.text = cubit.fullName!;
+      }
+      if (cubit.height != null) {
+        _heightController.text = '${cubit.height!.toInt()} ${'auth_height_unit'.tr()}';
+      }
+      if (cubit.weight != null) {
+        _weightController.text = '${cubit.weight!} ${'auth_weight_unit'.tr()}';
+      }
+      if (cubit.gender != null && cubit.gender!.isNotEmpty) {
+        _genderController.text = cubit.gender == 'female'
+            ? 'auth_gender_female'.tr()
+            : 'auth_gender_male'.tr();
+      }
     });
   }
 

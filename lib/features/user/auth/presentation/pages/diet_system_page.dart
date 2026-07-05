@@ -29,6 +29,30 @@ class _DietSystemPageState extends State<DietSystemPage> {
   final _foodAllergiesController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cubit = context.read<UserSetupCubit>();
+      if (cubit.dietType != null) {
+        _selectedDietType = cubit.dietType == 'VEGAN' ? 1 : 0;
+        setState(() {});
+      }
+      if (cubit.dailyMeals != null) {
+        _dailyMealsController.text = cubit.dailyMeals.toString();
+      }
+      if (cubit.preferredFoods != null && cubit.preferredFoods!.isNotEmpty) {
+        _preferredFoodsController.text = cubit.preferredFoods!;
+      }
+      if (cubit.dislikedFoods != null && cubit.dislikedFoods!.isNotEmpty) {
+        _dislikedFoodsController.text = cubit.dislikedFoods!;
+      }
+      if (cubit.foodAllergies != null && cubit.foodAllergies!.isNotEmpty) {
+        _foodAllergiesController.text = cubit.foodAllergies!;
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _dailyMealsController.dispose();
     _preferredFoodsController.dispose();
@@ -39,7 +63,7 @@ class _DietSystemPageState extends State<DietSystemPage> {
 
   void _onNextPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      final dietTypeStr = _selectedDietType == 1 ? 'VEGETARIAN' : 'MIXED';
+      final dietTypeStr = _selectedDietType == 1 ? 'VEGAN' : 'MIXED';
       final dailyMealsVal = int.tryParse(_dailyMealsController.text) ?? 3;
       
       context.read<UserSetupCubit>().saveDietData(

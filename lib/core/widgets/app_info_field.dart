@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 
@@ -12,6 +13,7 @@ class AppInfoField extends StatelessWidget {
   final VoidCallback? onTap;
   final FormFieldValidator<String>? validator;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   const AppInfoField({
     super.key,
@@ -22,10 +24,15 @@ class AppInfoField extends StatelessWidget {
     this.onTap,
     this.validator,
     this.keyboardType,
+    this.inputFormatters,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveFormatters = inputFormatters ??
+        (keyboardType == TextInputType.number
+            ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly]
+            : null);
     return TextFormField(
       controller: controller,
       readOnly: onTap != null,
@@ -33,6 +40,7 @@ class AppInfoField extends StatelessWidget {
       validator: validator,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       keyboardType: keyboardType ?? TextInputType.text,
+      inputFormatters: effectiveFormatters,
       textAlign: TextAlign.start,
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
