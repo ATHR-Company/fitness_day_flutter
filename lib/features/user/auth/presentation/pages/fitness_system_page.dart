@@ -11,6 +11,7 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
 
@@ -77,23 +78,10 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
     return BlocConsumer<UserSetupCubit, UserSetupState>(
       listener: (context, state) {
         if (state is CompletePersonalDataSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                state.message,
-                style: const TextStyle(fontFamily: 'Cairo'),
-              ),
-              backgroundColor: AppColors.primary,
-            ),
-          );
+          showAppSnackBar(context, text: state.message, isSuccess: true);
           context.push(UserAppRoutes.healthProblems);
         } else if (state is UserSetupFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          showAppSnackBar(context, text: state.message, isError: true);
         }
       },
       builder: (context, state) {

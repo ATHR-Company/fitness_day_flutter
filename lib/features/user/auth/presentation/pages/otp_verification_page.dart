@@ -14,6 +14,7 @@ import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
@@ -189,12 +190,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             message: state.response.message,
           );
         } else if (state is UserAuthFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          showAppSnackBar(context, text: state.message, isError: true);
         }
       },
       builder: (context, state) {

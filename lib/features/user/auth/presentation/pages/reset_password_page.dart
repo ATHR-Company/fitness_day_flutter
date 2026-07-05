@@ -10,6 +10,7 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
@@ -33,13 +34,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   void _onNextPressed() {
     if (_formKey.currentState?.validate() ?? false) {
       // Show success feedback
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('login.success_login'.tr()),
-          backgroundColor: AppColors.success,
-        ),
-      );
-      // Navigate to the user home page
+      showAppSnackBar(context, text: 'login.success_login'.tr(), isSuccess: true);
       context.go(UserAppRoutes.home);
     }
   }

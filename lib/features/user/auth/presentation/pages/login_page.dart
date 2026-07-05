@@ -18,6 +18,7 @@ import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_s
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/core/network/google_sign_in_helper.dart';
 
@@ -64,12 +65,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
               context.pushReplacement(UserAppRoutes.home);
             }
           } else if (state is UserAuthFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
-              ),
-            );
+            showAppSnackBar(context, text: state.message, isError: true);
           }
         },
         child: BlocBuilder<UserAuthCubit, UserAuthState>(
@@ -164,20 +160,10 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   BlocConsumer<AuthCubit, AuthState>(
                     listener: (context, state) {
                       if (state is AuthSuccess) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(LocaleKeys.login_success_login.tr()),
-                            backgroundColor: AppColors.success,
-                          ),
-                        );
+                        showAppSnackBar(context, text: LocaleKeys.login_success_login.tr(), isSuccess: true);
                         context.go(UserAppRoutes.home);
                       } else if (state is AuthFailure) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(state.message),
-                            backgroundColor: AppColors.error,
-                          ),
-                        );
+                        showAppSnackBar(context, text: state.message, isError: true);
                       }
                     },
                     builder: (context, state) {
@@ -256,12 +242,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                               }
                             } catch (e) {
                               if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('خطأ أثناء تسجيل الدخول بجوجل: $e'),
-                                    backgroundColor: AppColors.error,
-                                  ),
-                                );
+                                showAppSnackBar(context, text: 'خطأ أثناء تسجيل الدخول بجوجل: $e', isError: true);
                               }
                             }
                           },

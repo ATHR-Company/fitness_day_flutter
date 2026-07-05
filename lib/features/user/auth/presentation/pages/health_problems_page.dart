@@ -13,6 +13,7 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
 import 'package:fitness_day/features/user/auth/data/models/health_questions_model.dart';
@@ -49,15 +50,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
 
   void _onNextPressed() {
     if (_answers.contains(null) || _answers.length < _apiQuestions.length) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'auth_health_validation_err'.tr(),
-            style: const TextStyle(fontFamily: 'Cairo'),
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      showAppSnackBar(context, text: 'auth_health_validation_err'.tr(), isError: true);
       return;
     }
 
@@ -90,23 +83,10 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
             );
           });
         } else if (state is SubmitHealthAnswersSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                state.message,
-                style: const TextStyle(fontFamily: 'Cairo'),
-              ),
-              backgroundColor: AppColors.primary,
-            ),
-          );
+          showAppSnackBar(context, text: state.message, isSuccess: true);
           context.push(UserAppRoutes.bmiReport);
         } else if (state is UserSetupFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          showAppSnackBar(context, text: state.message, isError: true);
         }
       },
       builder: (context, state) {

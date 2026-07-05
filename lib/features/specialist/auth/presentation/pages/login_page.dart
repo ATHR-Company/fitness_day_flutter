@@ -15,6 +15,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -104,20 +105,10 @@ class _LoginPageState extends State<LoginPage> {
                   BlocConsumer<AuthCubit, AuthState>(
                     listener: (context, state) {
                       if (state is AuthSuccess) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('login.success_login'.tr()),
-                            backgroundColor: AppColors.success,
-                          ),
-                        );
+                        showAppSnackBar(context, text: 'login.success_login'.tr(), isSuccess: true);
                         context.go(SpecialistAppRoutes.home);
                       } else if (state is AuthFailure) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(state.message),
-                            backgroundColor: AppColors.error,
-                          ),
-                        );
+                        showAppSnackBar(context, text: state.message, isError: true);
                       }
                     },
                     builder: (context, state) {

@@ -18,6 +18,7 @@ import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_signup_models.dart';
 import 'package:fitness_day/core/network/google_sign_in_helper.dart';
 
@@ -60,12 +61,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return BlocConsumer<UserAuthCubit, UserAuthState>(
       listener: (context, state) {
         if (state is UserSignupSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.response.message),
-              backgroundColor: AppColors.success,
-            ),
-          );
+          showAppSnackBar(context, text: state.response.message, isSuccess: true);
           context.push(
             UserAppRoutes.otpVerification,
             extra: {
@@ -84,12 +80,7 @@ class _SignUpPageState extends State<SignUpPage> {
             context.pushReplacement(UserAppRoutes.home);
           }
         } else if (state is UserAuthFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          showAppSnackBar(context, text: state.message, isError: true);
         }
       },
       builder: (context, state) {
@@ -247,12 +238,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     }
                                   } catch (e) {
                                     if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('خطأ أثناء تسجيل الدخول بجوجل: $e'),
-                                          backgroundColor: AppColors.error,
-                                        ),
-                                      );
+                                      showAppSnackBar(context, text: 'خطأ أثناء تسجيل الدخول بجوجل: $e', isError: true);
                                     }
                                   }
                                 },
