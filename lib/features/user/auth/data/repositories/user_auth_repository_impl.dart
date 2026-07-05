@@ -7,6 +7,7 @@ import 'package:fitness_day/features/user/auth/data/models/user_lookups_model.da
 import 'package:fitness_day/features/user/auth/data/models/health_questions_model.dart';
 import 'package:fitness_day/features/user/auth/data/models/complete_personal_data_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/submit_health_answers_models.dart';
+import 'package:fitness_day/features/user/auth/data/models/social_auth_models.dart';
 import 'package:fitness_day/features/user/auth/domain/repositories/user_auth_repository.dart';
 
 class UserAuthRepositoryImpl implements UserAuthRepository {
@@ -28,6 +29,16 @@ class UserAuthRepositoryImpl implements UserAuthRepository {
   Future<ApiResult<UserVerifyOtpResponseModel>> verifyOtp(UserVerifyOtpRequest request) async {
     try {
       final response = await _remoteDataSource.verifyOtp(request);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<UserVerifyOtpResponseModel>> socialAuth(SocialAuthRequest request) async {
+    try {
+      final response = await _remoteDataSource.socialAuth(request);
       return Success(response);
     } catch (e) {
       return FailureResult(ErrorHandler.handle(e));

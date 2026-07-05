@@ -8,4 +8,5 @@ class ApiEndpoints {
   static const String completePersonalData = '/users/complete-personal-data';
   static const String submitHealthAnswers = '/users/submit-health-answers';
   static const String authRefresh = '/auth/refresh';
+  static const String socialAuth = '/auth/social';
 }

@@ -16,6 +16,10 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
+import 'package:fitness_day/core/network/google_sign_in_helper.dart';
 
 class UserLoginPage extends StatefulWidget {
   const UserLoginPage({super.key});
@@ -48,9 +52,32 @@ class _UserLoginPageState extends State<UserLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LoaderHud(
-        isCall: context.watch<AuthCubit>().state is AuthLoading,
-        child: Container(
+      body: BlocListener<UserAuthCubit, UserAuthState>(
+        listener: (context, state) {
+          if (state is UserVerifyOtpSuccess) {
+            context.read<UserSetupCubit>().fetchLookups();
+            if (!state.response.isPersonalDataComplete) {
+              context.pushReplacement(UserAppRoutes.userInfo);
+            } else if (!state.response.isSurveyComplete) {
+              context.pushReplacement(UserAppRoutes.healthProblems);
+            } else {
+              context.pushReplacement(UserAppRoutes.home);
+            }
+          } else if (state is UserAuthFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.error,
+              ),
+            );
+          }
+        },
+        child: BlocBuilder<UserAuthCubit, UserAuthState>(
+          builder: (context, userAuthState) {
+            final isUserLoading = userAuthState is UserAuthLoading;
+            return LoaderHud(
+              isCall: context.watch<AuthCubit>().state is AuthLoading || isUserLoading,
+              child: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
@@ -204,18 +231,39 @@ class _UserLoginPageState extends State<UserLoginPage> {
                             height: 22.h,
                           ),
                           onTap: () {
-                            // TODO: Apple Sign-In
+                            context.read<UserAuthCubit>().socialAuth(
+                              provider: 'APPLE',
+                              idToken: 'test_apple_id_token',
+                            );
                           },
                         ),
                       ),
                       SizedBox(width: 16.w),
-                      // Google Button
                       Expanded(
                         child: AppSocialButton(
                           label: LocaleKeys.login_google.tr(),
                           icon: SvgPicture.asset(SvgIcons.google, height: 22.h),
-                          onTap: () {
-                            // TODO: Google Sign-In
+                          onTap: () async {
+                            try {
+                              final idToken = await GoogleSignInHelper.signIn();
+                              if (idToken != null) {
+                                if (mounted) {
+                                  context.read<UserAuthCubit>().socialAuth(
+                                    provider: 'GOOGLE',
+                                    idToken: idToken,
+                                  );
+                                }
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('خطأ أثناء تسجيل الدخول بجوجل: $e'),
+                                    backgroundColor: AppColors.error,
+                                  ),
+                                );
+                              }
+                            }
                           },
                         ),
                       ),
@@ -256,7 +304,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
               ),
             ),
           ),
-        ),
+            )));
+          },
         ),
       ),
     );

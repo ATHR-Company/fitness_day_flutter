@@ -17,7 +17,9 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_signup_models.dart';
+import 'package:fitness_day/core/network/google_sign_in_helper.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -72,6 +74,15 @@ class _SignUpPageState extends State<SignUpPage> {
               'isForgotPassword': false,
             },
           );
+        } else if (state is UserVerifyOtpSuccess) {
+          context.read<UserSetupCubit>().fetchLookups();
+          if (!state.response.isPersonalDataComplete) {
+            context.pushReplacement(UserAppRoutes.userInfo);
+          } else if (!state.response.isSurveyComplete) {
+            context.pushReplacement(UserAppRoutes.healthProblems);
+          } else {
+            context.pushReplacement(UserAppRoutes.home);
+          }
         } else if (state is UserAuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -211,18 +222,39 @@ class _SignUpPageState extends State<SignUpPage> {
                                   height: 22.h,
                                 ),
                                 onTap: () {
-                                  // TODO: Apple Sign-In
+                                  context.read<UserAuthCubit>().socialAuth(
+                                    provider: 'APPLE',
+                                    idToken: 'test_apple_id_token',
+                                  );
                                 },
                               ),
                             ),
                             SizedBox(width: 16.w),
-                            // Google Button
                             Expanded(
                               child: AppSocialButton(
                                 label: LocaleKeys.login_google.tr(),
                                 icon: SvgPicture.asset(SvgIcons.google, height: 22.h),
-                                onTap: () {
-                                  // TODO: Google Sign-In
+                                onTap: () async {
+                                  try {
+                                    final idToken = await GoogleSignInHelper.signIn();
+                                    if (idToken != null) {
+                                      if (mounted) {
+                                        context.read<UserAuthCubit>().socialAuth(
+                                          provider: 'GOOGLE',
+                                          idToken: idToken,
+                                        );
+                                      }
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('خطأ أثناء تسجيل الدخول بجوجل: $e'),
+                                          backgroundColor: AppColors.error,
+                                        ),
+                                      );
+                                    }
+                                  }
                                 },
                               ),
                             ),

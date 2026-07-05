@@ -6,10 +6,12 @@ import 'package:fitness_day/features/user/auth/data/models/user_lookups_model.da
 import 'package:fitness_day/features/user/auth/data/models/health_questions_model.dart';
 import 'package:fitness_day/features/user/auth/data/models/complete_personal_data_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/submit_health_answers_models.dart';
+import 'package:fitness_day/features/user/auth/data/models/social_auth_models.dart';
 
 abstract class UserAuthRemoteDataSource {
   Future<UserSignupResponseModel> signup(UserSignupRequest request);
   Future<UserVerifyOtpResponseModel> verifyOtp(UserVerifyOtpRequest request);
+  Future<UserVerifyOtpResponseModel> socialAuth(SocialAuthRequest request);
   Future<UserLookupsResponseModel> getLookups();
   Future<HealthQuestionsResponseModel> getHealthQuestions();
   Future<CompletePersonalDataResponseModel> completePersonalData(
@@ -38,6 +40,15 @@ class UserAuthRemoteDataSourceImpl implements UserAuthRemoteDataSource {
   Future<UserVerifyOtpResponseModel> verifyOtp(UserVerifyOtpRequest request) async {
     final response = await _apiService.post(
       ApiEndpoints.userVerifyOtp,
+      data: request.toJson(),
+    );
+    return UserVerifyOtpResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<UserVerifyOtpResponseModel> socialAuth(SocialAuthRequest request) async {
+    final response = await _apiService.post(
+      ApiEndpoints.socialAuth,
       data: request.toJson(),
     );
     return UserVerifyOtpResponseModel.fromJson(response.data as Map<String, dynamic>);

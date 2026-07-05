@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "308069649363",
+    "project_id": "fitness-day-52c77",
+    "storage_bucket": "fitness-day-52c77.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:308069649363:android:3f65e98e687b15ddbe7d26",
+        "android_client_info": {
+          "package_name": "com.example.fitness_day"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBg3UVoZ0axp0Ut3dNRXsKQOajnh1BtnXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

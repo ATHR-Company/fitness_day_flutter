@@ -22,6 +22,7 @@ import 'package:fitness_day/features/user/auth/domain/usecases/get_user_lookups_
 import 'package:fitness_day/features/user/auth/domain/usecases/complete_personal_data_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/get_health_questions_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/submit_health_answers_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/social_auth_usecase.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 
@@ -166,6 +167,10 @@ Future<void> init() async {
     () => SubmitHealthAnswersUseCase(getIt<UserAuthRepository>()),
   );
 
+  getIt.registerLazySingleton<SocialAuthUseCase>(
+    () => SocialAuthUseCase(getIt<UserAuthRepository>()),
+  );
+
   // ═════════════════════════════════════════════════
   //                    BLoCs
   // ═════════════════════════════════════════════════
@@ -178,6 +183,7 @@ Future<void> init() async {
     () => UserAuthCubit(
       signupUseCase: getIt<UserSignupUseCase>(),
       verifyOtpUseCase: getIt<UserVerifyOtpUseCase>(),
+      socialAuthUseCase: getIt<SocialAuthUseCase>(),
       secureCache: getIt<SecureCache>(),
       appCache: getIt<AppCache>(),
     ),
