@@ -8,6 +8,8 @@ import 'package:fitness_day/features/user/auth/data/models/health_questions_mode
 import 'package:fitness_day/features/user/auth/data/models/complete_personal_data_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/submit_health_answers_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/social_auth_models.dart';
+import 'package:fitness_day/features/user/auth/data/models/user_login_models.dart';
+import 'package:fitness_day/features/user/auth/data/models/forgot_password_models.dart';
 import 'package:fitness_day/features/user/auth/domain/repositories/user_auth_repository.dart';
 
 class UserAuthRepositoryImpl implements UserAuthRepository {
@@ -39,6 +41,64 @@ class UserAuthRepositoryImpl implements UserAuthRepository {
   Future<ApiResult<UserVerifyOtpResponseModel>> socialAuth(SocialAuthRequest request) async {
     try {
       final response = await _remoteDataSource.socialAuth(request);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<UserSigninResponseModel>> signin(UserSigninRequest request) async {
+    try {
+      final response = await _remoteDataSource.signin(request);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<ForgotPasswordTokenResponseModel>> sendForgotPasswordOtp(
+    ForgotPasswordSendOtpRequest request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.sendForgotPasswordOtp(request);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<ForgotPasswordTokenResponseModel>> verifyForgotPasswordOtp(
+    ForgotPasswordVerifyOtpRequest request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.verifyForgotPasswordOtp(request);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<ForgotPasswordResetResponseModel>> resetPassword(
+    ForgotPasswordResetRequest request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.resetPassword(request);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<ForgotPasswordTokenResponseModel>> resendForgotPasswordOtp(
+    ForgotPasswordResendOtpRequest request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.resendForgotPasswordOtp(request);
       return Success(response);
     } catch (e) {
       return FailureResult(ErrorHandler.handle(e));

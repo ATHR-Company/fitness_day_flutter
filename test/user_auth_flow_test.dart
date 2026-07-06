@@ -8,10 +8,17 @@ import 'package:fitness_day/features/user/auth/data/models/health_questions_mode
 import 'package:fitness_day/features/user/auth/data/models/complete_personal_data_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/submit_health_answers_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/social_auth_models.dart';
+import 'package:fitness_day/features/user/auth/data/models/user_login_models.dart';
+import 'package:fitness_day/features/user/auth/data/models/forgot_password_models.dart';
 import 'package:fitness_day/features/user/auth/domain/repositories/user_auth_repository.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/user_signup_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/user_verify_otp_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/social_auth_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/user_signin_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_send_otp_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_verify_otp_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_reset_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_resend_otp_usecase.dart';
 
 class FakeUserAuthRepository implements UserAuthRepository {
   bool shouldSucceed = true;
@@ -144,6 +151,86 @@ class FakeUserAuthRepository implements UserAuthRepository {
       return const FailureResult(ServerFailure('Submit answers failed'));
     }
   }
+
+  @override
+  Future<ApiResult<UserSigninResponseModel>> signin(UserSigninRequest request) async {
+    if (shouldSucceed) {
+      return const Success(UserSigninResponseModel(
+        success: true,
+        statusCode: 200,
+        message: 'تم تسجيل الدخول بنجاح.',
+        accessToken: 'access-123',
+        refreshToken: 'refresh-123',
+        isPersonalDataComplete: false,
+        isSurveyComplete: false,
+      ));
+    } else {
+      return const FailureResult(ServerFailure('Signin failed'));
+    }
+  }
+
+  @override
+  Future<ApiResult<ForgotPasswordTokenResponseModel>> sendForgotPasswordOtp(
+    ForgotPasswordSendOtpRequest request,
+  ) async {
+    if (shouldSucceed) {
+      return const Success(ForgotPasswordTokenResponseModel(
+        success: true,
+        statusCode: 200,
+        message: 'تم ارسال الرمز بنجاح.',
+        resetToken: 'reset-token-123',
+      ));
+    } else {
+      return const FailureResult(ServerFailure('Send OTP failed'));
+    }
+  }
+
+  @override
+  Future<ApiResult<ForgotPasswordTokenResponseModel>> verifyForgotPasswordOtp(
+    ForgotPasswordVerifyOtpRequest request,
+  ) async {
+    if (shouldSucceed) {
+      return const Success(ForgotPasswordTokenResponseModel(
+        success: true,
+        statusCode: 200,
+        message: 'تم التحقق من رمز التحقق بنجاح.',
+        resetToken: 'reset-token-123',
+      ));
+    } else {
+      return const FailureResult(ServerFailure('Verify OTP failed'));
+    }
+  }
+
+  @override
+  Future<ApiResult<ForgotPasswordResetResponseModel>> resetPassword(
+    ForgotPasswordResetRequest request,
+  ) async {
+    if (shouldSucceed) {
+      return const Success(ForgotPasswordResetResponseModel(
+        success: true,
+        statusCode: 200,
+        message: 'تم تغيير كلمة المرور بنجاح.',
+      ));
+    } else {
+      return const FailureResult(ServerFailure('Reset password failed'));
+    }
+  }
+
+  @override
+  Future<ApiResult<ForgotPasswordTokenResponseModel>> resendForgotPasswordOtp(
+    ForgotPasswordResendOtpRequest request,
+  ) async {
+    if (shouldSucceed) {
+      return const Success(ForgotPasswordTokenResponseModel(
+        success: true,
+        statusCode: 200,
+        message: 'تم ارسال الرمز بنجاح.',
+        resetToken: 'reset-token-123',
+      ));
+    } else {
+      return const FailureResult(ServerFailure('Resend OTP failed'));
+    }
+  }
 }
 
 void main() {
@@ -151,12 +238,22 @@ void main() {
   late UserSignupUseCase signupUseCase;
   late UserVerifyOtpUseCase verifyOtpUseCase;
   late SocialAuthUseCase socialAuthUseCase;
+  late UserSigninUseCase signinUseCase;
+  late ForgotPasswordSendOtpUseCase sendOtpUseCase;
+  late ForgotPasswordVerifyOtpUseCase verifyForgotPasswordOtpUseCase;
+  late ForgotPasswordResetUseCase resetUseCase;
+  late ForgotPasswordResendOtpUseCase resendUseCase;
 
   setUp(() {
     repository = FakeUserAuthRepository();
     signupUseCase = UserSignupUseCase(repository);
     verifyOtpUseCase = UserVerifyOtpUseCase(repository);
     socialAuthUseCase = SocialAuthUseCase(repository);
+    signinUseCase = UserSigninUseCase(repository);
+    sendOtpUseCase = ForgotPasswordSendOtpUseCase(repository);
+    verifyForgotPasswordOtpUseCase = ForgotPasswordVerifyOtpUseCase(repository);
+    resetUseCase = ForgotPasswordResetUseCase(repository);
+    resendUseCase = ForgotPasswordResendOtpUseCase(repository);
   });
 
   group('User Signup UseCase Tests', () {
@@ -241,6 +338,75 @@ void main() {
       final successResult = result as Success<UserVerifyOtpResponseModel>;
       expect(successResult.data.accessToken, 'access-social');
       expect(successResult.data.refreshToken, 'refresh-social');
+    });
+  });
+
+  group('User Signin UseCase Tests', () {
+    test('should return Success with tokens when signin succeeds', () async {
+      repository.shouldSucceed = true;
+      const request = UserSigninRequest(
+        phone: '1234567890',
+        password: 'password',
+        fcmToken: 'fcm-token',
+        deviceType: 'android',
+      );
+
+      final result = await signinUseCase(request);
+
+      expect(result, isA<Success<UserSigninResponseModel>>());
+      final successResult = result as Success<UserSigninResponseModel>;
+      expect(successResult.data.accessToken, 'access-123');
+      expect(successResult.data.refreshToken, 'refresh-123');
+    });
+  });
+
+  group('Forgot Password UseCase Tests', () {
+    test('should return Success with resetToken when sendOtp succeeds', () async {
+      repository.shouldSucceed = true;
+      const request = ForgotPasswordSendOtpRequest(phone: '1234567890');
+
+      final result = await sendOtpUseCase(request);
+
+      expect(result, isA<Success<ForgotPasswordTokenResponseModel>>());
+      final successResult = result as Success<ForgotPasswordTokenResponseModel>;
+      expect(successResult.data.resetToken, 'reset-token-123');
+    });
+
+    test('should return Success with resetToken when verifyForgotPasswordOtp succeeds', () async {
+      repository.shouldSucceed = true;
+      const request = ForgotPasswordVerifyOtpRequest(resetToken: 'reset-token-123', otp: '123456');
+
+      final result = await verifyForgotPasswordOtpUseCase(request);
+
+      expect(result, isA<Success<ForgotPasswordTokenResponseModel>>());
+      final successResult = result as Success<ForgotPasswordTokenResponseModel>;
+      expect(successResult.data.resetToken, 'reset-token-123');
+    });
+
+    test('should return Success when resetPassword succeeds', () async {
+      repository.shouldSucceed = true;
+      const request = ForgotPasswordResetRequest(
+        resetToken: 'reset-token-123',
+        password: 'password',
+        passwordConfirm: 'password',
+      );
+
+      final result = await resetUseCase(request);
+
+      expect(result, isA<Success<ForgotPasswordResetResponseModel>>());
+      final successResult = result as Success<ForgotPasswordResetResponseModel>;
+      expect(successResult.data.success, true);
+    });
+
+    test('should return Success with resetToken when resendForgotPasswordOtp succeeds', () async {
+      repository.shouldSucceed = true;
+      const request = ForgotPasswordResendOtpRequest(resetToken: 'reset-token-123');
+
+      final result = await resendUseCase(request);
+
+      expect(result, isA<Success<ForgotPasswordTokenResponseModel>>());
+      final successResult = result as Success<ForgotPasswordTokenResponseModel>;
+      expect(successResult.data.resetToken, 'reset-token-123');
     });
   });
 }
