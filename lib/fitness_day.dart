@@ -9,6 +9,7 @@ import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_c
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -54,18 +55,34 @@ class FitnessDay extends StatelessWidget {
               create: (context) => di.getIt<UserSetupCubit>()..fetchLookups(),
             ),
           ],
-          child: MaterialApp.router(
-            title: 'Fitness Day',
-            debugShowCheckedModeBanner: false,
-            localizationsDelegates: context.localizationDelegates,
-            supportedLocales: context.supportedLocales,
-            locale: context.locale,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-              fontFamily: TextStyleManager.fontFamily,
+          child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: const SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+              systemNavigationBarColor: Colors.white,
+              systemNavigationBarIconBrightness: Brightness.dark,
             ),
-            // Single stable router — never swapped, so navigation state is preserved.
-            routerConfig: AppRouter.router,
+            child: MaterialApp.router(
+              title: 'Fitness Day',
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+                fontFamily: TextStyleManager.fontFamily,
+                appBarTheme: const AppBarTheme(
+                  systemOverlayStyle: SystemUiOverlayStyle(
+                    statusBarColor: Colors.transparent,
+                    statusBarIconBrightness: Brightness.dark,
+                    statusBarBrightness: Brightness.light,
+                  ),
+                ),
+              ),
+              // Single stable router — never swapped, so navigation state is preserved.
+              routerConfig: AppRouter.router,
+            ),
           ),
         );
       },

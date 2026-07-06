@@ -309,11 +309,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                     color: AppColors.textSecondary,
                     size: 20.sp,
                   ),
-                  Icon(
-                    Icons.attach_file,
-                    color: AppColors.textSecondary,
-                    size: 20.sp,
-                  ),
                   SizedBox(width: 12.w),
                   Icon(Icons.mic, color: AppColors.textSecondary, size: 20.sp),
                   SizedBox(width: 12.w),
@@ -330,7 +325,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                     ),
                     child: Text(
                       'conversations.send'.tr(),
-                      style: TextStyleManager.style9Medium.copyWith(
+                      style: TextStyleManager.style11Medium.copyWith(
                         color: AppColors.white,
                       ),
                     ),

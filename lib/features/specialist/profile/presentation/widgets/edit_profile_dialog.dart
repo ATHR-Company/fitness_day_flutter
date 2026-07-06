@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -13,7 +14,7 @@ class EditProfileDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProfileDialogBase(
-      title: 'profile.edit_name'.tr(),
+      title: '',
       onSave: () {},
       child: Column(
         children: [
@@ -27,20 +28,12 @@ class EditProfileDialog extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    width: 2,
-                  ),
                 ),
                 child: Center(
                   child: SvgPicture.asset(
-                    SvgIcons.profile,
-                    width: 50.w,
-                    height: 50.h,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
-                      BlendMode.srcIn,
-                    ),
+                    SvgIcons.emptyProfile,
+                    width: 60.w,
+                    height: 60.h,
                   ),
                 ),
               ),
@@ -70,9 +63,18 @@ class EditProfileDialog extends StatelessWidget {
             ],
           ),
           SizedBox(height: 32.h),
+          Row(
+            children: [
+              Text(
+                'profile.edit_name'.tr(),
+                style: TextStyleManager.style13Medium,
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
           ProfileTextField(
             hintText: 'conversations.dummy_name'.tr(),
-            iconPath: SvgIcons.person,
+            iconPath: SvgIcons.editName,
           ),
         ],
       ),

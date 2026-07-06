@@ -19,7 +19,6 @@ import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
 import 'package:fitness_day/core/widgets/today_tasks_section.dart';
 
-import 'package:flutter_svg/flutter_svg.dart';
 
 class VisitDetailsPage extends StatefulWidget {
   

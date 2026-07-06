@@ -22,10 +22,8 @@ import 'package:fitness_day/core/widgets/task_card.dart';
 import 'package:fitness_day/core/entities/task_data.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/articles_section.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/unsubscribed_hero_image.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/constant/app_assets.dart';
 import 'hydration_details_screen.dart';
-import 'steps_details_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_packages_grid.dart';
 
 import 'package:fitness_day/core/widgets/exit_dialog.dart';
@@ -79,7 +77,7 @@ class _HomePageContent extends StatelessWidget {
             systemOverlayStyle: const SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.dark,
-              statusBarBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
             ),
           ),
         ),

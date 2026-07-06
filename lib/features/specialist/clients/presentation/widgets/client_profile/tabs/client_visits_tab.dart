@@ -4,6 +4,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
 
+import '../../../../../../specialist/visits/presentation/pages/visit_details_page.dart';
+
 class ClientVisitsTab extends StatelessWidget {
   const ClientVisitsTab({super.key});
 
@@ -25,8 +27,15 @@ class ClientVisitsTab extends StatelessWidget {
           personName: 'spec_mock_name'.tr(),
           visitTime: 'spec_mock_time3'.tr(),
           location: 'spec_mock_location'.tr(),
-          buttonText: 'home.view_visit'.tr(),
-          onViewPressed: () {},
+          buttonText: "home.view_visit".tr(),
+          onViewPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const VisitDetailsPage(isUpcoming: true),
+              ),
+            );
+          },
           secondaryButtonText: 'home.reschedule'.tr(),
           onSecondaryPressed: () {},
         ),
@@ -54,7 +63,14 @@ class ClientVisitsTab extends StatelessWidget {
                 visitTime: 'spec_mock_time3'.tr(),
                 location: 'spec_mock_location'.tr(),
                 buttonText: 'clients_page.details'.tr(),
-                onViewPressed: () {},
+                onViewPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const VisitDetailsPage(),
+                    ),
+                  );
+                },
               ),
             );
           },

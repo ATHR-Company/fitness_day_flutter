@@ -46,7 +46,6 @@ class ProfileDialogBase extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    textAlign: TextAlign.right,
                     style: TextStyleManager.heading3,
                   ),
                 ),
@@ -75,19 +74,19 @@ class ProfileDialogBase extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: CustomOutlinedButton(
-                    text: 'profile.cancel'.tr(),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-                SizedBox(width: 16.w),
-                Expanded(
                   child: CustomButton(
                     text: 'profile.save'.tr(),
                     onPressed: () {
                       onSave();
                       Navigator.of(context).pop();
                     },
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: CustomOutlinedButton(
+                    text: 'profile.cancel'.tr(),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
               ],

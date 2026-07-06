@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
 import 'dart:math' as math;
-import 'package:fitness_day/core/routes/shared/shared_routes.dart';
+import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -64,7 +64,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _finishOnboarding() {
-    context.go(SharedRoutes.roleSelection);
+    context.go(SpecialistAppRoutes.login);
   }
 
   @override
@@ -145,8 +145,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Image & Indicators
-                        Expanded(
+                        // Image & Indicators — fixed height
+                        SizedBox(
+                          height: 350.h,
                           child: Stack(
                             alignment: Alignment.bottomCenter,
                             children: [
@@ -175,43 +176,35 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                         SizedBox(height: 12.h),
 
-                        // Title & Subtitle
-                        SizedBox(
-                          height: 190.h, // Fixed height to prevent layout shifting
+                        // Title & Subtitle — flexible, shrinks only if no space
+                        Expanded(
                           child: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 24.w),
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              transitionBuilder: (child, animation) =>
-                                  FadeTransition(
-                                    opacity: animation,
-                                    child: child,
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 500),
+                                  transitionBuilder: (child, animation) =>
+                                      FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      ),
+                                  child: _AdaptiveOnboardingText(
+                                    key: ValueKey<int>(_currentIndex),
+                                    title: _contents[_currentIndex].title,
+                                    subtitle: _contents[_currentIndex].subtitle,
+                                    titleStyle: TextStyleManager.heading1,
+                                    subtitleStyle: TextStyleManager.style13Medium.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    maxWidth: constraints.maxWidth,
+                                    maxHeight: constraints.maxHeight,
                                   ),
-                              child: Column(
-                                key: ValueKey<int>(_currentIndex),
-                                children: [
-                                  Text(
-                                    _contents[_currentIndex].title,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyleManager.heading1,
-                                  ),
-                                  SizedBox(height: 10.h),
-                                  Text(
-                                    _contents[_currentIndex].subtitle,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyleManager.style13Medium
-                                        .copyWith(
-                                          color: AppColors.textSecondary,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines:5,
-                                  ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
                           ),
                         ),
-                        SizedBox(height: 16.h),
                       ],
                     ),
                   ),
@@ -332,6 +325,89 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AdaptiveOnboardingText extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final TextStyle titleStyle;
+  final TextStyle subtitleStyle;
+  final double maxWidth;
+  final double maxHeight;
+
+  const _AdaptiveOnboardingText({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.titleStyle,
+    required this.subtitleStyle,
+    required this.maxWidth,
+    required this.maxHeight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double scale = 1.0;
+    const double minScale = 0.5;
+    const double step = 0.05;
+
+    while (scale > minScale) {
+      final scaledTitleStyle = titleStyle.copyWith(
+        fontSize: (titleStyle.fontSize ?? 19.sp) * scale,
+      );
+      final scaledSubtitleStyle = subtitleStyle.copyWith(
+        fontSize: (subtitleStyle.fontSize ?? 13.sp) * scale,
+      );
+
+      // Measure title height
+      final titlePainter = TextPainter(
+        text: TextSpan(text: title, style: scaledTitleStyle),
+        textDirection: Directionality.of(context),
+      )..layout(maxWidth: maxWidth);
+
+      // Measure subtitle height
+      final subtitlePainter = TextPainter(
+        text: TextSpan(text: subtitle, style: scaledSubtitleStyle),
+        textDirection: Directionality.of(context),
+      )..layout(maxWidth: maxWidth);
+
+      final totalHeight = titlePainter.height + 10.h + subtitlePainter.height;
+
+      if (totalHeight <= maxHeight) {
+        break;
+      }
+      scale -= step;
+    }
+
+    if (scale < minScale) {
+      scale = minScale;
+    }
+
+    final finalTitleStyle = titleStyle.copyWith(
+      fontSize: (titleStyle.fontSize ?? 19.sp) * scale,
+    );
+    final finalSubtitleStyle = subtitleStyle.copyWith(
+      fontSize: (subtitleStyle.fontSize ?? 13.sp) * scale,
+    );
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: finalTitleStyle,
+        ),
+        SizedBox(height: 10.h),
+        Text(
+          subtitle,
+          textAlign: TextAlign.center,
+          style: finalSubtitleStyle,
+        ),
+      ],
     );
   }
 }

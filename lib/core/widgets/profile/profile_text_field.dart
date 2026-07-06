@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'dart:ui' as ui;
 
 class ProfileTextField extends StatelessWidget {
   final String hintText;
@@ -33,7 +32,7 @@ class ProfileTextField extends StatelessWidget {
       child: Row(
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: SvgPicture.asset(
               iconPath,
               width: 20.w,
@@ -48,9 +47,7 @@ class ProfileTextField extends StatelessWidget {
             child: TextField(
               controller: controller,
               obscureText: isPassword,
-              textAlign: TextAlign.right,
               keyboardType: keyboardType,
-              textDirection: ui.TextDirection.rtl,
               decoration: InputDecoration(
                 hintText: hintText,
                 hintStyle: TextStyleManager.style11Medium.copyWith(

@@ -183,7 +183,9 @@ class NotificationsPage extends StatelessWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: isRead
+            ? AppColors.white
+            : const Color(0xFFEAF7EC), // light green tint for unread
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isRead
@@ -270,10 +272,12 @@ class NotificationsPage extends StatelessWidget {
 
           SizedBox(width: 12.w),
 
-          // Checkmark (Left side in RTL)
+          // Read / Unread icon (Left side in RTL)
           Padding(
             padding: EdgeInsets.only(top: 4.h),
-            child: SvgPicture.asset(SvgIcons.read),
+            child: SvgPicture.asset(
+              isRead ? SvgIcons.read : SvgIcons.unread,
+            ),
           ),
         ],
       ),

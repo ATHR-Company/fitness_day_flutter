@@ -15,6 +15,8 @@ import 'package:fitness_day/features/specialist/visits/presentation/pages/visit_
 
 import 'package:fitness_day/core/widgets/exit_dialog.dart';
 
+import '../../../clients/presentation/pages/client_profile_page.dart';
+
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -40,7 +42,7 @@ class HomePage extends StatelessWidget {
             systemOverlayStyle: const SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.dark,
-              statusBarBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
             ),
           ),
         ),
@@ -83,7 +85,7 @@ class HomePage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const VisitDetailsPage(),
+                              builder: (context) => const VisitDetailsPage(isUpcoming: true),
                             ),
                           );
                         },
@@ -109,8 +111,15 @@ class HomePage extends StatelessWidget {
                         personName: 'spec_mock_name'.tr(),
                         visitTime: 'spec_mock_time4'.tr(),
                         location: 'spec_mock_location'.tr(),
-                        buttonText: "home.previous_visit".tr(),
-                        onViewPressed: () {},
+                        buttonText: 'clients_page.view_profile'.tr(),
+                        onViewPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ClientProfilePage(),
+                            ),
+                          );
+                        },
                         iconPath: SvgIcons.measureReview,
                       ),
                       SizedBox(height: 16.h),
@@ -121,8 +130,15 @@ class HomePage extends StatelessWidget {
                         personName: 'spec_mock_name'.tr(),
                         visitTime: 'spec_mock_time4'.tr(),
                         location: 'spec_mock_location'.tr(),
-                        buttonText: "home.previous_visit".tr(),
-                        onViewPressed: () {},
+                        buttonText: "home.view_visit".tr(),
+                        onViewPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const VisitDetailsPage(isUpcoming: true),
+                            ),
+                          );
+                        },
                         iconPath: SvgIcons
                             .monitor, // User+ icon matching the design
                       ),
@@ -140,9 +156,16 @@ class HomePage extends StatelessWidget {
                         title: "home.needs_follow_up".tr(),
                         clientName: 'spec_mock_name'.tr(),
                         alertReason: "home.low_commitment_alert".tr(),
-                        buttonText: "home.review_plan".tr(),
+                        buttonText: 'clients_page.view_profile'.tr(),
                         iconPath: SvgIcons.needMonitorRed,
-                        onButtonPressed: () {},
+                        onButtonPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ClientProfilePage(),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
