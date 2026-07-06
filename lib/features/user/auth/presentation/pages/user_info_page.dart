@@ -12,6 +12,7 @@ import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
+import 'package:fitness_day/core/widgets/selection_dialog.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_lookups_model.dart';
@@ -131,82 +132,15 @@ class _UserInfoPageState extends State<UserInfoPage> {
     required List<String> options,
     required TextEditingController controller,
   }) {
-    showDialog(
+    showSelectionDialog(
       context: context,
-      barrierColor: AppColors.black.withValues(alpha: 0.5),
-      builder: (ctx) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(24.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: options.length,
-                    separatorBuilder: (context, index) => SizedBox(height: 8.h),
-                    itemBuilder: (context, index) {
-                      final option = options[index];
-                      final isSelected =
-                          option == controller.text ||
-                          (controller.text.isEmpty && index == 0);
-
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            controller.text = option;
-                          });
-                          Navigator.pop(ctx);
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 14.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.backgroundTint
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Text(
-                            option,
-                            textAlign: TextAlign.start,
-                            style: TextStyleManager.heading3.copyWith(
-                              color: isSelected
-                                  ? AppColors.primary
-                                  : AppColors.black.withValues(alpha: 0.7),
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
+      title: title,
+      options: options,
+      initialValue: controller.text,
+      onSelected: (selected) {
+        setState(() {
+          controller.text = selected;
+        });
       },
     );
   }

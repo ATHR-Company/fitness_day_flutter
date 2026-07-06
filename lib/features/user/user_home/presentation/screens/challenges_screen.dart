@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import 'create_challenge_screen.dart';
 
 // ─── Model ────────────────────────────────────────────────────────────────────
 class ChallengeModel {
@@ -86,9 +87,7 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
     return Scaffold(
       body: ScreenBackground(
         child: SafeArea(
-          child: _hasActiveChallenges
-              ? _buildWithChallenges()
-              : _buildEmptyState(),
+          child: _hasActiveChallenges ? _buildWithChallenges() : _buildEmptyState(),
         ),
       ),
     );
@@ -129,26 +128,23 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
     return Column(
       children: [
         _buildAppBar(),
-        SizedBox(height: 16.h),
+        SizedBox(height: 30.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: _buildAddChallengeButton(),
         ),
-        SizedBox(height: 60.h),
-        SvgPicture.asset(
-          SvgIcons.achievement,
-          width: 160.w,
-          height: 160.w,
-          colorFilter: ColorFilter.mode(
-            AppColors.greenLightAccent.withValues(alpha: 0.6),
-            BlendMode.srcIn,
-          ),
+        SizedBox(height: 80.h),
+        Image.asset(
+          AppImages.challenge_cap,
+          width: 200.w,
+          height: 170.w,
+          fit: BoxFit.contain,
         ),
         SizedBox(height: 28.h),
         Text(
           'لا توجد تحديات نشطة حالياً',
           style: TextStyleManager.heading3.copyWith(
-            color: AppColors.black,
+            color: AppColors.primary,
             fontWeight: FontWeight.bold,
             fontSize: 17.sp,
           ),
@@ -157,11 +153,12 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 32.w),
           child: Text(
-            'يمكنك تصميم تحديك الخاص، أو الانضمام إلى\nأحد التحديات العامة ومنافسة باقي المشتركين\nللوصول إلى هدفك بشكل أسرع وأكثر حماساً!',
+            "يمكنك تصميم تحديك الخاص، أو الانضمام إلى أحد التحديات العامة ومنافسة باقي المشتركين للوصول إلى هدفك بشكل أسرع وأكثر حماساً!",
             textAlign: TextAlign.center,
-            style: TextStyleManager.style11Medium.copyWith(
+            style: TextStyleManager.sideBarText.copyWith(
               color: AppColors.textSecondary,
-              height: 1.7,
+              fontSize: 12.sp,
+              // height: 1.7,
             ),
           ),
         ),
@@ -205,34 +202,35 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.w),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'التحديات المقترحة',
-                        style: TextStyleManager.heading2.copyWith(
+                        style: TextStyleManager.heading3.copyWith(
                           color: AppColors.black,
                           fontWeight: FontWeight.bold,
+                          fontSize: 12.sp,
                         ),
-                        textAlign: TextAlign.right,
+                        // textAlign: TextAlign.right,
                       ),
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 7.h),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text(
-                            'تحديات بناء على اهتمامك',
-                            style: TextStyleManager.style10Medium.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          SizedBox(width: 4.w),
                           SvgPicture.asset(
                             SvgIcons.muscle,
                             width: 16.w,
                             height: 16.w,
                             colorFilter: const ColorFilter.mode(
-                              AppColors.primary,
+                              AppColors.black,
                               BlendMode.srcIn,
+                            ),
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            'تحديات بناء على اهتمامك',
+                            style: TextStyleManager.style9Medium.copyWith(
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -268,29 +266,35 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
   // ── Add Challenge Button ───────────────────────────────────────────────────
   Widget _buildAddChallengeButton() {
     return Container(
-      height: 50.h,
+      // height: 50.h,
+      padding: EdgeInsets.symmetric(vertical: 10.r),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.r),
         border: Border.all(
           color: AppColors.primary.withValues(alpha: 0.4),
           width: 1,
         ),
-        gradient: AppColors.cardGradient
+        gradient: AppColors.cardGradient,
       ),
       child: Row(
         children: [
           SizedBox(width: 16.w),
-            Text(
+          Text(
             'إضافة تحدي جديد',
-            style: TextStyleManager.style13Medium.copyWith(
-              color: AppColors.textPrimary,
+            style: TextStyleManager.style11Medium.copyWith(
+              color: AppColors.black,
               fontWeight: FontWeight.w500,
             ),
           ),
           const Spacer(),
           // Add button (left in RTL = visually right)
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateChallengeScreen()),
+              );
+            },
             child: Container(
               margin: EdgeInsets.all(6.r),
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 6.h),
@@ -301,28 +305,24 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  
-                      Text(
+                  Text(
                     'إضافة',
                     style: TextStyleManager.style11Medium.copyWith(
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                    SizedBox(width: 4.w),
+                  SizedBox(width: 4.w),
                   Icon(
                     Icons.keyboard_double_arrow_left_rounded,
                     color: AppColors.white,
                     size: 16.sp,
                   ),
-                
-              
                 ],
               ),
             ),
           ),
-        SizedBox(width: 10.w),
-          
+          SizedBox(width: 10.w),
         ],
       ),
     );
@@ -389,7 +389,7 @@ class _ActiveChallengeCard extends StatelessWidget {
                     Row(
                       children: [
                         SvgPicture.asset(
-                          SvgIcons.muscle,
+                          SvgIcons.usersGroup,
                           width: 16.w,
                           height: 16.w,
                           colorFilter: const ColorFilter.mode(
@@ -477,9 +477,9 @@ class _SuggestedChallengeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: AppColors.backgroundTint.withValues(alpha: 0.6),
+        color: Color(0xFFF2F5FA),
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: AppColors.borderGrey, width: 1),
         boxShadow: [
@@ -490,113 +490,118 @@ class _SuggestedChallengeCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          // ── Join arrow (left in RTL) ──────────────────────────────────
-          GestureDetector(
-            onTap: onJoin,
-            child: Container(
-              width: 38.w,
-              height: 38.w,
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.2),
-                  width: 1,
+          Row(
+            children: [
+              // ── Trophy icon ───────────────────────────────────────────────
+              Container(
+                width: 56.w,
+                height: 56.w,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
                 ),
-              ),
-              child: Icon(
-                Icons.keyboard_double_arrow_left_rounded,
-                color: AppColors.primary,
-                size: 18.sp,
-              ),
-            ),
-          ),
-          SizedBox(width: 10.w),
-
-          // ── Content ───────────────────────────────────────────────────
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                // Title + participants
-                Row(
-                  children: [
-                    // Participants
-                    Text(
-                      '${challenge.participants}',
-                      style: TextStyleManager.style10Medium.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    SizedBox(width: 4.w),
-                    SvgPicture.asset(
-                      SvgIcons.muscle,
-                      width: 14.w,
-                      height: 14.w,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.primary,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    const Spacer(),
-                    // Title
-                    Text(
-                      challenge.title,
-                      style: TextStyleManager.style13Medium.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4.h),
-
-                // Goal
-                Text(
-                  challenge.goal,
-                  style: TextStyleManager.style10Medium.copyWith(
-                    color: AppColors.textSecondary,
+                child: Center(
+                  child: Image.asset(
+                    AppImages.challenge_cap,
+                    width: 40.w,
+                    height: 40.w,
+                    // colorFilter: const ColorFilter.mode(
+                    //   Colors.white,
+                    //   BlendMode.srcIn,
+                    // ),
                   ),
-                  textAlign: TextAlign.right,
-                ),
-                SizedBox(height: 8.h),
-
-                // Date badges
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    _DateBadge(label: challenge.endDate, isEnd: true),
-                    SizedBox(width: 16.w),
-                    _DateBadge(label: challenge.startDate, isEnd: false),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 10.w),
-
-          // ── Trophy icon ───────────────────────────────────────────────
-          Container(
-            width: 56.w,
-            height: 56.w,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                SvgIcons.achievement,
-                width: 34.w,
-                height: 34.w,
-                colorFilter: const ColorFilter.mode(
-                  Colors.white,
-                  BlendMode.srcIn,
                 ),
               ),
-            ),
+              SizedBox(width: 10.w),
+              // ── Content ───────────────────────────────────────────────────
+              Expanded(
+                child: Column(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title + participants
+                        Row(
+                          children: [
+                            // Title
+                            Text(
+                              challenge.title,
+                              style: TextStyleManager.style13Medium.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 14.w),
+
+                            // Participants
+                            Text(
+                              '${challenge.participants}',
+                              style: TextStyleManager.style10Medium.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            SizedBox(width: 4.w),
+                            SvgPicture.asset(
+                              SvgIcons.usersGroup,
+                              width: 14.w,
+                              height: 14.w,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.primary,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4.h),
+
+                        // Goal
+                        Text(
+                          challenge.goal,
+                          style: TextStyleManager.style10Medium.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
+                          textAlign: TextAlign.right,
+                        ),
+                        SizedBox(height: 8.h),
+                      ],
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // SizedBox(width: 16.w),
+                        _DateBadge(label: challenge.endDate, isEnd: true),
+
+                        _DateBadge(label: challenge.startDate, isEnd: false),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Join arrow (left in RTL) ──────────────────────────────────
+              GestureDetector(
+                onTap: onJoin,
+                child: Container(
+                  width: 38.w,
+                  height: 38.w,
+
+                  child: Icon(
+                    Icons.keyboard_double_arrow_left_rounded,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                    size: 22.sp,
+                  ),
+                ),
+              ),
+
+              // SizedBox(width: 10.w),
+            ],
           ),
+          SizedBox(height: 10.h),
+          // Date badges
         ],
       ),
     );
@@ -619,13 +624,13 @@ class _DateBadge extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
           decoration: BoxDecoration(
             color: AppColors.white,
-            border: Border.all(color: AppColors.textPlaceholder, width: 1),
+            border: Border.all(color: AppColors.textSecondary, width: 1),
             borderRadius: BorderRadius.circular(4.r),
           ),
           child: Text(
             isEnd ? 'END' : 'START',
             style: TextStyleManager.style7Medium.copyWith(
-              color: AppColors.black,
+              color: AppColors.textSecondary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -633,8 +638,8 @@ class _DateBadge extends StatelessWidget {
         SizedBox(width: 4.w),
         Text(
           label,
-          style: TextStyleManager.style9Medium.copyWith(
-            color: AppColors.textPrimary,
+          style: TextStyleManager.style8Medium.copyWith(
+            color: AppColors.textSecondary,
           ),
         ),
       ],

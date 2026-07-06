@@ -39,20 +39,21 @@ class ScreenBackground extends StatelessWidget {
           ),
         ),
 
-        // ── decor SVG (bottom-left) ───────────────────────────────────────
-  
+        // ── decor SVG (top-left, non-interactive) ───────────────────────
+        Positioned(
+          top: 0,
+          left: 0,
+          child: IgnorePointer(
+            child: SvgPicture.asset(
+              SvgIcons.stepsDecor,
+              color: decorColor ?? const Color.fromARGB(15, 0, 100, 20),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
 
         // ── page content ──────────────────────────────────────────────────
         child,
-              Positioned(
-          top: 0,
-          left: 0,
-          child: SvgPicture.asset(
-            SvgIcons.stepsDecor,
-            color: decorColor ?? const Color.fromARGB(15, 0, 100, 20),
-            fit: BoxFit.cover,
-          ),
-        ),
       ],
     );
   }

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/scan_meal_screen.dart';
-import 'package:fitness_day/features/user/user_home/presentation/screens/challenges_screen.dart';
+import 'package:fitness_day/features/user/challenges/presentation/screens/challenges_screen.dart';
 
 class Categories extends StatelessWidget {
   const Categories({super.key});

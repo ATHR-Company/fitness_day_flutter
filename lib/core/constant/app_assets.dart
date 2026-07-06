@@ -113,6 +113,8 @@ class SvgIcons {
   static const String water_bg = '$_svgPath/water_bg.svg';
   static const String stepsDecor = '$_svgPath/steps_decor.svg';
   static const String stepsdecor = '$_svgPath/steps_decor.svg';
+  // static const String challenge_cap = '$_svgPath/challenge_cap.svg';
+  static const String usersGroup = '$_svgPath/users-group.svg';
 
 }
 
@@ -126,4 +128,5 @@ class AppImages {
   static const String onboarding2 = '$_imagePath/onboarding2.png';
   static const String onboarding3 = '$_imagePath/onboarding3.png';
   static const String ai = '$_imagePath/ai.png';
+  static const String challenge_cap = '$_imagePath/challenge_cap.png';
 }
