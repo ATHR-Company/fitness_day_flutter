@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -21,19 +22,19 @@ class _StepsDetailsScreenState extends State<StepsDetailsScreen> {
   int _selectedTab = 0;
   final List<String> _tabs = ['يومي', 'أسبوعي', 'شهري'];
 
-  // ─── Mock data — walking ───────────────────────────────────────────────────
-  static const _walkingCurrent = 1.52;
-  static const _walkingGoal = 3.45;
-  static const _walkingPercent = 44;
-  static const _walkingUnit = 'كم';
-  static const _walkingTitle = 'تتبع الخطوات';
+  // ─── Mock data — walking (خطوات) ─────────────────────────────────────────
+  static const double _walkingCurrent = 2500;
+  static const double _walkingGoal    = 5000;
+  static const int    _walkingPercent = 44;
+  static const String _walkingUnit    = 'خطوة';
+  static const String _walkingTitle   = 'تتبع الخطوات';
 
-  // ─── Mock data — running ───────────────────────────────────────────────────
-  static const _runningCurrent = 0.65;
-  static const _runningGoal = 1.00;
-  static const _runningPercent = 65;
-  static const _runningUnit = 'كم';
-  static const _runningTitle = 'تتبع الجري';
+  // ─── Mock data — running (كم) ─────────────────────────────────────────────
+  static const double _runningCurrent = 1.52;
+  static const double _runningGoal    = 3.45;
+  static const int    _runningPercent = 44;
+  static const String _runningUnit    = 'كم';
+  static const String _runningTitle   = 'تتبع الجري';
 
   // ─── Shared mock ──────────────────────────────────────────────────────────
   static const _vsYesterdayPercent = 23;
@@ -52,11 +53,7 @@ class _StepsDetailsScreenState extends State<StepsDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    
-      body: Container(
-        // decoration: BoxDecoration(
-        //   gradient: AppColors.,
-        // ),
+      body: ScreenBackground(
         child: SafeArea(
           child: Column(
             children: [
@@ -76,9 +73,10 @@ class _StepsDetailsScreenState extends State<StepsDetailsScreen> {
                     const Spacer(),
                     Text(
                       _title,
-                      style: TextStyleManager.heading3.copyWith(
+                      style: TextStyleManager.heading2.copyWith(
                         color: AppColors.black,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16.sp,
                       ),
                     ),
                     const Spacer(),
@@ -86,19 +84,19 @@ class _StepsDetailsScreenState extends State<StepsDetailsScreen> {
                   ],
                 ),
               ),
-        
+
               // ── Period tabs ────────────────────────────────────────────
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
+                padding: EdgeInsets.symmetric(vertical: 8.h),
                 child: _PeriodTabBar(
                   tabs: _tabs,
                   selectedIndex: _selectedTab,
                   onTabChanged: (i) => setState(() => _selectedTab = i),
                 ),
               ),
-        
+
               SizedBox(height: 50.h),
-        
+
               // ── Circular indicator ─────────────────────────────────────
               _CircularStepsIndicator(
                 percent: _percent,
@@ -109,9 +107,9 @@ class _StepsDetailsScreenState extends State<StepsDetailsScreen> {
                 vsYesterdayPercent: _vsYesterdayPercent,
                 isRunning: _isRunning,
               ),
-        
+
               SizedBox(height: 32.h),
-        
+
               // ── Daily summary ──────────────────────────────────────────
               Expanded(
                 child: _DailySummaryCard(
@@ -119,6 +117,7 @@ class _StepsDetailsScreenState extends State<StepsDetailsScreen> {
                   unit: _unit,
                   minutes: _minutes,
                   calories: _calories,
+                  isWalking: !_isRunning,
                 ),
               ),
             ],
@@ -146,38 +145,50 @@ class _PeriodTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(tabs.length, (i) {
-        final isSelected = selectedIndex == i;
-        return GestureDetector(
-          onTap: () => onTabChanged(i),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            margin: EdgeInsets.symmetric(horizontal: 6.w),
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppColors.primary.withValues(alpha: 0.1)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(20.r),
-              border: isSelected
-                  ? Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      width: 1,
-                    )
-                  : null,
-            ),
-            child: Text(
-              tabs[i],
-              style: TextStyleManager.style13Medium.copyWith(
-                color: isSelected ? AppColors.primary : AppColors.black,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: List.generate(tabs.length, (i) {
+          final isSelected = selectedIndex == i;
+          return Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => onTabChanged(i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: EdgeInsets.symmetric(horizontal: 4.w),
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xffDEF4E1) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20.r),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: AppColors.black.withValues(alpha: 0.09),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : [],
+                  border: isSelected
+                      ? Border.all(color: AppColors.divider, width: 1)
+                      : null,
+                ),
+                child: Text(
+                  tabs[i],
+                  textAlign: TextAlign.center,
+                  style: TextStyleManager.style11Medium.copyWith(
+                    color: isSelected ? AppColors.primary : AppColors.black,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  ),
+                ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 }
@@ -216,14 +227,14 @@ class _CircularStepsIndicator extends StatelessWidget {
           children: [
             CircularPercentIndicator(
               radius: 115.r,
-              lineWidth: 12.w,
+              lineWidth: 16.w,
               percent: percent,
               startAngle: 220,
-              backgroundColor: AppColors.greenSoftTint.withValues(alpha: 0.5),
+              backgroundColor: AppColors.backgroundTint,
               progressColor: AppColors.greenLightAccent,
               circularStrokeCap: CircularStrokeCap.round,
               center: Container(
-                padding: EdgeInsets.all(55.w),
+                padding:isRunning?EdgeInsets.all(55.w):EdgeInsets.all(45.w),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.backgroundTint,
@@ -234,7 +245,9 @@ class _CircularStepsIndicator extends StatelessWidget {
                   children: [
                     // current val
                     Text(
-                      currentVal.toStringAsFixed(2),
+                      isRunning
+                          ? currentVal.toStringAsFixed(2)
+                          : currentVal.toStringAsFixed(0),
                       style: TextStyleManager.style28Bold.copyWith(
                         color: AppColors.black,
                       ),
@@ -249,7 +262,7 @@ class _CircularStepsIndicator extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        isRunning ? Icons.play_arrow_rounded : Icons.pause,
+                        isRunning ? Icons.pause : Icons.play_arrow_rounded,
                         color: AppColors.white,
                         size: 18.sp,
                       ),
@@ -257,7 +270,7 @@ class _CircularStepsIndicator extends StatelessWidget {
                     SizedBox(height: 8.h),
                     // goal text
                     Text(
-                      '/ $goalVal $unit',
+                      '/ ${isRunning ? goalVal.toStringAsFixed(2) : goalVal.toStringAsFixed(0)} $unit',
                       style: TextStyleManager.style11Medium.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -307,7 +320,7 @@ class _CircularStepsIndicator extends StatelessWidget {
               Icons.arrow_upward_rounded,
               color: AppColors.primary,
               size: 20.sp,
-              fontWeight:FontWeight.bold,
+              fontWeight: FontWeight.bold,
             ),
             SizedBox(width: 4.w),
             Text(
@@ -333,12 +346,14 @@ class _DailySummaryCard extends StatelessWidget {
   final String unit;
   final int minutes;
   final int calories;
+  final bool isWalking;
 
   const _DailySummaryCard({
     required this.distanceKm,
     required this.unit,
     required this.minutes,
     required this.calories,
+    this.isWalking = false,
   });
 
   @override
@@ -410,7 +425,9 @@ class _DailySummaryCard extends StatelessWidget {
                     size: 26,
                   ),
                   label: 'المسافة',
-                  value: distanceKm.toStringAsFixed(2),
+                  value: isWalking
+                      ? distanceKm.toStringAsFixed(0)
+                      : distanceKm.toStringAsFixed(2),
                   unit: unit,
                   valueColor: AppColors.primary,
                 ),

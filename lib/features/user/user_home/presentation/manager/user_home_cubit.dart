@@ -80,5 +80,7 @@ class UserHomeCubit extends Cubit<UserHomeState> {
       articles: articles,
       isSubscribed: isSubscribed,
     ));
+    
   }
 }
+
