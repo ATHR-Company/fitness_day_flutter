@@ -20,27 +20,27 @@ class BmiReportPage extends StatelessWidget {
     final report = context.read<UserSetupCubit>().bodyReport;
 
     // Fallbacks if report is null (e.g. if loaded directly/no survey completed)
-    final bmiVal = report?.bmi.value ?? 25.47;
-    final bmiStatus = report?.bmi.status ?? 'صحي';
-    final bmiUnit = report?.bmi.unit ?? 'كجم/متر²';
+    final bmiVal = report?.bmi.value.toString() ?? '';
+    final bmiStatus = report?.bmi.status ?? '';
+    final bmiUnit = report?.bmi.unit ?? '';
     
-    final idealWeightVal = report?.idealWeight.value ?? 68.0;
-    final idealWeightUnit = report?.idealWeight.unit ?? 'كيلوجرام';
+    final idealWeightVal = report?.idealWeight.value.toString() ?? '';
+    final idealWeightUnit = report?.idealWeight.unit ?? '';
 
-    final caloriesVal = report?.calories.value ?? 1025.0;
-    final caloriesUnit = report?.calories.unit ?? 'كالوري';
+    final caloriesVal = report?.calories.value.toString() ?? '';
+    final caloriesUnit = report?.calories.unit ?? '';
 
-    final proteinVal = report?.proteinNeeds.value ?? 45.0;
-    final proteinUnit = report?.proteinNeeds.unit ?? 'جرام';
+    final proteinVal = report?.proteinNeeds.value.toString() ?? '';
+    final proteinUnit = report?.proteinNeeds.unit ?? '';
 
-    final currentWeight = report?.currentData.weight ?? 78.0;
-    final currentWeightUnit = report?.currentData.weightUnit ?? 'كيلوجرام';
+    final currentWeight = report?.currentData.weight.toString() ?? '';
+    final currentWeightUnit = report?.currentData.weightUnit ?? '';
 
-    final currentHeight = report?.currentData.height ?? 175.0;
-    final currentHeightUnit = report?.currentData.heightUnit ?? 'سنتيمتر';
+    final currentHeight = report?.currentData.height.toString() ?? '';
+    final currentHeightUnit = report?.currentData.heightUnit ?? '';
 
-    final activityLevelStr = report?.currentData.activityLevel ?? 'خامل';
-    final goalStr = report?.currentData.goal ?? 'إنقاص الوزن';
+    final activityLevelStr = report?.currentData.activityLevel ?? '';
+    final goalStr = report?.currentData.goal ?? '';
 
     return Scaffold(
       body: Container(
@@ -54,7 +54,7 @@ class BmiReportPage extends StatelessWidget {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                child: AppBackHeader(title: 'auth_bmi_report_title'.tr()),
+                child: AppBackHeader(title: 'auth_bmi_report_title'.tr(), canBack: false,),
               ),
               Expanded(
                 child: SingleChildScrollView(

@@ -7,12 +7,13 @@ class AppBackHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onBackPressed;
   final Widget? trailingWidget;
+  final bool? canBack;
 
   const AppBackHeader({
     super.key,
     required this.title,
     this.onBackPressed,
-    this.trailingWidget,
+    this.trailingWidget, this.canBack,
   });
 
   @override
@@ -24,15 +25,22 @@ class AppBackHeader extends StatelessWidget {
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerStart,
-              child: InkWell(
-                onTap: onBackPressed ?? () => Navigator.of(context).pop(),
-                borderRadius: BorderRadius.circular(24.r),
-                child: Icon(
-                  Icons.chevron_left,
-                  color: AppColors.textPrimary,
-                  size: 32.sp,
-                ),
-              ),
+              child: ((canBack?? true) && (onBackPressed != null || Navigator.of(context).canPop()))
+                  ? InkWell(
+                      onTap: onBackPressed ??
+                          () {
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                      borderRadius: BorderRadius.circular(24.r),
+                      child: Icon(
+                        Icons.chevron_left,
+                        color: AppColors.textPrimary,
+                        size: 32.sp,
+                      ),
+                    )
+                  : const SizedBox(),
             ),
           ),
           Text(
