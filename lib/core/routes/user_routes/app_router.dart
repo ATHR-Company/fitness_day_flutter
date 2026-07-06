@@ -63,6 +63,7 @@ class UserAppRouter {
             final map = state.extra as Map;
             return OtpVerificationPage(
               phoneNumber: map['phoneNumber']?.toString() ?? '',
+              signupToken: map['signupToken']?.toString() ?? map['resetToken']?.toString(),
               isForgotPassword: map['isForgotPassword'] as bool? ?? false,
             );
           }
@@ -74,7 +75,10 @@ class UserAppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.resetPassword,
-        builder: (context, state) => const ResetPasswordPage(),
+        builder: (context, state) {
+          final resetToken = state.extra?.toString() ?? '';
+          return ResetPasswordPage(resetToken: resetToken);
+        },
       ),
       GoRoute(
         path: UserAppRoutes.signUp,

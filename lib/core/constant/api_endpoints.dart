@@ -3,6 +3,11 @@ class ApiEndpoints {
   
   static const String userSignup = '/auth/user/signup';
   static const String userVerifyOtp = '/auth/user/verify-otp';
+  static const String userSignin = '/auth/user/signin';
+  static const String forgotPasswordSendOtp = '/auth/forgot-password/send-otp';
+  static const String forgotPasswordVerifyOtp = '/auth/forgot-password/verify-otp';
+  static const String forgotPasswordReset = '/auth/forgot-password/reset';
+  static const String forgotPasswordResendOtp = '/auth/forgot-password/resend-otp';
   static const String userLookups = '/lookups/user';
   static const String healthQuestions = '/health-questions';
   static const String completePersonalData = '/users/complete-personal-data';

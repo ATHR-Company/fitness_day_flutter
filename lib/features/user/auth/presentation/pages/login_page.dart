@@ -13,11 +13,10 @@ import 'package:fitness_day/core/widgets/app_phone_field.dart';
 import 'package:fitness_day/core/widgets/app_password_field.dart';
 import 'package:fitness_day/core/widgets/app_social_button.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
-import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
-import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
+import 'package:fitness_day/features/user/auth/data/models/user_login_models.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/core/network/google_sign_in_helper.dart';
@@ -43,9 +42,13 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
   void _onLoginPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthCubit>().login(
-        _phoneController.text.trim(),
-        _passwordController.text,
+      context.read<UserAuthCubit>().signin(
+        UserSigninRequest(
+          phone: _phoneController.text.trim(),
+          password: _passwordController.text,
+          fcmToken: '',
+          deviceType: Theme.of(context).platform == TargetPlatform.iOS ? 'ios' : 'android',
+        ),
       );
     }
   }
@@ -56,7 +59,20 @@ class _UserLoginPageState extends State<UserLoginPage> {
       body: BlocListener<UserAuthCubit, UserAuthState>(
         listener: (context, state) {
           if (state is UserVerifyOtpSuccess) {
-            context.read<UserSetupCubit>().fetchLookups();
+            if (!state.response.isPersonalDataComplete || !state.response.isSurveyComplete) {
+              context.read<UserSetupCubit>().fetchLookups();
+            }
+            if (!state.response.isPersonalDataComplete) {
+              context.pushReplacement(UserAppRoutes.userInfo);
+            } else if (!state.response.isSurveyComplete) {
+              context.pushReplacement(UserAppRoutes.healthProblems);
+            } else {
+              context.pushReplacement(UserAppRoutes.home);
+            }
+          } else if (state is UserSigninSuccess) {
+            if (!state.response.isPersonalDataComplete || !state.response.isSurveyComplete) {
+              context.read<UserSetupCubit>().fetchLookups();
+            }
             if (!state.response.isPersonalDataComplete) {
               context.pushReplacement(UserAppRoutes.userInfo);
             } else if (!state.response.isSurveyComplete) {
@@ -72,7 +88,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
           builder: (context, userAuthState) {
             final isUserLoading = userAuthState is UserAuthLoading;
             return LoaderHud(
-              isCall: context.watch<AuthCubit>().state is AuthLoading || isUserLoading,
+              isCall: isUserLoading,
               child: Container(
         width: double.infinity,
         height: double.infinity,
@@ -157,21 +173,9 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   SizedBox(height: 20.h),
 
                   // Login Button
-                  BlocConsumer<AuthCubit, AuthState>(
-                    listener: (context, state) {
-                      if (state is AuthSuccess) {
-                        showAppSnackBar(context, text: LocaleKeys.login_success_login.tr(), isSuccess: true);
-                        context.go(UserAppRoutes.home);
-                      } else if (state is AuthFailure) {
-                        showAppSnackBar(context, text: state.message, isError: true);
-                      }
-                    },
-                    builder: (context, state) {
-                      return CustomButton(
-                        text: LocaleKeys.login_login_button.tr(),
-                        onPressed: _onLoginPressed,
-                      );
-                    },
+                  CustomButton(
+                    text: LocaleKeys.login_login_button.tr(),
+                    onPressed: _onLoginPressed,
                   ),
 
                   SizedBox(height: 10.h),

@@ -30,117 +30,125 @@ class _ClientsPageState extends State<ClientsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      endDrawer: const AppDrawer(),
-      body: Builder(
-        builder: (context) {
-          return LoaderHud(
-            isCall: false,
-            child: SafeArea(
-              child: TopCenteredConstrainedBox(
-                horizontalPadding: 0,
-                child: Column(
-                children: [
-                  SizedBox(height: 16.h),
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: AppColors.visitsBackgroundGradient,
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        endDrawer: const AppDrawer(),
+        body: Builder(
+          builder: (context) {
+            return LoaderHud(
+              isCall: false,
+              child: SafeArea(
+                child: TopCenteredConstrainedBox(
+                  horizontalPadding: 0,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 16.h),
 
-                  // 1. Header
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: AppHeader(
-                      title: 'clients_page.title'.tr(),
-                      onMenuPressed: () {
-                        Scaffold.of(context).openEndDrawer();
-                      },
-                    ),
-                  ),
-
-                  SizedBox(height: 24.h),
-
-                  // 2. Search Bar
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: AppSearchBar(
-                      hintText: 'clients_page.search_hint'.tr(),
-                      controller: _searchController,
-                      onChanged: (val) {
-                        // Handle search
-                      },
-                    ),
-                  ),
-
-                  SizedBox(height: 20.h),
-
-                  // 3. Segmented Control
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: AppSegmentedControl(
-                      items: [
-                        'clients_page.tab_active'.tr(),
-                        'clients_page.tab_needs_follow_up'.tr(),
-                        'clients_page.tab_expired'.tr(),
-                      ],
-                      selectedIndex: _selectedTabIndex,
-                      onItemSelected: (index) {
-                        setState(() {
-                          _selectedTabIndex = index;
-                        });
-                      },
-                    ),
-                  ),
-
-                  SizedBox(height: 10.h),
-
-                  // 4. Client Cards List
-                  Expanded(
-                    child: ListView.builder(
-                      padding: EdgeInsets.only(
-                        bottom: 24.h,
-                        left: 16.w,
-                        right: 16.w,
-                        top: 10.h,
+                      // 1. Header
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: AppHeader(
+                          title: 'clients_page.title'.tr(),
+                          onMenuPressed: () {
+                            Scaffold.of(context).openEndDrawer();
+                          },
+                        ),
                       ),
-                      itemCount: 3,
-                      itemBuilder: (context, index) {
-                        ClientStatus status;
-                        int commitment;
 
-                        if (_selectedTabIndex == 0) {
-                          status = ClientStatus.active;
-                          commitment = 85;
-                        } else if (_selectedTabIndex == 1) {
-                          status = ClientStatus.needsFollowUp;
-                          commitment = 10;
-                        } else {
-                          status = ClientStatus.expired;
-                          commitment = 0;
-                        }
+                      SizedBox(height: 24.h),
 
-                        return ClientCard(
-                          clientName: 'spec_mock_name'.tr(),
-                          currentWeight: '58',
-                          goal: 'spec_mock_goal'.tr(),
-                          lastVisit: 'spec_mock_time1'.tr(),
-                          status: status,
-                          commitmentRate: commitment,
-                          onViewProfile: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ClientProfilePage(),
-                              ),
+                      // 2. Search Bar
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: AppSearchBar(
+                          hintText: 'clients_page.search_hint'.tr(),
+                          controller: _searchController,
+                          onChanged: (val) {
+                            // Handle search
+                          },
+                        ),
+                      ),
+
+                      SizedBox(height: 20.h),
+
+                      // 3. Segmented Control
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: AppSegmentedControl(
+                          items: [
+                            'clients_page.tab_active'.tr(),
+                            'clients_page.tab_needs_follow_up'.tr(),
+                            'clients_page.tab_expired'.tr(),
+                          ],
+                          selectedIndex: _selectedTabIndex,
+                          onItemSelected: (index) {
+                            setState(() {
+                              _selectedTabIndex = index;
+                            });
+                          },
+                        ),
+                      ),
+
+                      SizedBox(height: 10.h),
+
+                      // 4. Client Cards List
+                      Expanded(
+                        child: ListView.builder(
+                          padding: EdgeInsets.only(
+                            bottom: 24.h,
+                            left: 16.w,
+                            right: 16.w,
+                            top: 10.h,
+                          ),
+                          itemCount: 3,
+                          itemBuilder: (context, index) {
+                            ClientStatus status;
+                            int commitment;
+
+                            if (_selectedTabIndex == 0) {
+                              status = ClientStatus.active;
+                              commitment = 85;
+                            } else if (_selectedTabIndex == 1) {
+                              status = ClientStatus.needsFollowUp;
+                              commitment = 10;
+                            } else {
+                              status = ClientStatus.expired;
+                              commitment = 0;
+                            }
+
+                            return ClientCard(
+                              clientName: 'spec_mock_name'.tr(),
+                              currentWeight: '58',
+                              goal: 'spec_mock_goal'.tr(),
+                              lastVisit: 'spec_mock_time1'.tr(),
+                              status: status,
+                              commitmentRate: commitment,
+                              onViewProfile: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ClientProfilePage(),
+                                  ),
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

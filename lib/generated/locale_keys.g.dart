@@ -26,6 +26,7 @@ abstract class  LocaleKeys {
   static const login_send = 'login.send';
   static const login_verify_title = 'login.verify_title';
   static const login_verify_subtitle = 'login.verify_subtitle';
+  static const login_resend_code = 'login.resend_code';
   static const login_verify_success_title = 'login.verify_success_title';
   static const login_verify_success_subtitle = 'login.verify_success_subtitle';
   static const login_next = 'login.next';

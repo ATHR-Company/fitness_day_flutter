@@ -13,10 +13,10 @@ import 'package:fitness_day/core/widgets/visit_goal_card.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
-import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
 import 'package:fitness_day/core/widgets/reschedule_visit_dialog.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/widgets/report_text_field.dart';
+import '../../../../shared/conversations/presentation/pages/chat_details_page.dart';
 import 'add_activity_page.dart';
 import 'add_exercise_page.dart';
 import 'add_meal_page.dart';
@@ -42,9 +42,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const ConversationsPage(),
-              ),
+              MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
             );
           },
         ),
@@ -104,9 +102,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const ConversationsPage(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
                       );
                     },
                   ),
@@ -145,37 +141,37 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               ),
 
               // 4. Bottom Buttons
-              Container(
-                padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-                child: (_selectedTabIndex == 1 || _selectedTabIndex == 2)
-                    ? CustomButton(
-                        text: 'visit_details.end_visit'.tr(),
-                        color: AppColors
-                            .greenMint, // Match lighter green from design
-                        onPressed: () {},
-                      )
-                    : Row(
-                        children: [
-                          // Start Visit (Primary) — on the right in RTL
-                          Expanded(
-                            child: CustomButton(
-                              text: 'visit_details.start_visit'.tr(),
-                              onPressed: () {},
+              if (widget.isUpcoming || _selectedTabIndex != 0)
+                Container(
+                  padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+                  child: (widget.isUpcoming && _selectedTabIndex == 0)
+                      ? Row(
+                          children: [
+                            // Start Visit (Primary) — on the right in RTL
+                            Expanded(
+                              child: CustomButton(
+                                text: 'visit_details.start_visit'.tr(),
+                                onPressed: () {},
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 12.w),
-                          // Reschedule (Outlined) — on the left in RTL
-                          Expanded(
-                            child: CustomOutlinedButton(
-                              text: 'visit_details.reschedule'.tr(),
-                              onPressed: () {
-                                showRescheduleDialog(context);
-                              },
+                            SizedBox(width: 12.w),
+                            // Reschedule (Outlined) — on the left in RTL
+                            Expanded(
+                              child: CustomOutlinedButton(
+                                text: 'visit_details.reschedule'.tr(),
+                                onPressed: () {
+                                  showRescheduleDialog(context);
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-              ),
+                          ],
+                        )
+                      : CustomButton(
+                          text: 'visit_details.end_visit'.tr(),
+                          color: AppColors.greenMint,
+                          onPressed: () {},
+                        ),
+                ),
             ],
           ),
         ),
@@ -203,7 +199,9 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
         children: [
           // Visit Card
           VisitCard(
-            timeRemaining: 'visits.in_minutes'.tr(args: ['25']),
+            timeRemaining: widget.isUpcoming
+                ? 'visits.in_minutes'.tr(args: ['25'])
+                : '',
             title: 'visits.dummy_title'.tr(),
             subtitle: 'visits.dummy_subtitle'.tr(),
             personName: 'visits.dummy_client'.tr(),

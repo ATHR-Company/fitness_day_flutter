@@ -16,6 +16,7 @@
     "send": "Send",
     "verify_title": "Enter Verification Code",
     "verify_subtitle": "We sent the verification code to the mobile number. Please enter the code to verify.",
+    "resend_code": "Resend Code",
     "verify_success_title": "Verified Successfully!",
     "verify_success_subtitle": "Now your account can be used with ease.",
     "next": "Next",

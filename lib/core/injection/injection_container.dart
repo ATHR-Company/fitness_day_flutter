@@ -23,6 +23,11 @@ import 'package:fitness_day/features/user/auth/domain/usecases/complete_personal
 import 'package:fitness_day/features/user/auth/domain/usecases/get_health_questions_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/submit_health_answers_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/social_auth_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/user_signin_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_send_otp_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_verify_otp_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_reset_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_resend_otp_usecase.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 
@@ -171,6 +176,26 @@ Future<void> init() async {
     () => SocialAuthUseCase(getIt<UserAuthRepository>()),
   );
 
+  getIt.registerLazySingleton<UserSigninUseCase>(
+    () => UserSigninUseCase(getIt<UserAuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<ForgotPasswordSendOtpUseCase>(
+    () => ForgotPasswordSendOtpUseCase(getIt<UserAuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<ForgotPasswordVerifyOtpUseCase>(
+    () => ForgotPasswordVerifyOtpUseCase(getIt<UserAuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<ForgotPasswordResetUseCase>(
+    () => ForgotPasswordResetUseCase(getIt<UserAuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<ForgotPasswordResendOtpUseCase>(
+    () => ForgotPasswordResendOtpUseCase(getIt<UserAuthRepository>()),
+  );
+
   // ═════════════════════════════════════════════════
   //                    BLoCs
   // ═════════════════════════════════════════════════
@@ -184,6 +209,11 @@ Future<void> init() async {
       signupUseCase: getIt<UserSignupUseCase>(),
       verifyOtpUseCase: getIt<UserVerifyOtpUseCase>(),
       socialAuthUseCase: getIt<SocialAuthUseCase>(),
+      signinUseCase: getIt<UserSigninUseCase>(),
+      forgotPasswordSendOtpUseCase: getIt<ForgotPasswordSendOtpUseCase>(),
+      forgotPasswordVerifyOtpUseCase: getIt<ForgotPasswordVerifyOtpUseCase>(),
+      forgotPasswordResetUseCase: getIt<ForgotPasswordResetUseCase>(),
+      forgotPasswordResendOtpUseCase: getIt<ForgotPasswordResendOtpUseCase>(),
       secureCache: getIt<SecureCache>(),
       appCache: getIt<AppCache>(),
     ),

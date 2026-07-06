@@ -11,6 +11,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
@@ -41,6 +42,13 @@ class OtpVerificationPage extends StatefulWidget {
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final _pinController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  late String _currentResetToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentResetToken = widget.signupToken ?? '';
+  }
 
   @override
   void dispose() {
@@ -51,11 +59,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   void _onVerifyPressed() {
     if (_formKey.currentState?.validate() ?? false) {
       if (widget.isForgotPassword) {
-        _showSuccessBottomSheet(
-          context,
-          isPersonalDataComplete: false,
-          isSurveyComplete: false,
-          message: 'login.verify_success_title'.tr(),
+        context.read<UserAuthCubit>().verifyForgotPasswordOtp(
+          _currentResetToken,
+          _pinController.text.trim(),
         );
       } else {
         final request = UserVerifyOtpRequest(
@@ -114,7 +120,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       onPressed: () {
                         Navigator.pop(modalContext);
                         if (widget.isForgotPassword) {
-                          context.pushReplacement(UserAppRoutes.resetPassword);
+                          context.pushReplacement(UserAppRoutes.resetPassword, extra: _currentResetToken);
                         } else {
                           if (!isPersonalDataComplete) {
                             context.pushReplacement(UserAppRoutes.userInfo);
@@ -182,13 +188,26 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       listener: (context, state) {
         if (state is UserVerifyOtpSuccess) {
           // Fetch lookups using the new token
-          context.read<UserSetupCubit>().fetchLookups();
+          if (!state.response.isPersonalDataComplete || !state.response.isSurveyComplete) {
+            context.read<UserSetupCubit>().fetchLookups();
+          }
           _showSuccessBottomSheet(
             context,
             isPersonalDataComplete: state.response.isPersonalDataComplete,
             isSurveyComplete: state.response.isSurveyComplete,
             message: state.response.message,
           );
+        } else if (state is ForgotPasswordVerifyOtpSuccess) {
+          _currentResetToken = state.response.resetToken;
+          _showSuccessBottomSheet(
+            context,
+            isPersonalDataComplete: false,
+            isSurveyComplete: false,
+            message: state.response.message,
+          );
+        } else if (state is ForgotPasswordResendOtpSuccess) {
+          _currentResetToken = state.response.resetToken;
+          showAppSnackBar(context, text: state.response.message, isSuccess: true);
         } else if (state is UserAuthFailure) {
           showAppSnackBar(context, text: state.message, isError: true);
         }
@@ -270,6 +289,21 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                   text: 'login.send'.tr(),
                                   onPressed: _onVerifyPressed,
                                 ),
+                                if (widget.isForgotPassword) ...[
+                                  SizedBox(height: 24.h),
+                                  TextButton(
+                                    onPressed: () {
+                                      context.read<UserAuthCubit>().resendForgotPasswordOtp(_currentResetToken);
+                                    },
+                                    child: Text(
+                                      LocaleKeys.login_resend_code.tr(),
+                                      style: TextStyleManager.style14Bold.copyWith(
+                                        color: AppColors.primary,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),

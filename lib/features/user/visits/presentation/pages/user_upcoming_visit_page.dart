@@ -5,8 +5,9 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/core/widgets/upcoming_visit_show_screen.dart';
-import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
 import 'package:fitness_day/core/widgets/reschedule_visit_dialog.dart';
+
+import '../../../../shared/conversations/presentation/pages/chat_details_page.dart';
 
 class UserUpcomingVisitPage extends StatelessWidget {
   const UserUpcomingVisitPage({super.key});
@@ -19,9 +20,7 @@ class UserUpcomingVisitPage extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const ConversationsPage(),
-            ),
+            MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
           );
         },
       ),

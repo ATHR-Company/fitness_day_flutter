@@ -107,7 +107,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                 children: [
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    child: AppBackHeader(title: 'auth_health_problems_title'.tr()),
+                    child: AppBackHeader(title: 'auth_health_problems_title'.tr(), canBack: false,),
                   ),
                   Expanded(
                     child: SingleChildScrollView(

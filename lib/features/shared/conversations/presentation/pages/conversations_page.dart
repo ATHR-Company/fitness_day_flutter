@@ -88,7 +88,6 @@ class _ConversationsPageState extends State<ConversationsPage> {
             textAlign: TextAlign.center,
             style: TextStyleManager.heading3.copyWith(
               color: AppColors.textSecondary,
-              height: 1.5,
             ),
           ),
           SizedBox(height: 60.h), // Push slightly up
@@ -121,7 +120,6 @@ class _ConversationsPageState extends State<ConversationsPage> {
                     'conversations.new_conversations'.tr(),
                     style: TextStyleManager.heading2.copyWith(
                       color: AppColors.black,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],

@@ -30,13 +30,19 @@ class _VisitsPageState extends State<VisitsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      endDrawer: const AppDrawer(),
-      body: Builder(
-        builder: (context) {
-          return LoaderHud(
-            isCall: false,
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: AppColors.profileGradient,
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        endDrawer: const AppDrawer(),
+        body: Builder(
+          builder: (context) {
+            return LoaderHud(
+              isCall: false,
             child: SafeArea(
               child: TopCenteredConstrainedBox(
                 horizontalPadding: 0,
@@ -76,8 +82,8 @@ class _VisitsPageState extends State<VisitsPage> {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: AppSegmentedControl(
                       items: [
-                        'visits.tab_upcoming'.tr(),
-                        'visits.tab_history'.tr(),
+                        'visits.tab_upcoming'.tr(),   // index 0
+                        'visits.tab_history'.tr(),    // index 1
                       ],
                       selectedIndex: _selectedTabIndex,
                       onItemSelected: (index) {
@@ -98,7 +104,8 @@ class _VisitsPageState extends State<VisitsPage> {
                           SizedBox(height: 10.h),
                       itemCount: 3, // Dummy count
                       itemBuilder: (context, index) {
-                        final timeRem = index == 0
+                        final isUpcoming = _selectedTabIndex == 0;
+                        final timeRem = isUpcoming && index == 0
                             ? 'visits.in_minutes'.tr(args: ['25'])
                             : '';
                         return VisitCard(
@@ -109,14 +116,14 @@ class _VisitsPageState extends State<VisitsPage> {
                           visitTime:
                               '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
                           location: 'visits.hq_location'.tr(),
-                          buttonText: _selectedTabIndex == 0
+                          buttonText: isUpcoming
                               ? 'visits.view_visit'.tr()
                               : 'visits.details'.tr(),
                           onViewPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => VisitDetailsPage(isUpcoming: _selectedTabIndex == 0),
+                                builder: (context) => VisitDetailsPage(isUpcoming: isUpcoming),
                               ),
                             );
                           },
@@ -131,6 +138,6 @@ class _VisitsPageState extends State<VisitsPage> {
             );
           },
         ),
-      );
-    }
+      ));
+  }
 }

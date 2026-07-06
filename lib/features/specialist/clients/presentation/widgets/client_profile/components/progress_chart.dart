@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -65,13 +67,17 @@ class ProgressChart extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  Icons.keyboard_double_arrow_right,
+                  Directionality.of(context) == ui.TextDirection.rtl
+                      ? Icons.keyboard_double_arrow_right
+                      : Icons.keyboard_double_arrow_left,
                   color: AppColors.divider,
                   size: 20.sp,
                 ),
                 SizedBox(width: 8.w),
                 Icon(
-                  Icons.keyboard_double_arrow_left,
+                  Directionality.of(context) == ui.TextDirection.rtl
+                      ? Icons.keyboard_double_arrow_left
+                      : Icons.keyboard_double_arrow_right,
                   color: AppColors.primary,
                   size: 20.sp,
                 ),
@@ -146,7 +152,7 @@ class ProgressChart extends StatelessWidget {
                                   vertical: 2.h,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.white,
+                                  color: Color(0xffD7ECD9),
                                   borderRadius: BorderRadius.circular(8.r),
                                 ),
                                 child: text,
