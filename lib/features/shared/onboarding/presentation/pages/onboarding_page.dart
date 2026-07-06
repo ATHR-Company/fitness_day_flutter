@@ -10,6 +10,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/features/shared/onboarding/data/models/onboarding_content.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/injection/injection_container.dart' as di;
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -64,6 +66,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _finishOnboarding() {
+    di.getIt<AppCache>().saveHasSeenOnboarding(true);
     context.go(SpecialistAppRoutes.login);
   }
 

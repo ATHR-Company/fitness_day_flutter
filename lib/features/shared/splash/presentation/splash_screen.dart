@@ -4,6 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
+import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/injection/injection_container.dart' as di;
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -52,7 +55,12 @@ class _SplashScreenState extends State<SplashScreen> {
     // Navigate to next screen after animation completes
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      context.go(SharedRoutes.onboarding);
+      final appCache = di.getIt<AppCache>();
+      if (appCache.hasSeenOnboarding()) {
+        context.go(SpecialistAppRoutes.login);
+      } else {
+        context.go(SharedRoutes.onboarding);
+      }
     }
   }
 
