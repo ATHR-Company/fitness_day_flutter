@@ -111,6 +111,8 @@ class SvgIcons {
   static const String editName = '$_svgPath/edit_name.svg';
   static const String moreArrows = '$_svgPath/more_arrows.svg';
   static const String water_bg = '$_svgPath/water_bg.svg';
+  static const String stepsDecor = '$_svgPath/steps_decor.svg';
+  static const String stepsdecor = '$_svgPath/steps_decor.svg';
 
 }
 

@@ -29,52 +29,37 @@ class ArticleDetailPage extends StatelessWidget {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(
-          child: CustomScrollView(
-            slivers: [
-              // ── Custom App Bar ──────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: _buildHeader(context),
-              ),
+            child: CustomScrollView(
+              slivers: [
+                // ── Custom App Bar ──────────────────────────────────────────
+                SliverToBoxAdapter(child: _buildHeader(context)),
 
-              // ── Article Image / Video Thumbnail ─────────────────────────
-              SliverToBoxAdapter(
-                child: _buildMediaSection(),
-              ),
+                // ── Article Image / Video Thumbnail ─────────────────────────
+                SliverToBoxAdapter(child: _buildMediaSection()),
 
-              // ── Meta Info (views + date) ────────────────────────────────
-              SliverToBoxAdapter(
-                child: _buildMetaInfo(),
-              ),
+                // ── Meta Info (views + date) ────────────────────────────────
+                SliverToBoxAdapter(child: _buildMetaInfo()),
 
-              // ── Title ───────────────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: _buildTitle(),
-              ),
+                // ── Title ───────────────────────────────────────────────────
+                SliverToBoxAdapter(child: _buildTitle()),
 
-              // ── Body Content ────────────────────────────────────────────
-              SliverToBoxAdapter(
-                child: _buildBodyContent(),
-              ),
+                // ── Body Content ────────────────────────────────────────────
+                SliverToBoxAdapter(child: _buildBodyContent()),
 
-              // ── Related Articles ────────────────────────────────────────
-              if (relatedArticles.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: _buildRelatedArticlesHeader(),
-                ),
-                SliverToBoxAdapter(
-                  child: _buildRelatedArticlesList(context),
-                ),
+                // ── Related Articles ────────────────────────────────────────
+                if (relatedArticles.isNotEmpty) ...[
+                  SliverToBoxAdapter(child: _buildRelatedArticlesHeader()),
+                  SliverToBoxAdapter(child: _buildRelatedArticlesList(context)),
+                ],
+
+                // Bottom padding
+                SliverToBoxAdapter(child: SizedBox(height: 32.h)),
               ],
-
-              // Bottom padding
-              SliverToBoxAdapter(
-                child: SizedBox(height: 32.h),
-              ),
-            ],
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -128,8 +113,11 @@ class ArticleDetailPage extends StatelessWidget {
               errorBuilder: (_, __, ___) => Container(
                 height: 200.h,
                 color: AppColors.backgroundTint,
-                child: Icon(Icons.image_outlined,
-                    color: AppColors.greenMint, size: 50.sp),
+                child: Icon(
+                  Icons.image_outlined,
+                  color: AppColors.greenMint,
+                  size: 50.sp,
+                ),
               ),
             ),
             // Play button overlay
@@ -154,21 +142,7 @@ class ArticleDetailPage extends StatelessWidget {
               ),
             ),
             // Author avatar (top left)
-            Positioned(
-              top: 12.h,
-              left: 12.w,
-              child: CircleAvatar(
-                radius: 18.r,
-                backgroundColor: AppColors.primary,
-                child: Text(
-                  'M',
-                  style: TextStyleManager.heading3.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+        
           ],
         ),
       ),
@@ -182,33 +156,37 @@ class ArticleDetailPage extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Views
           Row(
             children: [
-              Icon(Icons.remove_red_eye_outlined,
-                  size: 16.sp, color: AppColors.primary),
+              Icon(
+                Icons.calendar_month_outlined,
+                size: 14.sp,
+                color: AppColors.textSecondary,
+              ),
               SizedBox(width: 4.w),
               Text(
-                '${article.views}',
-                style: TextStyleManager.style11Medium.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
+                article.date,
+                style: TextStyleManager.style10Medium.copyWith(
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
           ),
-          const Spacer(),
-          // Date
           Row(
             children: [
-              Icon(Icons.calendar_month_outlined,
-                  size: 16.sp, color: AppColors.textSecondary),
+              Icon(
+                Icons.remove_red_eye_outlined,
+                size: 14.sp,
+                color: AppColors.primary,
+              ),
               SizedBox(width: 4.w),
               Text(
-                article.date,
-                style: TextStyleManager.style11Medium.copyWith(
-                  color: AppColors.textSecondary,
+                '${article.views}',
+                style: TextStyleManager.style10Medium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
@@ -226,8 +204,9 @@ class ArticleDetailPage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Text(
         article.title,
-        style: TextStyleManager.heading2.copyWith(
-          color: AppColors.primary,
+        style: TextStyleManager.text2.copyWith(
+          color: AppColors.black,
+          fontSize: 13.sp,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -242,8 +221,8 @@ class ArticleDetailPage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Text(
         article.body,
-        style: TextStyleManager.style13Medium.copyWith(
-          color: AppColors.textPrimary,
+        style: TextStyleManager.style10Medium.copyWith(
+          color: AppColors.textSecondary,
           height: 1.8,
         ),
       ),
@@ -270,29 +249,29 @@ class ArticleDetailPage extends StatelessWidget {
   // Related articles list (horizontal cards)
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildRelatedArticlesList(BuildContext context) {
-    return SizedBox(
-      height: 110.h,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.only(right: 16.w),
-        itemCount: relatedArticles.length,
-        itemBuilder: (context, index) => _RelatedArticleCard(
-          article: relatedArticles[index],
-          onTap: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ArticleDetailPage(
-                  article: relatedArticles[index],
-                  relatedArticles: relatedArticles
-                      .where((a) => a != relatedArticles[index])
-                      .toList()
-                    ..add(article),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Column(
+        children: List.generate(relatedArticles.length, (index) {
+          return _RelatedArticleCard(
+            article: relatedArticles[index],
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ArticleDetailPage(
+                    article: relatedArticles[index],
+                    relatedArticles:
+                        relatedArticles
+                            .where((a) => a != relatedArticles[index])
+                            .toList()
+                          ..add(article),
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
+              );
+            },
+          );
+        }),
       ),
     );
   }
@@ -312,63 +291,58 @@ class _RelatedArticleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 280.w,
-        margin: EdgeInsets.only(left: 12.w),
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: AppColors.divider, width: 0.5),
           boxShadow: AppShadows.primaryShadow,
         ),
         child: Row(
           children: [
-            // Image
-            ClipRRect(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(12.r),
-                bottomRight: Radius.circular(12.r),
-              ),
-              child: Image.network(
-                article.imageUrl,
-                width: 90.w,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 90.w,
-                  color: AppColors.backgroundTint,
-                  child: Icon(Icons.image_outlined,
-                      color: AppColors.greenMint, size: 24.sp),
+            // Bookmark icon
+            Icon(
+              Icons.bookmark_outline_rounded,
+              color: AppColors.primary,
+              size: 24.sp,
+            ),
+            SizedBox(width: 10.w),
+            // Title
+            Expanded(
+              child: Text(
+                article.title,
+                style: TextStyleManager.style11Medium.copyWith(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.w600,
+                  height: 1.5,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
               ),
             ),
-            // Content
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      article.title,
-                      style: TextStyleManager.style11Medium.copyWith(
-                        color: AppColors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      article.body,
-                      style: TextStyleManager.style9Medium.copyWith(
-                        color: AppColors.textSecondary,
-                        height: 1.4,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+            SizedBox(width: 12.w),
+            // Image on the left (leading in RTL = right side visually)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12.r),
+              child: Image.network(
+                article.imageUrl,
+                width: 72.w,
+                height: 72.w,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 72.w,
+                  height: 72.w,
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundTint,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Icon(
+                    Icons.image_outlined,
+                    color: AppColors.greenMint,
+                    size: 24.sp,
+                  ),
                 ),
               ),
             ),

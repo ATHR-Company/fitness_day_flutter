@@ -60,7 +60,7 @@ class ArticlesListPage extends StatelessWidget {
         LocaleKeys.home_articles_page_title.tr(),
         style: TextStyleManager.heading2.copyWith(
           color: AppColors.black,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w700,
         ),
       ),
       leading: IconButton(
@@ -74,8 +74,8 @@ class ArticlesListPage extends StatelessWidget {
       actions: [
         IconButton(
           icon: Icon(
-            Icons.bookmark_border_rounded,
-            color: AppColors.primary,
+            Icons.bookmark_rounded,
+            color: AppColors.black,
             size: 24.sp,
           ),
           onPressed: () {
@@ -144,14 +144,15 @@ class _ArticleListCard extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.all(6.w),
                     decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.9),
+                      color: AppColors.white.withValues(alpha: 0.6),
                       shape: BoxShape.circle,
                       boxShadow: AppShadows.primaryShadow,
                     ),
                     child: Icon(
-                      Icons.bookmark_rounded,
+                      Icons.bookmark_outline_sharp,
+                      fontWeight: FontWeight.bold,
                       color: AppColors.primary,
-                      size: 18.sp,
+                      size: 22.sp,
                     ),
                   ),
                 ),
@@ -164,42 +165,38 @@ class _ArticleListCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Views + Date row
                   Row(
-                    children: [
-                      // Views
-                      Row(
-                        children: [
-                          Icon(Icons.remove_red_eye_outlined,
-                              size: 14.sp, color: AppColors.primary),
-                          SizedBox(width: 4.w),
-                          Text(
-                            '${article.views}',
-                            style: TextStyleManager.style10Medium.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_month_outlined,
+                            size: 14.sp, color: AppColors.textSecondary),
+                        SizedBox(width: 4.w),
+                        Text(
+                          article.date,
+                          style: TextStyleManager.style10Medium.copyWith(
+                            color: AppColors.textSecondary,
                           ),
-                        ],
-                      ),
-                      SizedBox(width: 16.w),
-                      // Date
-                      Row(
-                        children: [
-                          Icon(Icons.calendar_month_outlined,
-                              size: 14.sp, color: AppColors.textSecondary),
-                          SizedBox(width: 4.w),
-                          Text(
-                            article.date,
-                            style: TextStyleManager.style10Medium.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.remove_red_eye_outlined,
+                            size: 14.sp, color: AppColors.primary),
+                        SizedBox(width: 4.w),
+                        Text(
+                          '${article.views}',
+                          style: TextStyleManager.style10Medium.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
                   SizedBox(height: 10.h),
 
                   // Title

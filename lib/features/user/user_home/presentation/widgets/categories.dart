@@ -5,6 +5,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fitness_day/features/user/user_home/presentation/screens/scan_meal_screen.dart';
+import 'package:fitness_day/features/user/user_home/presentation/screens/challenges_screen.dart';
 
 class Categories extends StatelessWidget {
   const Categories({super.key});
@@ -12,10 +14,20 @@ class Categories extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _Item(SvgIcons.muscle,      'home.category_challenges'.tr()),
-      _Item(SvgIcons.achievement, 'home.category_progress'.tr()),
-      _Item(SvgIcons.barcode,     'home.category_calories'.tr()),
-      _Item(SvgIcons.share,       'home.category_share'.tr()),
+      _Item(SvgIcons.muscle,      'home.category_challenges'.tr(), onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ChallengesScreen()),
+        );
+      }),
+      _Item(SvgIcons.achievement, 'home.category_progress'.tr(), onTap: () {}),
+      _Item(SvgIcons.barcode,     'home.category_calories'.tr(), onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ScanMealScreen()),
+        );
+      }),
+      _Item(SvgIcons.share,       'home.category_share'.tr(), onTap: () {}),
     ];
 
     return Row(
@@ -25,9 +37,11 @@ class Categories extends StatelessWidget {
   }
 
   Widget _buildItem(_Item item) {
-    return Column(
-      children: [
-        Container(
+    return GestureDetector(
+      onTap: item.onTap,
+      child: Column(
+        children: [
+          Container(
           height: 56.h,
           width: 56.w,
           padding: EdgeInsets.all(14.r),
@@ -58,6 +72,7 @@ class Categories extends StatelessWidget {
           ),
         ),
       ],
+      ),
     );
   }
 }
@@ -65,5 +80,6 @@ class Categories extends StatelessWidget {
 class _Item {
   final String icon;
   final String label;
-  const _Item(this.icon, this.label);
+  final VoidCallback onTap;
+  const _Item(this.icon, this.label, {required this.onTap});
 }

@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -64,201 +65,203 @@ class _HydrationDetailsScreenState extends State<HydrationDetailsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SvgPicture.asset(
-              SvgIcons.decor,
-              fit: BoxFit.fill,
-              color: const Color(0xff017D9E0D),
+      body: ScreenBackground(
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              right: 0,
+              child: SvgPicture.asset(
+                SvgIcons.decor,
+                fit: BoxFit.fill,
+                color: const Color(0xff017D9E0D),
+              ),
             ),
-          ),
-          // Bottom wave background
-          Positioned(
-            bottom: 0,
-            right: 0,
-            left: 0,
-            child: SvgPicture.asset(SvgIcons.WaterBG, fit: BoxFit.cover),
-          ),
-
-          SafeArea(
-            child: Column(
-              children: [
-                // AppBar
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 10.h,
+            // Bottom wave background
+            Positioned(
+              bottom: 0,
+              right: 0,
+              left: 0,
+              child: SvgPicture.asset(SvgIcons.WaterBG, fit: BoxFit.cover),
+            ),
+        
+            SafeArea(
+              child: Column(
+                children: [
+                  // AppBar
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20.w,
+                      vertical: 10.h,
+                    ),
+                    child: Row(
+                      children: [
+                        const Spacer(),
+                        Text(
+                          'شرب الماء',
+                          style: TextStyleManager.heading3.copyWith(
+                            color: AppColors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 20.sp,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Row(
+                  SizedBox(height: 40.h),
+        
+                  // Main Circular Indicator
+                  Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
                     children: [
-                      const Spacer(),
-                      Text(
-                        'شرب الماء',
-                        style: TextStyleManager.heading3.copyWith(
-                          color: AppColors.black,
-                          fontWeight: FontWeight.bold,
+                      IgnorePointer(
+                        child: CircularPercentIndicator(
+                          radius: 120.r,
+                          lineWidth: 10.w,
+                          percent: percent,
+        
+                          backgroundColor: AppColors.inactiveGray.withValues(
+                            alpha: 0.2,
+                          ),
+                          progressColor: const Color(0xFF23C4D7),
+                          center: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                SvgIcons.water_wave,
+                                width: 30.w,
+                                fit: BoxFit.cover,
+                              ),
+                              SizedBox(height: 25.h),
+                              Text(
+                                currentWater.toStringAsFixed(3),
+                                style: TextStyleManager.heading1.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                              SizedBox(height: 5.h),
+                              Text(
+                                'L $goalWater  /',
+                                style: TextStyleManager.style10Medium.copyWith(
+                                  color: AppColors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 20.sp,
-                          color: AppColors.black,
+        
+                      // 1L center button
+                      Positioned(
+                        bottom: -20.h,
+                        left: 0,
+                        right: 0,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: _buildActionButton(
+                            iconWidget: SvgPicture.asset(
+                              SvgIcons.waterGlass,
+                              width: 40.w,
+                              height: 40.h,
+                            ),
+                            label: '1 L',
+                            onTap: () => addWater(1.0),
+                            isFilled: true,
+                            size: 80.w,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                SizedBox(height: 40.h),
-
-                // Main Circular Indicator
-                Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.center,
-                  children: [
-                    IgnorePointer(
-                      child: CircularPercentIndicator(
-                        radius: 120.r,
-                        lineWidth: 10.w,
-                        percent: percent,
-
-                        backgroundColor: AppColors.inactiveGray.withValues(
-                          alpha: 0.2,
-                        ),
-                        progressColor: const Color(0xFF23C4D7),
-                        center: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+        
+                  // Action Buttons Row
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 40.w),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            SvgPicture.asset(
-                              SvgIcons.water_wave,
-                              width: 30.w,
-                              fit: BoxFit.cover,
-                            ),
-                            SizedBox(height: 25.h),
-                            Text(
-                              currentWater.toStringAsFixed(3),
-                              style: TextStyleManager.heading1.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.black,
+                            // زر يدوي
+                            Padding(
+                              padding: EdgeInsets.only(top: 40.h),
+                              child: _buildActionButton(
+                                iconWidget: SvgPicture.asset(
+                                  SvgIcons.WarterAdd,
+                                  width: 30.w,
+                                  height: 30.w,
+                                  fit: BoxFit.contain,
+                                ),
+                                label: 'يدوي',
+                                onTap: _showManualAddSheet,
+                                isFilled: true,
+                                size: 80.w,
                               ),
                             ),
-                            SizedBox(height: 5.h),
-                            Text(
-                              'L $goalWater  /',
-                              style: TextStyleManager.style10Medium.copyWith(
-                                color: AppColors.black,
-                                fontWeight: FontWeight.w500,
+                            // زر الوقت / التذكير
+                            Padding(
+                              padding: EdgeInsets.only(top: 40.h),
+                              child: _buildActionButton(
+                                iconWidget: SvgPicture.asset(
+                                  SvgIcons.WaterClock,
+                                  width: 30.w,
+                                  height: 30.w,
+                                  fit: BoxFit.contain,
+                                ),
+                                label: '12:15صباحا',
+                                onTap: _showWaterReminderScreen,
+                                isOutlined: true,
+                                size: 80.w,
                               ),
                             ),
                           ],
                         ),
-                      ),
+                      ],
                     ),
-
-                    // 1L center button
-                    Positioned(
-                      bottom: -20.h,
-                      left: 0,
-                      right: 0,
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: _buildActionButton(
-                          iconWidget: SvgPicture.asset(
-                            SvgIcons.waterGlass,
-                            width: 40.w,
-                            height: 40.h,
-                          ),
-                          label: '1 L',
-                          onTap: () => addWater(1.0),
-                          isFilled: true,
-                          size: 80.w,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Action Buttons Row
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 40.w),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // زر يدوي
-                          Padding(
-                            padding: EdgeInsets.only(top: 40.h),
-                            child: _buildActionButton(
-                              iconWidget: SvgPicture.asset(
-                                SvgIcons.WarterAdd,
-                                width: 30.w,
-                                height: 30.w,
-                                fit: BoxFit.contain,
-                              ),
-                              label: 'يدوي',
-                              onTap: _showManualAddSheet,
-                              isFilled: true,
-                              size: 80.w,
-                            ),
-                          ),
-                          // زر الوقت / التذكير
-                          Padding(
-                            padding: EdgeInsets.only(top: 40.h),
-                            child: _buildActionButton(
-                              iconWidget: SvgPicture.asset(
-                                SvgIcons.WaterClock,
-                                width: 30.w,
-                                height: 30.w,
-                                fit: BoxFit.contain,
-                              ),
-                              label: '12:15صباحا',
-                              onTap: _showWaterReminderScreen,
-                              isOutlined: true,
-                              size: 80.w,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                   ),
-                ),
-
-                const Spacer(),
-
-                // Minus Button
-                Padding(
-                  padding: EdgeInsets.only(bottom: 50.h, right: 30.w),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () => removeWater(0.25),
-                      child: Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: const BoxDecoration(
-                          color: AppColors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.remove,
-                          color: const Color(0xFF23C4D7),
-                          size: 24.sp,
+        
+                  const Spacer(),
+        
+                  // Minus Button
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 50.h, right: 30.w),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () => removeWater(0.25),
+                        child: Container(
+                          width: 40.w,
+                          height: 40.w,
+                          decoration: const BoxDecoration(
+                            color: AppColors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.remove,
+                            color: const Color(0xFF23C4D7),
+                            size: 24.sp,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
