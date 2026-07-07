@@ -81,6 +81,9 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _secureCache.saveToken(data.accessToken);
         await _secureCache.saveRefreshToken(data.refreshToken);
         await _appCache.saveIsLoggedIn(true);
+        // Ensure cached user structure is initialized
+        final currentUser = _appCache.getUser();
+        await _appCache.saveUser(currentUser);
         emit(UserVerifyOtpSuccess(data));
       case FailureResult(:final failure):
         emit(UserAuthFailure(failure.message));
@@ -105,6 +108,9 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _secureCache.saveToken(data.accessToken);
         await _secureCache.saveRefreshToken(data.refreshToken);
         await _appCache.saveIsLoggedIn(true);
+        // Ensure cached user structure is initialized
+        final currentUser = _appCache.getUser();
+        await _appCache.saveUser(currentUser);
         emit(UserVerifyOtpSuccess(data));
       case FailureResult(:final failure):
         emit(UserAuthFailure(failure.message));
@@ -127,6 +133,9 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _secureCache.saveToken(data.accessToken);
         await _secureCache.saveRefreshToken(data.refreshToken);
         await _appCache.saveIsLoggedIn(true);
+        // Initialize cached user profile and set/override phone number
+        final currentUser = _appCache.getUser();
+        await _appCache.saveUser(currentUser.copyWith(phone: request.phone));
         emit(UserSigninSuccess(data));
       case FailureResult(:final failure):
         emit(UserAuthFailure(failure.message));

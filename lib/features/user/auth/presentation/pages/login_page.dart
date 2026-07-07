@@ -1,4 +1,5 @@
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
+import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -59,26 +60,34 @@ class _UserLoginPageState extends State<UserLoginPage> {
       body: BlocListener<UserAuthCubit, UserAuthState>(
         listener: (context, state) {
           if (state is UserVerifyOtpSuccess) {
-            if (!state.response.isPersonalDataComplete || !state.response.isSurveyComplete) {
-              context.read<UserSetupCubit>().fetchLookups();
-            }
-            if (!state.response.isPersonalDataComplete) {
-              context.pushReplacement(UserAppRoutes.userInfo);
-            } else if (!state.response.isSurveyComplete) {
-              context.pushReplacement(UserAppRoutes.healthProblems);
+            if (state.response.type == 'user') {
+              if (!state.response.isPersonalDataComplete || !state.response.isSurveyComplete) {
+                context.read<UserSetupCubit>().fetchLookups();
+              }
+              if (!state.response.isPersonalDataComplete) {
+                context.pushReplacement(UserAppRoutes.userInfo);
+              } else if (!state.response.isSurveyComplete) {
+                context.pushReplacement(UserAppRoutes.healthProblems);
+              } else {
+                context.pushReplacement(UserAppRoutes.home);
+              }
             } else {
-              context.pushReplacement(UserAppRoutes.home);
+              context.pushReplacement(SpecialistAppRoutes.home);
             }
           } else if (state is UserSigninSuccess) {
-            if (!state.response.isPersonalDataComplete || !state.response.isSurveyComplete) {
-              context.read<UserSetupCubit>().fetchLookups();
-            }
-            if (!state.response.isPersonalDataComplete) {
-              context.pushReplacement(UserAppRoutes.userInfo);
-            } else if (!state.response.isSurveyComplete) {
-              context.pushReplacement(UserAppRoutes.healthProblems);
+            if (state.response.type == 'user') {
+              if (!state.response.isPersonalDataComplete || !state.response.isSurveyComplete) {
+                context.read<UserSetupCubit>().fetchLookups();
+              }
+              if (!state.response.isPersonalDataComplete) {
+                context.pushReplacement(UserAppRoutes.userInfo);
+              } else if (!state.response.isSurveyComplete) {
+                context.pushReplacement(UserAppRoutes.healthProblems);
+              } else {
+                context.pushReplacement(UserAppRoutes.home);
+              }
             } else {
-              context.pushReplacement(UserAppRoutes.home);
+              context.pushReplacement(SpecialistAppRoutes.home);
             }
           } else if (state is UserAuthFailure) {
             showAppSnackBar(context, text: state.message, isError: true);

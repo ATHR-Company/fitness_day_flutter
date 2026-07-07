@@ -252,6 +252,7 @@ Future<void> init() async {
       completePersonalDataUseCase: getIt<CompletePersonalDataUseCase>(),
       getHealthQuestionsUseCase: getIt<GetHealthQuestionsUseCase>(),
       submitHealthAnswersUseCase: getIt<SubmitHealthAnswersUseCase>(),
+      appCache: getIt<AppCache>(),
     ),
   );
 

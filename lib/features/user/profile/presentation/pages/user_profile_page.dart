@@ -14,6 +14,8 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 
 import '../../../user_home/presentation/widgets/user_app_drawer.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -98,14 +100,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'رنا محمد',
+                                    getIt<AppCache>().getUser().name,
                                     style: TextStyleManager.style14Bold.copyWith(
                                       color: AppColors.black,
                                     ),
                                   ),
                                   SizedBox(height: 4.h),
                                   Text(
-                                    'rana mohamed @ gmail.com',
+                                    getIt<AppCache>().getUser().email,
                                     style: TextStyleManager.style11Medium.copyWith(
                                       color: AppColors.textSecondary,
                                     ),

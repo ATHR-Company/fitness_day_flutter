@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_lookups_model.dart';
 import 'package:fitness_day/features/user/auth/data/models/complete_personal_data_models.dart';
@@ -14,16 +15,19 @@ class UserSetupCubit extends Cubit<UserSetupState> {
   final CompletePersonalDataUseCase _completePersonalDataUseCase;
   final GetHealthQuestionsUseCase _getHealthQuestionsUseCase;
   final SubmitHealthAnswersUseCase _submitHealthAnswersUseCase;
+  final AppCache _appCache;
 
   UserSetupCubit({
     required GetUserLookupsUseCase getUserLookupsUseCase,
     required CompletePersonalDataUseCase completePersonalDataUseCase,
     required GetHealthQuestionsUseCase getHealthQuestionsUseCase,
     required SubmitHealthAnswersUseCase submitHealthAnswersUseCase,
+    required AppCache appCache,
   })  : _getUserLookupsUseCase = getUserLookupsUseCase,
         _completePersonalDataUseCase = completePersonalDataUseCase,
         _getHealthQuestionsUseCase = getHealthQuestionsUseCase,
         _submitHealthAnswersUseCase = submitHealthAnswersUseCase,
+        _appCache = appCache,
         super(const UserSetupInitial());
 
   // Cached lookups
@@ -149,6 +153,16 @@ class UserSetupCubit extends Cubit<UserSetupState> {
     final result = await _completePersonalDataUseCase(request);
     switch (result) {
       case Success(:final data):
+        final cached = _appCache.getUser();
+        final updated = cached.copyWith(
+          name: fullName,
+          gender: gender,
+          height: height,
+          weight: weight,
+          goal: goalId,
+          birthDate: birthDate,
+        );
+        await _appCache.saveUser(updated);
         emit(CompletePersonalDataSuccess(data.message));
       case FailureResult(:final failure):
         emit(UserSetupFailure(failure.message));

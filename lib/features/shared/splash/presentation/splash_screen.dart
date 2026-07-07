@@ -7,6 +7,8 @@ import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 
+import '../../../../core/routes/user_routes/app_routes.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -55,7 +57,9 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
       final appCache = di.getIt<AppCache>();
-      if (appCache.hasSeenOnboarding()) {
+      if (appCache.isLoggedIn()) {
+        context.go(UserAppRoutes.home);
+      } else if (appCache.hasSeenOnboarding()) {
         context.go(SharedRoutes.roleSelection);
       } else {
         context.go(SharedRoutes.onboarding);
