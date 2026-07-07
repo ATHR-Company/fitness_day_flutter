@@ -207,11 +207,22 @@ class AppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.workoutVideo,
-        builder: (context, state) => const WorkoutVideoScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final workoutItemId = extra['workoutItemId'] as String? ?? '6a4cf59e38e6d8571647c112';
+          final dayNumber = extra['dayNumber'] as int? ?? 1;
+          return WorkoutVideoScreen(
+            workoutItemId: workoutItemId,
+            dayNumber: dayNumber,
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.workoutRest,
-        builder: (context, state) => const WorkoutRestScreen(),
+        builder: (context, state) {
+          final restDuration = state.extra as int? ?? 30;
+          return WorkoutRestScreen(restDuration: restDuration);
+        },
       ),
     ],
   );

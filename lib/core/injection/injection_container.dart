@@ -40,6 +40,16 @@ import 'package:fitness_day/features/user/visits/domain/usecases/get_meal_detail
 import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/meal_details_cubit.dart';
 
+// User Workouts
+import 'package:fitness_day/features/user/workout/data/datasources/workout_remote_datasource.dart';
+import 'package:fitness_day/features/user/workout/data/repositories/workout_repository_impl.dart';
+import 'package:fitness_day/features/user/workout/domain/repositories/workout_repository.dart';
+import 'package:fitness_day/features/user/workout/domain/usecases/get_workout_plan_usecase.dart';
+import 'package:fitness_day/features/user/workout/domain/usecases/get_workout_details_usecase.dart';
+import 'package:fitness_day/features/user/workout/domain/usecases/complete_workout_set_usecase.dart';
+import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_cubit.dart';
+import 'package:fitness_day/features/user/workout/presentation/manager/workout_details_cubit.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -137,6 +147,10 @@ Future<void> init() async {
     () => VisitsRemoteDataSourceImpl(getIt<ApiService>()),
   );
 
+  getIt.registerLazySingleton<WorkoutRemoteDataSource>(
+    () => WorkoutRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+
   // ═════════════════════════════════════════════════
   //                 REPOSITORIES
   // ═════════════════════════════════════════════════
@@ -156,6 +170,12 @@ Future<void> init() async {
   getIt.registerLazySingleton<VisitsRepository>(
     () => VisitsRepositoryImpl(
       getIt<VisitsRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<WorkoutRepository>(
+    () => WorkoutRepositoryImpl(
+      getIt<WorkoutRemoteDataSource>(),
     ),
   );
 
@@ -223,6 +243,18 @@ Future<void> init() async {
     () => GetMealDetailsUseCase(getIt<VisitsRepository>()),
   );
 
+  getIt.registerLazySingleton<GetWorkoutPlanUseCase>(
+    () => GetWorkoutPlanUseCase(getIt<WorkoutRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetWorkoutDetailsUseCase>(
+    () => GetWorkoutDetailsUseCase(getIt<WorkoutRepository>()),
+  );
+
+  getIt.registerLazySingleton<CompleteWorkoutSetUseCase>(
+    () => CompleteWorkoutSetUseCase(getIt<WorkoutRepository>()),
+  );
+
   // ═════════════════════════════════════════════════
   //                    BLoCs
   // ═════════════════════════════════════════════════
@@ -265,6 +297,19 @@ Future<void> init() async {
   getIt.registerFactory<MealDetailsCubit>(
     () => MealDetailsCubit(
       getMealDetailsUseCase: getIt<GetMealDetailsUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<WorkoutPlanCubit>(
+    () => WorkoutPlanCubit(
+      getIt<GetWorkoutPlanUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<WorkoutDetailsCubit>(
+    () => WorkoutDetailsCubit(
+      getWorkoutDetailsUseCase: getIt<GetWorkoutDetailsUseCase>(),
+      completeWorkoutSetUseCase: getIt<CompleteWorkoutSetUseCase>(),
     ),
   );
 }
