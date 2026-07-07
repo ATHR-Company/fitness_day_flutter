@@ -136,7 +136,10 @@ class UserAppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.mealDetails,
-        builder: (context, state) => const MealDetailsPage(),
+        builder: (context, state) {
+          final mealId = state.extra as String? ?? '';
+          return MealDetailsPage(mealId: mealId);
+        },
       ),
       GoRoute(
         path: UserAppRoutes.hydrationDetails,

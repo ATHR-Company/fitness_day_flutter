@@ -14,4 +14,6 @@ class ApiEndpoints {
   static const String submitHealthAnswers = '/users/submit-health-answers';
   static const String authRefresh = '/auth/refresh';
   static const String socialAuth = '/auth/social';
+  static const String dietPlan = '/diet-plan';
+  static const String mealDetails = '/diet-plan/meals';
 }

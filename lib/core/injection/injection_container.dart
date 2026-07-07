@@ -31,6 +31,15 @@ import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_r
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 
+// User Visits & Diet
+import 'package:fitness_day/features/user/visits/data/datasources/visits_remote_datasource.dart';
+import 'package:fitness_day/features/user/visits/data/repositories/visits_repository_impl.dart';
+import 'package:fitness_day/features/user/visits/domain/repositories/visits_repository.dart';
+import 'package:fitness_day/features/user/visits/domain/usecases/get_diet_plan_usecase.dart';
+import 'package:fitness_day/features/user/visits/domain/usecases/get_meal_details_usecase.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_cubit.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/meal_details_cubit.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -124,6 +133,10 @@ Future<void> init() async {
     () => UserAuthRemoteDataSourceImpl(getIt<ApiService>()),
   );
 
+  getIt.registerLazySingleton<VisitsRemoteDataSource>(
+    () => VisitsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+
   // ═════════════════════════════════════════════════
   //                 REPOSITORIES
   // ═════════════════════════════════════════════════
@@ -137,6 +150,12 @@ Future<void> init() async {
   getIt.registerLazySingleton<UserAuthRepository>(
     () => UserAuthRepositoryImpl(
       getIt<UserAuthRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<VisitsRepository>(
+    () => VisitsRepositoryImpl(
+      getIt<VisitsRemoteDataSource>(),
     ),
   );
 
@@ -196,6 +215,14 @@ Future<void> init() async {
     () => ForgotPasswordResendOtpUseCase(getIt<UserAuthRepository>()),
   );
 
+  getIt.registerLazySingleton<GetDietPlanUseCase>(
+    () => GetDietPlanUseCase(getIt<VisitsRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetMealDetailsUseCase>(
+    () => GetMealDetailsUseCase(getIt<VisitsRepository>()),
+  );
+
   // ═════════════════════════════════════════════════
   //                    BLoCs
   // ═════════════════════════════════════════════════
@@ -225,6 +252,18 @@ Future<void> init() async {
       completePersonalDataUseCase: getIt<CompletePersonalDataUseCase>(),
       getHealthQuestionsUseCase: getIt<GetHealthQuestionsUseCase>(),
       submitHealthAnswersUseCase: getIt<SubmitHealthAnswersUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<DietPlanCubit>(
+    () => DietPlanCubit(
+      getDietPlanUseCase: getIt<GetDietPlanUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<MealDetailsCubit>(
+    () => MealDetailsCubit(
+      getMealDetailsUseCase: getIt<GetMealDetailsUseCase>(),
     ),
   );
 }
