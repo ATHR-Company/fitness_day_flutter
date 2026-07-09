@@ -664,5 +664,9 @@
     "achievement_finish": "Finish",
     "well_done": "Well Done!",
     "well_done_desc": "You've accomplished a day of movement, keep it up to maintain health and relieve pain."
+  },
+  "diet_plan": {
+    "empty_title": "No Diet Plan Yet",
+    "empty_subtitle": "Your diet plan has not been added yet. Your nutrition plan will be updated by the specialist soon."
   }
 }

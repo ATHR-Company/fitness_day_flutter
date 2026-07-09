@@ -41,6 +41,9 @@ import 'package:fitness_day/features/user/user_home/presentation/screens/steps_d
 import 'package:fitness_day/features/user/market/presentation/screens/market_main_screen.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_video_screen.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_rest_screen.dart';
+import 'package:fitness_day/features/user/visits/presentation/pages/diet_plan_page.dart';
+import 'package:fitness_day/features/user/workout/presentation/pages/workout_plan_page.dart';
+
 /// Single combined router — keeps ALL user + specialist routes so that
 /// swapping routerConfig is never needed and "Page Not Found" never occurs.
 class AppRouter {
@@ -186,7 +189,18 @@ class AppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.mealDetails,
-        builder: (context, state) => const MealDetailsPage(),
+        builder: (context, state) {
+          final mealId = state.extra as String? ?? '';
+          return MealDetailsPage(mealId: mealId);
+        },
+      ),
+      GoRoute(
+        path: UserAppRoutes.dietPlan,
+        builder: (context, state) => const DietPlanPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.workoutPlan,
+        builder: (context, state) => const WorkoutPlanPage(),
       ),
       GoRoute(
         path: UserAppRoutes.hydrationDetails,
@@ -198,11 +212,22 @@ class AppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.workoutVideo,
-        builder: (context, state) => const WorkoutVideoScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final workoutItemId = extra['workoutItemId'] as String? ?? '6a4cf59e38e6d8571647c112';
+          final dayNumber = extra['dayNumber'] as int? ?? 1;
+          return WorkoutVideoScreen(
+            workoutItemId: workoutItemId,
+            dayNumber: dayNumber,
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.workoutRest,
-        builder: (context, state) => const WorkoutRestScreen(),
+        builder: (context, state) {
+          final restDuration = state.extra as int? ?? 30;
+          return WorkoutRestScreen(restDuration: restDuration);
+        },
       ),
     ],
   );

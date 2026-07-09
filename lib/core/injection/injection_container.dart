@@ -31,6 +31,25 @@ import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_r
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 
+// User Visits & Diet
+import 'package:fitness_day/features/user/visits/data/datasources/visits_remote_datasource.dart';
+import 'package:fitness_day/features/user/visits/data/repositories/visits_repository_impl.dart';
+import 'package:fitness_day/features/user/visits/domain/repositories/visits_repository.dart';
+import 'package:fitness_day/features/user/visits/domain/usecases/get_diet_plan_usecase.dart';
+import 'package:fitness_day/features/user/visits/domain/usecases/get_meal_details_usecase.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_cubit.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/meal_details_cubit.dart';
+
+// User Workouts
+import 'package:fitness_day/features/user/workout/data/datasources/workout_remote_datasource.dart';
+import 'package:fitness_day/features/user/workout/data/repositories/workout_repository_impl.dart';
+import 'package:fitness_day/features/user/workout/domain/repositories/workout_repository.dart';
+import 'package:fitness_day/features/user/workout/domain/usecases/get_workout_plan_usecase.dart';
+import 'package:fitness_day/features/user/workout/domain/usecases/get_workout_details_usecase.dart';
+import 'package:fitness_day/features/user/workout/domain/usecases/complete_workout_set_usecase.dart';
+import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_cubit.dart';
+import 'package:fitness_day/features/user/workout/presentation/manager/workout_details_cubit.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -124,6 +143,14 @@ Future<void> init() async {
     () => UserAuthRemoteDataSourceImpl(getIt<ApiService>()),
   );
 
+  getIt.registerLazySingleton<VisitsRemoteDataSource>(
+    () => VisitsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+
+  getIt.registerLazySingleton<WorkoutRemoteDataSource>(
+    () => WorkoutRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+
   // ═════════════════════════════════════════════════
   //                 REPOSITORIES
   // ═════════════════════════════════════════════════
@@ -137,6 +164,18 @@ Future<void> init() async {
   getIt.registerLazySingleton<UserAuthRepository>(
     () => UserAuthRepositoryImpl(
       getIt<UserAuthRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<VisitsRepository>(
+    () => VisitsRepositoryImpl(
+      getIt<VisitsRemoteDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<WorkoutRepository>(
+    () => WorkoutRepositoryImpl(
+      getIt<WorkoutRemoteDataSource>(),
     ),
   );
 
@@ -196,6 +235,26 @@ Future<void> init() async {
     () => ForgotPasswordResendOtpUseCase(getIt<UserAuthRepository>()),
   );
 
+  getIt.registerLazySingleton<GetDietPlanUseCase>(
+    () => GetDietPlanUseCase(getIt<VisitsRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetMealDetailsUseCase>(
+    () => GetMealDetailsUseCase(getIt<VisitsRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetWorkoutPlanUseCase>(
+    () => GetWorkoutPlanUseCase(getIt<WorkoutRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetWorkoutDetailsUseCase>(
+    () => GetWorkoutDetailsUseCase(getIt<WorkoutRepository>()),
+  );
+
+  getIt.registerLazySingleton<CompleteWorkoutSetUseCase>(
+    () => CompleteWorkoutSetUseCase(getIt<WorkoutRepository>()),
+  );
+
   // ═════════════════════════════════════════════════
   //                    BLoCs
   // ═════════════════════════════════════════════════
@@ -225,6 +284,32 @@ Future<void> init() async {
       completePersonalDataUseCase: getIt<CompletePersonalDataUseCase>(),
       getHealthQuestionsUseCase: getIt<GetHealthQuestionsUseCase>(),
       submitHealthAnswersUseCase: getIt<SubmitHealthAnswersUseCase>(),
+      appCache: getIt<AppCache>(),
+    ),
+  );
+
+  getIt.registerFactory<DietPlanCubit>(
+    () => DietPlanCubit(
+      getDietPlanUseCase: getIt<GetDietPlanUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<MealDetailsCubit>(
+    () => MealDetailsCubit(
+      getMealDetailsUseCase: getIt<GetMealDetailsUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<WorkoutPlanCubit>(
+    () => WorkoutPlanCubit(
+      getIt<GetWorkoutPlanUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<WorkoutDetailsCubit>(
+    () => WorkoutDetailsCubit(
+      getWorkoutDetailsUseCase: getIt<GetWorkoutDetailsUseCase>(),
+      completeWorkoutSetUseCase: getIt<CompleteWorkoutSetUseCase>(),
     ),
   );
 }

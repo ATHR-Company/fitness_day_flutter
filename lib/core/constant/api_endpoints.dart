@@ -14,4 +14,11 @@ class ApiEndpoints {
   static const String submitHealthAnswers = '/users/submit-health-answers';
   static const String authRefresh = '/auth/refresh';
   static const String socialAuth = '/auth/social';
+  static const String dietPlan = '/diet-plan';
+  static const String mealDetails = '/diet-plan/meals';
+
+  static String workoutPlanDay(int dayNumber) => '/workout-plan/days/$dayNumber/workouts';
+  static String workoutDetails(String workoutItemId) => '/workout-plan/workouts/$workoutItemId';
+  static String completeWorkoutSet(int dayNumber, String workoutItemId, int setNumber) =>
+      '/workout-plan/days/$dayNumber/workouts/$workoutItemId/sets/$setNumber/complete';
 }

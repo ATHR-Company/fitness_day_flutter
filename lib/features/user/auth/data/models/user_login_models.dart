@@ -29,6 +29,7 @@ class UserSigninResponseModel {
   final String refreshToken;
   final bool isPersonalDataComplete;
   final bool isSurveyComplete;
+  final String type;
 
   const UserSigninResponseModel({
     required this.success,
@@ -38,6 +39,7 @@ class UserSigninResponseModel {
     required this.refreshToken,
     required this.isPersonalDataComplete,
     required this.isSurveyComplete,
+    required this.type,
   });
 
   factory UserSigninResponseModel.fromJson(Map<String, dynamic> json) {
@@ -51,6 +53,7 @@ class UserSigninResponseModel {
       refreshToken: data['refreshToken'] as String,
       isPersonalDataComplete: completionStatus['isPersonalDataComplete'] as bool? ?? false,
       isSurveyComplete: completionStatus['isSurveyComplete'] as bool? ?? false,
+      type: data['type'] as String? ?? 'user',
     );
   }
 }

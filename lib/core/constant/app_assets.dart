@@ -116,6 +116,7 @@ class SvgIcons {
   static const String stepsdecor = '$_svgPath/steps_decor.svg';
   static const String market_icon = '$_svgPath/market_icon.svg';
   static const String usersGroup = '$_svgPath/users-group.svg';
+  static const String noDiet = '$_svgPath/no_diet.svg';
 
 }
 

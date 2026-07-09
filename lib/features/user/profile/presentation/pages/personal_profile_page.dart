@@ -10,6 +10,8 @@ import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/features/user/profile/presentation/widgets/edit_field_dialog.dart';
 import 'package:fitness_day/features/user/profile/presentation/widgets/edit_phone_dialog.dart';
 import 'package:fitness_day/features/user/profile/presentation/widgets/edit_goal_dialog.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 
 class PersonalProfilePage extends StatefulWidget {
   const PersonalProfilePage({super.key});
@@ -19,13 +21,46 @@ class PersonalProfilePage extends StatefulWidget {
 }
 
 class _PersonalProfilePageState extends State<PersonalProfilePage> {
-  // Mock data representing the profile values
-  String _name = 'رنا محمد';
-  String _email = 'rana mohamed@gmail.com';
-  String _phone = '99567890211';
-  String _weight = '57.8';
-  String _height = '167';
-  String _goal = 'login.goal_gain'; // Locales: زيادة الوزن
+  late String _name;
+  late String _email;
+  late String _phone;
+  late String _weight;
+  late String _height;
+  late String _goal;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = getIt<AppCache>().getUser();
+    _name = user.name;
+    _email = user.email;
+    _phone = user.phone;
+    _weight = user.weight?.toString() ?? '';
+    _height = user.height?.toString() ?? '';
+    _goal = user.goal ?? 'login.goal_gain';
+  }
+
+  void _updateCache(String field, String val) {
+    setState(() {
+      if (field == 'name') _name = val;
+      if (field == 'email') _email = val;
+      if (field == 'phone') _phone = val;
+      if (field == 'weight') _weight = val;
+      if (field == 'height') _height = val;
+      if (field == 'goal') _goal = val;
+    });
+
+    final user = getIt<AppCache>().getUser();
+    final updated = user.copyWith(
+      name: _name,
+      email: _email,
+      phone: _phone,
+      weight: double.tryParse(_weight),
+      height: double.tryParse(_height),
+      goal: _goal,
+    );
+    getIt<AppCache>().saveUser(updated);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +126,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                               title: 'login.full_name_hint'.tr(),
                               hintText: _name,
                               iconPath: SvgIcons.editName,
-                              onSave: (val) => setState(() => _name = val),
+                              onSave: (val) => _updateCache('name', val),
                             ),
                           );
                         },
@@ -106,7 +141,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                               title: 'profile_page.email'.tr(),
                               hintText: _email,
                               iconPath: SvgIcons.email,
-                              onSave: (val) => setState(() => _email = val),
+                              onSave: (val) => _updateCache('email', val),
                             ),
                           );
                         },
@@ -119,7 +154,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                             context: context,
                             builder: (context) => EditPhoneDialog(
                               initialPhone: _phone,
-                              onSave: (val) => setState(() => _phone = val),
+                              onSave: (val) => _updateCache('phone', val),
                             ),
                           );
                         },
@@ -135,7 +170,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                               hintText: _weight,
                               iconPath: SvgIcons.wieght,
                               keyboardType: TextInputType.number,
-                              onSave: (val) => setState(() => _weight = val),
+                              onSave: (val) => _updateCache('weight', val),
                             ),
                           );
                         },
@@ -151,7 +186,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                               hintText: _height,
                               iconPath: SvgIcons.height,
                               keyboardType: TextInputType.number,
-                              onSave: (val) => setState(() => _height = val),
+                              onSave: (val) => _updateCache('height', val),
                             ),
                           );
                         },
@@ -164,7 +199,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                             context: context,
                             builder: (context) => EditGoalDialog(
                               currentGoal: _goal,
-                              onSave: (val) => setState(() => _goal = val),
+                              onSave: (val) => _updateCache('goal', val),
                             ),
                           );
                         },

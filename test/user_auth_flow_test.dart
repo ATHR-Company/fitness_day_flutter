@@ -49,6 +49,7 @@ class FakeUserAuthRepository implements UserAuthRepository {
         refreshToken: 'refresh-123',
         isPersonalDataComplete: false,
         isSurveyComplete: false,
+        type: 'user',
       ));
     } else {
       return const FailureResult(ServerFailure('Verify failed'));
@@ -66,6 +67,7 @@ class FakeUserAuthRepository implements UserAuthRepository {
         refreshToken: 'refresh-social',
         isPersonalDataComplete: false,
         isSurveyComplete: false,
+        type: 'user',
       ));
     } else {
       return const FailureResult(ServerFailure('Social login failed'));
@@ -163,6 +165,7 @@ class FakeUserAuthRepository implements UserAuthRepository {
         refreshToken: 'refresh-123',
         isPersonalDataComplete: false,
         isSurveyComplete: false,
+        type: 'user',
       ));
     } else {
       return const FailureResult(ServerFailure('Signin failed'));

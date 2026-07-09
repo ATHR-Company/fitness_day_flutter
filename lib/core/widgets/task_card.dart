@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -184,7 +186,9 @@ class TaskCard extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 4.w),
-                      Icon(Icons.keyboard_double_arrow_left,
+                      Icon(Directionality.of(context) == ui.TextDirection.rtl
+                          ? Icons.keyboard_double_arrow_left_rounded
+                          : Icons.keyboard_double_arrow_right_rounded,
                           size: 16.sp, color: AppColors.white),
                     ],
                   ),

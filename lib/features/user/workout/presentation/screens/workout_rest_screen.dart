@@ -11,19 +11,27 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 class WorkoutRestScreen extends StatefulWidget {
-  const WorkoutRestScreen({super.key});
+  final int restDuration;
+
+  const WorkoutRestScreen({
+    super.key,
+    required this.restDuration,
+  });
 
   @override
   State<WorkoutRestScreen> createState() => _WorkoutRestScreenState();
 }
 
 class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
-  int _countdown = 30;
+  late int _countdown;
+  late final int _maxRestDuration;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
+    _countdown = widget.restDuration;
+    _maxRestDuration = widget.restDuration;
     _startTimer();
   }
 
@@ -70,10 +78,6 @@ class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
                 color: AppColors.black,
                 fontWeight: FontWeight.bold,
               ),
-            ),
-            Text(
-              '1 / 3',
-              style: TextStyleManager.style14Medium.copyWith(color: AppColors.primary),
             ),
           ],
         ),
@@ -131,7 +135,7 @@ class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '00:$_countdown',
+                      '00:${_countdown.toString().padLeft(2, '0')}',
                       style: TextStyle(
                         fontSize: 48.sp,
                         fontWeight: FontWeight.bold,
@@ -157,7 +161,7 @@ class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
                 ),
                 SizedBox(height: 48.h),
 
-                // Hourglass Icon (using an icon instead of svg for simplicity, or we can use a custom widget)
+                // Hourglass Icon
                 Center(
                   child: SizedBox(
                     width: 200.r,
@@ -216,12 +220,12 @@ class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
                                 thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6.r),
                               ),
                               child: Slider(
-                                value: (30 - _countdown) / 30,
+                                value: _maxRestDuration == 0 ? 0.0 : (_maxRestDuration - _countdown) / _maxRestDuration,
                                 onChanged: (val) {},
                               ),
                             ),
                           ),
-                          Text('30 s', style: TextStyleManager.style12Regular),
+                          Text('$_maxRestDuration s', style: TextStyleManager.style12Regular),
                         ],
                       ),
                       Row(
@@ -233,12 +237,17 @@ class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
                           ),
                           IconButton(
                             icon: Icon(Icons.refresh, color: AppColors.divider),
-                            onPressed: () {},
+                            onPressed: () {
+                              setState(() {
+                                _countdown = _maxRestDuration;
+                              });
+                            },
                           ),
                           GestureDetector(
                             onTap: () {
                               if (_timer != null && _timer!.isActive) {
                                 _timer!.cancel();
+                                setState(() {});
                               } else {
                                 _startTimer();
                               }
@@ -259,11 +268,18 @@ class _WorkoutRestScreenState extends State<WorkoutRestScreen> {
                           ),
                           IconButton(
                             icon: Icon(Icons.play_arrow_outlined, color: AppColors.divider),
-                            onPressed: () {},
+                            onPressed: () {
+                              if (_timer == null || !_timer!.isActive) {
+                                _startTimer();
+                              }
+                            },
                           ),
                           IconButton(
                             icon: Icon(Icons.fast_forward, color: AppColors.divider),
-                            onPressed: () {},
+                            onPressed: () {
+                              _timer?.cancel();
+                              _onNextStage();
+                            },
                           ),
                         ],
                       )
