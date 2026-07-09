@@ -112,6 +112,7 @@
     "hydration_desc": "Staying hydrated helps improve energy and focus.",
     "water_unit": "L",
     "details_button": "Details",
+    "add_to_cart": "Add to cart",
     "articles_title": "Articles",
     "category_challenges": "Challenges",
     "category_progress": "Progress",
@@ -643,10 +644,12 @@
     "create_start_date_hint": "Please enter the start date",
     "create_add_image": "Add Challenge Image",
     "create_btn_next": "Next",
-    "create_type_1": "Type 1",
-    "create_type_2": "Type 2",
-    "create_category_1": "Category 1",
-    "create_category_2": "Category 2"
+    "create_type_1": "Public Challenge",
+    "create_type_2": "Personal Challenge",
+    "create_category_1": "Daily Steps Challenge",
+    "create_category_2": "Weight Challenge",
+    "create_category_3": "Running & Distance Challenge",
+    "create_category_4": "Workout Challenge"
   },
   "workout": {
     "warmup": "Warm up",

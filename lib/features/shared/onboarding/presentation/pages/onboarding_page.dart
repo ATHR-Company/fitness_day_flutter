@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'dart:math' as math;
+import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -67,7 +68,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   void _finishOnboarding() {
     di.getIt<AppCache>().saveHasSeenOnboarding(true);
-    context.go(SpecialistAppRoutes.login);
+    context.go(SharedRoutes.roleSelection);
   }
 
   @override

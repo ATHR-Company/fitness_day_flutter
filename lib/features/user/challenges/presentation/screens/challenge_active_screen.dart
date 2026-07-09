@@ -5,6 +5,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:fitness_day/core/widgets/task_card.dart';
+import 'package:fitness_day/core/widgets/week_date_picker.dart';
 import 'package:fitness_day/features/user/challenges/domain/entities/challenge_model.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/date_badge.dart';
 import 'package:flutter/material.dart';
@@ -246,8 +247,6 @@ class _StepsContent extends StatelessWidget {
   static const double _goal = 5000;
   static const int _pct = 44;
   static const int _vsYesterday = 23;
-  static const int _calories = 50;
-  static const int _minutes = 30;
 
   const _StepsContent({required this.challenge});
 
@@ -380,25 +379,25 @@ class _StepsCircularIndicator extends StatelessWidget {
   }
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
-// EXERCISE CONTENT
+// EXERCISE CONTEN
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _ExerciseContent extends StatelessWidget {
+class _ExerciseContent extends StatefulWidget {
   final ChallengeModel challenge;
 
   const _ExerciseContent({required this.challenge});
 
-  static final _weekDays = [
-    _DayData(label: 'السبت', date: 15, isDone: true),
-    _DayData(label: 'الأحد', date: 16, isDone: true),
-    _DayData(label: 'الاثنين', date: 16, isToday: true),
-    _DayData(label: 'الثلاثاء', date: 17),
-    _DayData(label: 'الأربعاء', date: 18),
-    _DayData(label: 'الخميس', date: 19),
-    _DayData(label: 'الجمعة', date: 20),
-  ];
+  @override
+  State<_ExerciseContent> createState() => _ExerciseContentState();
+}
+
+class _ExerciseContentState extends State<_ExerciseContent> {
+  int _selectedDayIndex = 2;
+
+  static const _days = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+  static const _dates = ['14', '15', '16', '17', '18', '19', '20'];
+  static const _doneDays = <int>{0, 1};
 
   static final _mockTask = TaskData(
     imagePath: AppImages.challenge_cap,
@@ -419,107 +418,17 @@ class _ExerciseContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _WeekCalendar(days: _weekDays),
+          WeekDatePicker(
+            days: _days,
+            dates: _dates,
+            selectedIndex: _selectedDayIndex,
+            doneDayIndices: _doneDays,
+            onDaySelected: (i) => setState(() => _selectedDayIndex = i),
+          ),
           SizedBox(height: 24.h),
           _TodayExerciseCard(task: _mockTask),
         ],
       ),
-    );
-  }
-}
-
-// ─── Week Calendar ────────────────────────────────────────────────────────────
-
-class _DayData {
-  final String label;
-  final int date;
-  final bool isToday;
-  final bool isDone;
-
-  const _DayData({
-    required this.label,
-    required this.date,
-    this.isToday = false,
-    this.isDone = false,
-  });
-}
-
-class _WeekCalendar extends StatelessWidget {
-  final List<_DayData> days;
-
-  const _WeekCalendar({required this.days});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: days.map((d) => _DayCell(data: d)).toList(),
-    );
-  }
-}
-
-class _DayCell extends StatelessWidget {
-  final _DayData data;
-
-  const _DayCell({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          data.label,
-          style: TextStyleManager.style9Medium.copyWith(
-            color: data.isToday ? AppColors.primary : AppColors.textSecondary,
-            fontWeight: data.isToday ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-        SizedBox(height: 6.h),
-        if (data.isDone)
-          Container(
-            width: 32.w,
-            height: 32.w,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.check_rounded,
-              color: AppColors.white,
-              size: 18.sp,
-            ),
-          )
-        else if (data.isToday)
-          Container(
-            width: 32.w,
-            height: 32.w,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                '${data.date}',
-                style: TextStyleManager.style11Medium.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          )
-        else
-          Container(
-            width: 32.w,
-            height: 32.w,
-            alignment: Alignment.center,
-            child: Text(
-              '${data.date}',
-              style: TextStyleManager.style11Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-      ],
     );
   }
 }
@@ -536,7 +445,8 @@ class _TodayExerciseCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'تمرين اليوم',
@@ -545,38 +455,40 @@ class _TodayExerciseCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(width: 8.w),
-            Icon(
-              Icons.calendar_month_outlined,
-              size: 16.sp,
-              color: AppColors.textSecondary,
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              'اليوم الثالث من التحدي',
-              style: TextStyleManager.style10Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
+            SizedBox(height: 8.w),
+            Row(
+              children: [
+                Icon(
+                  Icons.calendar_month_outlined,
+                  size: 16.sp,
+                  color: AppColors.textSecondary,
+                ),
+                SizedBox(width: 4.w),
+                Text(
+                  'اليوم الثالث من التحدي',
+                  style: TextStyleManager.style10Medium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
         SizedBox(height: 12.h),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: AppColors.greenMint, width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+      padding: EdgeInsets.symmetric(vertical: 10.r),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30.r),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.4),
+          width: 1,
+        ),
+        gradient: AppColors.cardGradient,
+      ),
+          
           child: Row(
             children: [
+              SizedBox(width: 16.w),
               Expanded(
                 child: Text(
                   'اضغط هنا لبداية تمرين اليوم',
@@ -611,11 +523,13 @@ class _TodayExerciseCard extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(width: 12.w),
+
             ],
           ),
         ),
         SizedBox(height: 16.h),
-        TaskCard(task: task, plainBackground: true),
+        
       ],
     );
   }

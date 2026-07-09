@@ -1,10 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/selection_dialog.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
+import 'package:fitness_day/features/user/challenges/presentation/screens/create_challenge_step2_screen.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CreateChallengeScreen extends StatefulWidget {
   const CreateChallengeScreen({super.key});
@@ -19,6 +22,20 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
 
   String? _selectedType;
   String? _selectedCategory;
+
+  // ── Type options ──────────────────────────────────────────────────────────
+  List<String> get _typeOptions => [
+        'challenges.create_type_1'.tr(),
+        'challenges.create_type_2'.tr(),
+      ];
+
+  // ── Category options depend on selected type ──────────────────────────────
+  List<String> get _categoryOptions => [
+        'challenges.create_category_1'.tr(),
+        'challenges.create_category_2'.tr(),
+        'challenges.create_category_3'.tr(),
+        'challenges.create_category_4'.tr(),
+      ];
 
   @override
   void dispose() {
@@ -44,40 +61,46 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
                       SizedBox(height: 24.h),
                       const _ImagePicker(),
                       SizedBox(height: 32.h),
+
+                      // ── نوع التحدي ─────────────────────────────────
                       _SelectionField(
                         label: 'challenges.create_challenge_type'.tr(),
                         hint: 'challenges.create_challenge_type_hint'.tr(),
                         value: _selectedType,
                         onTap: () => _showSelectionPopup(
                           title: 'challenges.create_challenge_type'.tr(),
-                          options: [
-                            'challenges.create_type_1'.tr(),
-                            'challenges.create_type_2'.tr(),
-                          ],
-                          onSelected: (val) => setState(() => _selectedType = val),
+                          options: _typeOptions,
+                          onSelected: (val) => setState(() {
+                            _selectedType = val;
+                            _selectedCategory = null; // reset on type change
+                          }),
                         ),
                       ),
                       SizedBox(height: 20.h),
+
+                      // ── اسم التحدي ─────────────────────────────────
                       _TextField(
                         label: 'challenges.create_challenge_name'.tr(),
                         hint: 'challenges.create_challenge_name_hint'.tr(),
                         controller: _nameController,
                       ),
                       SizedBox(height: 20.h),
+
+                      // ── فئة التحدي ─────────────────────────────────
                       _SelectionField(
                         label: 'challenges.create_challenge_category'.tr(),
                         hint: 'challenges.create_challenge_category_hint'.tr(),
                         value: _selectedCategory,
                         onTap: () => _showSelectionPopup(
                           title: 'challenges.create_challenge_category'.tr(),
-                          options: [
-                            'challenges.create_category_1'.tr(),
-                            'challenges.create_category_2'.tr(),
-                          ],
-                          onSelected: (val) => setState(() => _selectedCategory = val),
+                          options: _categoryOptions,
+                          onSelected: (val) =>
+                              setState(() => _selectedCategory = val),
                         ),
                       ),
                       SizedBox(height: 20.h),
+
+                      // ── تاريخ البداية ──────────────────────────────
                       _TextField(
                         label: 'challenges.create_start_date'.tr(),
                         hint: 'challenges.create_start_date_hint'.tr(),
@@ -86,9 +109,15 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
                         onTap: () => _pickDate(context),
                       ),
                       SizedBox(height: 40.h),
+
                       ElevatedButton(
                         onPressed: () {
-                          // TODO: Handle next step
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const CreateChallengeStep2Screen(),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
@@ -187,45 +216,187 @@ class _CreateChallengeAppBar extends StatelessWidget {
 
 // ─── Image Picker ─────────────────────────────────────────────────────────────
 
-class _ImagePicker extends StatelessWidget {
+class _ImagePicker extends StatefulWidget {
   const _ImagePicker();
+
+  @override
+  State<_ImagePicker> createState() => _ImagePickerState();
+}
+
+class _ImagePickerState extends State<_ImagePicker> {
+  File? _pickedImage;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource source) async {
+    final XFile? file = await _picker.pickImage(
+      source: source,
+      imageQuality: 85,
+      maxWidth: 1080,
+    );
+    if (file != null) {
+      setState(() => _pickedImage = File(file.path));
+    }
+  }
+
+  void _showSourceSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 24.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle
+              Container(
+                width: 40.w,
+                height: 4.h,
+                margin: EdgeInsets.only(bottom: 20.h),
+                decoration: BoxDecoration(
+                  color: AppColors.divider,
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
+              ),
+              Text(
+                'اختر مصدر الصورة',
+                style: TextStyleManager.heading3.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: _SourceOption(
+                      icon: Icons.camera_alt_rounded,
+                      label: 'الكاميرا',
+                      onTap: () {
+                        Navigator.pop(context);
+                        _pickImage(ImageSource.camera);
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: _SourceOption(
+                      icon: Icons.photo_library_rounded,
+                      label: 'المعرض',
+                      onTap: () {
+                        Navigator.pop(context);
+                        _pickImage(ImageSource.gallery);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8.h),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        children: [
-          Container(
-            width: 90.w,
-            height: 90.w,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE6F4EA),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                width: 1.5,
-              ),
-            ),
-            child: Center(
-              child: Icon(Icons.image, color: AppColors.primary, size: 32.sp),
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.edit, color: AppColors.primary, size: 14.sp),
-              SizedBox(width: 4.w),
-              Text(
-                'challenges.create_add_image'.tr(),
-                style: TextStyleManager.style9Medium.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.bold,
+      child: GestureDetector(
+        onTap: _showSourceSheet,
+        child: Column(
+          children: [
+            Container(
+              width: 90.w,
+              height: 90.w,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE6F4EA),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                  width: 1.5,
                 ),
+                image: _pickedImage != null
+                    ? DecorationImage(
+                        image: FileImage(_pickedImage!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
-            ],
+              child: _pickedImage == null
+                  ? Center(
+                      child: Icon(
+                        Icons.image,
+                        color: AppColors.primary,
+                        size: 32.sp,
+                      ),
+                    )
+                  : null,
+            ),
+            SizedBox(height: 12.h),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.edit, color: AppColors.primary, size: 14.sp),
+                SizedBox(width: 4.w),
+                Text(
+                  _pickedImage != null
+                      ? 'تغيير الصورة'
+                      : 'challenges.create_add_image'.tr(),
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Source Option Button ─────────────────────────────────────────────────────
+
+class _SourceOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _SourceOption({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 18.h),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundTint,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: AppColors.primary.withValues(alpha: 0.2),
           ),
-        ],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.primary, size: 30.sp),
+            SizedBox(height: 8.h),
+            Text(
+              label,
+              style: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -272,7 +443,7 @@ class _TextField extends StatelessWidget {
   }
 }
 
-// ─── Dropdown Field ───────────────────────────────────────────────────────────
+// ─── Selection Field ──────────────────────────────────────────────────────────
 
 class _SelectionField extends StatelessWidget {
   final String label;
@@ -289,9 +460,7 @@ class _SelectionField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayText = value?.isNotEmpty == true ? value! : hint;
-    final displayColor = value?.isNotEmpty == true ? AppColors.black : AppColors.borderGrey;
-
+    final hasValue = value != null && value!.isNotEmpty;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -310,22 +479,21 @@ class _SelectionField extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: AppColors.borderGrey.withValues(alpha: 0.5)),
+              border: Border.all(
+                color: AppColors.borderGrey.withValues(alpha: 0.5),
+              ),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
-                    displayText,
+                    hasValue ? value! : hint,
                     style: TextStyleManager.style11Medium.copyWith(
-                      color: displayColor,
+                      color: hasValue ? AppColors.black : AppColors.borderGrey,
                     ),
                   ),
                 ),
-                Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: AppColors.borderGrey,
-                ),
+                Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.borderGrey),
               ],
             ),
           ),

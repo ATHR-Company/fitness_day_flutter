@@ -13,6 +13,7 @@ class SubscriptionBanner extends StatelessWidget {
   final String packageName;
   final String expiryDate;
   final VoidCallback? onSubscribeTap;
+  final VoidCallback? onSubscribedTap;
 
   const SubscriptionBanner({
     super.key,
@@ -20,6 +21,7 @@ class SubscriptionBanner extends StatelessWidget {
     this.packageName = '',
     this.expiryDate = '2026 / 16 / 7',
     this.onSubscribeTap,
+    this.onSubscribedTap,
   });
 
   @override
@@ -29,12 +31,14 @@ class SubscriptionBanner extends StatelessWidget {
 
   // ── Subscribed state ────────────────────────────────────────────────────────
   Widget _buildSubscribed() {
-    return Container(
-      height: 48.h,
-      decoration: BoxDecoration(
-        gradient: AppColors.timeRemainingGradient,
-        borderRadius: BorderRadius.circular(35.r),
-      ),
+    return GestureDetector(
+      onTap: onSubscribedTap,
+      child: Container(
+        height: 48.h,
+        decoration: BoxDecoration(
+          gradient: AppColors.timeRemainingGradient,
+          borderRadius: BorderRadius.circular(35.r),
+        ),
       child: Row(
         children: [
           Container(
@@ -95,7 +99,7 @@ class SubscriptionBanner extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // ── Unsubscribed state ──────────────────────────────────────────────────────

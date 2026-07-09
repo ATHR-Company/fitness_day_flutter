@@ -111,6 +111,7 @@
     "hydration_desc": "الحفاظ على ترطيب الجسم يساعد على تحسين النشاط والتركيز.",
     "water_unit": "لتر",
     "details_button": "تفاصيل",
+    "add_to_cart": "اضافة الى السلة",
     "articles_title": "المقالات",
     "category_challenges": "التحديات",
     "category_progress": "التقدم",
@@ -643,10 +644,12 @@
     "create_start_date_hint": "برجاء ادخال بداية التحدي",
     "create_add_image": "أضف صورة التحدي",
     "create_btn_next": "التالى",
-    "create_type_1": "نوع 1",
-    "create_type_2": "نوع 2",
-    "create_category_1": "فئة 1",
-    "create_category_2": "فئة 2"
+    "create_type_1": "تحدي عام",
+    "create_type_2": "تحدي شخصي",
+    "create_category_1": "تحدي الخطوات اليومية",
+    "create_category_2": "تحدي الوزن",
+    "create_category_3": "تحدي الجري والمسافات",
+    "create_category_4": "تحدي التمارين الرياضية"
   },
   "workout": {
     "warmup": "الاحماء",

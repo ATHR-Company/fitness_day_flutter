@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
+import 'package:fitness_day/core/widgets/week_date_picker.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/user_app_drawer.dart';
@@ -19,9 +20,21 @@ class VisitLogPage extends StatefulWidget {
 }
 
 class _VisitLogPageState extends State<VisitLogPage> {
-  int selectedDateIndex = 2; // For mock data
+  int _selectedDateIndex = 2;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  static const _dates = ['14', '15', '16', '17', '18', '19', '20'];
+
+  List<String> get _days => [
+        LocaleKeys.visit_details_day_1.tr(),
+        LocaleKeys.visit_details_day_2.tr(),
+        LocaleKeys.visit_details_day_3.tr(),
+        LocaleKeys.visit_details_day_4.tr(),
+        LocaleKeys.visit_details_day_5.tr(),
+        LocaleKeys.visit_details_day_6.tr(),
+        LocaleKeys.visit_details_day_7.tr(),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -44,33 +57,28 @@ class _VisitLogPageState extends State<VisitLogPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Date Picker (Mock)
-                    _buildDatePicker(),
+                    WeekDatePicker(
+                      days: _days,
+                      dates: _dates,
+                      selectedIndex: _selectedDateIndex,
+                      onDaySelected: (i) => setState(() => _selectedDateIndex = i),
+                    ),
                     SizedBox(height: 32.h),
-
-                    // Upcoming Visit
                     Text(
                       LocaleKeys.home_upcoming_appointments.tr(),
-                      style: TextStyleManager.heading3.copyWith(
-                        color: AppColors.black,
-                      ),
+                      style: TextStyleManager.heading3.copyWith(color: AppColors.black),
                     ),
                     SizedBox(height: 16.h),
                     _buildUpcomingVisitCard(),
-
                     SizedBox(height: 32.h),
-
-                    // Previous Visits
                     Text(
                       LocaleKeys.clients_page_past_visits.tr(),
-                      style: TextStyleManager.heading3.copyWith(
-                        color: AppColors.black,
-                      ),
+                      style: TextStyleManager.heading3.copyWith(color: AppColors.black),
                     ),
                     SizedBox(height: 16.h),
                     _buildPreviousVisitCard(),
                     SizedBox(height: 16.h),
-                    _buildPreviousVisitCard(), // duplicate for effect
+                    _buildPreviousVisitCard(),
                   ],
                 ),
               ),
@@ -78,61 +86,6 @@ class _VisitLogPageState extends State<VisitLogPage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildDatePicker() {
-    final days = [
-      LocaleKeys.visit_details_day_1.tr(),
-      LocaleKeys.visit_details_day_2.tr(),
-      LocaleKeys.visit_details_day_3.tr(),
-      LocaleKeys.visit_details_day_4.tr(),
-      LocaleKeys.visit_details_day_5.tr(),
-      LocaleKeys.visit_details_day_6.tr(),
-      LocaleKeys.visit_details_day_7.tr(),
-    ];
-    final dates = ['14', '15', '16', '17', '18', '19', '20'];
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(days.length, (index) {
-        final isSelected = index == selectedDateIndex;
-        return Expanded(
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                selectedDateIndex = index;
-              });
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Column(
-                  children: [
-                  Text(
-                    days[index],
-                    style: TextStyleManager.style9Medium.copyWith(
-                      color: isSelected ? AppColors.white : AppColors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    dates[index],
-                    style: TextStyleManager.style14Bold.copyWith(
-                      color: isSelected ? AppColors.white : AppColors.black,
-                    ),
-                  ),
-                ],
-                            ),
-              ),
-          ),
-        ),
-        );
-      }),
     );
   }
 

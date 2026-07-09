@@ -114,7 +114,7 @@ class SvgIcons {
   static const String water_bg = '$_svgPath/water_bg.svg';
   static const String stepsDecor = '$_svgPath/steps_decor.svg';
   static const String stepsdecor = '$_svgPath/steps_decor.svg';
-  // static const String challenge_cap = '$_svgPath/challenge_cap.svg';
+  static const String market_icon = '$_svgPath/market_icon.svg';
   static const String usersGroup = '$_svgPath/users-group.svg';
 
 }

@@ -26,6 +26,7 @@ import 'package:fitness_day/features/user/visits/presentation/pages/user_upcomin
 import 'package:fitness_day/features/user/visits/presentation/pages/meal_details_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/hydration_details_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/steps_details_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/market_main_screen.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_video_screen.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_rest_screen.dart';
 
@@ -117,6 +118,10 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.profile,
         builder: (context, state) => const UserProfilePage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.store,
+        builder: (context, state) => const MarketMainScreen(),
       ),
       GoRoute(
         path: UserAppRoutes.personalProfile,
