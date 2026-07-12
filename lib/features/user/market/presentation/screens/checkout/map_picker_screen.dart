@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -107,7 +108,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBF6),
+      backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -139,7 +140,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                     height: 40,
                                     child: const Icon(
                                       Icons.location_on,
-                                      color: Colors.red,
+                                      color: AppColors.error,
                                       size: 40,
                                     ),
                                   ),
@@ -148,9 +149,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                           ],
                         ),
                         // My location button
-                        Positioned(
+                        PositionedDirectional(
                           bottom: 16.h,
-                          left: 16.w,
+                          start: 16.w,
                           child: FloatingActionButton.small(
                             heroTag: 'my_location',
                             backgroundColor: AppColors.white,
@@ -179,7 +180,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         alignment: Alignment.center,
         children: [
           Text(
-            'تحديد الموقع',
+            'market.map_picker_title'.tr(),
             textAlign: TextAlign.center,
             style: TextStyleManager.heading2.copyWith(
               color: AppColors.black,
@@ -187,7 +188,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             ),
           ),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerEnd,
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Icon(
@@ -213,7 +214,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -235,7 +236,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               elevation: 0,
             ),
             child: Text(
-              'تأكيد الموقع',
+              'market.confirm_location'.tr(),
               style: TextStyleManager.style15Medium.copyWith(
                 color: AppColors.white,
                 fontWeight: FontWeight.bold,

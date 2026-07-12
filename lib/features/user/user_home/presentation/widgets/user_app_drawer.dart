@@ -51,7 +51,7 @@ class UserAppDrawer extends StatelessWidget {
 
             // Close Button
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerEnd,
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Container(

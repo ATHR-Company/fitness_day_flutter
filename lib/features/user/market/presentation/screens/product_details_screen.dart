@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -23,7 +24,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBF6),
+      backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -70,7 +71,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         alignment: Alignment.center,
         children: [
           Text(
-            'تفاصيل المنتج', // Details
+            'market.product_details_title'.tr(),
             textAlign: TextAlign.center,
             style: TextStyleManager.heading3.copyWith(
               color: AppColors.black,
@@ -150,9 +151,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               width: double.infinity,
               fit: BoxFit.cover,
             ),
-            Positioned(
+            PositionedDirectional(
               top: 12.h,
-              left: 12.w,
+              start: 12.w,
               child: Row(
                 children: [
                   _buildIconBtn(Icons.favorite_border, AppColors.primary),
@@ -253,7 +254,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
           SizedBox(width: 4.w),
           Text(
-            'ريال',
+            'home.sar'.tr(),
             style: TextStyleManager.style13Medium.copyWith(
               color: AppColors.black,
             ),
@@ -261,7 +262,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           SizedBox(width: 12.w),
           if (widget.product.oldPrice != null)
             Text(
-              '${widget.product.oldPrice!.toInt()} ريال',
+              '${widget.product.oldPrice!.toInt()} ${'home.sar'.tr()}',
               style: TextStyleManager.style11Medium.copyWith(
                 color: AppColors.error,
                 decoration: TextDecoration.lineThrough,
@@ -276,7 +277,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Text(
-        'الأقوى عالمياً!',
+        'market.product_strongest_tag'.tr(),
         style: TextStyleManager.style11Medium.copyWith(
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
@@ -295,12 +296,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             height: 1.6,
           ),
           children: [
-            const TextSpan(
-              text:
-                  'أضف لمسة من الصحة والحيوية إلى يومك مع جول فت كوفي! الآن، يمكنك الحصول على حبتين بسعر 295 ريال فقط بدلاً من 500 ريال، مع خصم 40% و شحن مجاني لفتره محدوده. ',
+            TextSpan(
+              text: 'market.product_description_body'.tr(),
             ),
             TextSpan(
-              text: 'معرفة المزيد',
+              text: 'market.read_more'.tr(),
               style: TextStyleManager.style11Medium.copyWith(
                 color: AppColors.primary,
                 fontWeight: FontWeight.bold,
@@ -315,61 +315,59 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _buildSpecsSection() {
     return _buildSection(
-      title: 'المواصفات:',
+      title: 'market.specs_title'.tr(),
       items: [
-        'نوع المنتج: شاي أعشاب طبيعية للتخسيس والتنقية.',
-        'الوزن: 36 جرام.',
-        'الجودة: طبيعي 100%، خالي من المواد الحافظة والإضافات الصناعية.',
-        'اعتماد (نسمع): مصرح من هيئة الغذاء والدواء السعودية.',
+        'market.spec_1'.tr(),
+        'market.spec_2'.tr(),
+        'market.spec_3'.tr(),
+        'market.spec_4'.tr(),
       ],
     );
   }
 
   Widget _buildFeaturesSection() {
     return _buildSection(
-      title: 'المميزات والفوائد الصحية:',
+      title: 'market.features_title'.tr(),
       items: [
-        'تنظيم الهضم بشكل طبيعي:',
-        'يخفف من الإمساك ويحسن من راحة المعدة والأمعاء.',
-        'حرق الدهون وتسريع الأيض:',
-        'يساعد على زيادة معدل الحرق والتخلص من الدهون الزائدة للحصول على قوام مثالي.',
-        'تنقية الجسم من السموم:',
-        'يطرد السموم الضارة ويعزز صحة الكلى والوظائف الحيوية.',
-        'تقليل احتباس السوائل:',
-        'يوازن السوائل داخل الجسم ويمنع الانتفاخ.',
-        'دعم ضغط الدم الصحي:',
-        'يساهم في ضبط ضغط الدم بشكل آمن وطبيعي.',
-        'تحسين صحة الجهاز الهضمي:',
-        'يحتوي على الزنجبيل لتخفيف آلام المعدة ودعم الهضم.',
-        'زيادة كفاءة التمثيل الغذائي:',
-        'غني بالشاي الأخضر والأعشاب البرية لتعزيز أكسدة الدهون.',
-        'مضاد أكسدة قوي:',
-        'يحارب الجذور الحرة ويمنح الجسم حيوية ونشاط.',
-        'مذاق لذيذ وطبيعي:',
-        'خفيف على المعدة، مناسب للاستخدام اليومي.',
+        'market.feature_title_1'.tr(),
+        'market.feature_desc_1'.tr(),
+        'market.feature_title_2'.tr(),
+        'market.feature_desc_2'.tr(),
+        'market.feature_title_3'.tr(),
+        'market.feature_desc_3'.tr(),
+        'market.feature_title_4'.tr(),
+        'market.feature_desc_4'.tr(),
+        'market.feature_title_5'.tr(),
+        'market.feature_desc_5'.tr(),
+        'market.feature_title_6'.tr(),
+        'market.feature_desc_6'.tr(),
+        'market.feature_title_7'.tr(),
+        'market.feature_desc_7'.tr(),
+        'market.feature_title_8'.tr(),
+        'market.feature_desc_8'.tr(),
       ],
     );
   }
 
   Widget _buildWhyChooseSection() {
     return _buildSection(
-      title: 'لماذا تختار شاي كلينز من متجر هدف الرشاقة؟',
+      title: 'market.why_choose_title'.tr(),
       items: [
-        'منتج طبيعي وآمن 100%.',
-        'معتمد من هيئة الغذاء والدواء السعودية.',
-        'مناسب لمن يبحث عن فقدان وزن صحي بدون آثار جانبية.',
-        'نتائج مثبتة وتجارب عملاء ناجحة.',
+        'market.why_choose_1'.tr(),
+        'market.why_choose_2'.tr(),
+        'market.why_choose_3'.tr(),
+        'market.why_choose_4'.tr(),
       ],
     );
   }
 
   Widget _buildOffersSection() {
     return _buildSection(
-      title: 'العروض المتاحة',
+      title: 'market.offers_title'.tr(),
       items: [
-        'علبة واحدة بسعر 199 ريال بدلاً من 250 ريال.',
-        'عرض حبتين بسعر 299 ريال بدلاً من 500 ريال.',
-        'اختر العرض المناسب لك من خانة الخيارات قبل إضافة المنتج إلى السلة',
+        'market.offer_1'.tr(),
+        'market.offer_2'.tr(),
+        'market.offer_3'.tr(),
       ],
     );
   }
@@ -429,7 +427,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -476,7 +474,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ),
                       SizedBox(width: 8.w),
                       Text(
-                        'اضافة الى السلة',
+                        'market.add_to_cart'.tr(),
                         style: TextStyleManager.style15Medium.copyWith(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,

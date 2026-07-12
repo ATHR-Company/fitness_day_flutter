@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -10,7 +11,7 @@ class BranchPickupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBF6),
+      backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -46,7 +47,7 @@ class BranchPickupScreen extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Text(
-            'الاستلام من الفرع',
+            'market.branch_pickup_title'.tr(),
             textAlign: TextAlign.center,
             style: TextStyleManager.heading2.copyWith(
               color: AppColors.black,
@@ -54,7 +55,7 @@ class BranchPickupScreen extends StatelessWidget {
             ),
           ),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerStart,
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Icon(
@@ -76,25 +77,24 @@ class BranchPickupScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.textSecondary.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: AppColors.textSecondary.withValues(alpha: 0.2),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-            Container(
+          Container(
             width: 16.w,
             height: 16.w,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.primary,
-                width: 4,
-              ),
+              border: Border.all(color: AppColors.primary, width: 4),
             ),
           ),
-        SizedBox(width: 8.w),
+          SizedBox(width: 8.w),
           Text(
-            'يوم الرشاقة القطيف',
+            'market.branch_name_qatif'.tr(),
             style: TextStyleManager.style13Medium.copyWith(
               color: AppColors.black,
               fontWeight: FontWeight.bold,
@@ -110,7 +110,7 @@ class BranchPickupScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'معلومات التواصل',
+          'market.contact_info_title'.tr(),
           style: TextStyleManager.style11Medium.copyWith(
             fontWeight: FontWeight.bold,
             color: AppColors.black,
@@ -128,16 +128,15 @@ class BranchPickupScreen extends StatelessWidget {
               ),
               child: Icon(Icons.call, color: AppColors.white, size: 16.sp),
             ),
-              SizedBox(width: 8.w),
-        
+            SizedBox(width: 8.w),
+
             Text(
               '+966543759100',
-              textDirection: TextDirection.ltr,
               style: TextStyleManager.style13Medium.copyWith(
                 color: AppColors.black,
               ),
             ),
-            ],
+          ],
         ),
       ],
     );
@@ -145,19 +144,37 @@ class BranchPickupScreen extends StatelessWidget {
 
   Widget _buildWorkingHours(BuildContext context) {
     final List<Map<String, String>> days = [
-      {'day': 'السبت', 'time': '11:00 ص - 11:00 م'},
-      {'day': 'الأحد', 'time': '11:00 ص - 11:00 م'},
-      {'day': 'الاثنين', 'time': '11:00 ص - 11:00 م'},
-      {'day': 'الثلاثاء', 'time': '11:00 ص - 11:00 م'},
-      {'day': 'الأربعاء', 'time': '11:00 ص - 11:00 م'},
-      {'day': 'الخميس', 'time': '11:00 ص - 11:00 م'},
+      {
+        'day': 'common.weekdays_full.sat'.tr(),
+        'time': 'market.working_hours_default'.tr(),
+      },
+      {
+        'day': 'common.weekdays_full.sun'.tr(),
+        'time': 'market.working_hours_default'.tr(),
+      },
+      {
+        'day': 'common.weekdays_full.mon'.tr(),
+        'time': 'market.working_hours_default'.tr(),
+      },
+      {
+        'day': 'common.weekdays_full.tue'.tr(),
+        'time': 'market.working_hours_default'.tr(),
+      },
+      {
+        'day': 'common.weekdays_full.wed'.tr(),
+        'time': 'market.working_hours_default'.tr(),
+      },
+      {
+        'day': 'common.weekdays_full.thu'.tr(),
+        'time': 'market.working_hours_default'.tr(),
+      },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'ساعات العمل',
+          'market.working_hours_title'.tr(),
           style: TextStyleManager.style11Medium.copyWith(
             fontWeight: FontWeight.bold,
             color: AppColors.black,
@@ -183,7 +200,10 @@ class BranchPickupScreen extends StatelessWidget {
           alignment: Alignment.center,
           child: SizedBox(
             width: MediaQuery.of(context).size.width * 0.45,
-            child: _buildTimeCard('الجمعة', '4:00 ص - 11:00 م'),
+            child: _buildTimeCard(
+              'common.weekdays_full.fri'.tr(),
+              'market.working_hours_friday'.tr(),
+            ),
           ),
         ),
       ],
@@ -192,22 +212,26 @@ class BranchPickupScreen extends StatelessWidget {
 
   Widget _buildTimeCard(String day, String time) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(color: AppColors.textSecondary.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: AppColors.textSecondary.withValues(alpha: 0.2),
+        ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              
-              Icon(Icons.access_time_filled, color: AppColors.primary, size: 14.sp),
-                  SizedBox(width: 4.w),
+              Icon(
+                Icons.access_time_filled,
+                color: AppColors.primary,
+                size: 14.sp,
+              ),
+              SizedBox(width: 4.w),
               Text(
                 day,
                 style: TextStyleManager.style11Medium.copyWith(
@@ -215,7 +239,6 @@ class BranchPickupScreen extends StatelessWidget {
                   color: AppColors.black,
                 ),
               ),
-            
             ],
           ),
           SizedBox(height: 4.h),
@@ -240,7 +263,7 @@ class BranchPickupScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -281,7 +304,7 @@ class BranchPickupScreen extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: Text(
-                    'تأكيد الطلب',
+                    'market.confirm_order'.tr(),
                     style: TextStyleManager.style15Medium.copyWith(
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,

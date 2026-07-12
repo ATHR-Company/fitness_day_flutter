@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,12 +25,12 @@ class ChallengeCreatedDialog extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24.r),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.white,
-              Color(0xFFB5FFD9), // Light green gradient
+              AppColors.white,
+              AppColors.challengeCreatedGradientEnd,
             ],
           ),
         ),
@@ -44,13 +45,13 @@ class ChallengeCreatedDialog extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16.h),
-            
+
             // Icon
             Container(
               width: 100.w,
               height: 100.w,
               decoration: BoxDecoration(
-                color: const Color(0xFFE5F7EB), // Soft green circle
+                color: AppColors.challengeIconBackground,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: AppColors.primary.withValues(alpha: 0.1),
@@ -59,7 +60,7 @@ class ChallengeCreatedDialog extends StatelessWidget {
               ),
               child: Center(
                 child: SvgPicture.asset(
-                  SvgIcons.muscle, // Muscle icon
+                  SvgIcons.muscle,
                   width: 50.w,
                   height: 50.w,
                   colorFilter: const ColorFilter.mode(
@@ -73,7 +74,7 @@ class ChallengeCreatedDialog extends StatelessWidget {
 
             // Title
             Text(
-              '" تم إنشاء التحدي بنجاح! "',
+              'challenges.created_title'.tr(),
               textAlign: TextAlign.center,
               style: TextStyleManager.heading3.copyWith(
                 color: AppColors.black,
@@ -81,10 +82,10 @@ class ChallengeCreatedDialog extends StatelessWidget {
               ),
             ),
             SizedBox(height: 12.h),
-            
+
             // Subtitle
             Text(
-              'أرسل رابط التحدي لأصدقائك وابدأوا المنافسة!',
+              'challenges.created_subtitle'.tr(),
               textAlign: TextAlign.center,
               style: TextStyleManager.style11Medium.copyWith(
                 color: AppColors.textSecondary,
@@ -105,7 +106,7 @@ class ChallengeCreatedDialog extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 14.h),
                     ),
                     child: Text(
-                      'مشاركة',
+                      'challenges.share_button'.tr(),
                       style: TextStyleManager.style13Medium.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,
@@ -124,7 +125,7 @@ class ChallengeCreatedDialog extends StatelessWidget {
                       elevation: 0,
                     ),
                     child: Text(
-                      'يلا نبدأ',
+                      'challenges.start_challenge_button'.tr(),
                       style: TextStyleManager.style13Medium.copyWith(
                         color: AppColors.white,
                         fontWeight: FontWeight.bold,

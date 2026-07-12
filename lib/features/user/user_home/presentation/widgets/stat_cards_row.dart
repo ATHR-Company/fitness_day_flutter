@@ -8,24 +8,33 @@ import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 
 class StatCardsRow extends StatelessWidget {
-  final String nextVisitDate;
-  final String visitsCount;
+  final String? nextVisitDate;
+  final int visitsCount;
 
   const StatCardsRow({
     super.key,
-    this.nextVisitDate = '4/8/2026',
-    this.visitsCount = '2',
+    this.nextVisitDate,
+    this.visitsCount = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate = '-';
+    if (nextVisitDate != null) {
+      try {
+        final dt = DateTime.parse(nextVisitDate!).toLocal();
+        formattedDate = '${dt.day}/${dt.month}/${dt.year}';
+      } catch (_) {
+        formattedDate = nextVisitDate!;
+      }
+    }
     return Row(
       children: [
         Expanded(
           child: _StatCard(
             iconPath: SvgIcons.clendBorder,
             title: 'home.next_visit_label'.tr(),
-            value: nextVisitDate,
+            value: formattedDate,
             valueColor: AppColors.primary,
           ),
         ),
@@ -34,7 +43,7 @@ class StatCardsRow extends StatelessWidget {
           child: _StatCard(
             iconPath: SvgIcons.visitBorder,
             title: 'home.visits_count_label'.tr(),
-            value: visitsCount,
+            value: '$visitsCount',
           ),
         ),
       ],

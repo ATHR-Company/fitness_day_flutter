@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/order_success_dialog.dart';
 
@@ -17,18 +19,18 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   String selectedPaymentMethod = 'mada';
 
   final List<Map<String, dynamic>> paymentMethods = [
-    {'id': 'visa', 'name': 'Visa', 'asset': 'assets/images/visa_master.png', 'isNetwork': false},
-    {'id': 'mada', 'name': 'Mada', 'asset': 'assets/images/mada.png', 'isNetwork': false},
-    {'id': 'tabby', 'name': 'Tabby', 'asset': 'assets/images/tabby.png', 'isNetwork': false},
-    {'id': 'stc_pay', 'name': 'STC Pay', 'asset': 'assets/images/stc_pay.png', 'isNetwork': false},
-    {'id': 'bank_transfer', 'name': 'تحويل بنكي', 'asset': 'assets/images/bank_transfer.png', 'isNetwork': false},
-    {'id': 'tamara', 'name': 'Tamara', 'asset': 'assets/images/tamara.png', 'isNetwork': false},
+    {'id': 'visa', 'name': 'Visa', 'asset': AppImages.visaMaster, 'isNetwork': false},
+    {'id': 'mada', 'name': 'Mada', 'asset': AppImages.mada, 'isNetwork': false},
+    {'id': 'tabby', 'name': 'Tabby', 'asset': AppImages.tabby, 'isNetwork': false},
+    {'id': 'stc_pay', 'name': 'STC Pay', 'asset': AppImages.stcPay, 'isNetwork': false},
+    {'id': 'bank_transfer', 'name': 'market.payment_bank_transfer'.tr(), 'asset': AppImages.bankTransfer, 'isNetwork': false},
+    {'id': 'tamara', 'name': 'Tamara', 'asset': AppImages.tamara, 'isNetwork': false},
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBF6),
+      backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -41,8 +43,8 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'قم بادخال طريقة الدفع',
-                      textAlign: TextAlign.right,
+                      'market.payment_method_prompt'.tr(),
+                      textAlign: TextAlign.start,
                       style: TextStyleManager.style13Medium.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.bold,
@@ -69,7 +71,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         alignment: Alignment.center,
         children: [
           Text(
-            'طريقة الدفع',
+            'market.payment_method_title'.tr(),
             textAlign: TextAlign.center,
             style: TextStyleManager.heading2.copyWith(
               color: AppColors.black,
@@ -77,7 +79,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
             ),
           ),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerStart,
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Icon(
@@ -135,13 +137,13 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                           children: [
                             Text(
                               method['name'],
-                              style: TextStyleManager.style11Medium.copyWith(
+                              style: TextStyleManager.style9Medium.copyWith(
                                 color: AppColors.black,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             SizedBox(width: 4.w),
-                            Icon(Icons.account_balance, color: AppColors.black, size: 16.sp),
+                            Icon(Icons.account_balance, color: AppColors.black, size: 10.sp),
                           ],
                         )
                       : Center(
@@ -184,7 +186,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -226,7 +228,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    'التالي',
+                    'market.next_button'.tr(),
                     style: TextStyleManager.style15Medium.copyWith(
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,

@@ -10,16 +10,16 @@ class SubscriptionBanner extends StatelessWidget {
   /// When true → shows active subscription with package name + expiry date.
   /// When false → shows "not subscribed" state with "subscribe now" button.
   final bool isSubscribed;
-  final String packageName;
-  final String expiryDate;
+  final String? subscriptionName;
+  final String? subscriptionEndDate;
   final VoidCallback? onSubscribeTap;
   final VoidCallback? onSubscribedTap;
 
   const SubscriptionBanner({
     super.key,
     this.isSubscribed = true,
-    this.packageName = '',
-    this.expiryDate = '2026 / 16 / 7',
+    this.subscriptionName,
+    this.subscriptionEndDate,
     this.onSubscribeTap,
     this.onSubscribedTap,
   });
@@ -31,6 +31,16 @@ class SubscriptionBanner extends StatelessWidget {
 
   // ── Subscribed state ────────────────────────────────────────────────────────
   Widget _buildSubscribed() {
+    // Format the ISO date to a readable string
+    String formattedDate = subscriptionEndDate ?? '';
+    if (subscriptionEndDate != null) {
+      try {
+        final dt = DateTime.parse(subscriptionEndDate!).toLocal();
+        formattedDate = '${dt.day}/${dt.month}/${dt.year}';
+      } catch (_) {
+        formattedDate = subscriptionEndDate!;
+      }
+    }
     return GestureDetector(
       onTap: onSubscribedTap,
       child: Container(
@@ -54,9 +64,9 @@ class SubscriptionBanner extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              packageName.isEmpty
-                  ? 'home.subscription_active'.tr()
-                  : packageName,
+             'home.subscription_active'.tr(
+                  args: [subscriptionName ?? '']   ,
+              ),
               style: TextStyleManager.style10Medium.copyWith(
                 color: AppColors.greenJungle,
               ),
@@ -86,7 +96,7 @@ class SubscriptionBanner extends StatelessWidget {
                   ),
                   SizedBox(height: 3.h),
                   Text(
-                    expiryDate,
+                    formattedDate,
                     textAlign: TextAlign.center,
                     style: TextStyleManager.style9Medium.copyWith(
                       color: AppColors.white,

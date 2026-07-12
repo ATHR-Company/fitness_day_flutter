@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -22,7 +23,7 @@ class DateBadge extends StatelessWidget {
             borderRadius: BorderRadius.circular(4.r),
           ),
           child: Text(
-            isEnd ? 'END' : 'START',
+            isEnd ? 'challenges.date_end'.tr() : 'challenges.date_start'.tr(),
             style: TextStyleManager.style7Medium.copyWith(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.bold,

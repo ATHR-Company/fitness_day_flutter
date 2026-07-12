@@ -103,19 +103,27 @@ class TaskCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Circular image
-                task.isSvgImage
-                    ? Container(
+                // Circular image
+                Builder(
+                  builder: (context) {
+                    final bool isSvg = task.isSvgImage || task.imagePath.toLowerCase().endsWith('.svg');
+                    if (isSvg) {
+                      final isNetwork = task.imagePath.startsWith('http://') || task.imagePath.startsWith('https://');
+                      return Container(
                         width: 72.w,
                         height: 72.w,
-                      
-                      
-                        child: SvgPicture.asset(
+                        child: isNetwork
+                            ? SvgPicture.network(
                                 task.imagePath,
                                 fit: BoxFit.contain,
-                                
+                              )
+                            : SvgPicture.asset(
+                                task.imagePath,
+                                fit: BoxFit.contain,
                               ),
-                      )
-                    : Container(
+                      );
+                    } else {
+                      return Container(
                         width: 72.w,
                         height: 72.w,
                         decoration: BoxDecoration(
@@ -128,7 +136,10 @@ class TaskCard extends StatelessWidget {
                             fit: BoxFit.cover,
                           ),
                         ),
-                      ),
+                      );
+                    }
+                  },
+                ),
                 SizedBox(width: 16.w),
                 Expanded(
                   child: Column(
@@ -244,7 +255,7 @@ class TaskCard extends StatelessWidget {
             ),
           ),
           TextSpan(
-            text: '  /  ${task.extraUnit}',
+            text: '   ${task.extraUnit}',
             style: TextStyleManager.style14Bold.copyWith(
               color: AppColors.textPrimary,
             ),

@@ -214,7 +214,7 @@ class _ScanMealScreenState extends State<ScanMealScreen>
             Expanded(
               child: TextField(
                 controller: _codeController,
-                textAlign: TextAlign.right,
+                textAlign: TextAlign.start,
                 decoration: InputDecoration(
                   hintText: 'ادخل الكود يدويا',
                   hintStyle: TextStyleManager.style11Medium.copyWith(

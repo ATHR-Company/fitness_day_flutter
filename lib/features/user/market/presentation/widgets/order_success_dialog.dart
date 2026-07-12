@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -17,7 +18,7 @@ class OrderSuccessDialog extends StatefulWidget {
     return showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
+      barrierColor: AppColors.black.withValues(alpha: 0.5),
       builder: (_) => OrderSuccessDialog(onGoHome: onGoHome),
     );
   }
@@ -42,7 +43,7 @@ class _OrderSuccessDialogState extends State<OrderSuccessDialog> {
           children: [
             // ── Close button ──────────────────────────────────────────────
             Align(
-              alignment: Alignment.topLeft,
+              alignment: AlignmentDirectional.topStart,
               child: GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
                 child: Icon(Icons.close, size: 22.sp, color: AppColors.primary),
@@ -70,7 +71,7 @@ class _OrderSuccessDialogState extends State<OrderSuccessDialog> {
 
             // ── Title ─────────────────────────────────────────────────────
             Text(
-              'تم تأكيد الطلب بنجاح',
+              'market.order_success_title'.tr(),
               textAlign: TextAlign.center,
               style: TextStyleManager.heading2.copyWith(
                 color: AppColors.black,
@@ -81,7 +82,7 @@ class _OrderSuccessDialogState extends State<OrderSuccessDialog> {
 
             // ── Subtitle ──────────────────────────────────────────────────
             Text(
-              'برجاء تقييم التطبيق',
+              'market.order_success_subtitle'.tr(),
               textAlign: TextAlign.center,
               style: TextStyleManager.style11Medium.copyWith(
                 color: AppColors.textSecondary,
@@ -100,7 +101,7 @@ class _OrderSuccessDialogState extends State<OrderSuccessDialog> {
                     padding: EdgeInsets.symmetric(horizontal: 4.w),
                     child: Icon(
                       starIndex <= _rating ? Icons.star : Icons.star_border,
-                      color: const Color(0xFFFFC107),
+                      color: AppColors.starRating,
                       size: 32.sp,
                     ),
                   ),
@@ -123,7 +124,7 @@ class _OrderSuccessDialogState extends State<OrderSuccessDialog> {
                   elevation: 0,
                 ),
                 child: Text(
-                  'الصفحة الرئيسية',
+                  'market.go_home_button'.tr(),
                   style: TextStyleManager.style15Medium.copyWith(
                     color: AppColors.white,
                     fontWeight: FontWeight.bold,

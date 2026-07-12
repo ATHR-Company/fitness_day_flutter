@@ -265,4 +265,57 @@ class AppColors {
   static const Color gradientGreenEnd = Color(0xFF52C863);
   
   static const Color darkYellow = Color(0xFFB59A1D);
+
+  // ---------------------------------------------------------------------------
+  // 6. Challenges Feature Colors
+  // ---------------------------------------------------------------------------
+
+  /// Soft green tint used for the challenge header background, selected tab
+  /// pill, and the create-challenge image picker circle.
+  static const Color challengeIconBackground = Color(0xFFE6F4EA);
+
+  /// Very light blue-gray used for the suggested challenge card background.
+  static const Color suggestedCardBackground = Color(0xFFF2F5FA);
+
+  /// End color of the "challenge created" dialog's gradient background.
+  static const Color challengeCreatedGradientEnd = Color(0xFFB5FFD9);
+
+  // ---------------------------------------------------------------------------
+  // 7. Market Feature Colors
+  // ---------------------------------------------------------------------------
+
+  /// Pale green-tinted scaffold background used across the market/checkout flow screens.
+  static const Color marketScaffoldBackground = Color(0xFFF6FBF6);
+
+  /// Amber used for the star rating control in the order success dialog.
+  static const Color ratingStar = Color(0xFFFFC107);
+
+  /// Dark red used for discount/offer tag backgrounds on product cards.
+  static const Color marketTagBackground = Color(0xFFCC0000);
+
+  static const Color marketGreen = Color(0xFF00A900);
+  static const Color tagBackground = Color(0xFFCC0000);
+  static const Color starRating = Color(0xFFFFC107);
+
+  // ---------------------------------------------------------------------------
+  // 8. Hydration Feature Colors
+  // ---------------------------------------------------------------------------
+
+  /// Main cyan accent used throughout the hydration tracking screen.
+  static const Color hydrationAccent = Color(0xFF23C4D7);
+
+  /// Pale cyan background used for hydration cards and unselected chips.
+  static const Color hydrationBackground = Color(0xFFDAF6FF);
+
+  /// Light cyan border used around hydration cards.
+  static const Color hydrationBorder = Color(0xFFC9F2FF);
+
+  /// Cyan used as the track color behind the hydration progress indicator.
+  static const Color hydrationProgressTrack = Color(0xFF8ED0F2);
+
+  /// Dark cyan used for high-contrast text on hydration screens.
+  static const Color hydrationDarkText = Color(0xFF017D9E);
+
+  /// Muted cyan used for unselected hydration options.
+  static const Color hydrationUnselected = Color(0xFF8DDCE8);
 }

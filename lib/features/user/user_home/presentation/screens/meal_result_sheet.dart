@@ -57,7 +57,7 @@ class _MealResultSheet extends StatelessWidget {
                 style: TextStyleManager.heading3.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
-                textAlign: TextAlign.right,
+                textAlign: TextAlign.start,
               ),
               SizedBox(height: 16.h),
 
@@ -72,7 +72,7 @@ class _MealResultSheet extends StatelessWidget {
                   style: TextStyleManager.style11Medium.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
-                  textAlign: TextAlign.right,
+                  textAlign: TextAlign.start,
                 ),
                 SizedBox(height: 8.h),
                 ...result.ingredients.map(
@@ -90,7 +90,7 @@ class _MealResultSheet extends StatelessWidget {
                         Text(
                           '${i.name} (${i.approxAmount})',
                           style: TextStyleManager.style11Medium,
-                          textAlign: TextAlign.right,
+                          textAlign: TextAlign.start,
                         ),
                       ],
                     ),
@@ -112,7 +112,7 @@ class _MealResultSheet extends StatelessWidget {
                     style: TextStyleManager.style11Medium.copyWith(
                       color: AppColors.textSecondary,
                     ),
-                    textAlign: TextAlign.right,
+                    textAlign: TextAlign.start,
                   ),
                 ),
               ],

@@ -1,5 +1,4 @@
 
-import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -54,9 +53,7 @@ class _UserTodayTasksPageContentState extends State<_UserTodayTasksPageContent> 
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: ui.TextDirection.rtl,
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(
           backgroundColor: AppColors.white,
@@ -195,8 +192,7 @@ class _UserTodayTasksPageContentState extends State<_UserTodayTasksPageContent> 
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 

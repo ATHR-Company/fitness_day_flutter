@@ -65,9 +65,9 @@ class ProductCard extends StatelessWidget {
                 ),
                 
                 // Favorite Button (Top Left)
-                Positioned(
+                PositionedDirectional(
                   top: 8.h,
-                  left: 8.w,
+                  start: 8.w,
                   child: GestureDetector(
                     onTap: onFavoriteToggle,
                     child: Container(
@@ -79,7 +79,7 @@ class ProductCard extends StatelessWidget {
                       ),
                       child: Icon(
                         product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: const Color(0xFF00A900), // Green heart as in image
+                        color: AppColors.marketGreen,
                         size: 20.sp,
                       ),
                     ),
@@ -87,9 +87,9 @@ class ProductCard extends StatelessWidget {
                 ),
 
                 // Tags (Top Right)
-                Positioned(
+                PositionedDirectional(
                   top: 8.h,
-                  right: 0,
+                  end: 0,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -167,7 +167,7 @@ class ProductCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: onAddToCart ?? () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00A900), // Main green
+                      backgroundColor: AppColors.marketGreen,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.r),
                       ),
@@ -177,7 +177,7 @@ class ProductCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'إضافة الى السلة',
+                          'market.add_to_cart'.tr(),
                           style: TextStyleManager.style11Medium.copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.bold,
@@ -206,8 +206,8 @@ class ProductCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFCC0000), // Dark red for tags
-        borderRadius: BorderRadius.horizontal(left: Radius.circular(4.r)),
+        color: AppColors.tagBackground,
+        borderRadius: BorderRadiusDirectional.horizontal(start: Radius.circular(4.r)),
       ),
       child: Text(
         text,

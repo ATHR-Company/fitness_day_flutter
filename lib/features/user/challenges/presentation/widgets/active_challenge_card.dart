@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,7 +58,7 @@ class ActiveChallengeCard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                       fontSize: 11.sp,
                     ),
-                    textAlign: TextAlign.right,
+                    textAlign: TextAlign.start,
                   ),
                   SizedBox(height: 10.h),
                   Row(
@@ -67,7 +69,9 @@ class ActiveChallengeCard extends StatelessWidget {
                       DateBadge(label: challenge.endDate, isEnd: true),
                       const Spacer(),
                       Icon(
-                        Icons.keyboard_double_arrow_left_rounded,
+                        Directionality.of(context) ==ui. TextDirection.rtl
+                            ? Icons.keyboard_double_arrow_left_rounded
+                            : Icons.keyboard_double_arrow_right_rounded,
                         color: AppColors.primary,
                         size: 25.sp,
                       ),

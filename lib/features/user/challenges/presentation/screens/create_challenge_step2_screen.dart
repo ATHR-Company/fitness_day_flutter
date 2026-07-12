@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,7 +5,10 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:fitness_day/core/widgets/selection_dialog.dart';
+import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_app_bar.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_created_dialog.dart';
+import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_selection_field.dart';
+import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_text_field.dart';
 
 class CreateChallengeStep2Screen extends StatefulWidget {
   const CreateChallengeStep2Screen({super.key});
@@ -24,13 +25,13 @@ class _CreateChallengeStep2ScreenState
   final _restController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  final List<String> _exerciseOptions = [
-    'تمرين الضغط',
-    'تمرين القرفصاء',
-    'تمرين البطن',
-    'تمرين الظهر',
-    'الجري في المكان',
-  ];
+  List<String> get _exerciseOptions => [
+        'challenges.exercise_1'.tr(),
+        'challenges.exercise_2'.tr(),
+        'challenges.exercise_3'.tr(),
+        'challenges.exercise_4'.tr(),
+        'challenges.exercise_5'.tr(),
+      ];
 
   @override
   void dispose() {
@@ -47,100 +48,69 @@ class _CreateChallengeStep2ScreenState
         child: SafeArea(
           child: Column(
             children: [
-              // ── AppBar ──────────────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Icon(
-                        Icons.arrow_back_ios_rounded,
-                        size: 20.sp,
-                        color: AppColors.black,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      'إنشاء تحدي',
-                      style: TextStyleManager.heading2.copyWith(
-                        color: AppColors.black,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                    const Spacer(),
-                    SizedBox(width: 20.sp),
-                  ],
-                ),
-              ),
-
-              // ── Form ────────────────────────────────────────────────────────
+              ChallengeAppBar(title: 'challenges.step2_title'.tr()),
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   padding: EdgeInsets.symmetric(horizontal: 24.w),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       SizedBox(height: 24.h),
 
-                      // اسم التمرين
-                      _buildLabel('اسم التمرين'),
-                      SizedBox(height: 8.h),
-                      _buildExerciseField(),
+                      ChallengeSelectionField(
+                        label: 'challenges.step2_exercise_label'.tr(),
+                        hint: 'challenges.step2_exercise_hint'.tr(),
+                        value: _selectedExercise,
+                        onTap: () => showSelectionDialog(
+                          context: context,
+                          title: 'challenges.step2_exercise_label'.tr(),
+                          options: _exerciseOptions,
+                          initialValue: _selectedExercise ?? '',
+                          onSelected: (val) =>
+                              setState(() => _selectedExercise = val),
+                        ),
+                      ),
                       SizedBox(height: 20.h),
 
-                      // عدد المجموعات
-                      _buildLabel('عدد المجموعات'),
-                      SizedBox(height: 8.h),
-                      _buildTextField(
+                      ChallengeTextField(
+                        label: 'challenges.step2_sets_label'.tr(),
+                        hint: 'challenges.step2_sets_hint'.tr(),
                         controller: _setsController,
-                        hint: 'ادخل عدد التمرين',
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: 20.h),
 
-                      // مدة الاستراحة
-                      _buildLabel('مدة الاستراحة بين المجموعات'),
-                      SizedBox(height: 8.h),
-                      _buildTextField(
+                      ChallengeTextField(
+                        label: 'challenges.step2_rest_label'.tr(),
+                        hint: 'challenges.step2_rest_hint'.tr(),
                         controller: _restController,
-                        hint: 'ادخل مدة الاستراحة',
                         keyboardType: TextInputType.number,
                       ),
                       SizedBox(height: 20.h),
 
-                      // وصف التحدي
-                      _buildLabel('وصف  التحدي'),
-                      SizedBox(height: 8.h),
-                      _buildTextField(
+                      ChallengeTextField(
+                        label: 'challenges.step2_desc_label'.tr(),
+                        hint: 'challenges.step2_desc_hint'.tr(),
                         controller: _descriptionController,
-                        hint: 'ادخل وصف التحدي',
                         maxLines: 5,
                       ),
 
                       SizedBox(height: 40.h),
 
-                      // ── Create Button ────────────────────────────────────
                       ElevatedButton(
                         onPressed: () {
                           showDialog(
                             context: context,
                             builder: (context) => ChallengeCreatedDialog(
                               onStart: () {
-                                // Pop the dialog
                                 Navigator.of(context).pop();
-                                // Pop step2 + step1 → back to ChallengesScreen
                                 Navigator.of(context)
                                   ..pop()
                                   ..pop();
                               },
                               onShare: () {
-                                // Handle sharing if needed
-                                // Pop the dialog
                                 Navigator.of(context).pop();
-                                // Pop step2 + step1 → back to ChallengesScreen
                                 Navigator.of(context)
                                   ..pop()
                                   ..pop();
@@ -157,7 +127,7 @@ class _CreateChallengeStep2ScreenState
                           elevation: 0,
                         ),
                         child: Text(
-                          'إنشاء',
+                          'challenges.step2_create_button'.tr(),
                           style: TextStyleManager.style13Medium.copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.bold,
@@ -172,103 +142,6 @@ class _CreateChallengeStep2ScreenState
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  // ── Exercise Selection Field ─────────────────────────────────────────────
-  Widget _buildExerciseField() {
-    final hasValue = _selectedExercise != null && _selectedExercise!.isNotEmpty;
-    return GestureDetector(
-      onTap: () {
-        showSelectionDialog(
-          context: context,
-          title: 'اسم التمرين',
-          options: _exerciseOptions,
-          initialValue: _selectedExercise ?? '',
-          onSelected: (val) => setState(() => _selectedExercise = val),
-        );
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: AppColors.borderGrey.withValues(alpha: 0.5),
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                hasValue ? _selectedExercise! : 'ابحث عن اسم التمرين',
-                style: TextStyleManager.style11Medium.copyWith(
-                  color: hasValue ? AppColors.textPrimary : AppColors.borderGrey,
-                ),
-                textDirection:ui.TextDirection.rtl,
-              ),
-            ),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: AppColors.borderGrey,
-              size: 22.sp,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── Helpers ──────────────────────────────────────────────────────────────────
-  Widget _buildLabel(String text) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Text(
-        text,
-        style: TextStyleManager.style11Medium.copyWith(
-          color: AppColors.black,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    TextInputType keyboardType = TextInputType.text,
-    int maxLines = 1,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      textAlign: TextAlign.right,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyleManager.style11Medium.copyWith(
-          color: AppColors.borderGrey,
-        ),
-        filled: true,
-        fillColor: AppColors.white,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: AppColors.borderGrey.withValues(alpha: 0.5),
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: AppColors.borderGrey.withValues(alpha: 0.5),
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: AppColors.primary),
         ),
       ),
     );

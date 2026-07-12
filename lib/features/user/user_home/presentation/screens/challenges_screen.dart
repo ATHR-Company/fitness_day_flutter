@@ -314,7 +314,9 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
                   ),
                   SizedBox(width: 4.w),
                   Icon(
-                    Icons.keyboard_double_arrow_left_rounded,
+                    Directionality.of(context) == TextDirection.rtl
+                        ? Icons.keyboard_double_arrow_left_rounded
+                        : Icons.keyboard_double_arrow_right_rounded,
                     color: AppColors.white,
                     size: 16.sp,
                   ),
@@ -437,10 +439,11 @@ class _ActiveChallengeCard extends StatelessWidget {
                       onTap: onJoin,
                       child: Container(
                         child: Icon(
-                          Icons.keyboard_double_arrow_left_rounded,
+                          Directionality.of(context) == TextDirection.rtl
+                              ? Icons.keyboard_double_arrow_left_rounded
+                              : Icons.keyboard_double_arrow_right_rounded,
                           color: AppColors.primary,
                           size: 25.sp,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -589,9 +592,10 @@ class _SuggestedChallengeCard extends StatelessWidget {
                   height: 38.w,
 
                   child: Icon(
-                    Icons.keyboard_double_arrow_left_rounded,
+                    Directionality.of(context) == TextDirection.rtl
+                        ? Icons.keyboard_double_arrow_left_rounded
+                        : Icons.keyboard_double_arrow_right_rounded,
                     color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
                     size: 22.sp,
                   ),
                 ),

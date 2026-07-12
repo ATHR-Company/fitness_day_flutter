@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
@@ -85,7 +86,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'يرجى تحديد الموقع على الخريطة',
+            'market.select_location_prompt'.tr(),
             style: TextStyleManager.style11Medium
                 .copyWith(color: AppColors.white),
           ),
@@ -117,7 +118,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBF6),
+      backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -138,28 +139,28 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
 
                       // ── Fields ───────────────────────────────────────────
                       _buildField(
-                        label: 'اسم العنوان',
-                        hint: 'عنوان البيت',
+                        label: 'market.address_name_label'.tr(),
+                        hint: 'market.address_name_hint'.tr(),
                         controller: _nameController,
                         validator: _requiredValidator,
                       ),
                       SizedBox(height: 16.h),
                       _buildField(
-                        label: 'اسم الحي',
-                        hint: 'حي الياسمين',
+                        label: 'market.neighborhood_label'.tr(),
+                        hint: 'market.neighborhood_hint'.tr(),
                         controller: _neighborhoodController,
                         validator: _requiredValidator,
                       ),
                       SizedBox(height: 16.h),
                       _buildField(
-                        label: 'اسم الشارع',
-                        hint: 'شارع الأمير ناصر بن سعود',
+                        label: 'market.street_label'.tr(),
+                        hint: 'market.street_hint'.tr(),
                         controller: _streetController,
                         validator: _requiredValidator,
                       ),
                       SizedBox(height: 16.h),
                       _buildField(
-                        label: 'الرمز البريدي',
+                        label: 'market.postal_code_label'.tr(),
                         hint: '13325',
                         controller: _postalCodeController,
                         keyboardType: TextInputType.number,
@@ -167,7 +168,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                       ),
                       SizedBox(height: 16.h),
                       _buildField(
-                        label: 'رقم المبنى',
+                        label: 'market.building_number_label'.tr(),
                         hint: '18',
                         controller: _buildingNumberController,
                         keyboardType: TextInputType.number,
@@ -189,17 +190,17 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
   // ── Validators ───────────────────────────────────────────────────────────────
   String? _requiredValidator(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'هذا الحقل مطلوب';
+      return 'market.field_required_error'.tr();
     }
     return null;
   }
 
   String? _postalCodeValidator(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'هذا الحقل مطلوب';
+      return 'market.field_required_error'.tr();
     }
     if (value.trim().length < 5) {
-      return 'الرمز البريدي يجب أن يكون 5 أرقام على الأقل';
+      return 'market.postal_code_length_error'.tr();
     }
     return null;
   }
@@ -212,7 +213,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         Row(
           children: [
             Text(
-              'الموقع على الخريطة',
+              'market.map_location_label'.tr(),
               style: TextStyleManager.style11Medium.copyWith(
                 fontWeight: FontWeight.bold,
                 color: AppColors.black,
@@ -251,7 +252,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                     size: 16.sp, color: AppColors.primary),
                 SizedBox(width: 4.w),
                 Text(
-                  'تغيير الموقع',
+                  'market.change_location'.tr(),
                   style: TextStyleManager.style11Medium.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
@@ -283,7 +284,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                       color: AppColors.primary, size: 32.sp),
                   SizedBox(height: 8.h),
                   Text(
-                    'اضغط لتحديد الموقع على الخريطة',
+                    'market.tap_to_select_location'.tr(),
                     style: TextStyleManager.style11Medium.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
@@ -305,7 +306,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         alignment: Alignment.center,
         children: [
           Text(
-            _isEditMode ? 'تعديل العنوان' : 'اضافة عنوان جديد',
+            _isEditMode ? 'market.edit_address_title'.tr() : 'market.add_new_address'.tr(),
             textAlign: TextAlign.center,
             style: TextStyleManager.heading2.copyWith(
               color: AppColors.black,
@@ -313,7 +314,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
             ),
           ),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerStart,
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Icon(
@@ -412,7 +413,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -446,7 +447,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    _isEditMode ? 'تعديل' : 'اضافة',
+                    _isEditMode ? 'market.edit_button'.tr() : 'market.add_button'.tr(),
                     style: TextStyleManager.style15Medium.copyWith(
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,

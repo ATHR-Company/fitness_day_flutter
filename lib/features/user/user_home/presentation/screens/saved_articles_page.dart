@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -9,47 +8,91 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'article_detail_page.dart';
 
-class SavedArticlesPage extends StatelessWidget {
+import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
+import 'package:fitness_day/core/network/api_result.dart';
+
+class SavedArticlesPage extends StatefulWidget {
   final List<ArticleData> articles;
 
   const SavedArticlesPage({super.key, required this.articles});
 
   @override
+  State<SavedArticlesPage> createState() => _SavedArticlesPageState();
+}
+
+class _SavedArticlesPageState extends State<SavedArticlesPage> {
+  late List<ArticleData> _articles;
+  final Set<String> _loadingArticleIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _articles = List.from(widget.articles);
+  }
+
+  Future<void> _toggleSave(ArticleData article) async {
+    if (_loadingArticleIds.contains(article.id)) return;
+
+    setState(() {
+      _loadingArticleIds.add(article.id);
+    });
+
+    final useCase = getIt<ToggleSaveArticleUseCase>();
+    final result = await useCase(article.id);
+
+    setState(() {
+      _loadingArticleIds.remove(article.id);
+      if (result is Success<bool>) {
+        // Update local article's isSaved state or remove it
+        // Depending on UX, usually unsaving removes it from this page
+        if (!result.data) {
+          _articles.removeWhere((a) => a.id == article.id);
+        }
+      } else {
+        // Handle error (optional)
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: ui.TextDirection.rtl,
-      child: Container(
+    return Container(
         decoration: const BoxDecoration(
           gradient: AppColors.visitsBackgroundGradient,
         ),
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: _buildAppBar(context),
-          body: articles.isEmpty
+          body: _articles.isEmpty
               ? _buildEmptyState()
               : ListView.builder(
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                  itemCount: articles.length,
-                  itemBuilder: (context, index) => _SavedArticleCard(
-                    article: articles[index],
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ArticleDetailPage(
-                            article: articles[index],
-                            relatedArticles: articles
-                                .where((a) => a != articles[index])
-                                .toList(),
+                  itemCount: _articles.length,
+                  itemBuilder: (context, index) {
+                    final article = _articles[index];
+                    return _SavedArticleCard(
+                      article: article,
+                      isLoading: _loadingArticleIds.contains(article.id),
+                      onBookmarkTap: () => _toggleSave(article),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ArticleDetailPage(
+                              article: article,
+                              relatedArticles: _articles
+                                  .where((a) => a != article)
+                                  .toList(),
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    );
+                  },
                 ),
         ),
-      ),
-    );
+      );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -107,8 +150,15 @@ class SavedArticlesPage extends StatelessWidget {
 class _SavedArticleCard extends StatelessWidget {
   final ArticleData article;
   final VoidCallback? onTap;
+  final VoidCallback? onBookmarkTap;
+  final bool isLoading;
 
-  const _SavedArticleCard({required this.article, this.onTap});
+  const _SavedArticleCard({
+    required this.article,
+    this.onTap,
+    this.onBookmarkTap,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +224,22 @@ class _SavedArticleCard extends StatelessWidget {
             SizedBox(width: 8.w),
 
             // Bookmark icon
-            Icon(
-              Icons.bookmark_rounded,
-              color: AppColors.primary,
-              size: 22.sp,
+            GestureDetector(
+              onTap: onBookmarkTap,
+              child: isLoading
+                  ? SizedBox(
+                      width: 22.sp,
+                      height: 22.sp,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primary,
+                      ),
+                    )
+                  : Icon(
+                      article.isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                      color: AppColors.primary,
+                      size: 22.sp,
+                    ),
             ),
           ],
         ),

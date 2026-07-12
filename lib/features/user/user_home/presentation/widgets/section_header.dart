@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -38,10 +40,11 @@ class SectionHeader extends StatelessWidget {
                 ),
                 SizedBox(width: 4.w),
                 Icon(
-                  Icons.keyboard_double_arrow_left_rounded,
+                  Directionality.of(context) == ui.TextDirection.rtl
+                      ? Icons.keyboard_double_arrow_left_rounded
+                      : Icons.keyboard_double_arrow_right_rounded,
                   color: AppColors.primary,
                   size: 30.w,
-                  fontWeight: FontWeight.bold,
                 ),
               ],
             ),

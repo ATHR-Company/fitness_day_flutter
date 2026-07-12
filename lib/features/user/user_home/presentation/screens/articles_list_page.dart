@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -17,9 +16,7 @@ class ArticlesListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: ui.TextDirection.rtl,
-      child: Container(
+    return Container(
         decoration: const BoxDecoration(
           gradient: AppColors.visitsBackgroundGradient,
         ),
@@ -47,8 +44,7 @@ class ArticlesListPage extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {

@@ -1,5 +1,4 @@
 
-import 'dart:ui' as ui;
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/current_weight_card.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_home_cubit.dart';
@@ -25,21 +24,22 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/unsubsc
 import '../../../../../core/constant/app_assets.dart';
 import 'hydration_details_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_packages_grid.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/features/user/user_home/presentation/widgets/home_shimmer_loading.dart';
 
 import 'package:fitness_day/core/widgets/exit_dialog.dart';
 import 'user_today_tasks_page.dart';
 import 'articles_list_page.dart';
 
 class HomePage extends StatelessWidget {
-  final bool isSubscribed;
-
-  const HomePage({super.key, this.isSubscribed = true});
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserHomeCubit()..loadHomeData(isSubscribed: isSubscribed),
-      child: _HomePageContent(),
+      key: ValueKey(context.locale),
+      create: (_) => getIt<UserHomeCubit>()..loadHomeData(),
+      child: const _HomePageContent(),
     );
   }
 }
@@ -52,13 +52,28 @@ class _HomePageContent extends StatelessWidget {
     return BlocBuilder<UserHomeCubit, UserHomeState>(
       builder: (context, state) {
         if (state is UserHomeLoading) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            backgroundColor: AppColors.white,
+            body: SafeArea(child: HomeShimmerLoading()),
+          );
         }
         if (state is UserHomeLoaded) {
           final isSubscribed = state.isSubscribed;
-          return Directionality(
-      textDirection: ui.TextDirection.rtl,
-      child: PopScope(
+          final homeData = state.homeData;
+
+          // Extract dynamic values from homeData
+          final userName = homeData?.user?['name'] as String? ?? '';
+          final userAvatar = homeData?.user?['avatar'] as String? ?? '';
+          final subscriptionName = homeData?.subscription?['name'] as String?;
+          final subscriptionEndDate = homeData?.subscription?['endDate'] as String?;
+          final currentWeight = homeData?.currentWeight?['value'];
+          final weightUnit = homeData?.currentWeight?['unit'] as String? ?? 'kg';
+          final visitsCount = homeData?.visits?['visitsCount'] as int? ?? 0;
+          final nextVisitDate = homeData?.visits?['nextVisitDate'] as String?;
+          final bannerUrl = homeData?.banners.isNotEmpty == true ? homeData!.banners.first.photo : null;
+          final currentActivity = homeData?.dailyTasks?.currentActivity;
+
+          return PopScope(
         canPop: false,
         onPopInvoked: (didPop) async {
           if (didPop) return;
@@ -88,21 +103,28 @@ class _HomePageContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // 1. Header
-                HomeHeader(isSubscribed: isSubscribed),
+                HomeHeader(
+                  isSubscribed: isSubscribed,
+                  userName: userName,
+                  userAvatar: userAvatar,
+                ),
                 SizedBox(height: 12.h),
 
                 if (isSubscribed) ...[
                   // 2. Subscription Banner
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: const SubscriptionBanner(),
+                    child: SubscriptionBanner(
+                      subscriptionName: subscriptionName,
+                      subscriptionEndDate: subscriptionEndDate,
+                    ),
                   ),
                   SizedBox(height: 22.h),
 
                   // 3. Hero Image
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: const HeroImage(),
+                    child: HeroImage(imageUrl: bannerUrl),
                   ),
                   SizedBox(height: 20.h),
 
@@ -116,14 +138,20 @@ class _HomePageContent extends StatelessWidget {
                   // 5. Stat Cards
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: const StatCardsRow(),
+                    child: StatCardsRow(
+                      visitsCount: visitsCount,
+                      nextVisitDate: nextVisitDate,
+                    ),
                   ),
                   SizedBox(height: 16.h),
 
                   // 6. Current Weight
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: const CurrentWeightCard(),
+                    child: CurrentWeightCard(
+                      weight: currentWeight?.toDouble(),
+                      unit: weightUnit,
+                    ),
                   ),
                   SizedBox(height: 16.h),
 
@@ -150,38 +178,45 @@ class _HomePageContent extends StatelessWidget {
                   SizedBox(height: 16.h),
 
                   // 8. Activities (Hydration, Walking, Running)
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Column(
-                      children: [
-                        TaskCard(
-                          task: TaskData(
-                            imagePath: SvgIcons.waterBorder,
-                            isSvgImage: true,
-                            title: 'home.hydration_title'.tr(),
-                            time: 'home.hydration_all_day'.tr(),
-                            description: 'home.hydration_desc'.tr(),
-                            extraLabel: '2.50 / 2.50',
-                            extraUnit: 'home.water_unit'.tr(),
-                            extraIcon: null,
-                            done: true,
-                            onDetailsPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HydrationDetailsScreen(),
-                                ),
-                              );
-                            },
+                  if (currentActivity != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: Column(
+                        children: [
+                          TaskCard(
+                            task: TaskData(
+                              imagePath: (currentActivity['image'] == null || 
+                                          currentActivity['image'].toString().endsWith('/.png') || 
+                                          currentActivity['image'].toString().endsWith('/.jpg')) 
+                                          ? SvgIcons.waterBorder 
+                                          : currentActivity['image'],
+                              isSvgImage: currentActivity['image'] == null || 
+                                          currentActivity['image'].toString().endsWith('/.png') || 
+                                          currentActivity['image'].toString().endsWith('/.jpg'),
+                              title: currentActivity['name'] ?? 'home.hydration_title'.tr(),
+                              time: 'home.hydration_all_day'.tr(),
+                              description: currentActivity['description'] ?? 'home.hydration_desc'.tr(),
+                              extraLabel: '${currentActivity['currentProgress'] ?? 0} / ${currentActivity['goal'] ?? 0}',
+                              extraUnit: currentActivity['unit'] ?? 'home.water_unit'.tr(),
+                              extraIcon: null,
+                              done: currentActivity['isCompleted'] ?? false,
+                              onDetailsPressed: () {
+                                if (currentActivity['activityType'] == 'hydration') {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const HydrationDetailsScreen(),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
                           ),
-                        ),
-                      
-                      
-                        SizedBox(height: 16.h),
-                      ],
+                          SizedBox(height: 16.h),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20.h),
+                  if (currentActivity != null) SizedBox(height: 20.h),
 
                   // 9. Articles
                   Padding(
@@ -241,8 +276,7 @@ class _HomePageContent extends StatelessWidget {
           ),
         ),
       ),
-        ),
-      );
+        );
         }
         return const SizedBox.shrink();
       },

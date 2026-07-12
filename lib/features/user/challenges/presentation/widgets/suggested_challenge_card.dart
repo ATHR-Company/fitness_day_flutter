@@ -24,7 +24,7 @@ class SuggestedChallengeCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: const Color(0xFFF2F5FA),
+          color: AppColors.suggestedCardBackground,
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: AppColors.borderGrey, width: 1),
           boxShadow: [
@@ -69,7 +69,9 @@ class SuggestedChallengeCard extends StatelessWidget {
               width: 38.w,
               height: 38.w,
               child: Icon(
-                Icons.keyboard_double_arrow_left_rounded,
+                Directionality.of(context) == TextDirection.rtl
+                    ? Icons.keyboard_double_arrow_left_rounded
+                    : Icons.keyboard_double_arrow_right_rounded,
                 color: AppColors.primary,
                 size: 22.sp,
               ),

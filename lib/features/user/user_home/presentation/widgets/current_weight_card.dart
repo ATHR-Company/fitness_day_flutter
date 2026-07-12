@@ -8,9 +8,10 @@ import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 
 class CurrentWeightCard extends StatelessWidget {
-  final String weight;
+  final double? weight;
+  final String unit;
 
-  const CurrentWeightCard({super.key, this.weight = '57.8'});
+  const CurrentWeightCard({super.key, this.weight, this.unit = 'kg'});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,7 @@ class CurrentWeightCard extends StatelessWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        weight,
+                        weight != null ? weight.toString() : '--',
                         style: TextStyleManager.style15Medium.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
@@ -58,7 +59,7 @@ class CurrentWeightCard extends StatelessWidget {
                       ),
                       SizedBox(width: 4.w),
                       Text(
-                        'home.weight_unit'.tr(),
+                        unit,
                         style: TextStyleManager.style11Medium.copyWith(
                           color: AppColors.textSecondary,
                         ),

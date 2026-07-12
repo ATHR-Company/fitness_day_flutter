@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -12,13 +13,15 @@ class CheckoutScreen extends StatefulWidget {
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
+enum DeliveryMethod { shipping, branchPickup }
+
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  String selectedDeliveryMethod = 'توصيل';
+  DeliveryMethod selectedDeliveryMethod = DeliveryMethod.shipping;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBF6),
+      backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -53,7 +56,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         alignment: Alignment.center,
         children: [
           Text(
-            'اتمام الطلب',
+            'market.checkout_title'.tr(),
             textAlign: TextAlign.center,
             style: TextStyleManager.heading2.copyWith(
               color: AppColors.black,
@@ -61,7 +64,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           ),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerStart,
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Icon(
@@ -83,7 +86,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'هل لديك كوبون خاص ؟',
+            'market.coupon_question'.tr(),
             style: TextStyleManager.style13Medium.copyWith(
               fontWeight: FontWeight.bold,
               color: AppColors.black,
@@ -105,7 +108,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'ادخل رمز الكوبون',
+                      hintText: 'market.coupon_hint'.tr(),
                       hintStyle: TextStyleManager.style9Medium.copyWith(
                         color: AppColors.textPlaceholder,
                       ),
@@ -128,7 +131,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       elevation: 0,
                     ),
                     child: Text(
-                      'تطبيق',
+                      'market.apply_button'.tr(),
                       style: TextStyleManager.style11Medium.copyWith(
                         color: AppColors.white,
                         fontWeight: FontWeight.bold,
@@ -148,10 +151,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 16.h),
-      color: const Color(0xFFEBF6EC), // Light green background matching image
+      color: AppColors.backgroundTint,
       alignment: Alignment.center,
       child: Text(
-        'تفاصيل الطلب',
+        'market.order_details_header'.tr(),
         style: TextStyleManager.style13Medium.copyWith(
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
@@ -167,17 +170,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'تفاصيل الاستلام',
+            'market.delivery_details_title'.tr(),
             style: TextStyleManager.style11Medium.copyWith(
               fontWeight: FontWeight.bold,
               color: AppColors.black,
             ),
           ),
           SizedBox(height: 16.h),
-          _buildDeliveryOptionCard(title: 'توصيل', icon: Icons.local_shipping),
+          _buildDeliveryOptionCard(
+            title: 'market.delivery_option_shipping'.tr(),
+            method: DeliveryMethod.shipping,
+            icon: Icons.local_shipping,
+          ),
           SizedBox(height: 12.h),
           _buildDeliveryOptionCard(
-            title: 'استلام من الفرع',
+            title: 'market.delivery_option_branch_pickup'.tr(),
+            method: DeliveryMethod.branchPickup,
             icon: Icons.inventory_2,
           ),
         ],
@@ -187,13 +195,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Widget _buildDeliveryOptionCard({
     required String title,
+    required DeliveryMethod method,
     required IconData icon,
   }) {
-    final isSelected = selectedDeliveryMethod == title;
+    final isSelected = selectedDeliveryMethod == method;
     return GestureDetector(
       onTap: () {
         setState(() {
-          selectedDeliveryMethod = title;
+          selectedDeliveryMethod = method;
         });
       },
       child: Container(
@@ -204,7 +213,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           borderRadius: BorderRadius.circular(8.r),
           border: Border.all(
             color: isSelected
-                ?Color(0xff55C264)
+                ? AppColors.greenLightAccent
                 : AppColors.textSecondary.withValues(alpha: 0.2),
             width: isSelected ? 1.5 : 1,
           ),
@@ -263,7 +272,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -293,7 +302,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 height: 50.h,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (selectedDeliveryMethod == 'توصيل') {
+                    if (selectedDeliveryMethod == DeliveryMethod.shipping) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -317,7 +326,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    'التالي',
+                    'market.next_button'.tr(),
                     style: TextStyleManager.style15Medium.copyWith(
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,7 +31,7 @@ class _CartScreenState extends State<CartScreen> {
     CartItem(
       product: ProductData(
         id: '1',
-        name: 'باقة صحي',
+        name: 'market.mock_product_healthy_pack'.tr(),
         imageUrl:
             'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400',
         currentPrice: 3500,
@@ -41,7 +42,7 @@ class _CartScreenState extends State<CartScreen> {
     CartItem(
       product: ProductData(
         id: '2',
-        name: 'قولد اديشن كارب سريع الامتصاص',
+        name: 'market.mock_product_gold_edition_carb'.tr(),
         imageUrl:
             'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
         currentPrice: 3500,
@@ -54,7 +55,7 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6FBF6),
+      backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -78,7 +79,7 @@ class _CartScreenState extends State<CartScreen> {
         alignment: Alignment.center,
         children: [
           Text(
-            'السلة',
+            'market.cart_title'.tr(),
             textAlign: TextAlign.center,
             style: TextStyleManager.heading2.copyWith(
               color: AppColors.black,
@@ -86,7 +87,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerStart,
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Icon(
@@ -115,7 +116,7 @@ class _CartScreenState extends State<CartScreen> {
           // Empty Basket Icon
           SizedBox(height: 32.h),
           Text(
-            'لا توجد عناصر في السلة',
+            'market.empty_cart_title'.tr(),
             style: TextStyleManager.heading3.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.bold,
@@ -123,7 +124,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           SizedBox(height: 16.h),
           Text(
-            'لم تقم بإضافة أي عناصر إلى السلة بعد.\nأضف ما تحتاجه وستظهر العناصر المختارة\nهنا لمراجعتها وإكمال الطلب',
+            'market.empty_cart_message'.tr(),
             textAlign: TextAlign.center,
             style: TextStyleManager.style11Medium.copyWith(
               color: AppColors.textSecondary,
@@ -144,7 +145,7 @@ class _CartScreenState extends State<CartScreen> {
                 elevation: 0,
               ),
               child: Text(
-                'الذهاب الى المنتجات',
+                'market.go_to_products'.tr(),
                 style: TextStyleManager.style13Medium.copyWith(
                   color: AppColors.white,
                   fontWeight: FontWeight.bold,
@@ -218,7 +219,6 @@ class _CartScreenState extends State<CartScreen> {
                             Icons.close,
                             color: AppColors.primary,
                             size: 18.sp,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -241,7 +241,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             SizedBox(width: 2.w),
                             Text(
-                              'ريال',
+                              'home.sar'.tr(),
                               style: TextStyleManager.style9Medium.copyWith(
                                 color: AppColors.black,
                               ),
@@ -249,7 +249,7 @@ class _CartScreenState extends State<CartScreen> {
                             if (item.product.oldPrice != null) ...[
                               SizedBox(width: 8.w),
                               Text(
-                                '${item.product.oldPrice!.toInt()} ريال',
+                                '${item.product.oldPrice!.toInt()} ${'home.sar'.tr()}',
                                 style: TextStyleManager.style9Medium.copyWith(
                                   color: AppColors.error,
                                   decoration: TextDecoration.lineThrough,
@@ -324,7 +324,7 @@ class _CartScreenState extends State<CartScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: AppColors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -346,9 +346,9 @@ class _CartScreenState extends State<CartScreen> {
               ),
               SizedBox(height: 16.h),
               Align(
-                alignment: Alignment.centerRight,
+                alignment: AlignmentDirectional.centerStart,
                 child: Text(
-                  'ملخص الطلب',
+                  'market.order_summary_title'.tr(),
                   style: TextStyleManager.style13Medium.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppColors.black,
@@ -360,7 +360,7 @@ class _CartScreenState extends State<CartScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'مجموع المنتجات',
+                    'market.total_products_label'.tr(),
                     style: TextStyleManager.style11Medium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -379,7 +379,7 @@ class _CartScreenState extends State<CartScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'الاجمالي',
+                    'market.total_label'.tr(),
                     style: TextStyleManager.style11Medium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -414,7 +414,7 @@ class _CartScreenState extends State<CartScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    'التالي',
+                    'market.next_button'.tr(),
                     style: TextStyleManager.style15Medium.copyWith(
                       color: AppColors.white,
                       fontWeight: FontWeight.bold,

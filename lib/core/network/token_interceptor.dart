@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
@@ -62,6 +63,20 @@ class TokenInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    // Add language header from locale saved by easy_localization in GetStorage
+    try {
+      final storage = GetStorage();
+      // easy_localization saves locale under this key in GetStorage
+      final locale = storage.read<String>('EasyLocalizationController.selectedLocale');
+      if (locale != null && locale.contains('en')) {
+        options.headers['lang'] = 'en';
+      } else {
+        options.headers['lang'] = 'ar';
+      }
+    } catch (_) {
+      options.headers['lang'] = 'ar'; // Default to Arabic
+    }
+
     var token = await _secureCache.getToken();
     if (token != null && token.isNotEmpty) {
       if (_isTokenExpired(token)) {

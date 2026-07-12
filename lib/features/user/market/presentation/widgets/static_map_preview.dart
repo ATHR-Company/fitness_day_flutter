@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:fitness_day/core/theme/app_colors.dart';
 
 class StaticMapPreview extends StatelessWidget {
   final LatLng coordinates;
@@ -20,7 +21,7 @@ class StaticMapPreview extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: const Color(0xFFE5E5E5)),
+        border: Border.all(color: AppColors.borderGrey),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12.r),
@@ -45,7 +46,7 @@ class StaticMapPreview extends StatelessWidget {
                   height: 40,
                   child: const Icon(
                     Icons.location_on,
-                    color: Colors.red,
+                    color: AppColors.error,
                     size: 40,
                   ),
                 ),

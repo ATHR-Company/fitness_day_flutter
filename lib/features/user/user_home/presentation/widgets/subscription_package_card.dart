@@ -144,7 +144,7 @@ class SubscriptionPackageCard extends StatelessWidget {
                     ),
                     SizedBox(height: 8.h),
                     Align(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerEnd,
                       child: SizedBox(
                         height: 32.h,
                         child: ElevatedButton(

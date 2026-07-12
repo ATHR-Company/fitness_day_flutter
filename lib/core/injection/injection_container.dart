@@ -50,6 +50,13 @@ import 'package:fitness_day/features/user/workout/domain/usecases/complete_worko
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_cubit.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_details_cubit.dart';
 
+// User Home
+import 'package:fitness_day/features/user/user_home/data/datasources/user_home_remote_datasource.dart';
+import 'package:fitness_day/features/user/user_home/data/repositories/user_home_repository_impl.dart';
+import 'package:fitness_day/features/user/user_home/domain/repositories/user_home_repository.dart';
+import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
+import 'package:fitness_day/features/user/user_home/presentation/manager/user_home_cubit.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -310,6 +317,33 @@ Future<void> init() async {
     () => WorkoutDetailsCubit(
       getWorkoutDetailsUseCase: getIt<GetWorkoutDetailsUseCase>(),
       completeWorkoutSetUseCase: getIt<CompleteWorkoutSetUseCase>(),
+    ),
+  );
+
+  // User Home
+  getIt.registerLazySingleton<UserHomeRemoteDataSource>(
+    () => UserHomeRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+
+  getIt.registerLazySingleton<UserHomeRepository>(
+    () => UserHomeRepositoryImpl(getIt<UserHomeRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<GetUserHomeDataUseCase>(
+    () => GetUserHomeDataUseCase(getIt<UserHomeRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetArticlesUseCase>(
+    () => GetArticlesUseCase(getIt<UserHomeRepository>()),
+  );
+  getIt.registerLazySingleton<ToggleSaveArticleUseCase>(
+    () => ToggleSaveArticleUseCase(getIt<UserHomeRepository>()),
+  );
+
+  getIt.registerFactory<UserHomeCubit>(
+    () => UserHomeCubit(
+      getUserHomeDataUseCase: getIt<GetUserHomeDataUseCase>(),
+      getArticlesUseCase: getIt<GetArticlesUseCase>(),
     ),
   );
 }

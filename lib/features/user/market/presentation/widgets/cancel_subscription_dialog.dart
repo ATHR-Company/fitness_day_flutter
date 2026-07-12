@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -28,14 +29,13 @@ class CancelSubscriptionDialog extends StatelessWidget {
           children: [
             // Close Button Top Left
             Align(
-              alignment: Alignment.topLeft,
+              alignment: AlignmentDirectional.topStart,
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Icon(
                   Icons.close,
                   color: AppColors.primary,
                   size: 24.sp,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -61,7 +61,6 @@ class CancelSubscriptionDialog extends StatelessWidget {
                     Icons.close,
                     color: AppColors.white,
                     size: 32.sp,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -70,7 +69,7 @@ class CancelSubscriptionDialog extends StatelessWidget {
 
             // Confirmation Title
             Text(
-              'هل أنت متأكد أنك تريد إلغاء الاشتراك في باقة صحي؟',
+              'market.cancel_sub_title'.tr(),
               textAlign: TextAlign.center,
               style: TextStyleManager.style13Medium.copyWith(
                 fontWeight: FontWeight.bold,
@@ -96,7 +95,7 @@ class CancelSubscriptionDialog extends StatelessWidget {
                   SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
-                    'تحذير : بعد الإلغاء، لن تصلك خطط التغذية اليومية أو نصائح النظام الغذائي .',
+                    'market.cancel_sub_warning'.tr(),
                     textAlign: TextAlign.start,
                     style: TextStyleManager.style9Medium.copyWith(
                       color: AppColors.black,
@@ -131,7 +130,7 @@ class CancelSubscriptionDialog extends StatelessWidget {
                         elevation: 0,
                       ),
                       child: Text(
-                        'إلغاء',
+                        'market.cancel_sub_confirm'.tr(),
                         style: TextStyleManager.style13Medium.copyWith(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,
@@ -154,7 +153,7 @@ class CancelSubscriptionDialog extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'رجوع',
+                        'market.cancel_sub_back'.tr(),
                         style: TextStyleManager.style13Medium.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,

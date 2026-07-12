@@ -131,4 +131,13 @@ class AppImages {
   static const String onboarding3 = '$_imagePath/onboarding3.png';
   static const String ai = '$_imagePath/ai.png';
   static const String challenge_cap = '$_imagePath/challenge_cap.png';
+
+  // ── Market ──────────────────────────────────────────────────────────────
+  static const String emptyAddress = '$_imagePath/empty_address.png';
+  static const String visaMaster = '$_imagePath/visa_master.png';
+  static const String mada = '$_imagePath/mada.png';
+  static const String tabby = '$_imagePath/tabby.png';
+  static const String stcPay = '$_imagePath/stc_pay.png';
+  static const String tamara = '$_imagePath/tamara.png';
+  static const String bankTransfer = '$_imagePath/bank_transfer.png';
 }

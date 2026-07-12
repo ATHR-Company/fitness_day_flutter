@@ -11,8 +11,15 @@ import '../../../../user/support/presentation/pages/contact_us_page.dart';
 
 class HomeHeader extends StatelessWidget {
   final bool isSubscribed;
+  final String userName;
+  final String userAvatar;
 
-  const HomeHeader({super.key, this.isSubscribed = true});
+  const HomeHeader({
+    super.key,
+    this.isSubscribed = true,
+    this.userName = '',
+    this.userAvatar = '',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +37,11 @@ class HomeHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.greenSoftTint, width: 2),
-                image: const DecorationImage(
+                image: DecorationImage(
                   image: NetworkImage(
-                    'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
+                    userAvatar.isNotEmpty
+                        ? userAvatar
+                        : 'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
                   ),
                   fit: BoxFit.cover,
                 ),
@@ -56,7 +65,7 @@ class HomeHeader extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  'home.welcome_name'.tr(),
+                  userName.isNotEmpty ? userName : 'home.welcome_name'.tr(),
                   style: TextStyleManager.style14Bold.copyWith(
                     color: AppColors.primary,
                   ),

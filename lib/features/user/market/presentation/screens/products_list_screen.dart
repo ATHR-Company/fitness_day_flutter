@@ -154,7 +154,11 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
           // Back button
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: Icon(Icons.arrow_back_ios_rounded, color: AppColors.black, size: 20.sp),
+            child: Icon(
+              Icons.arrow_back_ios_rounded,
+              color: AppColors.black,
+              size: 20.sp,
+            ),
           ),
         
           const Spacer(),

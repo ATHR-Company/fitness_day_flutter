@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,11 +24,11 @@ class PackageDetailsDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     // Hardcoded features for the UI demonstration based on the provided image
     final List<String> features = [
-      'منتجات تنحيف مجانا',
-      'برنامج غذائي ورياضي مصمم لك',
-      'متابعة دورية مع اخصائي التغذية',
-      'مراجعة دورية على ادق اجهزة الفحص',
-      'متابعة اونلاين من اى مكان مع خبراء التغذية في مراكز\nيوم الرشاقة',
+      'market.package_feature_1'.tr(),
+      'market.package_feature_2'.tr(),
+      'market.package_feature_3'.tr(),
+      'market.package_feature_4'.tr(),
+      'market.package_feature_5'.tr(),
     ];
 
     return Dialog(
@@ -52,21 +53,20 @@ class PackageDetailsDialog extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   Text(
-                    'تفاصيل الباقة',
+                    'market.package_details_title'.tr(),
                     style: TextStyleManager.style15Medium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.black,
                     ),
                   ),
-                  Positioned(
-                    left: 0,
+                  PositionedDirectional(
+                    start: 0,
                     child: GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Icon(
                         Icons.close,
                         color: AppColors.primary,
                         size: 24.sp,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -112,7 +112,7 @@ class PackageDetailsDialog extends StatelessWidget {
                       ),
                       SizedBox(width: 4.w),
                       Text(
-                        'ريال',
+                        'home.sar'.tr(),
                         style: TextStyleManager.style11Medium.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppColors.black,
@@ -167,7 +167,7 @@ class PackageDetailsDialog extends StatelessWidget {
                 margin: EdgeInsets.symmetric(horizontal: 16.w),
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4), // Light green tint
+                  color: AppColors.backgroundTint,
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Row(
@@ -183,7 +183,7 @@ class PackageDetailsDialog extends StatelessWidget {
                         SizedBox(width: 8.w),
 
                         Text(
-                          ' تاريخ انتهاء الاشتراك : ',
+                          'market.subscription_expiry_label'.tr(),
                           style: TextStyleManager.style9Medium.copyWith(
                             color: AppColors.black,
                             fontWeight: FontWeight.bold,
@@ -216,7 +216,7 @@ class PackageDetailsDialog extends StatelessWidget {
                       ); // Close the package details dialog
                       showDialog(
                         context: context,
-                        barrierColor: Colors.black.withValues(alpha: 0.6),
+                        barrierColor: AppColors.black.withValues(alpha: 0.6),
                         builder: (context) => CancelSubscriptionDialog(
                           onConfirm: () {
                             // TODO: Handle cancel logic here
@@ -234,11 +234,11 @@ class PackageDetailsDialog extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.close, color: AppColors.white, size: 18.sp, fontWeight: FontWeight.bold),
+                        Icon(Icons.close, color: AppColors.white, size: 18.sp),
                           SizedBox(width: 8.w),
 
                         Text(
-                          'الغاء الاشتراك',
+                          'market.cancel_subscription_button'.tr(),
                           style: TextStyleManager.style13Medium.copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.bold,
@@ -276,7 +276,7 @@ class PackageDetailsDialog extends StatelessWidget {
                         ),
                         SizedBox(width: 8.w),
                         Text(
-                          'اضافة الى السلة',
+                          'market.add_to_cart'.tr(),
                           style: TextStyleManager.style13Medium.copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.bold,

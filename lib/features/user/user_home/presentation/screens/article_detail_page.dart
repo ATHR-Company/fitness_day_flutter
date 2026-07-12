@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -8,7 +9,11 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/article
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 
-class ArticleDetailPage extends StatelessWidget {
+import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
+import 'package:fitness_day/core/network/api_result.dart';
+
+class ArticleDetailPage extends StatefulWidget {
   final ArticleData article;
   final List<ArticleData> relatedArticles;
 
@@ -19,43 +24,71 @@ class ArticleDetailPage extends StatelessWidget {
   });
 
   @override
+  State<ArticleDetailPage> createState() => _ArticleDetailPageState();
+}
+
+class _ArticleDetailPageState extends State<ArticleDetailPage> {
+  late bool isSaved;
+  bool isLoadingSave = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isSaved = widget.article.isSaved;
+  }
+
+  Future<void> _toggleSave() async {
+    if (isLoadingSave) return;
+    setState(() => isLoadingSave = true);
+
+    final useCase = getIt<ToggleSaveArticleUseCase>();
+    final result = await useCase(widget.article.id);
+
+    setState(() {
+      isLoadingSave = false;
+      if (result is Success<bool>) {
+        isSaved = result.data;
+      } else {
+        // Optionally show error toast
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: ui.TextDirection.rtl,
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.visitsBackgroundGradient,
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                // ── Custom App Bar ──────────────────────────────────────────
-                SliverToBoxAdapter(child: _buildHeader(context)),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: AppColors.visitsBackgroundGradient,
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: CustomScrollView(
+            slivers: [
+              // ── Custom App Bar ──────────────────────────────────────────
+              SliverToBoxAdapter(child: _buildHeader(context)),
 
-                // ── Article Image / Video Thumbnail ─────────────────────────
-                SliverToBoxAdapter(child: _buildMediaSection()),
+              // ── Article Image / Video Thumbnail ─────────────────────────
+              SliverToBoxAdapter(child: _buildMediaSection()),
 
-                // ── Meta Info (views + date) ────────────────────────────────
-                SliverToBoxAdapter(child: _buildMetaInfo()),
+              // ── Meta Info (views + date) ────────────────────────────────
+              SliverToBoxAdapter(child: _buildMetaInfo()),
 
-                // ── Title ───────────────────────────────────────────────────
-                SliverToBoxAdapter(child: _buildTitle()),
+              // ── Title ───────────────────────────────────────────────────
+              SliverToBoxAdapter(child: _buildTitle()),
 
-                // ── Body Content ────────────────────────────────────────────
-                SliverToBoxAdapter(child: _buildBodyContent()),
+              // ── Body Content ────────────────────────────────────────────
+              SliverToBoxAdapter(child: _buildBodyContent()),
 
-                // ── Related Articles ────────────────────────────────────────
-                if (relatedArticles.isNotEmpty) ...[
-                  SliverToBoxAdapter(child: _buildRelatedArticlesHeader()),
-                  SliverToBoxAdapter(child: _buildRelatedArticlesList(context)),
-                ],
-
-                // Bottom padding
-                SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+              // ── Related Articles ────────────────────────────────────────
+              if (widget.relatedArticles.isNotEmpty) ...[
+                SliverToBoxAdapter(child: _buildRelatedArticlesHeader()),
+                SliverToBoxAdapter(child: _buildRelatedArticlesList(context)),
               ],
-            ),
+
+              // Bottom padding
+              SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+            ],
           ),
         ),
       ),
@@ -69,22 +102,42 @@ class ArticleDetailPage extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Save Bookmark
+          GestureDetector(
+            onTap: _toggleSave,
+            child: isLoadingSave
+                ? SizedBox(
+                    width: 24.sp,
+                    height: 24.sp,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                  )
+                : Icon(
+                    isSaved ? Icons.bookmark : Icons.bookmark_border,
+                    size: 24.sp,
+                    color: AppColors.primary,
+                  ),
+          ),
           // Title centered
-          const Spacer(),
-          Text(
-            LocaleKeys.home_article_detail_title.tr(),
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Center(
+              child: Text(
+                LocaleKeys.home_article_detail_title.tr(),
+                style: TextStyleManager.heading2.copyWith(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
-          const Spacer(),
-          // Back button (right side in RTL)
+          // Back button
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Icon(
-              Icons.arrow_forward_ios,
+              Directionality.of(context) == ui.TextDirection.rtl
+                  ? Icons.arrow_forward_ios
+                  : Icons.arrow_back_ios_new,
               size: 20.sp,
               color: AppColors.black,
             ),
@@ -106,7 +159,7 @@ class ArticleDetailPage extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Image.network(
-              article.imageUrl,
+              widget.article.imageUrl,
               height: 200.h,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -141,8 +194,8 @@ class ArticleDetailPage extends StatelessWidget {
                 size: 32.sp,
               ),
             ),
+
             // Author avatar (top left)
-        
           ],
         ),
       ),
@@ -167,7 +220,7 @@ class ArticleDetailPage extends StatelessWidget {
               ),
               SizedBox(width: 4.w),
               Text(
-                article.date,
+                widget.article.date,
                 style: TextStyleManager.style10Medium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -183,7 +236,7 @@ class ArticleDetailPage extends StatelessWidget {
               ),
               SizedBox(width: 4.w),
               Text(
-                '${article.views}',
+                '${widget.article.views}',
                 style: TextStyleManager.style10Medium.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,
@@ -203,7 +256,7 @@ class ArticleDetailPage extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Text(
-        article.title,
+        widget.article.title,
         style: TextStyleManager.text2.copyWith(
           color: AppColors.black,
           fontSize: 13.sp,
@@ -219,12 +272,34 @@ class ArticleDetailPage extends StatelessWidget {
   Widget _buildBodyContent() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      child: Text(
-        article.body,
-        style: TextStyleManager.style10Medium.copyWith(
-          color: AppColors.textSecondary,
-          height: 1.8,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: widget.article.details.map((detail) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: 16.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (detail.title.isNotEmpty)
+                  Text(
+                    detail.title,
+                    style: TextStyleManager.style14Bold.copyWith(
+                      color: AppColors.black,
+                      height: 1.5,
+                    ),
+                  ),
+                if (detail.title.isNotEmpty) SizedBox(height: 8.h),
+                Text(
+                  detail.description,
+                  style: TextStyleManager.style12Regular.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.8,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -252,20 +327,20 @@ class ArticleDetailPage extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
-        children: List.generate(relatedArticles.length, (index) {
+        children: List.generate(widget.relatedArticles.length, (index) {
           return _RelatedArticleCard(
-            article: relatedArticles[index],
+            article: widget.relatedArticles[index],
             onTap: () {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (_) => ArticleDetailPage(
-                    article: relatedArticles[index],
+                    article: widget.relatedArticles[index],
                     relatedArticles:
-                        relatedArticles
-                            .where((a) => a != relatedArticles[index])
+                        widget.relatedArticles
+                            .where((a) => a != widget.relatedArticles[index])
                             .toList()
-                          ..add(article),
+                          ..add(widget.article),
                   ),
                 ),
               );
@@ -303,7 +378,7 @@ class _RelatedArticleCard extends StatelessWidget {
           children: [
             // Bookmark icon
             Icon(
-              Icons.bookmark_outline_rounded,
+              article.isSaved ? Icons.bookmark : Icons.bookmark_border,
               color: AppColors.primary,
               size: 24.sp,
             ),
@@ -319,7 +394,7 @@ class _RelatedArticleCard extends StatelessWidget {
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.right,
+                textAlign: TextAlign.start,
               ),
             ),
             SizedBox(width: 12.w),
