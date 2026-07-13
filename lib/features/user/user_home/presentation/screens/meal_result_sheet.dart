@@ -79,18 +79,21 @@ class _MealResultSheet extends StatelessWidget {
                   (i) => Padding(
                     padding: EdgeInsets.symmetric(vertical: 4.h),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Expanded(
+                          child: Text(
+                            '${i.name} (${i.approxAmount})',
+                            style: TextStyleManager.style11Medium,
+                            textAlign: TextAlign.start,
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
                         Text(
                           '${i.calories.toStringAsFixed(0)} سعرة',
                           style: TextStyleManager.style11Medium.copyWith(
                             color: AppColors.textSecondary,
                           ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${i.name} (${i.approxAmount})',
-                          style: TextStyleManager.style11Medium,
-                          textAlign: TextAlign.start,
                         ),
                       ],
                     ),

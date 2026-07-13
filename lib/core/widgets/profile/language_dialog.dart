@@ -5,6 +5,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/constant/app_locale.dart';
 import 'profile_dialog_base.dart';
 
 class LanguageDialog extends StatefulWidget {
@@ -27,8 +28,9 @@ class _LanguageDialogState extends State<LanguageDialog> {
   Widget build(BuildContext context) {
     return ProfileDialogBase(
       title: 'profile.edit_language'.tr(),
-      onSave: () {
-        context.setLocale(Locale(_selectedLang));
+      onSave: () async {
+        AppLocale.set(_selectedLang);   // ← update interceptor immediately
+        await context.setLocale(Locale(_selectedLang));
       },
       child: Row(
         children: [

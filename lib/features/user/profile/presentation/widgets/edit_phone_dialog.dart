@@ -39,7 +39,7 @@ class _EditPhoneDialogState extends State<EditPhoneDialog> {
   Widget build(BuildContext context) {
     return ProfileDialogBase(
       title: 'login.phone_hint'.tr(),
-      onSave: () => widget.onSave(_controller.text),
+      onSave: () async => widget.onSave(_controller.text),
       child: Container(
         height: 56.h,
         decoration: BoxDecoration(

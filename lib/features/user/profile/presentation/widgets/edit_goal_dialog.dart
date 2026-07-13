@@ -38,7 +38,7 @@ class _EditGoalDialogState extends State<EditGoalDialog> {
   Widget build(BuildContext context) {
     return ProfileDialogBase(
       title: 'login.goal_hint'.tr(),
-      onSave: () => widget.onSave(_selectedGoal),
+      onSave: () async => widget.onSave(_selectedGoal),
       child: Container(
         height: 56.h,
         padding: EdgeInsets.symmetric(horizontal: 16.w),

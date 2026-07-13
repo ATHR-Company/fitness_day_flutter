@@ -8,8 +8,10 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
-import 'gemini_meal_service.dart';
+import 'openrouter_meal_service.dart';
+import 'meal_exceptions.dart';
 import 'meal_result_sheet.dart';
+import 'package:fitness_day/core/constant/app_env.dart';
 
 class ScanMealScreen extends StatefulWidget {
   const ScanMealScreen({super.key});
@@ -29,12 +31,11 @@ class _ScanMealScreenState extends State<ScanMealScreen>
   bool _isAnalyzing = false;
   String? _errorMessage;
 
-  // TODO: move this behind your backend before release — see notes in
-  // GeminiMealService. For local testing, paste your key from
-  // https://aistudio.google.com/apikey
-  static const String _geminiApiKey = 'YOUR_API_KEY_HERE';
-  late final GeminiMealService _mealService =
-      GeminiMealService(apiKey: _geminiApiKey);
+  // Key is loaded from --dart-define=OPENROUTER_API_KEY at build time.
+  // Never hardcode secrets in source files — see lib/core/constant/app_env.dart
+  static const String _openRouterApiKey = AppEnv.openRouterApiKey;
+  late final OpenRouterMealService _mealService =
+      OpenRouterMealService(apiKey: _openRouterApiKey);
 
   @override
   void initState() {
@@ -148,7 +149,7 @@ class _ScanMealScreenState extends State<ScanMealScreen>
                 children: [
                   _buildAppBar(),
                   SizedBox(height: 16.h),
-                  _buildCodeInput(),
+                  // _buildCodeInput(),
                   SizedBox(height: 24.h),
                   Expanded(child: _buildCameraArea()),
                 ],
@@ -192,70 +193,54 @@ class _ScanMealScreenState extends State<ScanMealScreen>
     );
   }
 
-  Widget _buildCodeInput() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Container(
-        height: 52.h,
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(26.r),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.black.withValues(alpha: 0.04),
-              blurRadius: 10.r,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          border: Border.all(color: AppColors.divider.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _codeController,
-                textAlign: TextAlign.start,
-                decoration: InputDecoration(
-                  hintText: 'ادخل الكود يدويا',
-                  hintStyle: TextStyleManager.style11Medium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 20.w),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(6.r),
-              child: ElevatedButton(
-                onPressed: () {
-                  // TODO: handle manual code lookup
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 0),
-                ),
-                child: Text(
-                  'ارسال',
-                  style: TextStyleManager.style11Medium.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildCodeInput() {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(horizontal: 24.w),
+  //     child: Container(
+  //       height: 52.h,
+  //       decoration: BoxDecoration(
+  //         color: AppColors.white,
+  //         borderRadius: BorderRadius.circular(26.r),
+  //         boxShadow: [
+  //           BoxShadow(
+  //             color: AppColors.black.withValues(alpha: 0.04),
+  //             blurRadius: 10.r,
+  //             offset: const Offset(0, 4),
+  //           ),
+  //         ],
+  //         border: Border.all(color: AppColors.divider.withValues(alpha: 0.3)),
+  //       ),
+  //       child: Row(
+  //         children: [
+  //         Padding(
+  //             padding: EdgeInsets.all(6.r),
+  //             child: ElevatedButton(
+  //               onPressed: () {
+  //                 // TODO: handle manual code lookup
+  //               },
+  //               style: ElevatedButton.styleFrom(
+  //                 backgroundColor: AppColors.primary,
+  //                 foregroundColor: AppColors.white,
+  //                 elevation: 0,
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(20.r),
+  //                 ),
+  //                 padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 0),
+  //               ),
+  //               child: Text(
+  //                 'ارسال',
+  //                 style: TextStyleManager.style11Medium.copyWith(
+  //                   color: AppColors.white,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildCameraArea() {
     return Container(

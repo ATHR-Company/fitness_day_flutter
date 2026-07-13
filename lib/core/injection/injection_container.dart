@@ -56,6 +56,9 @@ import 'package:fitness_day/features/user/user_home/data/repositories/user_home_
 import 'package:fitness_day/features/user/user_home/domain/repositories/user_home_repository.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_home_cubit.dart';
+import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
+import 'package:fitness_day/features/user/user_home/presentation/manager/articles_list_cubit.dart';
+import 'package:fitness_day/core/services/health_service.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -339,11 +342,36 @@ Future<void> init() async {
   getIt.registerLazySingleton<ToggleSaveArticleUseCase>(
     () => ToggleSaveArticleUseCase(getIt<UserHomeRepository>()),
   );
+  getIt.registerLazySingleton<GetSavedArticlesUseCase>(
+    () => GetSavedArticlesUseCase(getIt<UserHomeRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetArticleByIdUseCase>(
+    () => GetArticleByIdUseCase(getIt<UserHomeRepository>()),
+  );
 
   getIt.registerFactory<UserHomeCubit>(
     () => UserHomeCubit(
       getUserHomeDataUseCase: getIt<GetUserHomeDataUseCase>(),
       getArticlesUseCase: getIt<GetArticlesUseCase>(),
     ),
+  );
+
+  getIt.registerFactory<SavedArticlesCubit>(
+    () => SavedArticlesCubit(
+      getSavedArticlesUseCase: getIt<GetSavedArticlesUseCase>(),
+      toggleSaveArticleUseCase: getIt<ToggleSaveArticleUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<ArticlesListCubit>(
+    () => ArticlesListCubit(
+      getArticlesUseCase: getIt<GetArticlesUseCase>(),
+    ),
+  );
+
+  // Health & Activity tracking
+  getIt.registerLazySingleton<FitnessHealthService>(
+    () => FitnessHealthService(),
   );
 }

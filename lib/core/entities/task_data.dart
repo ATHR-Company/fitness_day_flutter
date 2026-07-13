@@ -28,4 +28,34 @@ class TaskData {
     this.isExerciseDialog = false,
     this.onDetailsPressed,
   });
+
+  TaskData copyWith({
+    String? imagePath,
+    String? title,
+    String? description,
+    String? time,
+    String? extraLabel,
+    String? extraUnit,
+    IconData? extraIcon,
+    bool? done,
+    bool? isSvgImage,
+    String? route,
+    bool? isExerciseDialog,
+    VoidCallback? onDetailsPressed,
+  }) {
+    return TaskData(
+      imagePath: imagePath ?? this.imagePath,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      time: time ?? this.time,
+      extraLabel: extraLabel ?? this.extraLabel,
+      extraUnit: extraUnit ?? this.extraUnit,
+      extraIcon: extraIcon ?? this.extraIcon,
+      done: done ?? this.done,
+      isSvgImage: isSvgImage ?? this.isSvgImage,
+      route: route ?? this.route,
+      isExerciseDialog: isExerciseDialog ?? this.isExerciseDialog,
+      onDetailsPressed: onDetailsPressed ?? this.onDetailsPressed,
+    );
+  }
 }

@@ -42,8 +42,8 @@ class UserHomeCubit extends Cubit<UserHomeState> {
       final meal = homeData!.dailyTasks!.currentMeal!;
       tasks.add(TaskData(
         imagePath: meal['image'] ?? '',
-        title: meal['name'] ?? '',
-        description: meal['categoryName'] ?? '',
+        title: meal['categoryName'] ?? '',
+        description: meal['name'] ?? '',
         time: _formatTime(meal['time']),
         extraLabel: '${meal['calories'] ?? 0}',
         extraUnit: 'Kcal',

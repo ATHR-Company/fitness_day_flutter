@@ -255,6 +255,12 @@ class TaskCard extends StatelessWidget {
             ),
           ),
           TextSpan(
+            text: ' / ',
+            style: TextStyleManager.style14Bold.copyWith(
+              color: AppColors.textPrimary,
+            ),
+          ),
+          TextSpan(
             text: '   ${task.extraUnit}',
             style: TextStyleManager.style14Bold.copyWith(
               color: AppColors.textPrimary,

@@ -7,26 +7,25 @@ import 'package:http/http.dart' as http;
 import 'meal_analysis_model.dart';
 import 'meal_exceptions.dart';
 
-/// Handles sending a meal photo to Gemini's vision model and parsing
+/// Handles sending a meal photo to OpenRouter's vision model and parsing
 /// the nutritional breakdown from the response.
 ///
+/// Uses meta-llama/llama-3.2-11b-vision-instruct:free — free tier, supports
+/// vision, and works without regional restrictions.
+///
 /// IMPORTANT (security):
-/// Never ship a raw Gemini API key inside the compiled app — anyone can
-/// decompile the APK/IPA and extract it, then abuse your quota/billing.
-/// The right long-term setup is:
-///   Flutter app -> your backend (Firebase Cloud Function / Node / etc.)
-///                -> Gemini API (key stored server-side)
-/// For local testing you can call Gemini directly with the key below,
-/// but move it behind a backend before releasing to real users.
-class GeminiMealService {
-  GeminiMealService({required this.apiKey});
+/// Never ship a raw API key inside the compiled app — anyone can decompile
+/// the APK/IPA and extract it. Move this behind your own backend before
+/// releasing to real users.
+class OpenRouterMealService {
+  OpenRouterMealService({required this.apiKey});
 
-  /// Get a free key from https://aistudio.google.com/apikey
   final String apiKey;
 
-  static const String _model = 'gemini-2.0-flash';
+  static const String _model =
+      'google/gemma-4-26b-a4b-it:free';
   static const String _endpoint =
-      'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent';
+      'https://openrouter.ai/api/v1/chat/completions';
 
   static const String _prompt = '''
 أنت خبير تغذية. حلل صورة الوجبة المرفقة وارجع تحليلاً غذائياً دقيقاً.
@@ -46,43 +45,48 @@ class GeminiMealService {
 كل الأرقام يجب أن تكون قيماً عددية (numbers) وليست نصوصاً.
 ''';
 
-  /// Compresses [imageFile], sends it to Gemini along with the analysis
+  /// Compresses [imageFile], sends it to OpenRouter along with the analysis
   /// prompt, and parses the JSON response into a [MealAnalysisResult].
   Future<MealAnalysisResult> analyzeMeal(File imageFile) async {
     final Uint8List compressedBytes = await _compressImage(imageFile);
     final String base64Image = base64Encode(compressedBytes);
-    final Uri url = Uri.parse('$_endpoint?key=$apiKey');
 
     final Map<String, dynamic> body = {
-      'contents': [
+      'model': _model,
+      'messages': [
         {
-          'parts': [
-            {'text': _prompt},
+          'role': 'user',
+          'content': [
             {
-              'inline_data': {
-                'mime_type': 'image/jpeg',
-                'data': base64Image,
-              }
+              'type': 'image_url',
+              'image_url': {
+                'url': 'data:image/jpeg;base64,$base64Image',
+              },
             },
-          ]
-        }
+            {
+              'type': 'text',
+              'text': _prompt,
+            },
+          ],
+        },
       ],
-      'generationConfig': {
-        'temperature': 0.2,
-      },
     };
 
     http.Response response;
     try {
       response = await http
           .post(
-            url,
-            headers: {'Content-Type': 'application/json'},
+            Uri.parse(_endpoint),
+            headers: {
+              'Authorization': 'Bearer $apiKey',
+              'Content-Type': 'application/json',
+            },
             body: jsonEncode(body),
           )
-          .timeout(const Duration(seconds: 30));
+          .timeout(const Duration(seconds: 60));
     } catch (e) {
-      throw MealAnalysisException('تعذر الاتصال بالخادم. تأكد من اتصال الإنترنت.');
+      throw MealAnalysisException(
+          'تعذر الاتصال بالخادم. تأكد من اتصال الإنترنت.');
     }
 
     if (response.statusCode == 429) {
@@ -91,7 +95,7 @@ class GeminiMealService {
       );
     }
     if (response.statusCode != 200) {
-      debugPrint('Gemini error body: ${response.body}');
+      debugPrint('OpenRouter error body: ${response.body}');
       throw MealAnalysisException(
         'فشل تحليل الوجبة (كود ${response.statusCode}). حاول مرة أخرى.',
       );
@@ -100,12 +104,13 @@ class GeminiMealService {
     try {
       final Map<String, dynamic> decoded = jsonDecode(response.body);
       final String text =
-          decoded['candidates'][0]['content']['parts'][0]['text'] as String;
+          decoded['choices'][0]['message']['content'] as String;
       final String cleanedJson = _stripMarkdownFences(text);
       final Map<String, dynamic> resultJson = jsonDecode(cleanedJson);
       return MealAnalysisResult.fromJson(resultJson);
     } catch (e) {
-      throw MealAnalysisException('تعذر فهم استجابة التحليل. حاول التقاط صورة أوضح.');
+      throw MealAnalysisException(
+          'تعذر فهم استجابة التحليل. حاول التقاط صورة أوضح.');
     }
   }
 
@@ -124,7 +129,6 @@ class GeminiMealService {
       format: CompressFormat.jpeg,
     );
     if (result == null) {
-      // Fallback: send original bytes if compression fails for any reason.
       return await file.readAsBytes();
     }
     return result;

@@ -31,14 +31,43 @@ import 'package:fitness_day/core/widgets/exit_dialog.dart';
 import 'user_today_tasks_page.dart';
 import 'articles_list_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late final UserHomeCubit _cubit;
+  Locale? _lastLocale;
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = getIt<UserHomeCubit>()..loadHomeData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final currentLocale = context.locale;
+    if (_lastLocale != null && _lastLocale != currentLocale) {
+      _cubit.loadHomeData();
+    }
+    _lastLocale = currentLocale;
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      key: ValueKey(context.locale),
-      create: (_) => getIt<UserHomeCubit>()..loadHomeData(),
+    return BlocProvider.value(
+      value: _cubit,
       child: const _HomePageContent(),
     );
   }
@@ -68,6 +97,7 @@ class _HomePageContent extends StatelessWidget {
           final subscriptionEndDate = homeData?.subscription?['endDate'] as String?;
           final currentWeight = homeData?.currentWeight?['value'];
           final weightUnit = homeData?.currentWeight?['unit'] as String? ?? 'kg';
+          final weightStatus = homeData?.currentWeight?['status'] as String?;
           final visitsCount = homeData?.visits?['visitsCount'] as int? ?? 0;
           final nextVisitDate = homeData?.visits?['nextVisitDate'] as String?;
           final bannerUrl = homeData?.banners.isNotEmpty == true ? homeData!.banners.first.photo : null;
@@ -98,8 +128,12 @@ class _HomePageContent extends StatelessWidget {
         ),
         endDrawer: UserAppDrawer(isSubscribed: isSubscribed),
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
+          child: RefreshIndicator(
+            onRefresh: () => context.read<UserHomeCubit>().loadHomeData(),
+            color: AppColors.primary,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // 1. Header
@@ -151,6 +185,7 @@ class _HomePageContent extends StatelessWidget {
                     child: CurrentWeightCard(
                       weight: currentWeight?.toDouble(),
                       unit: weightUnit,
+                      status: weightStatus,
                     ),
                   ),
                   SizedBox(height: 16.h),
@@ -276,7 +311,7 @@ class _HomePageContent extends StatelessWidget {
           ),
         ),
       ),
-        );
+        ));
         }
         return const SizedBox.shrink();
       },

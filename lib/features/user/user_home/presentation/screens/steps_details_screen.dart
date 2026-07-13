@@ -1,131 +1,277 @@
+import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
+import 'package:fitness_day/features/user/user_home/presentation/manager/running_cubit.dart';
+import 'package:fitness_day/features/user/user_home/presentation/manager/walking_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 
-// نوع النشاط — يتحكم في العنوان والوحدة والبيانات
 enum ActivityType { walking, running }
 
-class StepsDetailsScreen extends StatefulWidget {
+// ─────────────────────────────────────────────────────────────────────────────
+// Entry points — inject cubit + goals from outside
+// ─────────────────────────────────────────────────────────────────────────────
+
+class StepsDetailsScreen extends StatelessWidget {
   final ActivityType type;
+  final double goalSteps;
+  final double goalDistanceKm;
 
-  const StepsDetailsScreen({super.key, this.type = ActivityType.walking});
-
-  @override
-  State<StepsDetailsScreen> createState() => _StepsDetailsScreenState();
-}
-
-class _StepsDetailsScreenState extends State<StepsDetailsScreen> {
-  // ─── Tab ───────────────────────────────────────────────────────────────────
-  int _selectedTab = 0;
-  final List<String> _tabs = ['يومي', 'أسبوعي', 'شهري'];
-
-  // ─── Mock data — walking (خطوات) ─────────────────────────────────────────
-  static const double _walkingCurrent = 2500;
-  static const double _walkingGoal    = 5000;
-  static const int    _walkingPercent = 44;
-  static const String _walkingUnit    = 'خطوة';
-  static const String _walkingTitle   = 'تتبع الخطوات';
-
-  // ─── Mock data — running (كم) ─────────────────────────────────────────────
-  static const double _runningCurrent = 1.52;
-  static const double _runningGoal    = 3.45;
-  static const int    _runningPercent = 44;
-  static const String _runningUnit    = 'كم';
-  static const String _runningTitle   = 'تتبع الجري';
-
-  // ─── Shared mock ──────────────────────────────────────────────────────────
-  static const _vsYesterdayPercent = 23;
-  static const _calories = 50;
-  static const _minutes = 30;
-
-  bool get _isRunning => widget.type == ActivityType.running;
-
-  double get _currentVal => _isRunning ? _runningCurrent : _walkingCurrent;
-  double get _goalVal => _isRunning ? _runningGoal : _walkingGoal;
-  int get _pct => _isRunning ? _runningPercent : _walkingPercent;
-  String get _unit => _isRunning ? _runningUnit : _walkingUnit;
-  String get _title => _isRunning ? _runningTitle : _walkingTitle;
-  double get _percent => (_currentVal / _goalVal).clamp(0.0, 1.0);
+  const StepsDetailsScreen({
+    super.key,
+    this.type = ActivityType.walking,
+    this.goalSteps = 5000,
+    this.goalDistanceKm = 5.0,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ScreenBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
-              // ── AppBar ─────────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Icon(
-                        Icons.arrow_back_ios_new,
-                        size: 20.sp,
-                        color: AppColors.black,
+    if (type == ActivityType.walking) {
+      return BlocProvider(
+        create: (_) => WalkingCubit(
+          healthService: getIt(),
+          apiService: getIt(),
+          goalSteps: goalSteps,
+          goalDistanceKm: goalDistanceKm,
+        )..init(),
+        child: const _WalkingScreen(),
+      );
+    } else {
+      return BlocProvider(
+        create: (_) => RunningCubit(
+          apiService: getIt(),
+          goalDistanceKm: goalDistanceKm,
+        )..requestPermissions(),
+        child: const _RunningScreen(),
+      );
+    }
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// WALKING SCREEN
+// ═════════════════════════════════════════════════════════════════════════════
+
+class _WalkingScreen extends StatefulWidget {
+  const _WalkingScreen();
+
+  @override
+  State<_WalkingScreen> createState() => _WalkingScreenState();
+}
+
+class _WalkingScreenState extends State<_WalkingScreen>
+    with WidgetsBindingObserver {
+  int _selectedTab = 0;
+  final List<String> _tabs = ['يومي', 'أسبوعي', 'شهري'];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final cubit = context.read<WalkingCubit>();
+    if (state == AppLifecycleState.resumed) {
+      cubit.resumeTracking();
+    } else if (state == AppLifecycleState.paused) {
+      cubit.pauseTracking();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<WalkingCubit, WalkingState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: ScreenBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildAppBar(context, 'تتبع الخطوات'),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: _PeriodTabBar(
+                      tabs: _tabs,
+                      selectedIndex: _selectedTab,
+                      onTabChanged: (i) => setState(() => _selectedTab = i),
+                    ),
+                  ),
+                  SizedBox(height: 40.h),
+
+                  // Permission warning
+                  if (state.permissionStatus == HealthPermStatus.denied)
+                    _PermissionBanner(
+                      message: 'يحتاج إذن الوصول لبيانات الصحة',
+                      onTap: () => context.read<WalkingCubit>().init(),
+                    )
+                  else if (state.permissionStatus ==
+                      HealthPermStatus.needsInstall)
+                    _PermissionBanner(
+                      message: 'يحتاج تثبيت Health Connect من Play Store',
+                      onTap: () =>
+                          context.read<WalkingCubit>()
+                            ..pauseTracking(),
+                    )
+                  else if (state.isLoading)
+                    Center(
+                      child:
+                          CircularProgressIndicator(color: AppColors.primary),
+                    )
+                  else ...[
+                    _ActivityCircle(
+                      percent: state.progressPercent,
+                      currentVal: state.steps.toDouble(),
+                      goalVal: state.goalSteps,
+                      unit: 'خطوة',
+                      goalPercent: state.progressPercentInt,
+                      isRunning: false,
+                    ),
+                    SizedBox(height: 32.h),
+                    Expanded(
+                      child: _DailySummaryCard(
+                        distanceKm: state.distanceKm,
+                        unit: 'كم',
+                        minutes: state.activeMinutes,
+                        calories: state.caloriesKcal.round(),
+                        isWalking: true,
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      _title,
-                      style: TextStyleManager.heading2.copyWith(
-                        color: AppColors.black,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16.sp,
-                      ),
-                    ),
-                    const Spacer(),
-                    SizedBox(width: 20.sp),
                   ],
-                ),
+                ],
               ),
-
-              // ── Period tabs ────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.h),
-                child: _PeriodTabBar(
-                  tabs: _tabs,
-                  selectedIndex: _selectedTab,
-                  onTabChanged: (i) => setState(() => _selectedTab = i),
-                ),
-              ),
-
-              SizedBox(height: 50.h),
-
-              // ── Circular indicator ─────────────────────────────────────
-              _CircularStepsIndicator(
-                percent: _percent,
-                currentVal: _currentVal,
-                goalVal: _goalVal,
-                unit: _unit,
-                goalPercent: _pct,
-                vsYesterdayPercent: _vsYesterdayPercent,
-                isRunning: _isRunning,
-              ),
-
-              SizedBox(height: 32.h),
-
-              // ── Daily summary ──────────────────────────────────────────
-              Expanded(
-                child: _DailySummaryCard(
-                  distanceKm: _currentVal,
-                  unit: _unit,
-                  minutes: _minutes,
-                  calories: _calories,
-                  isWalking: !_isRunning,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// RUNNING SCREEN
+// ═════════════════════════════════════════════════════════════════════════════
+
+class _RunningScreen extends StatelessWidget {
+  const _RunningScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<RunningCubit, RunningState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: ScreenBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildAppBar(context, 'تتبع الجري'),
+                  SizedBox(height: 40.h),
+
+                  if (!state.permissionGranted)
+                    _PermissionBanner(
+                      message: 'يحتاج إذن الموقع والحركة',
+                      onTap: () =>
+                          context.read<RunningCubit>().requestPermissions(),
+                    )
+                  else ...[
+                    _ActivityCircle(
+                      percent: state.progressPercent,
+                      currentVal: state.distanceKm,
+                      goalVal: state.goalDistanceKm,
+                      unit: 'كم',
+                      goalPercent: state.progressPercentInt,
+                      isRunning: true,
+                    ),
+                    SizedBox(height: 16.h),
+
+                    // Elapsed time
+                    Text(
+                      state.formattedTime,
+                      style: TextStyleManager.style28Bold.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'الوقت المستغرق',
+                      style: TextStyleManager.style11Medium
+                          .copyWith(color: AppColors.textSecondary),
+                    ),
+                    SizedBox(height: 24.h),
+
+                    Expanded(
+                      child: _DailySummaryCard(
+                        distanceKm: state.distanceKm,
+                        unit: 'كم',
+                        minutes: state.elapsedSeconds ~/ 60,
+                        calories: state.caloriesKcal.round(),
+                        isWalking: false,
+                        pace: state.pace,
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+
+                    // Start / Stop button
+                    _StartStopButton(
+                      isRunning: state.isRunning,
+                      onTap: () {
+                        if (state.isRunning) {
+                          context.read<RunningCubit>().stopSession();
+                        } else {
+                          context.read<RunningCubit>().startSession();
+                        }
+                      },
+                    ),
+                    SizedBox(height: 24.h),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared app bar builder
+// ─────────────────────────────────────────────────────────────────────────────
+
+Widget _buildAppBar(BuildContext context, String title) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+    child: Row(
+      children: [
+        GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Icon(Icons.arrow_back_ios_new,
+              size: 20.sp, color: AppColors.black),
+        ),
+        const Spacer(),
+        Text(
+          title,
+          style: TextStyleManager.heading2.copyWith(
+            color: AppColors.black,
+            fontWeight: FontWeight.w700,
+            fontSize: 16.sp,
+          ),
+        ),
+        const Spacer(),
+        SizedBox(width: 20.sp),
+      ],
+    ),
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -148,10 +294,8 @@ class _PeriodTabBar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
         children: List.generate(tabs.length, (i) {
-          final isSelected = selectedIndex == i;
+          final bool sel = selectedIndex == i;
           return Expanded(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -161,27 +305,27 @@ class _PeriodTabBar extends StatelessWidget {
                 margin: EdgeInsets.symmetric(horizontal: 4.w),
                 padding: EdgeInsets.symmetric(vertical: 8.h),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xffDEF4E1) : Colors.transparent,
+                  color: sel ? const Color(0xffDEF4E1) : Colors.transparent,
                   borderRadius: BorderRadius.circular(20.r),
-                  boxShadow: isSelected
+                  border:
+                      sel ? Border.all(color: AppColors.divider) : null,
+                  boxShadow: sel
                       ? [
                           BoxShadow(
                             color: AppColors.black.withValues(alpha: 0.09),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
-                          ),
+                          )
                         ]
                       : [],
-                  border: isSelected
-                      ? Border.all(color: AppColors.divider, width: 1)
-                      : null,
                 ),
                 child: Text(
                   tabs[i],
                   textAlign: TextAlign.center,
                   style: TextStyleManager.style11Medium.copyWith(
-                    color: isSelected ? AppColors.primary : AppColors.black,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    color: sel ? AppColors.primary : AppColors.black,
+                    fontWeight:
+                        sel ? FontWeight.bold : FontWeight.w500,
                   ),
                 ),
               ),
@@ -194,25 +338,23 @@ class _PeriodTabBar extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Circular Steps Indicator
+// Activity Circle (shared between walking & running)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _CircularStepsIndicator extends StatelessWidget {
+class _ActivityCircle extends StatelessWidget {
   final double percent;
   final double currentVal;
   final double goalVal;
   final String unit;
   final int goalPercent;
-  final int vsYesterdayPercent;
   final bool isRunning;
 
-  const _CircularStepsIndicator({
+  const _ActivityCircle({
     required this.percent,
     required this.currentVal,
     required this.goalVal,
     required this.unit,
     required this.goalPercent,
-    required this.vsYesterdayPercent,
     required this.isRunning,
   });
 
@@ -220,7 +362,6 @@ class _CircularStepsIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ── ring and badge ───────────────────────────────────────────
         Stack(
           clipBehavior: Clip.none,
           alignment: Alignment.center,
@@ -234,26 +375,24 @@ class _CircularStepsIndicator extends StatelessWidget {
               progressColor: AppColors.greenLightAccent,
               circularStrokeCap: CircularStrokeCap.round,
               center: Container(
-                padding:isRunning?EdgeInsets.all(55.w):EdgeInsets.all(45.w),
-                decoration: BoxDecoration(
+                padding: isRunning
+                    ? EdgeInsets.all(55.w)
+                    : EdgeInsets.all(45.w),
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.backgroundTint,
                 ),
-
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // current val
                     Text(
                       isRunning
                           ? currentVal.toStringAsFixed(2)
                           : currentVal.toStringAsFixed(0),
-                      style: TextStyleManager.style28Bold.copyWith(
-                        color: AppColors.black,
-                      ),
+                      style: TextStyleManager.style28Bold
+                          .copyWith(color: AppColors.black),
                     ),
                     SizedBox(height: 6.h),
-                    // icon badge — pause for walking, play for running
                     Container(
                       width: 32.w,
                       height: 32.w,
@@ -262,13 +401,14 @@ class _CircularStepsIndicator extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        isRunning ? Icons.pause : Icons.play_arrow_rounded,
+                        isRunning
+                            ? Icons.pause
+                            : Icons.play_arrow_rounded,
                         color: AppColors.white,
                         size: 18.sp,
                       ),
                     ),
                     SizedBox(height: 8.h),
-                    // goal text
                     Text(
                       '/ ${isRunning ? goalVal.toStringAsFixed(2) : goalVal.toStringAsFixed(0)} $unit',
                       style: TextStyleManager.style11Medium.copyWith(
@@ -279,8 +419,6 @@ class _CircularStepsIndicator extends StatelessWidget {
                 ),
               ),
             ),
-
-            // ── goal percent badge ─────────────────────────────────────────────
             Positioned(
               bottom: 0,
               left: 0,
@@ -289,11 +427,10 @@ class _CircularStepsIndicator extends StatelessWidget {
                 alignment: Alignment.topCenter,
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 7.h,
-                  ),
+                      horizontal: 10.w, vertical: 7.h),
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.greenMint, width: 1.r),
+                    border:
+                        Border.all(color: AppColors.greenMint, width: 1.r),
                     gradient: AppColors.timeRemainingGradient,
                     borderRadius: BorderRadius.circular(20.r),
                   ),
@@ -305,29 +442,6 @@ class _CircularStepsIndicator extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
-            ),
-          ],
-        ),
-
-        SizedBox(height: 20.h),
-
-        // ── vs yesterday ──────────────────────────────────────────────────
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.arrow_upward_rounded,
-              color: AppColors.primary,
-              size: 20.sp,
-              fontWeight: FontWeight.bold,
-            ),
-            SizedBox(width: 4.w),
-            Text(
-              '$vsYesterdayPercent% من اليوم الماضي',
-              style: TextStyleManager.dataCard.copyWith(
-                color: AppColors.textSecondary,
-                fontSize: 10.sp,
               ),
             ),
           ],
@@ -347,6 +461,7 @@ class _DailySummaryCard extends StatelessWidget {
   final int minutes;
   final int calories;
   final bool isWalking;
+  final String? pace;
 
   const _DailySummaryCard({
     required this.distanceKm,
@@ -354,6 +469,7 @@ class _DailySummaryCard extends StatelessWidget {
     required this.minutes,
     required this.calories,
     this.isWalking = false,
+    this.pace,
   });
 
   @override
@@ -363,24 +479,21 @@ class _DailySummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── title ────────────────────────────────────────────────────────
           Text(
             'ملخص اليوم',
-            // textAlign: TextAlign.right,
             style: TextStyleManager.heading3.copyWith(
               color: AppColors.black,
               fontWeight: FontWeight.bold,
             ),
           ),
           SizedBox(height: 19.h),
-
-          // ── card ─────────────────────────────────────────────────────────
           Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
             decoration: BoxDecoration(
               gradient: AppColors.cardGradient,
               borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(color: AppColors.borderGrey),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.black.withValues(alpha: 0.04),
@@ -388,53 +501,120 @@ class _DailySummaryCard extends StatelessWidget {
                   offset: const Offset(0, 4),
                 ),
               ],
-              border: Border.all(color: AppColors.borderGrey, width: 1),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // calories
                 _SummaryItem(
-                  icon: const Icon(
-                    Icons.local_fire_department_rounded,
-                    color: Colors.deepOrangeAccent,
-                    size: 26,
-                  ),
+                  icon: const Icon(Icons.local_fire_department_rounded,
+                      color: Colors.deepOrangeAccent, size: 26),
                   label: 'عدد السعرات',
                   value: '$calories',
                   unit: 'كالوري',
-                  valueColor: AppColors.primary,
                 ),
-                // time
                 _SummaryItem(
-                  icon: Icon(
-                    Icons.access_time_filled_rounded,
-                    color: AppColors.surfaceGray,
-                    size: 26,
-                  ),
-                  label: 'الوقت المستغرق',
-                  value: '$minutes',
-                  unit: 'دقيقة',
-                  valueColor: AppColors.primary,
+                  icon: Icon(Icons.access_time_filled_rounded,
+                      color: AppColors.surfaceGray, size: 26),
+                  label: pace != null ? 'البيس' : 'الوقت المستغرق',
+                  value: pace ?? '$minutes',
+                  unit: pace != null ? 'دق/كم' : 'دقيقة',
                 ),
-                // distance
                 _SummaryItem(
-                  icon: const Icon(
-                    Icons.location_on_rounded,
-                    color: Colors.pinkAccent,
-                    size: 26,
-                  ),
+                  icon: const Icon(Icons.location_on_rounded,
+                      color: Colors.pinkAccent, size: 26),
                   label: 'المسافة',
                   value: isWalking
-                      ? distanceKm.toStringAsFixed(0)
+                      ? distanceKm.toStringAsFixed(2)
                       : distanceKm.toStringAsFixed(2),
                   unit: unit,
-                  valueColor: AppColors.primary,
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Start / Stop Button (Running only)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _StartStopButton extends StatelessWidget {
+  final bool isRunning;
+  final VoidCallback onTap;
+
+  const _StartStopButton({required this.isRunning, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 80.w,
+        height: 80.w,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isRunning ? Colors.red.shade400 : AppColors.primary,
+          boxShadow: [
+            BoxShadow(
+              color: (isRunning ? Colors.red : AppColors.primary)
+                  .withValues(alpha: 0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Icon(
+          isRunning ? Icons.stop_rounded : Icons.play_arrow_rounded,
+          color: Colors.white,
+          size: 36.sp,
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Permission Banner
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PermissionBanner extends StatelessWidget {
+  final String message;
+  final VoidCallback onTap;
+
+  const _PermissionBanner({required this.message, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Container(
+        padding: EdgeInsets.all(16.r),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.health_and_safety_outlined,
+                color: AppColors.primary, size: 28.sp),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Text(message,
+                  style: TextStyleManager.style11Medium
+                      .copyWith(color: AppColors.black)),
+            ),
+            TextButton(
+              onPressed: onTap,
+              child: Text('السماح',
+                  style: TextStyleManager.style11Medium
+                      .copyWith(color: AppColors.primary)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -449,14 +629,12 @@ class _SummaryItem extends StatelessWidget {
   final String label;
   final String value;
   final String unit;
-  final Color? valueColor;
 
   const _SummaryItem({
     required this.icon,
     required this.label,
     required this.value,
     required this.unit,
-    this.valueColor,
   });
 
   @override
@@ -479,9 +657,8 @@ class _SummaryItem extends StatelessWidget {
             children: [
               TextSpan(
                 text: value,
-                style: TextStyleManager.style16Bold.copyWith(
-                  color: valueColor ?? AppColors.black,
-                ),
+                style: TextStyleManager.style16Bold
+                    .copyWith(color: AppColors.primary),
               ),
               TextSpan(
                 text: ' $unit',

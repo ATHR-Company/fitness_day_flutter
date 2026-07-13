@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:fitness_day/core/entities/task_data.dart';
-import 'package:fitness_day/core/widgets/today_tasks_section.dart';
 
 abstract class UserTodayTasksState extends Equatable {
   const UserTodayTasksState();
@@ -11,15 +10,25 @@ abstract class UserTodayTasksState extends Equatable {
 
 class UserTodayTasksLoading extends UserTodayTasksState {}
 
+class UserTodayTasksError extends UserTodayTasksState {
+  final String message;
+  const UserTodayTasksError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 class UserTodayTasksLoaded extends UserTodayTasksState {
   final List<TaskData> foodTasks;
   final List<TaskData> exerciseTasks;
+  final List<TaskData> activityTasks;
 
   const UserTodayTasksLoaded({
     required this.foodTasks,
     required this.exerciseTasks,
+    required this.activityTasks,
   });
 
   @override
-  List<Object?> get props => [foodTasks, exerciseTasks];
+  List<Object?> get props => [foodTasks, exerciseTasks, activityTasks];
 }

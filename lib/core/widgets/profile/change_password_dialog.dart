@@ -12,7 +12,7 @@ class ChangePasswordDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProfileDialogBase(
       title: 'profile.edit_password'.tr(),
-      onSave: () {},
+      onSave: () async {},
       child: Column(
         children: [
           ProfileTextField(

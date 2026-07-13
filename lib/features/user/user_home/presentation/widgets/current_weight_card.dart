@@ -10,8 +10,9 @@ import '../../../../../core/theme/app_text_styles.dart';
 class CurrentWeightCard extends StatelessWidget {
   final double? weight;
   final String unit;
+  final String? status;
 
-  const CurrentWeightCard({super.key, this.weight, this.unit = 'kg'});
+  const CurrentWeightCard({super.key, this.weight, this.unit = 'kg', this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +78,7 @@ class CurrentWeightCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Text(
-                  'home.weight_status_healthy'.tr(),
+                  status ?? 'home.weight_status_healthy'.tr(),
                   style: TextStyleManager.style9Medium.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,

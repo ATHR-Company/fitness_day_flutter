@@ -9,90 +9,76 @@ import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'article_detail_page.dart';
 
 import 'package:fitness_day/core/injection/injection_container.dart';
-import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
-import 'package:fitness_day/core/network/api_result.dart';
 
-class SavedArticlesPage extends StatefulWidget {
-  final List<ArticleData> articles;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
+import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_state.dart';
 
-  const SavedArticlesPage({super.key, required this.articles});
+class SavedArticlesPage extends StatelessWidget {
+  const SavedArticlesPage({super.key});
 
   @override
-  State<SavedArticlesPage> createState() => _SavedArticlesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<SavedArticlesCubit>()..fetchSavedArticles(),
+      child: const _SavedArticlesView(),
+    );
+  }
 }
 
-class _SavedArticlesPageState extends State<SavedArticlesPage> {
-  late List<ArticleData> _articles;
-  final Set<String> _loadingArticleIds = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _articles = List.from(widget.articles);
-  }
-
-  Future<void> _toggleSave(ArticleData article) async {
-    if (_loadingArticleIds.contains(article.id)) return;
-
-    setState(() {
-      _loadingArticleIds.add(article.id);
-    });
-
-    final useCase = getIt<ToggleSaveArticleUseCase>();
-    final result = await useCase(article.id);
-
-    setState(() {
-      _loadingArticleIds.remove(article.id);
-      if (result is Success<bool>) {
-        // Update local article's isSaved state or remove it
-        // Depending on UX, usually unsaving removes it from this page
-        if (!result.data) {
-          _articles.removeWhere((a) => a.id == article.id);
-        }
-      } else {
-        // Handle error (optional)
-      }
-    });
-  }
+class _SavedArticlesView extends StatelessWidget {
+  const _SavedArticlesView();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.visitsBackgroundGradient,
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: _buildAppBar(context),
-          body: _articles.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                  itemCount: _articles.length,
-                  itemBuilder: (context, index) {
-                    final article = _articles[index];
-                    return _SavedArticleCard(
-                      article: article,
-                      isLoading: _loadingArticleIds.contains(article.id),
-                      onBookmarkTap: () => _toggleSave(article),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ArticleDetailPage(
-                              article: article,
-                              relatedArticles: _articles
-                                  .where((a) => a != article)
-                                  .toList(),
-                            ),
+      decoration: const BoxDecoration(
+        gradient: AppColors.visitsBackgroundGradient,
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: _buildAppBar(context),
+        body: BlocBuilder<SavedArticlesCubit, SavedArticlesState>(
+          builder: (context, state) {
+            if (state is SavedArticlesLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is SavedArticlesError) {
+              return Center(child: Text(state.message));
+            } else if (state is SavedArticlesLoaded) {
+              final articles = state.articles;
+              if (articles.isEmpty) return _buildEmptyState();
+
+              return ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                itemCount: articles.length,
+                itemBuilder: (context, index) {
+                  final article = articles[index];
+                  return _SavedArticleCard(
+                    article: article,
+                    isLoading: state.loadingArticleIds.contains(article.id),
+                    onBookmarkTap: () => context.read<SavedArticlesCubit>().toggleSave(article),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ArticleDetailPage(
+                            article: article,
+                            relatedArticles: articles
+                                .where((a) => a != article)
+                                .toList(),
                           ),
-                        );
-                      },
-                    );
-                  },
-                ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
-      );
+      ),
+    );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -183,7 +169,7 @@ class _SavedArticleCard extends StatelessWidget {
                 width: 80.w,
                 height: 70.h,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (context, error, stackTrace) => Container(
                   width: 80.w,
                   height: 70.h,
                   color: AppColors.backgroundTint,

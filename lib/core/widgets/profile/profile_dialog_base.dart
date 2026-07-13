@@ -11,7 +11,7 @@ import 'package:fitness_day/core/constant/app_assets.dart';
 class ProfileDialogBase extends StatelessWidget {
   final String title;
   final Widget child;
-  final VoidCallback onSave;
+  final Future<void> Function() onSave;
 
   const ProfileDialogBase({
     super.key,
@@ -76,9 +76,9 @@ class ProfileDialogBase extends StatelessWidget {
                 Expanded(
                   child: CustomButton(
                     text: 'profile.save'.tr(),
-                    onPressed: () {
-                      onSave();
-                      Navigator.of(context).pop();
+                    onPressed: () async {
+                      await onSave();
+                      if (context.mounted) Navigator.of(context).pop();
                     },
                   ),
                 ),

@@ -15,7 +15,7 @@ class EditProfileDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProfileDialogBase(
       title: '',
-      onSave: () {},
+      onSave: () async {},
       child: Column(
         children: [
           // Avatar

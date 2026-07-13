@@ -16,9 +16,15 @@ class ApiEndpoints {
   static const String socialAuth = '/auth/social';
   static const String dietPlan = '/diet-plan';
   static const String mealDetails = '/diet-plan/meals';
+  static const String savedArticles = '/articles/saved';
 
   static String workoutPlanDay(int dayNumber) => '/workout-plan/days/$dayNumber/workouts';
   static String workoutDetails(String workoutItemId) => '/workout-plan/workouts/$workoutItemId';
   static String completeWorkoutSet(int dayNumber, String workoutItemId, int setNumber) =>
       '/workout-plan/days/$dayNumber/workouts/$workoutItemId/sets/$setNumber/complete';
+  static String dailyTasks(int dayNumber) => '/daily-tasks/days/$dayNumber';
+
+  // Activity tracking — send progress to backend
+  static const String updateWalking = '/activities/walking/progress';
+  static const String updateRunning = '/activities/running/progress';
 }

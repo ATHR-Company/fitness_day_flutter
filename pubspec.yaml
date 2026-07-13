@@ -60,6 +60,11 @@ dependencies:
   latlong2: ^0.9.1
   geolocator: ^13.0.2
   shimmer: ^3.0.0
+  shared_preferences: ^2.5.5
+
+  # Health & Activity tracking
+  health: ^12.2.0
+  pedometer: ^4.0.1
 
 dev_dependencies:
   flutter_test:

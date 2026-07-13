@@ -30,11 +30,26 @@ class ArticleDetailPage extends StatefulWidget {
 class _ArticleDetailPageState extends State<ArticleDetailPage> {
   late bool isSaved;
   bool isLoadingSave = false;
+  bool isLoadingDetail = true;
 
   @override
   void initState() {
     super.initState();
     isSaved = widget.article.isSaved;
+    _fetchArticleDetail();
+  }
+
+  Future<void> _fetchArticleDetail() async {
+    final useCase = getIt<GetArticleByIdUseCase>();
+    final result = await useCase(widget.article.id);
+    if (mounted) {
+      setState(() {
+        isLoadingDetail = false;
+        if (result is Success<ArticleData>) {
+          isSaved = result.data.isSaved;
+        }
+      });
+    }
   }
 
   Future<void> _toggleSave() async {
@@ -106,8 +121,8 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         children: [
           // Save Bookmark
           GestureDetector(
-            onTap: _toggleSave,
-            child: isLoadingSave
+            onTap: isLoadingDetail ? null : _toggleSave,
+            child: (isLoadingSave || isLoadingDetail)
                 ? SizedBox(
                     width: 24.sp,
                     height: 24.sp,
@@ -355,16 +370,50 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
 // ─────────────────────────────────────────────────────────────────────────────
 // Related Article Card (small horizontal card)
 // ─────────────────────────────────────────────────────────────────────────────
-class _RelatedArticleCard extends StatelessWidget {
+class _RelatedArticleCard extends StatefulWidget {
   final ArticleData article;
   final VoidCallback? onTap;
 
   const _RelatedArticleCard({required this.article, this.onTap});
 
   @override
+  State<_RelatedArticleCard> createState() => _RelatedArticleCardState();
+}
+
+class _RelatedArticleCardState extends State<_RelatedArticleCard> {
+  late bool _isSaved;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isSaved = widget.article.isSaved;
+  }
+
+  Future<void> _toggleSave() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final useCase = getIt<ToggleSaveArticleUseCase>();
+    final result = await useCase(widget.article.id);
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        if (result is Success<bool>) {
+          _isSaved = result.data;
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
@@ -377,16 +426,28 @@ class _RelatedArticleCard extends StatelessWidget {
         child: Row(
           children: [
             // Bookmark icon
-            Icon(
-              article.isSaved ? Icons.bookmark : Icons.bookmark_border,
-              color: AppColors.primary,
-              size: 24.sp,
+            GestureDetector(
+              onTap: _toggleSave,
+              child: _isLoading
+                  ? SizedBox(
+                      width: 24.sp,
+                      height: 24.sp,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primary,
+                      ),
+                    )
+                  : Icon(
+                      _isSaved ? Icons.bookmark : Icons.bookmark_border,
+                      color: AppColors.primary,
+                      size: 24.sp,
+                    ),
             ),
             SizedBox(width: 10.w),
             // Title
             Expanded(
               child: Text(
-                article.title,
+                widget.article.title,
                 style: TextStyleManager.style11Medium.copyWith(
                   color: AppColors.black,
                   fontWeight: FontWeight.w600,
@@ -402,7 +463,7 @@ class _RelatedArticleCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(12.r),
               child: Image.network(
-                article.imageUrl,
+                widget.article.imageUrl,
                 width: 72.w,
                 height: 72.w,
                 fit: BoxFit.cover,

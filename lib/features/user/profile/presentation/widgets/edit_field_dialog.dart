@@ -41,7 +41,7 @@ class _EditFieldDialogState extends State<EditFieldDialog> {
   Widget build(BuildContext context) {
     return ProfileDialogBase(
       title: widget.title,
-      onSave: () => widget.onSave(_controller.text),
+      onSave: () async => widget.onSave(_controller.text),
       child: ProfileTextField(
         controller: _controller,
         hintText: widget.hintText,
