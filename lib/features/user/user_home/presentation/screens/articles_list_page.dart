@@ -1,3 +1,4 @@
+import 'package:fitness_day/features/user/user_home/presentation/screens/article_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,8 +12,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/articles_list_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/articles_section.dart';
-import 'article_detail_page.dart';
 import 'saved_articles_page.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class ArticlesListPage extends StatelessWidget {
   /// الـ articles دي بتتجاهل — الـ page دلوقتي بتجيب data من API مباشرة.
@@ -266,17 +267,11 @@ class _ArticleListCardState extends State<_ArticleListCard> {
                     topLeft: Radius.circular(16.r),
                     topRight: Radius.circular(16.r),
                   ),
-                  child: Image.network(
+                  child: AppImage(
                     widget.article.imageUrl,
                     height: 180.h,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      height: 180.h,
-                      color: AppColors.backgroundTint,
-                      child: Icon(Icons.image_outlined,
-                          color: AppColors.greenMint, size: 40.sp),
-                    ),
                   ),
                 ),
                 Positioned(

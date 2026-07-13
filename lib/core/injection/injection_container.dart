@@ -37,8 +37,10 @@ import 'package:fitness_day/features/user/visits/data/repositories/visits_reposi
 import 'package:fitness_day/features/user/visits/domain/repositories/visits_repository.dart';
 import 'package:fitness_day/features/user/visits/domain/usecases/get_diet_plan_usecase.dart';
 import 'package:fitness_day/features/user/visits/domain/usecases/get_meal_details_usecase.dart';
+import 'package:fitness_day/features/user/visits/domain/usecases/get_activity_details_usecase.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/meal_details_cubit.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/activity_details_cubit.dart';
 
 // User Workouts
 import 'package:fitness_day/features/user/workout/data/datasources/workout_remote_datasource.dart';
@@ -253,6 +255,10 @@ Future<void> init() async {
     () => GetMealDetailsUseCase(getIt<VisitsRepository>()),
   );
 
+  getIt.registerLazySingleton<GetActivityDetailsUseCase>(
+    () => GetActivityDetailsUseCase(getIt<VisitsRepository>()),
+  );
+
   getIt.registerLazySingleton<GetWorkoutPlanUseCase>(
     () => GetWorkoutPlanUseCase(getIt<WorkoutRepository>()),
   );
@@ -307,6 +313,12 @@ Future<void> init() async {
   getIt.registerFactory<MealDetailsCubit>(
     () => MealDetailsCubit(
       getMealDetailsUseCase: getIt<GetMealDetailsUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<ActivityDetailsCubit>(
+    () => ActivityDetailsCubit(
+      getActivityDetailsUseCase: getIt<GetActivityDetailsUseCase>(),
     ),
   );
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -89,11 +89,11 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SvgPicture.asset(
+              AppImage(
                 SvgIcons.password,
                 width: 24.w,
                 height: 24.h,
-                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                color: iconColor,
               ),
               SizedBox(width: 12.w),
               // The vertical divider
@@ -105,14 +105,11 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
         // Password visibility toggle (only visible when there is text)
         suffixIcon: _hasText
             ? IconButton(
-                icon: SvgPicture.asset(
+                icon: AppImage(
                   _obscureText ? SvgIcons.eyeClosed : SvgIcons.eye,
                   width: 20.w,
                   height: 20.h,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.textSecondary,
-                    BlendMode.srcIn,
-                  ),
+                  color: AppColors.textSecondary,
                 ),
                 onPressed: () {
                   setState(() {

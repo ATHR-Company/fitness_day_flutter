@@ -1,6 +1,6 @@
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
@@ -88,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     scale: _showApple ? 1.0 : 0.0,
                     duration: const Duration(seconds: 2),
                     curve: Curves.elasticOut,
-                    child: SvgPicture.asset(SvgIcons.apple),
+                    child: AppImage(SvgIcons.apple),
                   ),
 
                   // Person inside the apple
@@ -108,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen> {
                             child: AnimatedOpacity(
                               opacity: _showHead ? 1.0 : 0.0,
                               duration: const Duration(seconds: 2),
-                              child: SvgPicture.asset(SvgIcons.head),
+                              child: AppImage(SvgIcons.head),
                             ),
                           ),
                         ),
@@ -126,7 +126,7 @@ class _SplashScreenState extends State<SplashScreen> {
                                 child: AnimatedOpacity(
                                   opacity: _showLeftRight ? 1.0 : 0.0,
                                   duration: const Duration(seconds: 2),
-                                  child: SvgPicture.asset(SvgIcons.right),
+                                  child: AppImage(SvgIcons.right),
                                 ),
                               ),
                             ),
@@ -140,7 +140,7 @@ class _SplashScreenState extends State<SplashScreen> {
                                 child: AnimatedOpacity(
                                   opacity: _showLeftRight ? 1.0 : 0.0,
                                   duration: const Duration(seconds: 1),
-                                  child: SvgPicture.asset(SvgIcons.left),
+                                  child: AppImage(SvgIcons.left),
                                 ),
                               ),
                             ),
@@ -162,7 +162,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: AnimatedOpacity(
                   opacity: _showAppName ? 1.0 : 0.0,
                   duration: const Duration(seconds: 1),
-                  child: SvgPicture.asset(SvgIcons.appName),
+                  child: AppImage(SvgIcons.appName),
                 ),
               ),
             ],

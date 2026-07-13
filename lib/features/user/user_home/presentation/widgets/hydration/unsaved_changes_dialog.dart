@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -35,7 +35,7 @@ class UnsavedChangesDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SvgPicture.asset(SvgIcons.water_bg, width: 80.w, height: 80.h),
+            AppImage(SvgIcons.water_bg, width: 80.w, height: 80.h),
             SizedBox(height: 33.h),
             Text(
               'hydration.save_changes_title'.tr(),

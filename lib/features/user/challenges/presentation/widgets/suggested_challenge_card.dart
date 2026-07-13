@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/challenges/domain/entities/challenge_model.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/date_badge.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class SuggestedChallengeCard extends StatelessWidget {
   final ChallengeModel challenge;
@@ -96,7 +96,7 @@ class _TrophyIcon extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Center(
-        child: Image.asset(
+        child: AppImage(
           AppImages.challenge_cap,
           width: 40.w,
           height: 40.w,
@@ -131,11 +131,11 @@ class _TitleRow extends StatelessWidget {
           ),
         ),
         SizedBox(width: 4.w),
-        SvgPicture.asset(
+        AppImage(
           SvgIcons.usersGroup,
           width: 14.w,
           height: 14.w,
-          colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+          color: AppColors.primary,
         ),
       ],
     );

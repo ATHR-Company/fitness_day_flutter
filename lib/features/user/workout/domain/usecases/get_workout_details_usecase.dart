@@ -7,7 +7,8 @@ class GetWorkoutDetailsUseCase {
 
   GetWorkoutDetailsUseCase(this._repository);
 
-  Future<ApiResult<WorkoutDetailsResponseModel>> call(String workoutItemId) {
-    return _repository.getWorkoutDetails(workoutItemId);
+  Future<ApiResult<WorkoutDetailsResponseModel>> call(
+      String assessmentId, int dayNumber, String workoutItemId) {
+    return _repository.getWorkoutDetails(assessmentId, dayNumber, workoutItemId);
   }
 }

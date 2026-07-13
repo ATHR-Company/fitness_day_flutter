@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/cancel_subscription_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
-import 'package:fitness_day/features/user/market/presentation/widgets/cancel_subscription_dialog.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class PackageDetailsDialog extends StatelessWidget {
   final ProductData package;
@@ -75,7 +75,7 @@ class PackageDetailsDialog extends StatelessWidget {
             ),
 
             // Image
-            Image.network(
+            AppImage(
               package.imageUrl,
               height: 180.h,
               width: double.infinity,
@@ -268,7 +268,7 @@ class PackageDetailsDialog extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SvgPicture.asset(
+                        AppImage(
                           SvgIcons.market_icon,
                           color: AppColors.white,
                           width: 20.w,

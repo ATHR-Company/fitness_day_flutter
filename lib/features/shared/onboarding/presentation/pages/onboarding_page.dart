@@ -13,6 +13,7 @@ import 'package:fitness_day/features/shared/onboarding/data/models/onboarding_co
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -162,7 +163,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                       opacity: animation,
                                       child: child,
                                     ),
-                                child: Image.asset(
+                                child: AppImage(
                                   _contents[_currentIndex].imagePath,
                                   key: ValueKey<int>(_currentIndex),
                                   fit: BoxFit.contain,

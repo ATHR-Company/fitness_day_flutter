@@ -1,10 +1,10 @@
 import 'dart:ui' as ui;
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -140,12 +140,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               Positioned(
                 bottom: 0,
                 left: 0,
-                child: SvgPicture.asset(SvgIcons.decor, height: 180.h),
+                child: AppImage(SvgIcons.decor, height: 180.h),
               ),
               // Overflow checkmark badge
               Positioned(
                 top: -45.r,
-                child: SvgPicture.asset(SvgIcons.success, height: 90.h),
+                child: AppImage(SvgIcons.success, height: 90.h),
               ),
             ],
           ),

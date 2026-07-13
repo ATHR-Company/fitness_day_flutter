@@ -2,7 +2,6 @@ import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -14,6 +13,7 @@ import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
 import 'package:fitness_day/features/user/auth/data/models/health_questions_model.dart';
@@ -118,7 +118,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             SizedBox(height: 20.h),
-                            Image.asset(
+                            AppImage(
                               AppImages.healthProblems,
                               width: 140.w,
                               height: 140.w,
@@ -205,14 +205,11 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                         border: Border.all(color: AppColors.primary),
                       ),
                       child: Center(
-                        child: SvgPicture.asset(
+                        child: AppImage(
                           SvgIcons.trueIcon,
                           width: 14.w,
                           height: 14.w,
-                          colorFilter: ColorFilter.mode(
-                            isYes ? AppColors.white : AppColors.primary,
-                            BlendMode.srcIn,
-                          ),
+                          color: isYes ? AppColors.white : AppColors.primary,
                         ),
                       ),
                     ),
@@ -233,14 +230,11 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                         border: Border.all(color: AppColors.error),
                       ),
                       child: Center(
-                        child: SvgPicture.asset(
+                        child: AppImage(
                           SvgIcons.falseIcon,
                           width: 12.w,
                           height: 12.w,
-                          colorFilter: ColorFilter.mode(
-                            isNo ? AppColors.white : AppColors.error,
-                            BlendMode.srcIn,
-                          ),
+                          color: isNo ? AppColors.white : AppColors.error,
                         ),
                       ),
                     ),

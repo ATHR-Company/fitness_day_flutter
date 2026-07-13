@@ -850,5 +850,27 @@
     "mock_product_diet_coffee": "قهوة تنحيف دايت سبريم الاقتصادي، نكهة القهوة 2 كيلو 50 سكوب",
     "mock_discount_tag": "50% لفترة محدودة",
     "mock_offer_tag": "حبة + حبة مجاناً"
+  },
+  "hydration": {
+    "title": "اشرب الماء",
+    "manual": "يدوي",
+    "reminder_time_label": "التذكير القادم",
+    "enter_manually": "أدخل الكمية يدوياً",
+    "save": "حفظ",
+    "reminder_title": "تذكير شرب الماء",
+    "save_changes_title": "حفظ التغييرات؟",
+    "unsaved_changes_body": "لديك تغييرات غير محفوظة في إعدادات التذكير",
+    "discard": "تجاهل",
+    "daily_goal_label": "هدفك اليومي من الماء",
+    "notifications_title": "إشعارات شرب الماء",
+    "reminder_start_label": "بداية التذكير",
+    "reminder_end_label": "نهاية التذكير",
+    "reminder_interval_label": "الفاصل الزمني للتذكير",
+    "reminder_count_label": "عدد التذكيرات",
+    "minutes_value": "{} دقيقة",
+    "minute_value": "{} دقيقة",
+    "times_value": "{} مرات",
+    "am": "ص",
+    "pm": "م"
   }
 }

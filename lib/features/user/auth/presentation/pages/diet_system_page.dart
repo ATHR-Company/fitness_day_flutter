@@ -1,8 +1,8 @@
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -164,16 +164,13 @@ class _DietSystemPageState extends State<DietSystemPage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        SvgPicture.asset(
+                                        AppImage(
                                           SvgIcons.vegeterianDiet,
                                           width: 40.w,
                                           height: 40.h,
-                                          colorFilter: ColorFilter.mode(
-                                            _selectedDietType == 1
+                                          color: _selectedDietType == 1
                                                 ? AppColors.primary
                                                 : AppColors.textSecondary,
-                                            BlendMode.srcIn,
-                                          ),
                                         ),
                                       ],
                                     ),
@@ -227,16 +224,13 @@ class _DietSystemPageState extends State<DietSystemPage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        SvgPicture.asset(
+                                        AppImage(
                                           SvgIcons.varyDiet,
                                           width: 40.w,
                                           height: 40.h,
-                                          colorFilter: ColorFilter.mode(
-                                            _selectedDietType == 0
+                                          color: _selectedDietType == 0
                                                 ? AppColors.primary
                                                 : AppColors.textSecondary,
-                                            BlendMode.srcIn,
-                                          ),
                                         ),
                                       ],
                                     ),

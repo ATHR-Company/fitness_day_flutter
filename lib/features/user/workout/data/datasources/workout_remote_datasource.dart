@@ -6,7 +6,8 @@ import 'package:fitness_day/features/user/workout/data/models/complete_workout_s
 
 abstract class WorkoutRemoteDataSource {
   Future<WorkoutPlanResponseModel> getWorkoutPlan(int dayNumber);
-  Future<WorkoutDetailsResponseModel> getWorkoutDetails(String workoutItemId);
+  Future<WorkoutDetailsResponseModel> getWorkoutDetails(
+      String assessmentId, int dayNumber, String workoutItemId);
   Future<CompleteWorkoutSetResponseModel> completeWorkoutSet(
     int dayNumber,
     String workoutItemId,
@@ -29,9 +30,10 @@ class WorkoutRemoteDataSourceImpl implements WorkoutRemoteDataSource {
   }
 
   @override
-  Future<WorkoutDetailsResponseModel> getWorkoutDetails(String workoutItemId) async {
+  Future<WorkoutDetailsResponseModel> getWorkoutDetails(
+      String assessmentId, int dayNumber, String workoutItemId) async {
     final response = await _apiService.get(
-      ApiEndpoints.workoutDetails(workoutItemId),
+      ApiEndpoints.workoutDetails(assessmentId, dayNumber, workoutItemId),
     );
     return WorkoutDetailsResponseModel.fromJson(response.data as Map<String, dynamic>);
   }

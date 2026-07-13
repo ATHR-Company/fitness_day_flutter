@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -52,14 +52,11 @@ class AppInfoField extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (iconPath != null)
-              SvgPicture.asset(
+              AppImage(
                 iconPath!,
                 width: 20.w,
                 height: 20.h,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.textSecondary,
-                  BlendMode.srcIn,
-                ),
+                color: AppColors.textSecondary,
               )
             else
               Container(

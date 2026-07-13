@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -124,12 +124,9 @@ class HomeHeader extends StatelessWidget {
           ),
         ),
         padding: EdgeInsets.all(12.r),
-        child: SvgPicture.asset(
+        child: AppImage(
           svgPath,
-          colorFilter: const ColorFilter.mode(
-            AppColors.textSecondary,
-            BlendMode.srcIn,
-          ),
+          color: AppColors.textSecondary,
         ),
       ),
     );

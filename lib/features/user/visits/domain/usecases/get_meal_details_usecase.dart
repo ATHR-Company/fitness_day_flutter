@@ -7,7 +7,8 @@ class GetMealDetailsUseCase {
 
   GetMealDetailsUseCase(this._repository);
 
-  Future<ApiResult<MealDetailsResponseModel>> call(String mealId) {
-    return _repository.getMealDetails(mealId);
+  Future<ApiResult<MealDetailsResponseModel>> call(
+      String assessmentId, int dayNumber, String mealId) {
+    return _repository.getMealDetails(assessmentId, dayNumber, mealId);
   }
 }

@@ -5,9 +5,9 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/cart_screen.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final ProductData product;
@@ -122,12 +122,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       width: 1,
                     ),
                   ),
-                  child: SvgPicture.asset(
+                  child: AppImage(
                     SvgIcons.market_icon,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.textSecondary,
-                      BlendMode.srcIn,
-                    ),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -145,7 +142,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         borderRadius: BorderRadius.circular(16.r),
         child: Stack(
           children: [
-            Image.network(
+            AppImage(
               widget.product.imageUrl,
               height: 250.h,
               width: double.infinity,
@@ -463,12 +460,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset(
+                      AppImage(
                         SvgIcons.market_icon,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.white,
-                          BlendMode.srcIn,
-                        ),
+                        color: AppColors.white,
                         width: 20.w,
                         height: 20.h,
                       ),

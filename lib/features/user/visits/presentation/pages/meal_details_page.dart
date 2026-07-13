@@ -14,13 +14,21 @@ import 'package:go_router/go_router.dart';
 
 class MealDetailsPage extends StatelessWidget {
   final String mealId;
+  final String assessmentId;
+  final int dayNumber;
 
-  const MealDetailsPage({super.key, required this.mealId});
+  const MealDetailsPage({
+    super.key,
+    required this.mealId,
+    required this.assessmentId,
+    required this.dayNumber,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<MealDetailsCubit>()..getMealDetails(mealId),
+      create: (context) => getIt<MealDetailsCubit>()
+        ..getMealDetails(assessmentId, dayNumber, mealId),
       child: Scaffold(
         backgroundColor: AppColors.scaffoldBackground,
         body: Container(

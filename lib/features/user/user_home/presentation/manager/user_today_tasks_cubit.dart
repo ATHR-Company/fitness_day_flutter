@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/entities/task_data.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_service.dart';
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_today_tasks_state.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 
 class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
   UserTodayTasksCubit() : super(UserTodayTasksLoading());
 
+  String _assessmentId = '';
+  int _dayNumber = 1;
+
   Future<void> loadTasks({int dayNumber = 1}) async {
+    _dayNumber = dayNumber;
     emit(UserTodayTasksLoading());
     try {
       final apiService = getIt<ApiService>();
@@ -22,6 +28,8 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
 
       final data = response.data['data'];
       final List tasks = data['tasks'] as List? ?? [];
+      final String assessmentId = data['assessmentId'] as String? ?? '';
+      _assessmentId = assessmentId;
 
       final List<TaskData> foodTasks = [];
       final List<TaskData> exerciseTasks = [];
@@ -31,6 +39,7 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
         final String type = task['type'] ?? '';
 
         if (type == 'meal') {
+          final String mealId = task['mealId'] as String? ?? '';
           foodTasks.add(TaskData(
             imagePath: task['image'] ?? '',
             title: task['categoryName'] ?? '',
@@ -40,8 +49,15 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
             extraUnit: LocaleKeys.home_home_calories_unit.tr(),
             extraIcon: Icons.local_fire_department,
             done: task['isCompleted'] ?? false,
+            route: UserAppRoutes.mealDetails,
+            routeExtra: {
+              'mealId': mealId,
+              'assessmentId': assessmentId,
+              'dayNumber': dayNumber,
+            },
           ));
         } else if (type == 'workout') {
+          final String workoutItemId = task['workoutItemId'] as String? ?? '';
           exerciseTasks.add(TaskData(
             imagePath: task['photo'] ?? '',
             title: task['name'] ?? '',
@@ -52,6 +68,8 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
             extraIcon: null,
             done: task['isCompleted'] ?? false,
             isExerciseDialog: true,
+            workoutItemId: workoutItemId,
+            workoutDayNumber: dayNumber,
           ));
         } else if (type == 'activity') {
           activityTasks.add(_buildActivityTask(task));
@@ -70,6 +88,7 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
 
   TaskData _buildActivityTask(Map<String, dynamic> task) {
     final String activityType = task['activityType'] ?? '';
+    final String activityId = task['activityId'] as String? ?? '';
     final int currentProgress = (task['currentProgress'] ?? 0).toInt();
     final int goal = (task['goal'] ?? 0).toInt();
     final bool done = task['isCompleted'] ?? false;
@@ -77,8 +96,6 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
     final String name = task['name'] ?? '';
     final String description = task['description'] ?? '';
     final String image = task['image'] ?? '';
-
-    // استخدام السيرفر image مباشرة — التحقق من امتداد svg
     final bool isSvg = image.toLowerCase().endsWith('.svg');
 
     return TaskData(
@@ -91,6 +108,13 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
       extraUnit: unit,
       extraIcon: null,
       done: done,
+      // Store IDs so _buildActivityCallback can read them
+      routeExtra: {
+        'activityId': activityId,
+        'activityType': activityType,
+        'assessmentId': _assessmentId,
+        'dayNumber': _dayNumber,
+      },
     );
   }
 

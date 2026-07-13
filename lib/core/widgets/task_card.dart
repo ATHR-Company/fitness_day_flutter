@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:fitness_day/core/entities/task_data.dart';
@@ -22,14 +22,6 @@ class TaskCard extends StatelessWidget {
     required this.task,
     this.plainBackground = false,
   });
-
-  ImageProvider _getImageProvider(String path) {
-    if (path.startsWith('http://') || path.startsWith('https://')) {
-      return NetworkImage(path);
-    } else {
-      return AssetImage(path);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +60,7 @@ class TaskCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(width: 8.w),
-                    SvgPicture.asset(
+                    AppImage(
                       SvgIcons.clock,
                       width: 17.w,
                       height: 17.h,
@@ -103,42 +95,12 @@ class TaskCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Circular image
-                // Circular image
-                Builder(
-                  builder: (context) {
-                    final bool isSvg = task.isSvgImage || task.imagePath.toLowerCase().endsWith('.svg');
-                    if (isSvg) {
-                      final isNetwork = task.imagePath.startsWith('http://') || task.imagePath.startsWith('https://');
-                      return Container(
-                        width: 72.w,
-                        height: 72.w,
-                        child: isNetwork
-                            ? SvgPicture.network(
-                                task.imagePath,
-                                fit: BoxFit.contain,
-                              )
-                            : SvgPicture.asset(
-                                task.imagePath,
-                                fit: BoxFit.contain,
-                              ),
-                      );
-                    } else {
-                      return Container(
-                        width: 72.w,
-                        height: 72.w,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.white,
-                          border: Border.all(
-                              color: AppColors.greenMint, width: 1.5),
-                          image: DecorationImage(
-                            image: _getImageProvider(task.imagePath),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                AppImage(
+                  task.imagePath,
+                  width: 72.w,
+                  height: 72.w,
+                  fit: BoxFit.cover,
+                  radius: 36.r,
                 ),
                 SizedBox(width: 16.w),
                 Expanded(
@@ -172,10 +134,13 @@ class TaskCard extends StatelessWidget {
                     } else if (task.isExerciseDialog) {
                       showDialog(
                         context: context,
-                        builder: (_) => const ExerciseDetailsDialog(),
+                        builder: (_) => ExerciseDetailsDialog(
+                          workoutItemId: task.workoutItemId,
+                          dayNumber: task.workoutDayNumber,
+                        ),
                       );
                     } else if (task.route != null) {
-                      context.push(task.route!);
+                      context.push(task.route!, extra: task.routeExtra);
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -202,8 +167,7 @@ class TaskCard extends StatelessWidget {
                           : Icons.keyboard_double_arrow_right_rounded,
                           size: 16.sp, color: AppColors.white),
                     ],
-                  ),
-                ),
+                  ),                ),
               ),
             ],
           ],

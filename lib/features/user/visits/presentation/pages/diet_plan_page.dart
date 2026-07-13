@@ -1,4 +1,5 @@
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/entities/task_data.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,10 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/user_ap
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_state.dart';
 import 'package:fitness_day/features/user/visits/data/models/diet_plan_model.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class DietPlanPage extends StatefulWidget {
@@ -61,7 +62,11 @@ class _DietPlanPageState extends State<DietPlanPage> {
         extraIcon: Icons.local_fire_department,
         done: false,
         onDetailsPressed: () {
-          context.push(UserAppRoutes.mealDetails, extra: meal.id);
+          context.push(UserAppRoutes.mealDetails, extra: {
+            'mealId': meal.id,
+            'assessmentId': getIt<AppCache>().getAssessmentId() ?? '',
+            'dayNumber': _selectedDayIndex + 1,
+          });
         },
       );
     }).toList();
@@ -189,7 +194,7 @@ class _DietPlanPageState extends State<DietPlanPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(SvgIcons.noDiet),
+            AppImage(SvgIcons.noDiet),
             SizedBox(height: 24.h),
             Text(
               'diet_plan.empty_title'.tr(),

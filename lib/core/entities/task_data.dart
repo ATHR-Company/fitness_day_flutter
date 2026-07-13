@@ -11,7 +11,10 @@ class TaskData {
   final bool done;
   final bool isSvgImage;
   final String? route;
+  final Object? routeExtra;
   final bool isExerciseDialog;
+  final String? workoutItemId;
+  final int? workoutDayNumber;
   final VoidCallback? onDetailsPressed;
 
   const TaskData({
@@ -25,7 +28,10 @@ class TaskData {
     required this.done,
     this.isSvgImage = false,
     this.route,
+    this.routeExtra,
     this.isExerciseDialog = false,
+    this.workoutItemId,
+    this.workoutDayNumber,
     this.onDetailsPressed,
   });
 
@@ -40,7 +46,10 @@ class TaskData {
     bool? done,
     bool? isSvgImage,
     String? route,
+    Object? routeExtra,
     bool? isExerciseDialog,
+    String? workoutItemId,
+    int? workoutDayNumber,
     VoidCallback? onDetailsPressed,
   }) {
     return TaskData(
@@ -54,7 +63,10 @@ class TaskData {
       done: done ?? this.done,
       isSvgImage: isSvgImage ?? this.isSvgImage,
       route: route ?? this.route,
+      routeExtra: routeExtra ?? this.routeExtra,
       isExerciseDialog: isExerciseDialog ?? this.isExerciseDialog,
+      workoutItemId: workoutItemId ?? this.workoutItemId,
+      workoutDayNumber: workoutDayNumber ?? this.workoutDayNumber,
       onDetailsPressed: onDetailsPressed ?? this.onDetailsPressed,
     );
   }

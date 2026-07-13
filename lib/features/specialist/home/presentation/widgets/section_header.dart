@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_svg/svg.dart';
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
@@ -42,14 +42,14 @@ class SectionHeader extends StatelessWidget {
                 ),
                 SizedBox(width: 4.w),
                 isRtl
-                    ? SvgPicture.asset(
+                    ? AppImage(
                         SvgIcons.moreArrows,
                         width: 17.w,
                         height: 10.h,
                       )
                     : Transform.flip(
                         flipX: true,
-                        child: SvgPicture.asset(
+                        child: AppImage(
                           SvgIcons.moreArrows,
                           width: 17.w,
                           height: 10.h,

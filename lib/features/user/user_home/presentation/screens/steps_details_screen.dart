@@ -1,5 +1,7 @@
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/activity_details_cubit.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/activity_details_state.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/running_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/walking_cubit.dart';
 import 'package:flutter/material.dart';
@@ -12,42 +14,121 @@ import '../../../../../core/theme/app_text_styles.dart';
 enum ActivityType { walking, running }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Entry points — inject cubit + goals from outside
+// Entry point — loads activity details from API, then injects goals into cubit
 // ─────────────────────────────────────────────────────────────────────────────
 
 class StepsDetailsScreen extends StatelessWidget {
   final ActivityType type;
-  final double goalSteps;
-  final double goalDistanceKm;
+  final String assessmentId;
+  final int dayNumber;
+  final String activityId;
 
   const StepsDetailsScreen({
     super.key,
     this.type = ActivityType.walking,
-    this.goalSteps = 5000,
-    this.goalDistanceKm = 5.0,
+    this.assessmentId = '',
+    this.dayNumber = 1,
+    this.activityId = '',
   });
 
   @override
   Widget build(BuildContext context) {
-    if (type == ActivityType.walking) {
-      return BlocProvider(
-        create: (_) => WalkingCubit(
-          healthService: getIt(),
-          apiService: getIt(),
-          goalSteps: goalSteps,
-          goalDistanceKm: goalDistanceKm,
-        )..init(),
-        child: const _WalkingScreen(),
-      );
-    } else {
-      return BlocProvider(
-        create: (_) => RunningCubit(
-          apiService: getIt(),
-          goalDistanceKm: goalDistanceKm,
-        )..requestPermissions(),
-        child: const _RunningScreen(),
-      );
-    }
+    return BlocProvider(
+      create: (_) => getIt<ActivityDetailsCubit>()
+        ..getActivityDetails(assessmentId, dayNumber, activityId),
+      child: _StepsDetailsLoader(type: type),
+    );
+  }
+}
+
+/// Waits for [ActivityDetailsCubit] to load, then shows the appropriate screen.
+class _StepsDetailsLoader extends StatelessWidget {
+  final ActivityType type;
+  const _StepsDetailsLoader({required this.type});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ActivityDetailsCubit, ActivityDetailsState>(
+      builder: (context, state) {
+        if (state is ActivityDetailsLoading ||
+            state is ActivityDetailsInitial) {
+          return const Scaffold(
+            backgroundColor: AppColors.white,
+            body: Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          );
+        }
+
+        if (state is ActivityDetailsFailure) {
+          return Scaffold(
+            backgroundColor: AppColors.white,
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline,
+                      color: AppColors.primary, size: 48.sp),
+                  SizedBox(height: 12.h),
+                  Text(state.message,
+                      style: TextStyleManager.style11Medium,
+                      textAlign: TextAlign.center),
+                  SizedBox(height: 16.h),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.white,
+                    ),
+                    child: const Text('رجوع'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Success — extract goal from API response
+        final data =
+            state is ActivityDetailsSuccess ? state.data : null;
+        final double goalSteps = data?.goal ?? 5000;
+        final double goalDistanceKm = data?.goal ?? 5.0;
+        final double currentProgress = data?.currentProgress ?? 0;
+        final int progressPercent = data?.progressPercentage.toInt() ?? 0;
+
+        if (type == ActivityType.walking) {
+          return BlocProvider(
+            create: (_) => WalkingCubit(
+              healthService: getIt(),
+              apiService: getIt(),
+              goalSteps: goalSteps,
+              goalDistanceKm: goalDistanceKm,
+            )..init(),
+            child: _WalkingScreen(
+              apiProgress: currentProgress,
+              apiProgressPercent: progressPercent,
+            ),
+          );
+        } else {
+          final double apiDistanceKm = data?.currentProgress ?? 0;
+          final int apiDurationMinutes = data?.durationMinutes?.toInt() ?? 0;
+          final double apiCalories = data?.caloriesBurned ?? 0;
+
+          return BlocProvider(
+            create: (_) => RunningCubit(
+              apiService: getIt(),
+              goalDistanceKm: goalDistanceKm,
+            )..requestPermissions(),
+            child: _RunningScreen(
+              apiProgress: apiDistanceKm,
+              apiProgressPercent: progressPercent,
+              apiDurationMinutes: apiDurationMinutes,
+              apiCalories: apiCalories,
+            ),
+          );
+        }
+      },
+    );
   }
 }
 
@@ -56,7 +137,13 @@ class StepsDetailsScreen extends StatelessWidget {
 // ═════════════════════════════════════════════════════════════════════════════
 
 class _WalkingScreen extends StatefulWidget {
-  const _WalkingScreen();
+  final double apiProgress;
+  final int apiProgressPercent;
+
+  const _WalkingScreen({
+    this.apiProgress = 0,
+    this.apiProgressPercent = 0,
+  });
 
   @override
   State<_WalkingScreen> createState() => _WalkingScreenState();
@@ -65,7 +152,7 @@ class _WalkingScreen extends StatefulWidget {
 class _WalkingScreenState extends State<_WalkingScreen>
     with WidgetsBindingObserver {
   int _selectedTab = 0;
-  final List<String> _tabs = ['يومي', 'أسبوعي', 'شهري'];
+  final List<String> _tabs = ['يومي', 'أسبوعي'];
 
   @override
   void initState() {
@@ -109,35 +196,36 @@ class _WalkingScreenState extends State<_WalkingScreen>
                   ),
                   SizedBox(height: 40.h),
 
-                  // Permission warning
-                  if (state.permissionStatus == HealthPermStatus.denied)
+                  // Show API data immediately — Health Connect is optional for live tracking
+                  _ActivityCircle(
+                    percent: state.steps > 0
+                        ? state.progressPercent
+                        : (widget.apiProgressPercent / 100.0).clamp(0.0, 1.0),
+                    currentVal: state.steps > 0
+                        ? state.steps.toDouble()
+                        : widget.apiProgress,
+                    goalVal: state.goalSteps,
+                    unit: 'خطوة',
+                    goalPercent: state.steps > 0
+                        ? state.progressPercentInt
+                        : widget.apiProgressPercent,
+                    isRunning: false,
+                  ),
+                  SizedBox(height: 32.h),
+
+                  // Optional live-tracking banner
+                  if (state.permissionStatus == HealthPermStatus.needsInstall)
                     _PermissionBanner(
-                      message: 'يحتاج إذن الوصول لبيانات الصحة',
+                      message: 'لتفعيل التتبع الحي — ثبّت Health Connect من Play Store',
                       onTap: () => context.read<WalkingCubit>().init(),
                     )
-                  else if (state.permissionStatus ==
-                      HealthPermStatus.needsInstall)
+                  else if (state.permissionStatus == HealthPermStatus.denied)
                     _PermissionBanner(
-                      message: 'يحتاج تثبيت Health Connect من Play Store',
-                      onTap: () =>
-                          context.read<WalkingCubit>()
-                            ..pauseTracking(),
+                      message: 'لتفعيل التتبع الحي — اسمح بالوصول لبيانات الصحة',
+                      onTap: () => context.read<WalkingCubit>().init(),
                     )
-                  else if (state.isLoading)
-                    Center(
-                      child:
-                          CircularProgressIndicator(color: AppColors.primary),
-                    )
-                  else ...[
-                    _ActivityCircle(
-                      percent: state.progressPercent,
-                      currentVal: state.steps.toDouble(),
-                      goalVal: state.goalSteps,
-                      unit: 'خطوة',
-                      goalPercent: state.progressPercentInt,
-                      isRunning: false,
-                    ),
-                    SizedBox(height: 32.h),
+                  else if (state.permissionStatus == HealthPermStatus.granted &&
+                      !state.isLoading)
                     Expanded(
                       child: _DailySummaryCard(
                         distanceKm: state.distanceKm,
@@ -146,8 +234,9 @@ class _WalkingScreenState extends State<_WalkingScreen>
                         calories: state.caloriesKcal.round(),
                         isWalking: true,
                       ),
-                    ),
-                  ],
+                    )
+                  else
+                    const SizedBox.shrink(),
                 ],
               ),
             ),
@@ -163,7 +252,17 @@ class _WalkingScreenState extends State<_WalkingScreen>
 // ═════════════════════════════════════════════════════════════════════════════
 
 class _RunningScreen extends StatelessWidget {
-  const _RunningScreen();
+  final double apiProgress;
+  final int apiProgressPercent;
+  final int apiDurationMinutes;
+  final double apiCalories;
+
+  const _RunningScreen({
+    this.apiProgress = 0,
+    this.apiProgressPercent = 0,
+    this.apiDurationMinutes = 0,
+    this.apiCalories = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -185,11 +284,17 @@ class _RunningScreen extends StatelessWidget {
                     )
                   else ...[
                     _ActivityCircle(
-                      percent: state.progressPercent,
-                      currentVal: state.distanceKm,
+                      percent: state.distanceKm > 0
+                          ? state.progressPercent
+                          : (apiProgressPercent / 100.0).clamp(0.0, 1.0),
+                      currentVal: state.distanceKm > 0
+                          ? state.distanceKm
+                          : apiProgress,
                       goalVal: state.goalDistanceKm,
                       unit: 'كم',
-                      goalPercent: state.progressPercentInt,
+                      goalPercent: state.distanceKm > 0
+                          ? state.progressPercentInt
+                          : apiProgressPercent,
                       isRunning: true,
                     ),
                     SizedBox(height: 16.h),
@@ -211,10 +316,16 @@ class _RunningScreen extends StatelessWidget {
 
                     Expanded(
                       child: _DailySummaryCard(
-                        distanceKm: state.distanceKm,
+                        distanceKm: state.isRunning || state.distanceKm > 0
+                            ? state.distanceKm
+                            : apiProgress,
                         unit: 'كم',
-                        minutes: state.elapsedSeconds ~/ 60,
-                        calories: state.caloriesKcal.round(),
+                        minutes: state.isRunning || state.elapsedSeconds > 0
+                            ? state.elapsedSeconds ~/ 60
+                            : apiDurationMinutes,
+                        calories: state.isRunning || state.caloriesKcal > 0
+                            ? state.caloriesKcal.round()
+                            : apiCalories.round(),
                         isWalking: false,
                         pace: state.pace,
                       ),

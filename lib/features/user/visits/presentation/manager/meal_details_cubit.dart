@@ -11,9 +11,11 @@ class MealDetailsCubit extends Cubit<MealDetailsState> {
   })  : _getMealDetailsUseCase = getMealDetailsUseCase,
         super(const MealDetailsInitial());
 
-  Future<void> getMealDetails(String mealId) async {
+  Future<void> getMealDetails(
+      String assessmentId, int dayNumber, String mealId) async {
     emit(const MealDetailsLoading());
-    final result = await _getMealDetailsUseCase(mealId);
+    final result =
+        await _getMealDetailsUseCase(assessmentId, dayNumber, mealId);
     switch (result) {
       case Success(:final data):
         emit(MealDetailsSuccess(data.data));

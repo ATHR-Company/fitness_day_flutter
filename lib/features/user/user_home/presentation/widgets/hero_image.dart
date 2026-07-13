@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_colors.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class HeroImage extends StatelessWidget {
   final String? imageUrl;
@@ -14,15 +15,11 @@ class HeroImage extends StatelessWidget {
         : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800';
     return ClipRRect(
       borderRadius: BorderRadius.circular(20.r),
-      child: Image.network(
+      child: AppImage(
         url,
         height: 180.h,
         width: double.infinity,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
-          height: 180.h,
-          color: AppColors.backgroundTint,
-        ),
       ),
     );
   }

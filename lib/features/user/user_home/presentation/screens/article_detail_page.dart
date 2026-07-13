@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -10,8 +11,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 
 import 'package:fitness_day/core/injection/injection_container.dart';
-import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class ArticleDetailPage extends StatefulWidget {
   final ArticleData article;
@@ -173,20 +174,11 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Image.network(
+            AppImage(
               widget.article.imageUrl,
               height: 200.h,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                height: 200.h,
-                color: AppColors.backgroundTint,
-                child: Icon(
-                  Icons.image_outlined,
-                  color: AppColors.greenMint,
-                  size: 50.sp,
-                ),
-              ),
             ),
             // Play button overlay
             Container(
@@ -462,24 +454,11 @@ class _RelatedArticleCardState extends State<_RelatedArticleCard> {
             // Image on the left (leading in RTL = right side visually)
             ClipRRect(
               borderRadius: BorderRadius.circular(12.r),
-              child: Image.network(
+              child: AppImage(
                 widget.article.imageUrl,
                 width: 72.w,
                 height: 72.w,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 72.w,
-                  height: 72.w,
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundTint,
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: Icon(
-                    Icons.image_outlined,
-                    color: AppColors.greenMint,
-                    size: 24.sp,
-                  ),
-                ),
               ),
             ),
           ],

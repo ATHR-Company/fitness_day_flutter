@@ -5,6 +5,7 @@ import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import 'challenges_screen.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class ChallengeDetailsDialog extends StatefulWidget {
   final ChallengeModel challenge;
@@ -71,7 +72,7 @@ class _ChallengeDetailsDialogState extends State<ChallengeDetailsDialog> {
               clipBehavior: Clip.none,
               alignment: Alignment.bottomCenter,
               children: [
-                Image.network(
+                AppImage(
                   widget.challenge.imageUrl ??
                       "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400",
                   height: 180.h,
@@ -163,7 +164,7 @@ class _ChallengeDetailsDialogState extends State<ChallengeDetailsDialog> {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Image.asset(
+                  child: AppImage(
                     AppImages.challenge_cap,
                     width: 40.w,
                     height: 40.w,

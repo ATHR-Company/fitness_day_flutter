@@ -5,8 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/checkout_screen.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 // Dummy CartItem model
 class CartItem {
@@ -108,7 +108,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(
+          AppImage(
             SvgIcons.market_icon,
             width: 140.w,
             color: AppColors.textPlaceholder,
@@ -182,7 +182,7 @@ class _CartScreenState extends State<CartScreen> {
                 borderRadius: BorderRadius.circular(
                   40.r,
                 ), // Highly rounded like in the image
-                child: Image.network(
+                child: AppImage(
                   item.product.imageUrl,
                   width: 60.w,
                   height: 60.w,

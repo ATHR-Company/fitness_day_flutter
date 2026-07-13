@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -9,7 +10,6 @@ import 'package:fitness_day/core/widgets/time_picker_bottom_sheet.dart';
 import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:intl/intl.dart';
-import 'package:flutter_svg/svg.dart';
 
 import '../../../../../core/constant/app_assets.dart';
 
@@ -177,7 +177,7 @@ class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: SvgPicture.asset(icon),
+            child: AppImage(icon),
           ),
           Container(
             height: 24.h,

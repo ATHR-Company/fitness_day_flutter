@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 /// Challenge image with a floating description/rules tab switcher, shown in
 /// the challenge details dialog.
@@ -27,7 +28,7 @@ class ChallengeImageTabSwitcher extends StatelessWidget {
       clipBehavior: Clip.none,
       alignment: Alignment.bottomCenter,
       children: [
-        Image.network(
+        AppImage(
           imageUrl ?? _fallbackUrl,
           height: 180.h,
           width: double.infinity,

@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -77,7 +77,7 @@ class _ManualAddSheetState extends State<ManualAddSheet> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(height: 40.h),
-                SvgPicture.asset(SvgIcons.water_bg, width: 60.w, height: 80.h),
+                AppImage(SvgIcons.water_bg, width: 60.w, height: 80.h),
                 SizedBox(height: 12.h),
                 Text(
                   'hydration.enter_manually'.tr(),
@@ -199,7 +199,7 @@ class _ManualAddSheetState extends State<ManualAddSheet> {
     const widths = [22.0, 22.0, 20.0, 20.0, 22.0];
     final opt = _options[index];
 
-    return SvgPicture.asset(
+    return AppImage(
       opt.iconAsset,
       width: widths[index].w,
       height: heights[index].h,

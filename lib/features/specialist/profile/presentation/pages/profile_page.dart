@@ -1,7 +1,7 @@
 import 'package:fitness_day/core/theme/app_shadows.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -52,7 +52,7 @@ class ProfilePage extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: SvgPicture.asset(
+                            child: AppImage(
                               SvgIcons.emptyProfile,
                               width: 60.w,
                               height: 60.h,
@@ -181,7 +181,7 @@ class ProfilePage extends StatelessWidget {
             // Left Side in RTL (Right Side visually)
             Row(
               children: [
-                SvgPicture.asset(svgPath, width: 40.sp, height: 40.sp),
+                AppImage(svgPath, width: 40.sp, height: 40.sp),
                 SizedBox(width: 16.w),
                 Text(title, style: TextStyleManager.heading3),
               ],

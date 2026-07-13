@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import '../../../../../core/theme/app_colors.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 
 class UnsubscribedHeroImage extends StatelessWidget {
@@ -22,10 +22,9 @@ class UnsubscribedHeroImage extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.backgroundTint,
         ),
-        child:Image.network(
+        child:AppImage(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => const SizedBox(),
               ),
             
       ),

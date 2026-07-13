@@ -6,6 +6,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/challenges/domain/entities/challenge_model.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/date_badge.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 /// "Description" tab content of the challenge details dialog.
 class ChallengeDescriptionTab extends StatelessWidget {
@@ -24,7 +25,7 @@ class ChallengeDescriptionTab extends StatelessWidget {
           height: 56.w,
           decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
           child: Center(
-            child: Image.asset(AppImages.challenge_cap, width: 40.w, height: 40.w),
+            child: AppImage(AppImages.challenge_cap, width: 40.w, height: 40.w),
           ),
         ),
         SizedBox(height: 16.h),

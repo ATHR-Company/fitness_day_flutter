@@ -1,4 +1,5 @@
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -7,7 +8,6 @@ import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/product_details_screen.dart';
-import 'package:flutter_svg/svg.dart';
 
 class ProductsListScreen extends StatefulWidget {
   final String title;
@@ -187,12 +187,9 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                   width: 1,
                 ),
               ),
-              child: SvgPicture.asset(
+              child: AppImage(
                 SvgIcons.market_icon,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.textSecondary,
-                  BlendMode.srcIn,
-                ),
+                color: AppColors.textSecondary,
               ),
             ),
           ),

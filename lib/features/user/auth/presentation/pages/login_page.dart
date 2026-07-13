@@ -1,9 +1,9 @@
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -116,7 +116,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   SizedBox(height: 40.h),
 
                   // App Logo
-                  SvgPicture.asset(SvgIcons.logo, height: 130.h),
+                  AppImage(SvgIcons.logo, height: 130.h),
 
                   SizedBox(height: 40.h),
 
@@ -225,7 +225,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                       Expanded(
                         child: AppSocialButton(
                           label: LocaleKeys.login_apple.tr(),
-                          icon: SvgPicture.asset(
+                          icon: AppImage(
                             SvgIcons.appleLogin,
                             height: 22.h,
                           ),
@@ -241,7 +241,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                       Expanded(
                         child: AppSocialButton(
                           label: LocaleKeys.login_google.tr(),
-                          icon: SvgPicture.asset(SvgIcons.google, height: 22.h),
+                          icon: AppImage(SvgIcons.google, height: 22.h),
                           onTap: () async {
                             try {
                               final idToken = await GoogleSignInHelper.signIn();

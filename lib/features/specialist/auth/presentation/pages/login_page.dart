@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -70,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   SizedBox(height: 60.h),
                   // App Logo from SVG
-                  SvgPicture.asset(SvgIcons.logo, height: 120.h),
+                  AppImage(SvgIcons.logo, height: 120.h),
                   SizedBox(height: 40.h),
                   // Welcome Text
                   Text(

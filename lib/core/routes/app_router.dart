@@ -190,8 +190,15 @@ class AppRouter {
       GoRoute(
         path: UserAppRoutes.mealDetails,
         builder: (context, state) {
-          final mealId = state.extra as String? ?? '';
-          return MealDetailsPage(mealId: mealId);
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final mealId = extra['mealId'] as String? ?? '';
+          final assessmentId = extra['assessmentId'] as String? ?? '';
+          final dayNumber = extra['dayNumber'] as int? ?? 1;
+          return MealDetailsPage(
+            mealId: mealId,
+            assessmentId: assessmentId,
+            dayNumber: dayNumber,
+          );
         },
       ),
       GoRoute(
@@ -202,9 +209,19 @@ class AppRouter {
         path: UserAppRoutes.workoutPlan,
         builder: (context, state) => const WorkoutPlanPage(),
       ),
-      GoRoute(
+    GoRoute(
         path: UserAppRoutes.hydrationDetails,
-        builder: (context, state) => const HydrationDetailsScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final assessmentId = extra['assessmentId'] as String? ?? '';
+          final dayNumber = extra['dayNumber'] as int? ?? 1;
+          final activityId = extra['activityId'] as String? ?? '';
+          return HydrationDetailsScreen(
+            assessmentId: assessmentId,
+            dayNumber: dayNumber,
+            activityId: activityId,
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.stepsDetails,

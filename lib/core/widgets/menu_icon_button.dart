@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 
@@ -21,7 +21,7 @@ class MenuIconButton extends StatelessWidget {
         boxShadow: AppShadows.primaryShadow,
       ),
       child: IconButton(
-        icon: SvgPicture.asset(SvgIcons.menuIcon, height: 13.h),
+        icon: AppImage(SvgIcons.menuIcon, height: 13.h),
         onPressed: onTap ?? () => Scaffold.of(context).openEndDrawer(),
       ),
     );

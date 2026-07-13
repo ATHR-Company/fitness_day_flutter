@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/market_section_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -12,8 +13,8 @@ import 'package:fitness_day/features/user/market/presentation/widgets/package_de
 import 'package:fitness_day/features/user/market/presentation/widgets/market_app_bar.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_tab_bar.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_categories_row.dart';
-import 'package:fitness_day/features/user/market/presentation/widgets/market_section_header.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_products_grid.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class MarketMainScreen extends StatefulWidget {
   const MarketMainScreen({super.key});
@@ -209,7 +210,7 @@ class _MarketMainScreenState extends State<MarketMainScreen>
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16.r),
-          child: Image.network(
+          child: AppImage(
             "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800",
             height: 170.h,
             width: double.infinity,

@@ -22,9 +22,11 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
   }
 
   @override
-  Future<ApiResult<WorkoutDetailsResponseModel>> getWorkoutDetails(String workoutItemId) async {
+  Future<ApiResult<WorkoutDetailsResponseModel>> getWorkoutDetails(
+      String assessmentId, int dayNumber, String workoutItemId) async {
     try {
-      final response = await _remoteDataSource.getWorkoutDetails(workoutItemId);
+      final response = await _remoteDataSource.getWorkoutDetails(
+          assessmentId, dayNumber, workoutItemId);
       return Success(response);
     } catch (e) {
       return FailureResult(ErrorHandler.handle(e));

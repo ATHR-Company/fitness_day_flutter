@@ -186,11 +186,21 @@ class _UserTodayTasksPageContentState
   VoidCallback? _buildActivityCallback(
       BuildContext context, TaskData task) {
     final String titleLower = task.title.toLowerCase();
+    // Extract IDs stored in routeExtra by UserTodayTasksCubit
+    final extra = task.routeExtra as Map<String, dynamic>?;
+    final String assessmentId = extra?['assessmentId'] as String? ?? '';
+    final int dayNumber = extra?['dayNumber'] as int? ?? 1;
+    final String activityId = extra?['activityId'] as String? ?? '';
+
     if (titleLower.contains('ترطيب') || titleLower.contains('hydration')) {
       return () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => const HydrationDetailsScreen(),
+              builder: (_) => HydrationDetailsScreen(
+                assessmentId: assessmentId,
+                dayNumber: dayNumber,
+                activityId: activityId,
+              ),
             ),
           );
     }
@@ -198,8 +208,12 @@ class _UserTodayTasksPageContentState
       return () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => const StepsDetailsScreen(
-                  type: ActivityType.walking),
+              builder: (_) => StepsDetailsScreen(
+                type: ActivityType.walking,
+                assessmentId: assessmentId,
+                dayNumber: dayNumber,
+                activityId: activityId,
+              ),
             ),
           );
     }
@@ -207,8 +221,12 @@ class _UserTodayTasksPageContentState
       return () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => const StepsDetailsScreen(
-                  type: ActivityType.running),
+              builder: (_) => StepsDetailsScreen(
+                type: ActivityType.running,
+                assessmentId: assessmentId,
+                dayNumber: dayNumber,
+                activityId: activityId,
+              ),
             ),
           );
     }

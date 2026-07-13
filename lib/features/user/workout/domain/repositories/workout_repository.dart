@@ -5,7 +5,8 @@ import 'package:fitness_day/features/user/workout/data/models/complete_workout_s
 
 abstract class WorkoutRepository {
   Future<ApiResult<WorkoutPlanResponseModel>> getWorkoutPlan(int dayNumber);
-  Future<ApiResult<WorkoutDetailsResponseModel>> getWorkoutDetails(String workoutItemId);
+  Future<ApiResult<WorkoutDetailsResponseModel>> getWorkoutDetails(
+      String assessmentId, int dayNumber, String workoutItemId);
   Future<ApiResult<CompleteWorkoutSetResponseModel>> completeWorkoutSet(
     int dayNumber,
     String workoutItemId,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -6,7 +7,6 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_bottom_sheet.dart';
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:intl/intl.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 
 class DatePickerBottomSheet extends StatefulWidget {
@@ -162,14 +162,11 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
               ),
             ),
             SizedBox(width: 8.w),
-            SvgPicture.asset(
+            AppImage(
               SvgIcons.calendar,
               width: 20.sp,
               height: 20.sp,
-              colorFilter: const ColorFilter.mode(
-                AppColors.primary,
-                BlendMode.srcIn,
-              ),
+              color: AppColors.primary,
             ),
           ],
         ),

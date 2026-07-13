@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -51,7 +51,7 @@ class PlanItemCard extends StatelessWidget {
             children: [
               Expanded(child: Text(title, style: TextStyleManager.heading3)),
               if (time != null) ...[
-                SvgPicture.asset(SvgIcons.clock, height: 13.sp),
+                AppImage(SvgIcons.clock, height: 13.sp),
                 SizedBox(width: 4.w),
                 Text(
                   time!,

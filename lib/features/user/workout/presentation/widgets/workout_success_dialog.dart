@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:lottie/lottie.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class SoundManager {
   static final SoundManager _instance = SoundManager._internal();
@@ -76,7 +76,7 @@ class _WorkoutSuccessDialogState extends State<WorkoutSuccessDialog> {
                 SizedBox(height: 16.h),
                 
                 // Icon
-                SvgPicture.asset(
+                AppImage(
                   'assets/svg/workout_popup.svg',
                   width: 120.r,
                   height: 120.r,

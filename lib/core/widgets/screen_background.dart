@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 
@@ -44,7 +44,7 @@ class ScreenBackground extends StatelessWidget {
           top: 0,
           left: 0,
           child: IgnorePointer(
-            child: SvgPicture.asset(
+            child: AppImage(
               SvgIcons.stepsDecor,
               color: decorColor ?? const Color.fromARGB(15, 0, 100, 20),
               fit: BoxFit.cover,

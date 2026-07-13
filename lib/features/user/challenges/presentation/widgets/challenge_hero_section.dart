@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 /// Hero image with a floating "achieved X%" badge, shown at the top of the
 /// active challenge screen.
@@ -25,13 +26,11 @@ class ChallengeHeroSection extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       clipBehavior: Clip.none,
       children: [
-        Image.network(
+        AppImage(
           imageUrl ?? _fallback,
           height: 200.h,
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (_, e, __) =>
-              Image.network(_fallback, height: 200.h, fit: BoxFit.cover),
         ),
         Positioned(
           bottom: -15.h,

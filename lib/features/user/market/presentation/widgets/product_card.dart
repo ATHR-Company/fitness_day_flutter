@@ -1,11 +1,12 @@
+import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/product_details_screen.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductData product;
@@ -50,17 +51,11 @@ class ProductCard extends StatelessWidget {
                     topLeft: Radius.circular(16.r),
                     topRight: Radius.circular(16.r),
                   ),
-                  child: Image.network(
+                  child: AppImage(
                     product.imageUrl,
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: AppColors.backgroundTint,
-                      child: Center(
-                        child: Icon(Icons.image_outlined, color: AppColors.greenMint),
-                      ),
-                    ),
                   ),
                 ),
                 

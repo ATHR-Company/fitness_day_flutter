@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../../core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
@@ -67,7 +67,7 @@ class NotificationsPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(SvgIcons.notification),
+          AppImage(SvgIcons.notification),
           SizedBox(height: 32.h),
           Text(
             'notifications.empty_title'.tr(),
@@ -275,7 +275,7 @@ class NotificationsPage extends StatelessWidget {
           // Read / Unread icon (Left side in RTL)
           Padding(
             padding: EdgeInsets.only(top: 4.h),
-            child: SvgPicture.asset(
+            child: AppImage(
               isRead ? SvgIcons.read : SvgIcons.unread,
             ),
           ),

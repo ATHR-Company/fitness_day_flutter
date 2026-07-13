@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_shadows.dart';
 import '../../../../../core/theme/app_text_styles.dart';
@@ -29,7 +29,7 @@ class StatCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          SvgPicture.asset(iconPath, width: 45.w, height: 45.w),
+          AppImage(iconPath, width: 45.w, height: 45.w),
           SizedBox(height: 6.h),
           Text(
             title, 

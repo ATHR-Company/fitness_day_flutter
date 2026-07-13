@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -28,7 +28,7 @@ class RoleSelectionPage extends StatelessWidget {
                 SizedBox(height: 80.h),
 
                 // Logo
-                SvgPicture.asset(SvgIcons.logo, height: 152.h),
+                AppImage(SvgIcons.logo, height: 152.h),
 
                 SizedBox(height: 48.h),
 
@@ -55,7 +55,7 @@ class RoleSelectionPage extends StatelessWidget {
                 // Continue as Specialist Button
                 _buildRoleButton(
                   title: LocaleKeys.role_selection_continue_as_specialist.tr(),
-                  icon: SvgPicture.asset(SvgIcons.specialist, height: 24.h),
+                  icon: AppImage(SvgIcons.specialist, height: 24.h),
                   color: AppColors.borderGrey,
                   textColor: AppColors.black,
                   onTap: () => context.push(SpecialistAppRoutes.login),

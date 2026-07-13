@@ -8,7 +8,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 class WaterActionButton extends StatelessWidget {
   final Widget iconWidget;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final double size;
 
   const WaterActionButton({

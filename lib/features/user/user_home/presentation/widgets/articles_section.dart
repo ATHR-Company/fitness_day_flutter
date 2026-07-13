@@ -1,10 +1,11 @@
+import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/features/user/user_home/domain/entities/article_data.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
-import 'package:fitness_day/core/theme/app_text_styles.dart';
 import '../screens/article_detail_page.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 export 'package:fitness_day/features/user/user_home/domain/entities/article_data.dart';
 
@@ -77,17 +78,11 @@ class ArticleCard extends StatelessWidget {
               topLeft: Radius.circular(16.r),
               topRight: Radius.circular(16.r),
             ),
-            child: Image.network(
+            child: AppImage(
               article.imageUrl,
               height: 150.h,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                height: 150.h,
-                color: AppColors.backgroundTint,
-                child: Icon(Icons.image_outlined,
-                    color: AppColors.greenMint, size: 40.sp),
-              ),
             ),
           ),
 

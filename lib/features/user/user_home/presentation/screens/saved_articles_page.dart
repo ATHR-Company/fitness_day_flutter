@@ -1,3 +1,4 @@
+import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -11,8 +12,8 @@ import 'article_detail_page.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_state.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class SavedArticlesPage extends StatelessWidget {
   const SavedArticlesPage({super.key});
@@ -164,18 +165,11 @@ class _SavedArticleCard extends StatelessWidget {
             // Image
             ClipRRect(
               borderRadius: BorderRadius.circular(10.r),
-              child: Image.network(
+              child: AppImage(
                 article.imageUrl,
                 width: 80.w,
                 height: 70.h,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 80.w,
-                  height: 70.h,
-                  color: AppColors.backgroundTint,
-                  child: Icon(Icons.image_outlined,
-                      color: AppColors.greenMint, size: 24.sp),
-                ),
               ),
             ),
             SizedBox(width: 12.w),

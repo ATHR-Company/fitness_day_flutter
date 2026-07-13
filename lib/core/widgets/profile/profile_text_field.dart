@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class ProfileTextField extends StatelessWidget {
   final String hintText;
@@ -33,7 +33,7 @@ class ProfileTextField extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: SvgPicture.asset(
+            child: AppImage(
               iconPath,
               width: 20.w,
             ),

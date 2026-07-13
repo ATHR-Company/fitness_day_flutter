@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -135,7 +135,7 @@ class BmiReportPage extends StatelessWidget {
                             Positioned(
                               left: -20.w,
                               top: 40.h,
-                              child: SvgPicture.asset(
+                              child: AppImage(
                                 SvgIcons.halfApple,
                                 width: 120.w,
                                 height: 160.h,
@@ -227,12 +227,9 @@ class BmiReportPage extends StatelessWidget {
                     color: AppColors.lightGreenBackground,
                     border: Border.all(color: AppColors.lightGreenBorder),
                   ),
-                  child: SvgPicture.asset(
+                  child: AppImage(
                     iconPath,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.primary,
-                      BlendMode.srcIn,
-                    ),
+                    color: AppColors.primary,
                   ),
                 ),
                 SizedBox(width: 12.w),
@@ -274,12 +271,9 @@ class BmiReportPage extends StatelessWidget {
             color: AppColors.lightGreenBackground,
             border: Border.all(color: AppColors.lightGreenBorder),
           ),
-          child: SvgPicture.asset(
+          child: AppImage(
             iconPath,
-            colorFilter: const ColorFilter.mode(
-              AppColors.primary,
-              BlendMode.srcIn,
-            ),
+            color: AppColors.primary,
           ),
         ),
         SizedBox(width: 16.w),

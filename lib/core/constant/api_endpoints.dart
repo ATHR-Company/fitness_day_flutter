@@ -16,10 +16,22 @@ class ApiEndpoints {
   static const String socialAuth = '/auth/social';
   static const String dietPlan = '/diet-plan';
   static const String mealDetails = '/diet-plan/meals';
+
+  static String mealDetailsNew(String assessmentId, int dayNumber, String mealId) =>
+      '/diet-plan/assessment/$assessmentId/days/$dayNumber/meals/$mealId';
+  static String activityDetails(String assessmentId, int dayNumber, String activityId) =>
+      '/user-activities/assessments/$assessmentId/days/$dayNumber/activities/$activityId';
+
+  static String hydrationIncrease(String assessmentId, int dayNumber, String activityId) =>
+      '/user-activities/assessments/$assessmentId/days/$dayNumber/activities/$activityId/hydration/increase';
+
+  static String hydrationDecrease(String assessmentId, int dayNumber, String activityId) =>
+      '/user-activities/assessments/$assessmentId/days/$dayNumber/activities/$activityId/hydration/decrease';
   static const String savedArticles = '/articles/saved';
 
   static String workoutPlanDay(int dayNumber) => '/workout-plan/days/$dayNumber/workouts';
-  static String workoutDetails(String workoutItemId) => '/workout-plan/workouts/$workoutItemId';
+  static String workoutDetails(String assessmentId, int dayNumber, String workoutItemId) =>
+      '/workout-plan/assessments/$assessmentId/days/$dayNumber/workouts/$workoutItemId';
   static String completeWorkoutSet(int dayNumber, String workoutItemId, int setNumber) =>
       '/workout-plan/days/$dayNumber/workouts/$workoutItemId/sets/$setNumber/complete';
   static String dailyTasks(int dayNumber) => '/daily-tasks/days/$dayNumber';

@@ -1,11 +1,11 @@
 import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import 'create_challenge_screen.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 // ─── Model ────────────────────────────────────────────────────────────────────
 class ChallengeModel {
@@ -134,7 +134,7 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
           child: _buildAddChallengeButton(),
         ),
         SizedBox(height: 80.h),
-        Image.asset(
+        AppImage(
           AppImages.challenge_cap,
           width: 200.w,
           height: 170.w,
@@ -217,14 +217,11 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          SvgPicture.asset(
+                          AppImage(
                             SvgIcons.muscle,
                             width: 16.w,
                             height: 16.w,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.black,
-                              BlendMode.srcIn,
-                            ),
+                            color: AppColors.black,
                           ),
                           SizedBox(width: 4.w),
                           Text(
@@ -360,11 +357,10 @@ class _ActiveChallengeCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
             child: challenge.imageUrl != null
-                ? Image.network(
+                ? AppImage(
                     challenge.imageUrl!,
                     height: 180.h,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _placeholderImage(),
                   )
                 : _placeholderImage(),
           ),
@@ -390,14 +386,11 @@ class _ActiveChallengeCard extends StatelessWidget {
                     // Participants badge
                     Row(
                       children: [
-                        SvgPicture.asset(
+                        AppImage(
                           SvgIcons.usersGroup,
                           width: 16.w,
                           height: 16.w,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.primary,
-                            BlendMode.srcIn,
-                          ),
+                          color: AppColors.primary,
                         ),
                         SizedBox(width: 4.w),
 
@@ -462,7 +455,7 @@ class _ActiveChallengeCard extends StatelessWidget {
       height: 180.h,
       width: double.infinity,
       color: AppColors.backgroundTint,
-      child: Image.network(
+      child: AppImage(
         "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400",
         fit: BoxFit.cover,
       ),
@@ -506,7 +499,7 @@ class _SuggestedChallengeCard extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Image.asset(
+                  child: AppImage(
                     AppImages.challenge_cap,
                     width: 40.w,
                     height: 40.w,
@@ -546,14 +539,11 @@ class _SuggestedChallengeCard extends StatelessWidget {
                               ),
                             ),
                             SizedBox(width: 4.w),
-                            SvgPicture.asset(
+                            AppImage(
                               SvgIcons.usersGroup,
                               width: 14.w,
                               height: 14.w,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.primary,
-                                BlendMode.srcIn,
-                              ),
+                              color: AppColors.primary,
                             ),
                           ],
                         ),

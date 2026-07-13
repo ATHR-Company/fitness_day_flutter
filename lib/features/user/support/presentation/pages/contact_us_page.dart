@@ -1,13 +1,13 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/chat_details_page.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class ContactUsPage extends StatelessWidget {
   const ContactUsPage({super.key});
@@ -69,7 +69,7 @@ class ContactUsPage extends StatelessWidget {
                   title: LocaleKeys.contact_us_contact_us_ai_coach.tr(),
                   subtitle: LocaleKeys.contact_us_contact_us_ai_desc.tr(),
                   rawImage: true,
-                  image: Image.asset(
+                  image: AppImage(
                     AppImages.ai,
                     width: 70.r,
                     height: 70.r,
@@ -95,7 +95,7 @@ class ContactUsPage extends StatelessWidget {
                 child: _ContactCard(
                   title: LocaleKeys.contact_us_contact_us_specialist.tr(),
                   subtitle: LocaleKeys.contact_us_contact_us_ai_desc.tr(),
-                  image: SvgPicture.asset(SvgIcons.logo, width: 70.r, height: 70.r),
+                  image: AppImage(SvgIcons.logo, width: 70.r, height: 70.r),
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(

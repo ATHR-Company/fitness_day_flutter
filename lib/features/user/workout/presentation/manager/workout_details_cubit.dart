@@ -15,9 +15,11 @@ class WorkoutDetailsCubit extends Cubit<WorkoutDetailsState> {
         _completeWorkoutSetUseCase = completeWorkoutSetUseCase,
         super(const WorkoutDetailsInitial());
 
-  Future<void> getWorkoutDetails(String workoutItemId) async {
+  Future<void> getWorkoutDetails(
+      String assessmentId, int dayNumber, String workoutItemId) async {
     emit(const WorkoutDetailsLoading());
-    final result = await _getWorkoutDetailsUseCase(workoutItemId);
+    final result = await _getWorkoutDetailsUseCase(
+        assessmentId, dayNumber, workoutItemId);
     switch (result) {
       case Success(:final data):
         if (data.data != null) {

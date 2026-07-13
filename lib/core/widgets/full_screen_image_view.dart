@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:omni_image/omni_image.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 /// Displays an image (URL or local [File]) in a full-screen viewer with:
 /// - Hero transition support via [heroTag]
@@ -233,9 +234,9 @@ class _FullScreenImageViewState extends State<FullScreenImageView>
                                     widget.imageFile!,
                                     fit: BoxFit.contain,
                                   )
-                                : OmniImage(
+                                : AppImage(
+                                    widget.imageUrl,
                                     fit: BoxFit.contain,
-                                    image: widget.imageUrl ?? '',
                                   ),
                           ),
                         ),

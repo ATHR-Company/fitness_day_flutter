@@ -1,9 +1,9 @@
 import 'dart:io';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:camera/camera.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -135,13 +135,10 @@ class _ScanMealScreenState extends State<ScanMealScreen>
             Positioned(
               top: 0,
               right: 0,
-              child: SvgPicture.asset(
+              child: AppImage(
                 SvgIcons.decor,
                 fit: BoxFit.fill,
-                colorFilter: ColorFilter.mode(
-                  AppColors.primary.withValues(alpha: 0.05),
-                  BlendMode.srcIn,
-                ),
+                color: AppColors.primary.withValues(alpha: 0.05),
               ),
             ),
             SafeArea(

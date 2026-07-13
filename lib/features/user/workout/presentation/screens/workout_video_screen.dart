@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:video_player/video_player.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
@@ -11,7 +13,6 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/features/user/workout/presentation/widgets/workout_success_dialog.dart';
 import 'package:fitness_day/features/user/workout/presentation/widgets/workout_pause_dialog.dart';
-import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_details_cubit.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_details_state.dart';
 import 'package:fitness_day/features/user/workout/data/models/workout_details_model.dart';
@@ -175,9 +176,12 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: BlocProvider(
-        create: (context) =>
-            getIt<WorkoutDetailsCubit>()
-              ..getWorkoutDetails(widget.workoutItemId),
+        create: (context) {
+            final assessmentId = getIt<AppCache>().getAssessmentId() ?? '';
+            return getIt<WorkoutDetailsCubit>()
+              ..getWorkoutDetails(
+                  assessmentId, widget.dayNumber, widget.workoutItemId);
+          },
         child: BlocConsumer<WorkoutDetailsCubit, WorkoutDetailsState>(
           listener: (context, state) {
             if (state is WorkoutDetailsSuccess) {

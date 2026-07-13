@@ -7,8 +7,8 @@ import 'package:fitness_day/core/widgets/loader_hud.dart';
 
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 class ChatDetailsPage extends StatefulWidget {
   final String? title;
@@ -161,13 +161,13 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: widget.isAi
-                        ? Image.asset(AppImages.ai, fit: BoxFit.cover)
+                        ? AppImage(AppImages.ai, fit: BoxFit.cover)
                         : (widget.isSpecialist
-                              ? SvgPicture.asset(
+                              ? AppImage(
                                   SvgIcons.logo,
                                   fit: BoxFit.cover,
                                 )
-                              : Image.network(
+                              : AppImage(
                                   'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
                                   fit: BoxFit.cover,
                                 )),

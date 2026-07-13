@@ -23,6 +23,7 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/article
 import 'package:fitness_day/features/user/user_home/presentation/widgets/unsubscribed_hero_image.dart';
 import '../../../../../core/constant/app_assets.dart';
 import 'hydration_details_screen.dart';
+import 'steps_details_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_packages_grid.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/home_shimmer_loading.dart';
@@ -191,26 +192,28 @@ class _HomePageContent extends StatelessWidget {
                   SizedBox(height: 16.h),
 
                   // 7. Today's Tasks
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: SectionHeader(
-                      title: 'home.todays_tasks'.tr(),
-                      onMorePressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const UserTodayTasksPage(),
-                          ),
-                        );
-                      },
+                  if (homeData?.dailyTasks != null) ...[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: SectionHeader(
+                        title: 'home.todays_tasks'.tr(),
+                        onMorePressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const UserTodayTasksPage(),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 12.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: TodayTasksSection(tasks: state.tasks),
-                  ),
-                  SizedBox(height: 16.h),
+                    SizedBox(height: 12.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: TodayTasksSection(tasks: state.tasks),
+                    ),
+                    SizedBox(height: 16.h),
+                  ],
 
                   // 8. Activities (Hydration, Walking, Running)
                   if (currentActivity != null)
@@ -236,11 +239,38 @@ class _HomePageContent extends StatelessWidget {
                               extraIcon: null,
                               done: currentActivity['isCompleted'] ?? false,
                               onDetailsPressed: () {
-                                if (currentActivity['activityType'] == 'hydration') {
+                                final String activityType =
+                                    currentActivity['activityType'] as String? ?? '';
+                                final String activityId =
+                                    currentActivity['activityId'] as String? ?? '';
+                                final String assessmentId =
+                                    homeData?.dailyTasks?.assessmentId ?? '';
+                                final int dayNumber =
+                                    homeData?.dailyTasks?.dayNumber ?? 1;
+                                if (activityType == 'hydration') {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const HydrationDetailsScreen(),
+                                      builder: (_) => HydrationDetailsScreen(
+                                        assessmentId: assessmentId,
+                                        dayNumber: dayNumber,
+                                        activityId: activityId,
+                                      ),
+                                    ),
+                                  );
+                                } else if (activityType == 'walking' ||
+                                    activityType == 'running') {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => StepsDetailsScreen(
+                                        type: activityType == 'running'
+                                            ? ActivityType.running
+                                            : ActivityType.walking,
+                                        assessmentId: assessmentId,
+                                        dayNumber: dayNumber,
+                                        activityId: activityId,
+                                      ),
                                     ),
                                   );
                                 }
