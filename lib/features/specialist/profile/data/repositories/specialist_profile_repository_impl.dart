@@ -18,4 +18,20 @@ class SpecialistProfileRepositoryImpl implements SpecialistProfileRepository {
       return FailureResult(ErrorHandler.handle(e));
     }
   }
+
+  @override
+  Future<ApiResult<SpecialistProfileResponseModel>> updateSpecialistProfile({
+    required String name,
+    String? avatarPath,
+  }) async {
+    try {
+      final response = await remoteDataSource.updateSpecialistProfile(
+        name: name,
+        avatarPath: avatarPath,
+      );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
 }

@@ -3,4 +3,8 @@ import 'package:fitness_day/features/specialist/profile/data/models/specialist_p
 
 abstract class SpecialistProfileRepository {
   Future<ApiResult<SpecialistProfileResponseModel>> getSpecialistProfile();
+  Future<ApiResult<SpecialistProfileResponseModel>> updateSpecialistProfile({
+    required String name,
+    String? avatarPath,
+  });
 }

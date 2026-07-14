@@ -48,13 +48,14 @@ class ProfilePage extends StatelessWidget {
                   Expanded(
                     child: BlocBuilder<SpecialistProfileCubit, SpecialistProfileState>(
                       builder: (context, state) {
-                        if (state is SpecialistProfileLoading) {
+                        final cubit = context.read<SpecialistProfileCubit>();
+                        if (state is SpecialistProfileLoading && cubit.profileData == null) {
                           return const Center(
                             child: CircularProgressIndicator(
                               color: AppColors.primary,
                             ),
                           );
-                        } else if (state is SpecialistProfileFailure) {
+                        } else if (state is SpecialistProfileFailure && cubit.profileData == null) {
                           return Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -77,8 +78,8 @@ class ProfilePage extends StatelessWidget {
                               ],
                             ),
                           );
-                        } else if (state is SpecialistProfileSuccess) {
-                          final data = state.data;
+                        } else if (cubit.profileData != null) {
+                          final data = cubit.profileData!;
                           return Column(
                             children: [
                               // Avatar Section
@@ -145,12 +146,16 @@ class ProfilePage extends StatelessWidget {
                                       title: 'profile.personal_profile'.tr(),
                                       svgPath: SvgIcons.profile,
                                       onTap: () {
+                                        final cubit = context.read<SpecialistProfileCubit>();
                                         showDialog(
                                           context: context,
                                           barrierColor: AppColors.scrimOverlay.withValues(
                                             alpha: 0.5,
                                           ),
-                                          builder: (context) => const EditProfileDialog(),
+                                          builder: (_) => BlocProvider.value(
+                                            value: cubit,
+                                            child: const EditProfileDialog(),
+                                          ),
                                         );
                                       },
                                     ),

@@ -25,6 +25,7 @@ import 'package:fitness_day/features/specialist/profile/data/datasources/special
 import 'package:fitness_day/features/specialist/profile/data/repositories/specialist_profile_repository_impl.dart';
 import 'package:fitness_day/features/specialist/profile/domain/repositories/specialist_profile_repository.dart';
 import 'package:fitness_day/features/specialist/profile/domain/usecases/get_specialist_profile_usecase.dart';
+import 'package:fitness_day/features/specialist/profile/domain/usecases/update_specialist_profile_usecase.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_cubit.dart';
 
 // User Auth & Registration Setup
@@ -441,7 +442,13 @@ Future<void> init() async {
   getIt.registerLazySingleton<GetSpecialistProfileUseCase>(
     () => GetSpecialistProfileUseCase(getIt<SpecialistProfileRepository>()),
   );
+  getIt.registerLazySingleton<UpdateSpecialistProfileUseCase>(
+    () => UpdateSpecialistProfileUseCase(getIt<SpecialistProfileRepository>()),
+  );
   getIt.registerFactory<SpecialistProfileCubit>(
-    () => SpecialistProfileCubit(getIt<GetSpecialistProfileUseCase>()),
+    () => SpecialistProfileCubit(
+      getIt<GetSpecialistProfileUseCase>(),
+      getIt<UpdateSpecialistProfileUseCase>(),
+    ),
   );
 }

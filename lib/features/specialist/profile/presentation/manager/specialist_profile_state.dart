@@ -23,3 +23,13 @@ class SpecialistProfileFailure extends SpecialistProfileState {
 
   const SpecialistProfileFailure(this.message);
 }
+
+class SpecialistProfileUpdating extends SpecialistProfileState {
+  const SpecialistProfileUpdating();
+}
+
+class SpecialistProfileUpdateFailure extends SpecialistProfileState {
+  final String message;
+
+  const SpecialistProfileUpdateFailure(this.message);
+}
