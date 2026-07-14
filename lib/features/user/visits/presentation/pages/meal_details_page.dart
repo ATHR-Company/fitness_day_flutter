@@ -99,11 +99,11 @@ class MealDetailsPage extends StatelessWidget {
                             title: isAr ? 'تفاصيل الوجبة' : 'Meal Details',
                           ),
                         ),
-                        SizedBox(height: 8.h),
+                        //SizedBox(height: 8.h),
                         Text(
                           isAr ? 'مضافة بواسطة يوم الرشاقة' : 'Added by Fitness Day',
-                          style: TextStyleManager.style11Medium.copyWith(
-                            color: AppColors.textPrimary,
+                          style: TextStyleManager.style8Medium.copyWith(
+                            color: AppColors.textSecondary,
                           ),
                         ),
                         SizedBox(height: 24.h),
@@ -124,7 +124,7 @@ class MealDetailsPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 12.h),
 
                         // Meal Name
                         Padding(
@@ -133,8 +133,7 @@ class MealDetailsPage extends StatelessWidget {
                             data.name,
                             textAlign: TextAlign.center,
                             style: TextStyleManager.heading2.copyWith(
-                              color: AppColors.black,
-                              fontWeight: FontWeight.bold,
+                              //color: AppColors.black,
                             ),
                           ),
                         ),
@@ -146,9 +145,8 @@ class MealDetailsPage extends StatelessWidget {
                           child: Text(
                             descriptionText,
                             textAlign: TextAlign.center,
-                            style: TextStyleManager.style11Medium.copyWith(
-                              color: AppColors.textPrimary,
-                              height: 1.5,
+                            style: TextStyleManager.style10Medium.copyWith(
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ),
@@ -187,7 +185,7 @@ class MealDetailsPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(height: 32.h),
+                        SizedBox(height: 28.h),
 
                         // Preparation Method
                         Padding(

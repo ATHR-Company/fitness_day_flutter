@@ -69,14 +69,14 @@ class TaskCard extends StatelessWidget {
                     Text(
                       task.time,
                       style: TextStyleManager.style10Medium.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.primary,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(width: 8.w),
                     Container(
-                      width: 28.w,
-                      height: 28.w,
+                      width: 22.w,
+                      height: 22.w,
                       decoration: BoxDecoration(
                         color: task.done ? AppColors.primary : AppColors.divider,
                         shape: BoxShape.circle,

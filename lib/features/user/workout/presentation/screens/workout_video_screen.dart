@@ -21,11 +21,13 @@ enum ExercisePhase { warmup, exercise, cooldown }
 
 class WorkoutVideoScreen extends StatefulWidget {
   final String workoutItemId;
+  final String assessmentId;
   final int dayNumber;
 
   const WorkoutVideoScreen({
     super.key,
     required this.workoutItemId,
+    required this.assessmentId,
     required this.dayNumber,
   });
 
@@ -177,10 +179,12 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
       onWillPop: _onBackPressed,
       child: BlocProvider(
         create: (context) {
-            final assessmentId = getIt<AppCache>().getAssessmentId() ?? '';
+            final assId = widget.assessmentId.isNotEmpty
+                ? widget.assessmentId
+                : (getIt<AppCache>().getAssessmentId() ?? '');
             return getIt<WorkoutDetailsCubit>()
               ..getWorkoutDetails(
-                  assessmentId, widget.dayNumber, widget.workoutItemId);
+                  assId, widget.dayNumber, widget.workoutItemId);
           },
         child: BlocConsumer<WorkoutDetailsCubit, WorkoutDetailsState>(
           listener: (context, state) {
@@ -465,6 +469,9 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
                                               context
                                                   .read<WorkoutDetailsCubit>()
                                                   .completeWorkoutSet(
+                                                    assessmentId: widget.assessmentId.isNotEmpty
+                                                        ? widget.assessmentId
+                                                        : (getIt<AppCache>().getAssessmentId() ?? ''),
                                                     dayNumber: widget.dayNumber,
                                                     workoutItemId:
                                                         widget.workoutItemId,

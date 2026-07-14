@@ -16,11 +16,13 @@ import 'package:fitness_day/core/widgets/app_image.dart';
 
 class ExerciseDetailsDialog extends StatefulWidget {
   final String? workoutItemId;
+  final String? assessmentId;
   final int? dayNumber;
 
   const ExerciseDetailsDialog({
     super.key,
     this.workoutItemId,
+    this.assessmentId,
     this.dayNumber,
   });
 
@@ -56,9 +58,9 @@ class _ExerciseDetailsDialogState extends State<ExerciseDetailsDialog>
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final assessmentId = getIt<AppCache>().getAssessmentId() ?? '';
+        final assId = widget.assessmentId ?? (getIt<AppCache>().getAssessmentId() ?? '');
         return getIt<WorkoutDetailsCubit>()
-          ..getWorkoutDetails(assessmentId, _dayNumber, _workoutItemId);
+          ..getWorkoutDetails(assId, _dayNumber, _workoutItemId);
       },
       child: BlocBuilder<WorkoutDetailsCubit, WorkoutDetailsState>(
         builder: (context, state) {
@@ -198,6 +200,7 @@ class _ExerciseDetailsDialogState extends State<ExerciseDetailsDialog>
                     UserAppRoutes.workoutVideo,
                     extra: {
                       'workoutItemId': _workoutItemId,
+                      'assessmentId': widget.assessmentId ?? '',
                       'dayNumber': _dayNumber,
                     },
                   );
