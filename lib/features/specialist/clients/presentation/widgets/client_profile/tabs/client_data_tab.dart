@@ -4,10 +4,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:fitness_day/features/specialist/clients/data/models/specialist_client_model.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/components/info_card.dart';
 
 class ClientDataTab extends StatelessWidget {
-  const ClientDataTab({super.key});
+  final SpecialistClientProfileDataModel data;
+
+  const ClientDataTab({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +30,13 @@ class ClientDataTab extends StatelessWidget {
             ),
             data: {
               'clients_page.body_mass'.tr():
-                  '19.44 ${'clients_page.bmi_unit'.tr()}',
+                  '${data.bodyReport?.bmi?.value ?? ''} ${data.bodyReport?.bmi?.unit ?? ''} (${data.bodyReport?.bmi?.status ?? ''})',
               'clients_page.ideal_weight'.tr():
-                  '68.00 ${'clients_page.kg'.tr()}',
+                  '${data.bodyReport?.idealWeight?.value ?? ''} ${data.bodyReport?.idealWeight?.unit ?? ''}',
               'clients_page.calories'.tr():
-                  '1025 ${'clients_page.calorie'.tr()}',
+                  '${data.bodyReport?.calories?.value ?? ''} ${data.bodyReport?.calories?.unit ?? ''}',
               'clients_page.protein_needs'.tr():
-                  '45 ${'clients_page.gram'.tr()}',
+                  '${data.bodyReport?.proteinNeeds?.value ?? ''} ${data.bodyReport?.proteinNeeds?.unit ?? ''}',
             },
             greenValues: [
               'clients_page.body_mass'.tr(),
@@ -41,47 +45,15 @@ class ClientDataTab extends StatelessWidget {
               'clients_page.protein_needs'.tr(),
             ],
           ),
-          InfoCard(
-            title: 'clients_page.diet_plan'.tr(),
-            icon: Icon(
-              Icons.assignment_outlined,
-              color: AppColors.primary,
-              size: 24.sp,
-            ),
-            data: {
-              'clients_page.diet_type'.tr(): 'spec_mock_diet_mixed'
-                  .tr(), // "Mixed Diet"
-              'clients_page.body_mass'.tr():
-                  '2', // Wait, design says 'كتلة الجسم : 2', we will just put '2'
-              'clients_page.favorite_foods'.tr(): 'specialist_diet_meals'
-                  .tr(), // "Low salt healthy meals"
-              'clients_page.food_allergies'.tr(): 'spec_mock_diet_allergies'
-                  .tr(), // "Meals containing beans"
-            },
-            greenValues: [
-              'clients_page.diet_type'.tr(),
-              'clients_page.body_mass'.tr(),
-              'clients_page.favorite_foods'.tr(),
-              'clients_page.food_allergies'.tr(),
-            ],
-          ),
-          // InfoCard(
-          //   title: 'clients_page.physical_activity'.tr(),
-          //   icon: Icon(Icons.fitness_center_outlined, color: AppColors.primary, size: 24.sp),
-          //   data: {
-          //     'clients_page.daily_steps'.tr(): '5000',
-          //   },
-          //   greenValues: [
-          //     'clients_page.daily_steps'.tr(),
-          //   ],
-          // ),
-          // SizedBox(height: 24.h),
+          _buildHealthProblemsCard(),
         ],
       ),
     );
   }
 
   Widget _buildProfileHeader() {
+    final adherenceRate = data.userData?.adherenceRate;
+
     return Container(
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
@@ -96,27 +68,28 @@ class ClientDataTab extends StatelessWidget {
       child: Stack(
         children: [
           // Badge
-          Align(
-            alignment: AlignmentDirectional.topEnd,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                gradient: AppColors.timeRemainingGradient,
-                borderRadius: BorderRadiusDirectional.only(
-                  topEnd: Radius.circular(4.r),
-                  bottomStart: Radius.circular(12.r),
+          if (adherenceRate != null)
+            Align(
+              alignment: AlignmentDirectional.topEnd,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  gradient: AppColors.timeRemainingGradient,
+                  borderRadius: BorderRadiusDirectional.only(
+                    topEnd: Radius.circular(4.r),
+                    bottomStart: Radius.circular(12.r),
+                  ),
+                  boxShadow: AppShadows.primaryShadow,
                 ),
-                boxShadow: AppShadows.primaryShadow,
-              ),
-              child: Text(
-                'clients_page.commitment_rate'.tr(args: ['85']),
-                style: TextStyleManager.style10Medium.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
+                child: Text(
+                  'clients_page.commitment_rate'.tr(args: [adherenceRate.toInt().toString()]),
+                  style: TextStyleManager.style10Medium.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
           Padding(
             padding: EdgeInsets.all(16.w),
             child: Column(
@@ -132,17 +105,19 @@ class ClientDataTab extends StatelessWidget {
                         border: Border.all(color: AppColors.divider, width: 2),
                       ),
                       child: ClipOval(
-                        child: Icon(
-                          Icons.person,
-                          size: 40.sp,
-                          color: Colors.grey,
+                        child: AppImage(
+                          data.userData?.avatar ?? '',
+                          width: 70.r,
+                          height: 70.r,
+                          fit: BoxFit.cover,
+                          isAvatar: true,
                         ),
                       ),
                     ),
                     SizedBox(width: 16.w),
                     Expanded(
                       child: Text(
-                        'spec_mock_name'.tr(),
+                        data.userData?.fullName ?? '',
                         style: TextStyleManager.style14Bold.copyWith(
                           color: AppColors.black,
                         ),
@@ -160,17 +135,17 @@ class ClientDataTab extends StatelessWidget {
                         children: [
                           _buildHeaderDetail(
                             'clients_page.goal'.tr(),
-                            'clients_page.dummy_goal'.tr(),
+                            data.userData?.goal ?? '',
                           ),
                           SizedBox(height: 8.h),
                           _buildHeaderDetail(
                             'clients_page.height_short'.tr(),
-                            '167 ${'clients_page.cm'.tr()}',
+                            '${data.userData?.height?.toInt() ?? 0} ${'clients_page.cm'.tr()}',
                           ),
                           SizedBox(height: 8.h),
                           _buildHeaderDetail(
                             'spec_mock_activity'.tr(),
-                            'spec_mock_inactive'.tr(),
+                            data.userData?.activityLevel ?? '',
                           ),
                         ],
                       ),
@@ -179,11 +154,11 @@ class ClientDataTab extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildHeaderDetail('clients_page.age'.tr(), '28'),
+                          _buildHeaderDetail('clients_page.age'.tr(), data.userData?.age?.toString() ?? ''),
                           SizedBox(height: 8.h),
                           _buildHeaderDetail(
                             'clients_page.weight'.tr(),
-                            '58 ${'clients_page.kg'.tr()}',
+                            '${data.userData?.weight?.toInt() ?? 0} ${'clients_page.kg'.tr()}',
                           ),
                         ],
                       ),
@@ -193,6 +168,121 @@ class ClientDataTab extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHealthProblemsCard() {
+    final questions = data.healthQuestions ?? [];
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        gradient: AppColors.cardGradient,
+        borderRadius: BorderRadiusDirectional.only(
+          topStart: Radius.circular(4.r),
+          topEnd: Radius.circular(4.r),
+          bottomStart: Radius.circular(4.r),
+          bottomEnd: Radius.circular(32.r),
+        ),
+        boxShadow: AppShadows.primaryShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Card header
+          Row(
+            children: [
+              Container(
+                width: 40.r,
+                height: 40.r,
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundTint,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.health_and_safety_outlined,
+                    color: AppColors.primary,
+                    size: 22.sp,
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Text(
+                'clients_page.health_problems'.tr(),
+                style: TextStyleManager.style14Bold,
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          if (questions.isEmpty)
+            Text(
+              'clients_page.no_health_problems'.tr(),
+              style: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            )
+          else
+            ...questions.map(
+              (q) => Padding(
+                padding: EdgeInsets.only(bottom: 10.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          q.answer == true
+                              ? Icons.check_circle_rounded
+                              : Icons.radio_button_unchecked_rounded,
+                          color: q.answer == true
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
+                          size: 16.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            q.question ?? '',
+                            style: TextStyleManager.style11Medium.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (q.details != null && q.details!.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsetsDirectional.only(start: 24.w, top: 4.h),
+                        child: Text.rich(
+                          TextSpan(
+                            text: '${'clients_page.reason'.tr()} : ',
+                            style: TextStyleManager.style10Medium.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: q.details,
+                                style: TextStyleManager.style10Medium.copyWith(
+                                  color: AppColors.error,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

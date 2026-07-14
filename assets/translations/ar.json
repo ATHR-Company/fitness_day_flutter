@@ -406,7 +406,12 @@
     "height_short": "الطول",
     "ideal_weight_short": "الوزن المثالي",
     "body_mass_short": "كتلة الجسم",
-    "weight_short": "الوزن"
+    "weight_short": "الوزن",
+    "health_problems": "المشاكل الصحية",
+    "no_health_problems": "لا توجد مشاكل صحية",
+    "reason": "السبب",
+    "empty_title": "لا توجد عملاء حتى الآن",
+    "empty_subtitle": "لا يوجد عملاء حتى الآن ستظهر بيانات العملاء هنا عند بدء اشتراكهم في إحدى الباقات."
   },
   "onboarding": {
     "skip": "تخطي »",

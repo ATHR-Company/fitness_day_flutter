@@ -28,7 +28,7 @@ class HomePage extends StatelessWidget {
       create: (context) => di.getIt<SpecialistHomeCubit>()..getSpecialistHomeData(),
       child: PopScope(
         canPop: false,
-        onPopInvoked: (didPop) async {
+        onPopInvokedWithResult: (didPop, result) async {
           if (didPop) return;
           showDialog(
             context: context,
@@ -175,7 +175,9 @@ class HomePage extends StatelessWidget {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => const ClientProfilePage(),
+                                          builder: (_) => ClientProfilePage(
+                                            userId: data.needsFollowUp!.id,
+                                          ),
                                         ),
                                       );
                                     },

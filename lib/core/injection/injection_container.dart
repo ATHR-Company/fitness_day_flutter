@@ -28,6 +28,15 @@ import 'package:fitness_day/features/specialist/profile/domain/usecases/get_spec
 import 'package:fitness_day/features/specialist/profile/domain/usecases/update_specialist_profile_usecase.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_cubit.dart';
 
+// Specialist Clients
+import 'package:fitness_day/features/specialist/clients/data/datasources/specialist_clients_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/clients/data/repositories/specialist_clients_repository_impl.dart';
+import 'package:fitness_day/features/specialist/clients/domain/repositories/specialist_clients_repository.dart';
+import 'package:fitness_day/features/specialist/clients/domain/usecases/get_specialist_clients_usecase.dart';
+import 'package:fitness_day/features/specialist/clients/domain/usecases/get_specialist_client_profile_usecase.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_clients_cubit.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_client_profile_cubit.dart';
+
 // User Auth & Registration Setup
 import 'package:fitness_day/features/user/auth/data/datasources/user_auth_remote_datasource.dart';
 import 'package:fitness_day/features/user/auth/data/repositories/user_auth_repository_impl.dart';
@@ -450,5 +459,25 @@ Future<void> init() async {
       getIt<GetSpecialistProfileUseCase>(),
       getIt<UpdateSpecialistProfileUseCase>(),
     ),
+  );
+
+  // Specialist Clients
+  getIt.registerLazySingleton<SpecialistClientsRemoteDataSource>(
+    () => SpecialistClientsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistClientsRepository>(
+    () => SpecialistClientsRepositoryImpl(getIt<SpecialistClientsRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistClientsUseCase>(
+    () => GetSpecialistClientsUseCase(getIt<SpecialistClientsRepository>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistClientProfileUseCase>(
+    () => GetSpecialistClientProfileUseCase(getIt<SpecialistClientsRepository>()),
+  );
+  getIt.registerFactory<SpecialistClientsCubit>(
+    () => SpecialistClientsCubit(getIt<GetSpecialistClientsUseCase>()),
+  );
+  getIt.registerFactory<SpecialistClientProfileCubit>(
+    () => SpecialistClientProfileCubit(getIt<GetSpecialistClientProfileUseCase>()),
   );
 }
