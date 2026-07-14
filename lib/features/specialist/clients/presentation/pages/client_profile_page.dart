@@ -146,7 +146,7 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
       case 0:
         return ClientDataTab(data: clientData);
       case 1:
-        return const ClientVisitsTab();
+        return ClientVisitsTab(userId: widget.userId);
       case 2:
         return const ClientProgressTab();
       default:

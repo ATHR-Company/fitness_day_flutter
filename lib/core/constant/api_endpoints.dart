@@ -11,6 +11,8 @@ class ApiEndpoints {
   static const String updateSpecialistProfile = '/specialist/update-my-profile';
   static const String specialistClients = '/specialist/clients';
   static String specialistClientProfile(String userId) => '/specialist/clients/$userId/profile';
+  static String specialistClientUpcomingAssessments(String userId) => '/specialist/clients/$userId/assessments/upcoming';
+  static String specialistClientPreviousAssessments(String userId) => '/specialist/clients/$userId/assessments/previous';
   static const String forgotPasswordSendOtp = '/auth/forgot-password/send-otp';
   static const String forgotPasswordVerifyOtp = '/auth/forgot-password/verify-otp';
   static const String forgotPasswordReset = '/auth/forgot-password/reset';

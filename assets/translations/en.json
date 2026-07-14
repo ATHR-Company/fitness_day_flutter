@@ -411,7 +411,9 @@
     "no_health_problems": "No health problems",
     "reason": "Reason",
     "empty_title": "No Clients Yet",
-    "empty_subtitle": "There are no clients yet. Client data will appear here once they start their subscription in one of the packages."
+    "empty_subtitle": "There are no clients yet. Client data will appear here once they start their subscription in one of the packages.",
+    "no_upcoming_visits": "No upcoming visits",
+    "no_past_visits": "No past visits"
   },
   "auth_bmi_report_title": "BMI Report",
   "auth_bmi_report_desc": "View your health data and BMI to start your journey\ntowards better health and fitness.",
