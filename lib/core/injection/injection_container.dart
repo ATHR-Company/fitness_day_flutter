@@ -10,6 +10,7 @@ import 'package:fitness_day/features/specialist/auth/data/datasources/auth_remot
 import 'package:fitness_day/features/specialist/auth/data/repositories/auth_repository_impl.dart';
 import 'package:fitness_day/features/specialist/auth/domain/repositories/auth_repository.dart';
 import 'package:fitness_day/features/specialist/auth/domain/usecases/login_usecase.dart';
+import 'package:fitness_day/features/specialist/auth/domain/usecases/logout_usecase.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
 
 // User Auth & Registration Setup
@@ -200,6 +201,10 @@ Future<void> init() async {
     () => LoginUseCase(getIt<AuthRepository>()),
   );
 
+  getIt.registerLazySingleton<LogoutUseCase>(
+    () => LogoutUseCase(getIt<AuthRepository>()),
+  );
+
   getIt.registerLazySingleton<UserSignupUseCase>(
     () => UserSignupUseCase(getIt<UserAuthRepository>()),
   );
@@ -283,6 +288,7 @@ Future<void> init() async {
   getIt.registerFactory<AuthCubit>(
     () => AuthCubit(
       loginUseCase: getIt<LoginUseCase>(),
+      logoutUseCase: getIt<LogoutUseCase>(),
       secureCache: getIt<SecureCache>(),
       appCache: getIt<AppCache>(),
     ),

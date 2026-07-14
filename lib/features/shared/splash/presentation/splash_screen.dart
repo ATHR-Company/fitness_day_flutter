@@ -8,6 +8,8 @@ import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 
 import '../../../../core/routes/user_routes/app_routes.dart';
+import '../../../../core/routes/specialist_routes/app_routes.dart';
+import 'package:fitness_day/fitness_day.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -58,7 +60,14 @@ class _SplashScreenState extends State<SplashScreen> {
     if (mounted) {
       final appCache = di.getIt<AppCache>();
       if (appCache.isLoggedIn()) {
-        context.go(UserAppRoutes.home);
+        final userType = appCache.getUserType();
+        if (userType == 'specialist') {
+          RoleNotifier.instance.setRole(AppRole.specialist);
+          context.go(SpecialistAppRoutes.home);
+        } else {
+          RoleNotifier.instance.setRole(AppRole.user);
+          context.go(UserAppRoutes.home);
+        }
       } else if (appCache.hasSeenOnboarding()) {
         context.go(SharedRoutes.roleSelection);
       } else {

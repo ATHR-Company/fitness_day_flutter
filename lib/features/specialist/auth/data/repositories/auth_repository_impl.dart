@@ -22,4 +22,15 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(failure.message);
     }
   }
+
+  @override
+  Future<Either<String, void>> logout() async {
+    try {
+      await remoteDataSource.logout();
+      return const Right(null);
+    } catch (e) {
+      final failure = ErrorHandler.handle(e);
+      return Left(failure.message);
+    }
+  }
 }
