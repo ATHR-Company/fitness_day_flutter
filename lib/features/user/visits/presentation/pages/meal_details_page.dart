@@ -46,6 +46,7 @@ class MealDetailsPage extends StatelessWidget {
                   );
                 } else if (state is MealDetailsSuccess) {
                   final data = state.mealDetailsData;
+                  final isUpdating = state.isUpdating;
 
                   // Parse ingredients into description format
                   final descriptionText = data.ingredients
@@ -206,6 +207,76 @@ class MealDetailsPage extends StatelessWidget {
                             data: tableData,
                           ),
                         ),
+
+                        if (data.canEdit) ...[
+                          SizedBox(height: 24.h),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 20.w),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 50.h,
+                              child: ElevatedButton(
+                                onPressed: isUpdating
+                                    ? null
+                                    : () {
+                                        context
+                                            .read<MealDetailsCubit>()
+                                            .toggleMealCompletion(
+                                              data.assessmentId.isNotEmpty
+                                                  ? data.assessmentId
+                                                  : assessmentId,
+                                              data.dayNumber > 0
+                                                  ? data.dayNumber
+                                                  : dayNumber,
+                                              data.id.isNotEmpty
+                                                  ? data.id
+                                                  : mealId,
+                                              !data.isCompleted,
+                                            );
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: data.isCompleted
+                                      ? AppColors.divider
+                                      : AppColors.primary,
+                                  foregroundColor: AppColors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                  elevation: 2,
+                                ),
+                                child: isUpdating
+                                    ? SizedBox(
+                                        width: 20.w,
+                                        height: 20.w,
+                                        child: const CircularProgressIndicator(
+                                          color: AppColors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            data.isCompleted
+                                                ? Icons.undo_rounded
+                                                : Icons.check_circle_outline_rounded,
+                                            size: 20.sp,
+                                          ),
+                                          SizedBox(width: 8.w),
+                                          Text(
+                                            data.isCompleted
+                                                ? (isAr ? 'إلغاء الإكمال' : 'Mark as Incomplete')
+                                                : (isAr ? 'إكمال الوجبة' : 'Complete Meal'),
+                                            style: TextStyleManager.style14Bold.copyWith(
+                                              color: AppColors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ],
                         SizedBox(height: 32.h),
                       ],
                     ),

@@ -4,6 +4,7 @@ import 'package:fitness_day/features/user/visits/data/datasources/visits_remote_
 import 'package:fitness_day/features/user/visits/data/models/activity_details_model.dart';
 import 'package:fitness_day/features/user/visits/data/models/diet_plan_model.dart';
 import 'package:fitness_day/features/user/visits/data/models/meal_details_model.dart';
+import 'package:fitness_day/features/user/visits/data/models/update_meal_completion_model.dart';
 import 'package:fitness_day/features/user/visits/domain/repositories/visits_repository.dart';
 
 class VisitsRepositoryImpl implements VisitsRepository {
@@ -39,6 +40,18 @@ class VisitsRepositoryImpl implements VisitsRepository {
     try {
       final response = await _remoteDataSource.getActivityDetails(
           assessmentId, dayNumber, activityId);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<UpdateMealCompletionResponseModel>> updateMealCompletionStatus(
+      String assessmentId, int dayNumber, String mealId, bool isCompleted) async {
+    try {
+      final response = await _remoteDataSource.updateMealCompletionStatus(
+          assessmentId, dayNumber, mealId, isCompleted);
       return Success(response);
     } catch (e) {
       return FailureResult(ErrorHandler.handle(e));
