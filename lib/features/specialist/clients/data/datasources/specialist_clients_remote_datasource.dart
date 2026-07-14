@@ -2,6 +2,7 @@ import 'package:fitness_day/core/constant/api_endpoints.dart';
 import 'package:fitness_day/core/network/api_service.dart';
 import 'package:fitness_day/features/specialist/clients/data/models/specialist_client_model.dart';
 import 'package:fitness_day/features/specialist/clients/data/models/client_assessment_model.dart';
+import 'package:fitness_day/features/specialist/clients/data/models/client_progress_model.dart';
 
 abstract class SpecialistClientsRemoteDataSource {
   Future<SpecialistClientsListResponseModel> getSpecialistClients({
@@ -25,6 +26,11 @@ abstract class SpecialistClientsRemoteDataSource {
     required String userId,
     required int page,
     required int limit,
+  });
+
+  Future<ClientProgressResponseModel> getClientProgress({
+    required String userId,
+    required int visitNumber,
   });
 }
 
@@ -90,6 +96,18 @@ class SpecialistClientsRemoteDataSourceImpl implements SpecialistClientsRemoteDa
       queryParameters: {'page': page, 'limit': limit},
     );
     return ClientAssessmentsResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<ClientProgressResponseModel> getClientProgress({
+    required String userId,
+    required int visitNumber,
+  }) async {
+    final response = await _apiService.get(
+      ApiEndpoints.specialistClientProgress(userId),
+      queryParameters: {'visitNumber': visitNumber},
+    );
+    return ClientProgressResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 }
 

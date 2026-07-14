@@ -36,9 +36,11 @@ import 'package:fitness_day/features/specialist/clients/domain/usecases/get_spec
 import 'package:fitness_day/features/specialist/clients/domain/usecases/get_specialist_client_profile_usecase.dart';
 import 'package:fitness_day/features/specialist/clients/domain/usecases/get_upcoming_assessments_usecase.dart';
 import 'package:fitness_day/features/specialist/clients/domain/usecases/get_previous_assessments_usecase.dart';
+import 'package:fitness_day/features/specialist/clients/domain/usecases/get_client_progress_usecase.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_clients_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_client_profile_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_cubit.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_cubit.dart';
 
 // User Auth & Registration Setup
 import 'package:fitness_day/features/user/auth/data/datasources/user_auth_remote_datasource.dart';
@@ -494,5 +496,11 @@ Future<void> init() async {
       getIt<GetUpcomingAssessmentsUseCase>(),
       getIt<GetPreviousAssessmentsUseCase>(),
     ),
+  );
+  getIt.registerLazySingleton<GetClientProgressUseCase>(
+    () => GetClientProgressUseCase(getIt<SpecialistClientsRepository>()),
+  );
+  getIt.registerFactory<ClientProgressCubit>(
+    () => ClientProgressCubit(getIt<GetClientProgressUseCase>()),
   );
 }

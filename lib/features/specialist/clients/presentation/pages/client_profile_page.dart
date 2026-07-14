@@ -148,7 +148,7 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
       case 1:
         return ClientVisitsTab(userId: widget.userId);
       case 2:
-        return const ClientProgressTab();
+        return ClientProgressTab(userId: widget.userId);
       default:
         return const SizedBox.shrink();
     }
