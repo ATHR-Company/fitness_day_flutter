@@ -8,10 +8,11 @@ class CompleteWorkoutSetUseCase {
   CompleteWorkoutSetUseCase(this._repository);
 
   Future<ApiResult<CompleteWorkoutSetResponseModel>> call({
+    required String assessmentId,
     required int dayNumber,
     required String workoutItemId,
     required int setNumber,
   }) {
-    return _repository.completeWorkoutSet(dayNumber, workoutItemId, setNumber);
+    return _repository.completeWorkoutSet(assessmentId, dayNumber, workoutItemId, setNumber);
   }
 }

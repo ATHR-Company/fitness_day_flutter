@@ -21,7 +21,7 @@ class WorkoutItemModel {
 
   factory WorkoutItemModel.fromJson(Map<String, dynamic> json) {
     return WorkoutItemModel(
-      id: json['id'] as String? ?? json['_id'] as String? ?? '',
+      id: json['workoutItemId'] as String? ?? json['id'] as String? ?? json['_id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
       photo: json['photo'] as String? ?? '',
@@ -46,25 +46,22 @@ class WorkoutItemModel {
   }
 }
 
-class WorkoutPlanResponseModel {
-  final bool success;
-  final int statusCode;
-  final String message;
-  final List<WorkoutItemModel> data;
+class WorkoutPlanData {
+  final String assessmentId;
+  final int dayNumber;
+  final List<WorkoutItemModel> workouts;
 
-  const WorkoutPlanResponseModel({
-    required this.success,
-    required this.statusCode,
-    required this.message,
-    required this.data,
+  const WorkoutPlanData({
+    required this.assessmentId,
+    required this.dayNumber,
+    required this.workouts,
   });
 
-  factory WorkoutPlanResponseModel.fromJson(Map<String, dynamic> json) {
-    return WorkoutPlanResponseModel(
-      success: json['success'] as bool? ?? false,
-      statusCode: json['statusCode'] as int? ?? 0,
-      message: json['message'] as String? ?? '',
-      data: (json['data'] as List<dynamic>?)
+  factory WorkoutPlanData.fromJson(Map<String, dynamic> json) {
+    return WorkoutPlanData(
+      assessmentId: json['assessmentId'] as String? ?? '',
+      dayNumber: json['dayNumber'] as int? ?? 1,
+      workouts: (json['workouts'] as List<dynamic>?)
               ?.map((e) => WorkoutItemModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
@@ -73,10 +70,43 @@ class WorkoutPlanResponseModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'assessmentId': assessmentId,
+      'dayNumber': dayNumber,
+      'workouts': workouts.map((e) => e.toJson()).toList(),
+    };
+  }
+}
+
+class WorkoutPlanResponseModel {
+  final bool success;
+  final int statusCode;
+  final String message;
+  final WorkoutPlanData? data;
+
+  const WorkoutPlanResponseModel({
+    required this.success,
+    required this.statusCode,
+    required this.message,
+    this.data,
+  });
+
+  factory WorkoutPlanResponseModel.fromJson(Map<String, dynamic> json) {
+    return WorkoutPlanResponseModel(
+      success: json['success'] as bool? ?? false,
+      statusCode: json['statusCode'] as int? ?? 0,
+      message: json['message'] as String? ?? '',
+      data: json['data'] != null
+          ? WorkoutPlanData.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
       'success': success,
       'statusCode': statusCode,
       'message': message,
-      'data': data.map((e) => e.toJson()).toList(),
+      'data': data?.toJson(),
     };
   }
 }

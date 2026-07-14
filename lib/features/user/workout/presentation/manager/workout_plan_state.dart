@@ -13,9 +13,9 @@ class WorkoutPlanLoading extends WorkoutPlanState {
 }
 
 class WorkoutPlanSuccess extends WorkoutPlanState {
-  final List<WorkoutItemModel> workouts;
+  final WorkoutPlanData? workoutPlanData;
 
-  const WorkoutPlanSuccess(this.workouts);
+  const WorkoutPlanSuccess(this.workoutPlanData);
 }
 
 class WorkoutPlanFailure extends WorkoutPlanState {

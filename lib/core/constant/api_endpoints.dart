@@ -32,8 +32,8 @@ class ApiEndpoints {
   static String workoutPlanDay(int dayNumber) => '/workout-plan/days/$dayNumber/workouts';
   static String workoutDetails(String assessmentId, int dayNumber, String workoutItemId) =>
       '/workout-plan/assessments/$assessmentId/days/$dayNumber/workouts/$workoutItemId';
-  static String completeWorkoutSet(int dayNumber, String workoutItemId, int setNumber) =>
-      '/workout-plan/days/$dayNumber/workouts/$workoutItemId/sets/$setNumber/complete';
+  static String completeWorkoutSet(String assessmentId, int dayNumber, String workoutItemId, int setNumber) =>
+      '/workout-plan/assessments/$assessmentId/days/$dayNumber/workouts/$workoutItemId/sets/$setNumber/complete';
   static String dailyTasks(int dayNumber) => '/daily-tasks/days/$dayNumber';
 
   // Activity tracking — send progress to backend

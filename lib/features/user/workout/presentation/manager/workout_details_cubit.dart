@@ -33,12 +33,14 @@ class WorkoutDetailsCubit extends Cubit<WorkoutDetailsState> {
   }
 
   Future<void> completeWorkoutSet({
+    required String assessmentId,
     required int dayNumber,
     required String workoutItemId,
     required int setNumber,
   }) async {
     emit(const WorkoutSetCompletionLoading());
     final result = await _completeWorkoutSetUseCase(
+      assessmentId: assessmentId,
       dayNumber: dayNumber,
       workoutItemId: workoutItemId,
       setNumber: setNumber,

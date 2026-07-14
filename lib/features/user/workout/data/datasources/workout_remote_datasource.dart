@@ -9,6 +9,7 @@ abstract class WorkoutRemoteDataSource {
   Future<WorkoutDetailsResponseModel> getWorkoutDetails(
       String assessmentId, int dayNumber, String workoutItemId);
   Future<CompleteWorkoutSetResponseModel> completeWorkoutSet(
+    String assessmentId,
     int dayNumber,
     String workoutItemId,
     int setNumber,
@@ -40,12 +41,13 @@ class WorkoutRemoteDataSourceImpl implements WorkoutRemoteDataSource {
 
   @override
   Future<CompleteWorkoutSetResponseModel> completeWorkoutSet(
+    String assessmentId,
     int dayNumber,
     String workoutItemId,
     int setNumber,
   ) async {
     final response = await _apiService.patch(
-      ApiEndpoints.completeWorkoutSet(dayNumber, workoutItemId, setNumber),
+      ApiEndpoints.completeWorkoutSet(assessmentId, dayNumber, workoutItemId, setNumber),
     );
     return CompleteWorkoutSetResponseModel.fromJson(response.data as Map<String, dynamic>);
   }

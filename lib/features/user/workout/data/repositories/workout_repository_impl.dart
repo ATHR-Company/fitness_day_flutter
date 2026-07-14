@@ -35,12 +35,13 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
 
   @override
   Future<ApiResult<CompleteWorkoutSetResponseModel>> completeWorkoutSet(
+    String assessmentId,
     int dayNumber,
     String workoutItemId,
     int setNumber,
   ) async {
     try {
-      final response = await _remoteDataSource.completeWorkoutSet(dayNumber, workoutItemId, setNumber);
+      final response = await _remoteDataSource.completeWorkoutSet(assessmentId, dayNumber, workoutItemId, setNumber);
       return Success(response);
     } catch (e) {
       return FailureResult(ErrorHandler.handle(e));

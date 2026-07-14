@@ -27,16 +27,29 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedDayIndex = 0;
 
-  List<TaskData> _mapWorkoutsToTasks(BuildContext context, List<WorkoutItemModel> workouts) {
+  List<TaskData> _mapWorkoutsToTasks(
+      BuildContext context, List<WorkoutItemModel> workouts, String assessmentId) {
     return workouts.map((workout) {
       final isAr = context.locale.languageCode == 'ar';
       final setsUnit = isAr ? 'مجموعات' : 'sets';
+
+      String formattedTime = '';
+      if (workout.time.isNotEmpty) {
+        final parsedTime = DateTime.tryParse(workout.time);
+        if (parsedTime != null) {
+          formattedTime = DateFormat('hh:mm a', context.locale.languageCode)
+              .format(parsedTime.toLocal());
+        }
+      }
+      if (formattedTime.isEmpty) {
+        formattedTime = workout.time;
+      }
 
       return TaskData(
         imagePath: workout.photo,
         title: workout.name,
         description: workout.description,
-        time: workout.time,
+        time: formattedTime,
         extraLabel: '${workout.completedSets}/${workout.totalSets}',
         extraUnit: setsUnit,
         extraIcon: Icons.fitness_center,
@@ -46,6 +59,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
             context: context,
             builder: (_) => ExerciseDetailsDialog(
               workoutItemId: workout.id,
+              assessmentId: assessmentId,
               dayNumber: _selectedDayIndex + 1,
             ),
           );
@@ -84,14 +98,15 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
                             ),
                           );
                         } else if (state is WorkoutPlanSuccess) {
-                          final workouts = state.workouts;
+                          final workouts = state.workoutPlanData?.workouts ?? [];
                           if (workouts.isEmpty) {
                             return _buildLayoutWithTabBar(
                               context,
                               child: _buildEmptyState(),
                             );
                           }
-                          final tasks = _mapWorkoutsToTasks(context, workouts);
+                          final tasks = _mapWorkoutsToTasks(
+                              context, workouts, state.workoutPlanData?.assessmentId ?? '');
                           return _buildLayoutWithTabBar(
                             context,
                             child: SingleChildScrollView(

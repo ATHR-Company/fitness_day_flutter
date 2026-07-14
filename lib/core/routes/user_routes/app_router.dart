@@ -188,9 +188,11 @@ class UserAppRouter {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           final workoutItemId = extra['workoutItemId'] as String? ?? '6a4cf59e38e6d8571647c112';
+          final assessmentId = extra['assessmentId'] as String? ?? '';
           final dayNumber = extra['dayNumber'] as int? ?? 1;
           return WorkoutVideoScreen(
             workoutItemId: workoutItemId,
+            assessmentId: assessmentId,
             dayNumber: dayNumber,
           );
         },

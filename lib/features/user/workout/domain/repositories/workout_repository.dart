@@ -8,6 +8,7 @@ abstract class WorkoutRepository {
   Future<ApiResult<WorkoutDetailsResponseModel>> getWorkoutDetails(
       String assessmentId, int dayNumber, String workoutItemId);
   Future<ApiResult<CompleteWorkoutSetResponseModel>> completeWorkoutSet(
+    String assessmentId,
     int dayNumber,
     String workoutItemId,
     int setNumber,

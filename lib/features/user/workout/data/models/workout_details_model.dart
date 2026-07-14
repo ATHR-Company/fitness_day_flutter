@@ -52,6 +52,8 @@ class WorkoutPhasesModel {
 
 class WorkoutDetailsModel {
   final String id;
+  final String assessmentId;
+  final int dayNumber;
   final String exerciseId;
   final String name;
   final String description;
@@ -68,6 +70,8 @@ class WorkoutDetailsModel {
 
   const WorkoutDetailsModel({
     required this.id,
+    required this.assessmentId,
+    required this.dayNumber,
     required this.exerciseId,
     required this.name,
     required this.description,
@@ -85,7 +89,9 @@ class WorkoutDetailsModel {
 
   factory WorkoutDetailsModel.fromJson(Map<String, dynamic> json) {
     return WorkoutDetailsModel(
-      id: json['id'] as String? ?? json['_id'] as String? ?? '',
+      id: json['workoutItemId'] as String? ?? json['id'] as String? ?? json['_id'] as String? ?? '',
+      assessmentId: json['assessmentId'] as String? ?? '',
+      dayNumber: json['dayNumber'] as int? ?? 1,
       exerciseId: json['exerciseId'] as String? ?? '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
@@ -107,6 +113,8 @@ class WorkoutDetailsModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'assessmentId': assessmentId,
+      'dayNumber': dayNumber,
       'exerciseId': exerciseId,
       'name': name,
       'description': description,
