@@ -13,6 +13,13 @@ import 'package:fitness_day/features/specialist/auth/domain/usecases/login_useca
 import 'package:fitness_day/features/specialist/auth/domain/usecases/logout_usecase.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
 
+// Specialist Home
+import 'package:fitness_day/features/specialist/home/data/datasources/specialist_home_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/home/data/repositories/specialist_home_repository_impl.dart';
+import 'package:fitness_day/features/specialist/home/domain/repositories/specialist_home_repository.dart';
+import 'package:fitness_day/features/specialist/home/domain/usecases/get_specialist_home_data_usecase.dart';
+import 'package:fitness_day/features/specialist/home/presentation/manager/specialist_home_cubit.dart';
+
 // User Auth & Registration Setup
 import 'package:fitness_day/features/user/auth/data/datasources/user_auth_remote_datasource.dart';
 import 'package:fitness_day/features/user/auth/data/repositories/user_auth_repository_impl.dart';
@@ -401,5 +408,19 @@ Future<void> init() async {
   // Health & Activity tracking
   getIt.registerLazySingleton<FitnessHealthService>(
     () => FitnessHealthService(),
+  );
+
+  // Specialist Home
+  getIt.registerLazySingleton<SpecialistHomeRemoteDataSource>(
+    () => SpecialistHomeRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistHomeRepository>(
+    () => SpecialistHomeRepositoryImpl(getIt<SpecialistHomeRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistHomeDataUseCase>(
+    () => GetSpecialistHomeDataUseCase(getIt<SpecialistHomeRepository>()),
+  );
+  getIt.registerFactory<SpecialistHomeCubit>(
+    () => SpecialistHomeCubit(getIt<GetSpecialistHomeDataUseCase>()),
   );
 }

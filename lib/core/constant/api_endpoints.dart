@@ -6,6 +6,7 @@ class ApiEndpoints {
   static const String userSignin = '/auth/user/signin';
   static const String specialistSignin = '/auth/specialist/signin';
   static const String specialistSignout = '/auth/specialist/signout';
+  static const String specialistHome = '/specialist-home';
   static const String forgotPasswordSendOtp = '/auth/forgot-password/send-otp';
   static const String forgotPasswordVerifyOtp = '/auth/forgot-password/verify-otp';
   static const String forgotPasswordReset = '/auth/forgot-password/reset';
