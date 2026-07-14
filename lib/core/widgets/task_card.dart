@@ -208,7 +208,7 @@ class TaskCard extends StatelessWidget {
         ],
       );
     }
-    // sets style: "1 / 3"
+    // sets style: "0 / 3" — extraLabel is green (completed), extraUnit is gray (total)
     return RichText(
       text: TextSpan(
         children: [
@@ -225,7 +225,7 @@ class TaskCard extends StatelessWidget {
             ),
           ),
           TextSpan(
-            text: '   ${task.extraUnit}',
+            text: task.extraUnit,
             style: TextStyleManager.style14Bold.copyWith(
               color: AppColors.textPrimary,
             ),

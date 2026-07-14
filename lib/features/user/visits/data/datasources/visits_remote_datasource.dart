@@ -9,7 +9,8 @@ abstract class VisitsRemoteDataSource {
   Future<MealDetailsResponseModel> getMealDetails(
       String assessmentId, int dayNumber, String mealId);
   Future<ActivityDetailsResponseModel> getActivityDetails(
-      String assessmentId, int dayNumber, String activityId);
+      String assessmentId, int dayNumber, String activityId,
+      {String period = 'daily'});
 }
 
 class VisitsRemoteDataSourceImpl implements VisitsRemoteDataSource {
@@ -37,9 +38,11 @@ class VisitsRemoteDataSourceImpl implements VisitsRemoteDataSource {
 
   @override
   Future<ActivityDetailsResponseModel> getActivityDetails(
-      String assessmentId, int dayNumber, String activityId) async {
+      String assessmentId, int dayNumber, String activityId,
+      {String period = 'daily'}) async {
     final response = await _apiService.get(
       ApiEndpoints.activityDetails(assessmentId, dayNumber, activityId),
+      queryParameters: {'period': period},
     );
     return ActivityDetailsResponseModel.fromJson(
         response.data as Map<String, dynamic>);

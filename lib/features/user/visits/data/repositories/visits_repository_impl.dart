@@ -35,10 +35,12 @@ class VisitsRepositoryImpl implements VisitsRepository {
 
   @override
   Future<ApiResult<ActivityDetailsResponseModel>> getActivityDetails(
-      String assessmentId, int dayNumber, String activityId) async {
+      String assessmentId, int dayNumber, String activityId,
+      {String period = 'daily'}) async {
     try {
       final response = await _remoteDataSource.getActivityDetails(
-          assessmentId, dayNumber, activityId);
+          assessmentId, dayNumber, activityId,
+          period: period);
       return Success(response);
     } catch (e) {
       return FailureResult(ErrorHandler.handle(e));

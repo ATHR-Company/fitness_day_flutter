@@ -20,14 +20,21 @@ class ActivityDetailsCubit extends Cubit<ActivityDetailsState> {
   })  : _getActivityDetailsUseCase = getActivityDetailsUseCase,
         super(const ActivityDetailsInitial());
 
+  // Expose cached params so the screen can re-fetch with a different period
+  String get assessmentId => _assessmentId;
+  int get dayNumber => _dayNumber;
+  String get activityId => _activityId;
+
   Future<void> getActivityDetails(
-      String assessmentId, int dayNumber, String activityId) async {
+      String assessmentId, int dayNumber, String activityId,
+      {String period = 'daily'}) async {
     _assessmentId = assessmentId;
     _dayNumber = dayNumber;
     _activityId = activityId;
     emit(const ActivityDetailsLoading());
-    final result =
-        await _getActivityDetailsUseCase(assessmentId, dayNumber, activityId);
+    final result = await _getActivityDetailsUseCase(
+        assessmentId, dayNumber, activityId,
+        period: period);
     switch (result) {
       case Success(:final data):
         emit(ActivityDetailsSuccess(data.data));

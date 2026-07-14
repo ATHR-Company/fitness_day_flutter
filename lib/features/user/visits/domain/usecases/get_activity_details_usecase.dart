@@ -8,7 +8,9 @@ class GetActivityDetailsUseCase {
   GetActivityDetailsUseCase(this._repository);
 
   Future<ApiResult<ActivityDetailsResponseModel>> call(
-      String assessmentId, int dayNumber, String activityId) {
-    return _repository.getActivityDetails(assessmentId, dayNumber, activityId);
+      String assessmentId, int dayNumber, String activityId,
+      {String period = 'daily'}) {
+    return _repository.getActivityDetails(assessmentId, dayNumber, activityId,
+        period: period);
   }
 }

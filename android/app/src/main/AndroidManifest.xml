@@ -43,8 +43,20 @@
             <!-- Health Connect permission rationale screen -->
             <intent-filter>
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!-- Health Connect activity for Android 14+ -->
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".MainActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -65,5 +77,9 @@
         <package android:name="com.google.android.apps.healthdata" />
         <!-- Required to open Google Fit -->
         <package android:name="com.google.android.apps.fitness" />
+        <!-- Required to request Health Connect permissions -->
+        <intent>
+            <action android:name="androidx.health.ACTION_REQUEST_HEALTH_PERMISSIONS" />
+        </intent>
     </queries>
 </manifest>

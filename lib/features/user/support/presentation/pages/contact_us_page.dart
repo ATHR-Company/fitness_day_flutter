@@ -5,6 +5,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/chat_details_page.dart';
+import 'package:fitness_day/features/user/ai_chat/presentation/screens/ai_coach_chat_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
@@ -78,10 +79,7 @@ class ContactUsPage extends StatelessWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ChatDetailsPage(
-                        title: LocaleKeys.contact_us_contact_us_ai_coach.tr(),
-                        isAi: true,
-                      ),
+                      builder: (_) => const AiCoachChatScreen(),
                     ),
                   ),
                 ),

@@ -89,8 +89,8 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
   TaskData _buildActivityTask(Map<String, dynamic> task) {
     final String activityType = task['activityType'] ?? '';
     final String activityId = task['activityId'] as String? ?? '';
-    final int currentProgress = (task['currentProgress'] ?? 0).toInt();
-    final int goal = (task['goal'] ?? 0).toInt();
+    final double currentProgress = (task['currentProgress'] ?? 0).toDouble();
+    final double goal = (task['goal'] ?? 0).toDouble();
     final bool done = task['isCompleted'] ?? false;
     final String unit = task['unit'] ?? '';
     final String name = task['name'] ?? '';
@@ -98,15 +98,33 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
     final String image = task['image'] ?? '';
     final bool isSvg = image.toLowerCase().endsWith('.svg');
 
+    // Pick an icon based on activity type
+    IconData activityIcon;
+    switch (activityType) {
+      case 'hydration':
+        activityIcon = Icons.water_drop_outlined;
+        break;
+      case 'walking':
+        activityIcon = Icons.directions_walk;
+        break;
+      case 'running':
+        activityIcon = Icons.directions_run;
+        break;
+      default:
+        activityIcon = Icons.local_activity_outlined;
+    }
+
     return TaskData(
       imagePath: image,
       isSvgImage: isSvg,
       title: name,
       time: LocaleKeys.home_hydration_all_day.tr(),
       description: description,
-      extraLabel: '$currentProgress / $goal',
-      extraUnit: unit,
-      extraIcon: null,
+      extraLabel: currentProgress % 1 == 0
+          ? currentProgress.toInt().toString()
+          : currentProgress.toStringAsFixed(2),
+      extraUnit: '/ $goal $unit',
+      extraIcon: activityIcon,
       done: done,
       // Store IDs so _buildActivityCallback can read them
       routeExtra: {

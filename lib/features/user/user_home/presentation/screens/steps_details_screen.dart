@@ -1,5 +1,6 @@
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
+import 'package:fitness_day/features/user/visits/data/models/activity_details_model.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/activity_details_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/activity_details_state.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/running_cubit.dart';
@@ -41,17 +42,57 @@ class StepsDetailsScreen extends StatelessWidget {
   }
 }
 
-/// Waits for [ActivityDetailsCubit] to load, then shows the appropriate screen.
-class _StepsDetailsLoader extends StatelessWidget {
+/// Waits for [ActivityDetailsCubit] to load once, then keeps the screen alive
+/// while subsequent period-switch calls run in the background.
+class _StepsDetailsLoader extends StatefulWidget {
   final ActivityType type;
   const _StepsDetailsLoader({required this.type});
 
   @override
+  State<_StepsDetailsLoader> createState() => _StepsDetailsLoaderState();
+}
+
+class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
+  // Cached data so the screen doesn't rebuild on period-switch loading
+  ActivityDetailsData? _cachedData;
+  WalkingCubit? _walkingCubit;
+  RunningCubit? _runningCubit;
+  bool _initialized = false;
+
+  void _initActivityCubits(ActivityDetailsData data) {
+    if (_initialized) return;
+    _initialized = true;
+
+    // RunningCubit uses GPS — always safe to create
+    if (widget.type == ActivityType.running) {
+      _runningCubit = RunningCubit(
+        apiService: getIt(),
+        goalDistanceKm: data.goal,
+      );
+      // Don't call requestPermissions() automatically — user triggers it
+    }
+    // WalkingCubit is NOT created here — it's only created when user
+    // explicitly taps the "enable live tracking" banner
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ActivityDetailsCubit, ActivityDetailsState>(
+    return BlocConsumer<ActivityDetailsCubit, ActivityDetailsState>(
+      listener: (context, state) {
+        if (state is ActivityDetailsSuccess) {
+          _initActivityCubits(state.data);
+          setState(() => _cachedData = state.data);
+        }
+      },
+      // Only rebuild on the very first load or failure — not on subsequent loading
+      buildWhen: (prev, curr) {
+        if (curr is ActivityDetailsLoading && _initialized) return false;
+        return true;
+      },
       builder: (context, state) {
-        if (state is ActivityDetailsLoading ||
-            state is ActivityDetailsInitial) {
+        // First-time loading
+        if ((state is ActivityDetailsLoading || state is ActivityDetailsInitial) &&
+            !_initialized) {
           return const Scaffold(
             backgroundColor: AppColors.white,
             body: Center(
@@ -60,7 +101,7 @@ class _StepsDetailsLoader extends StatelessWidget {
           );
         }
 
-        if (state is ActivityDetailsFailure) {
+        if (state is ActivityDetailsFailure && !_initialized) {
           return Scaffold(
             backgroundColor: AppColors.white,
             body: Center(
@@ -88,49 +129,70 @@ class _StepsDetailsLoader extends StatelessWidget {
           );
         }
 
-        // Success — extract goal from API response
-        final data =
-            state is ActivityDetailsSuccess ? state.data : null;
-        final double goalSteps = data?.goal ?? 5000;
-        final double goalDistanceKm = data?.goal ?? 5.0;
-        final double currentProgress = data?.currentProgress ?? 0;
-        final int progressPercent = data?.progressPercentage.toInt() ?? 0;
+        // Use fresh data or cached data
+        final data = (state is ActivityDetailsSuccess ? state.data : null) ??
+            _cachedData;
+        if (data == null) return const SizedBox.shrink();
 
-        if (type == ActivityType.walking) {
-          return BlocProvider(
-            create: (_) => WalkingCubit(
-              healthService: getIt(),
-              apiService: getIt(),
-              goalSteps: goalSteps,
-              goalDistanceKm: goalDistanceKm,
-            )..init(),
+        final double goalSteps = data.goal;
+        final double goalDistanceKm = data.goal;
+        final double currentProgress = data.currentProgress;
+        final int progressPercent = data.progressPercentage.toInt();
+        final activityCubit = context.read<ActivityDetailsCubit>();
+
+        if (widget.type == ActivityType.walking) {
+          // Walking screen uses API data by default.
+          // WalkingCubit is created lazily only if user taps "enable live tracking"
+          if (_walkingCubit == null) {
+            return _WalkingScreen(
+              apiProgress: currentProgress,
+              apiProgressPercent: progressPercent,
+              activityCubit: activityCubit,
+              onEnableLiveTracking: () {
+                setState(() {
+                  _walkingCubit = WalkingCubit(
+                    healthService: getIt(),
+                    apiService: getIt(),
+                    goalSteps: data.goal,
+                    goalDistanceKm: data.goal,
+                  )..init();
+                });
+              },
+            );
+          }
+          return BlocProvider.value(
+            value: _walkingCubit!,
             child: _WalkingScreen(
               apiProgress: currentProgress,
               apiProgressPercent: progressPercent,
+              activityCubit: activityCubit,
             ),
           );
         } else {
-          final double apiDistanceKm = data?.currentProgress ?? 0;
-          final int apiDurationMinutes = data?.durationMinutes?.toInt() ?? 0;
-          final double apiCalories = data?.caloriesBurned ?? 0;
-
-          return BlocProvider(
-            create: (_) => RunningCubit(
-              apiService: getIt(),
-              goalDistanceKm: goalDistanceKm,
-            )..requestPermissions(),
+          if (_runningCubit == null) return const SizedBox.shrink();
+          return BlocProvider.value(
+            value: _runningCubit!,
             child: _RunningScreen(
-              apiProgress: apiDistanceKm,
+              apiProgress: currentProgress,
               apiProgressPercent: progressPercent,
-              apiDurationMinutes: apiDurationMinutes,
-              apiCalories: apiCalories,
+              apiDurationMinutes: data.durationMinutes?.toInt() ?? 0,
+              apiCalories: data.caloriesBurned ?? 0,
+              activityCubit: activityCubit,
             ),
           );
         }
       },
     );
   }
+
+  @override
+  void dispose() {
+    _walkingCubit?.close();
+    _runningCubit?.close();
+    super.dispose();
+  }
 }
+
 
 // ═════════════════════════════════════════════════════════════════════════════
 // WALKING SCREEN
@@ -139,10 +201,14 @@ class _StepsDetailsLoader extends StatelessWidget {
 class _WalkingScreen extends StatefulWidget {
   final double apiProgress;
   final int apiProgressPercent;
+  final ActivityDetailsCubit activityCubit;
+  final VoidCallback? onEnableLiveTracking;
 
   const _WalkingScreen({
     this.apiProgress = 0,
     this.apiProgressPercent = 0,
+    required this.activityCubit,
+    this.onEnableLiveTracking,
   });
 
   @override
@@ -153,6 +219,17 @@ class _WalkingScreenState extends State<_WalkingScreen>
     with WidgetsBindingObserver {
   int _selectedTab = 0;
   final List<String> _tabs = ['يومي', 'أسبوعي'];
+
+  void _onTabChanged(int index, BuildContext context) {
+    setState(() => _selectedTab = index);
+    final period = index == 0 ? 'daily' : 'weekly';
+    widget.activityCubit.getActivityDetails(
+      widget.activityCubit.assessmentId,
+      widget.activityCubit.dayNumber,
+      widget.activityCubit.activityId,
+      period: period,
+    );
+  }
 
   @override
   void initState() {
@@ -168,79 +245,149 @@ class _WalkingScreenState extends State<_WalkingScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final cubit = context.read<WalkingCubit>();
-    if (state == AppLifecycleState.resumed) {
-      cubit.resumeTracking();
-    } else if (state == AppLifecycleState.paused) {
-      cubit.pauseTracking();
+    // Only interact with WalkingCubit if it's available in context
+    try {
+      final cubit = context.read<WalkingCubit>();
+      if (state == AppLifecycleState.resumed) {
+        cubit.resumeTracking();
+      } else if (state == AppLifecycleState.paused) {
+        cubit.pauseTracking();
+      }
+    } catch (_) {
+      // WalkingCubit not in context yet — live tracking not enabled
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WalkingCubit, WalkingState>(
-      builder: (context, state) {
-        return Scaffold(
-          body: ScreenBackground(
-            child: SafeArea(
-              child: Column(
-                children: [
-                  _buildAppBar(context, 'تتبع الخطوات'),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    child: _PeriodTabBar(
-                      tabs: _tabs,
-                      selectedIndex: _selectedTab,
-                      onTabChanged: (i) => setState(() => _selectedTab = i),
-                    ),
-                  ),
-                  SizedBox(height: 40.h),
+    // Check if WalkingCubit is available (live tracking enabled)
+    WalkingCubit? walkingCubit;
+    try {
+      walkingCubit = context.read<WalkingCubit>();
+    } catch (_) {}
 
-                  // Show API data immediately — Health Connect is optional for live tracking
-                  _ActivityCircle(
-                    percent: state.steps > 0
-                        ? state.progressPercent
-                        : (widget.apiProgressPercent / 100.0).clamp(0.0, 1.0),
-                    currentVal: state.steps > 0
-                        ? state.steps.toDouble()
-                        : widget.apiProgress,
-                    goalVal: state.goalSteps,
-                    unit: 'خطوة',
-                    goalPercent: state.steps > 0
-                        ? state.progressPercentInt
-                        : widget.apiProgressPercent,
-                    isRunning: false,
-                  ),
-                  SizedBox(height: 32.h),
+    if (walkingCubit == null) {
+      // API-only mode — listen to ActivityDetailsCubit for live updates
+      return BlocBuilder<ActivityDetailsCubit, ActivityDetailsState>(
+        bloc: widget.activityCubit,
+        builder: (context, actState) {
+          final data = actState is ActivityDetailsSuccess ? actState.data : null;
+          final double progress = data?.currentProgress ?? widget.apiProgress;
+          final int progressPct = data?.progressPercentage.toInt() ?? widget.apiProgressPercent;
+          final double goal = data?.goal ?? 0;
+          final String unit = data?.unit ?? 'خطوة';
 
-                  // Optional live-tracking banner
-                  if (state.permissionStatus == HealthPermStatus.needsInstall)
-                    _PermissionBanner(
-                      message: 'لتفعيل التتبع الحي — ثبّت Health Connect من Play Store',
-                      onTap: () => context.read<WalkingCubit>().init(),
-                    )
-                  else if (state.permissionStatus == HealthPermStatus.denied)
-                    _PermissionBanner(
-                      message: 'لتفعيل التتبع الحي — اسمح بالوصول لبيانات الصحة',
-                      onTap: () => context.read<WalkingCubit>().init(),
-                    )
-                  else if (state.permissionStatus == HealthPermStatus.granted &&
-                      !state.isLoading)
-                    Expanded(
-                      child: _DailySummaryCard(
-                        distanceKm: state.distanceKm,
-                        unit: 'كم',
-                        minutes: state.activeMinutes,
-                        calories: state.caloriesKcal.round(),
-                        isWalking: true,
+          return Scaffold(
+            body: ScreenBackground(
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    _buildAppBar(context, data?.name ?? 'تتبع الخطوات'),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      child: _PeriodTabBar(
+                        tabs: _tabs,
+                        selectedIndex: _selectedTab,
+                        onTabChanged: (i) => _onTabChanged(i, context),
                       ),
-                    )
-                  else
-                    const SizedBox.shrink(),
-                ],
+                    ),
+                    SizedBox(height: 40.h),
+                    _ActivityCircle(
+                      percent: (progressPct / 100.0).clamp(0.0, 1.0),
+                      currentVal: progress,
+                      goalVal: goal,
+                      unit: unit,
+                      goalPercent: progressPct,
+                      isRunning: false,
+                    ),
+                    SizedBox(height: 32.h),
+                    if (widget.onEnableLiveTracking != null)
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24.w),
+                        child: _PermissionBanner(
+                          message: 'اضغط لتفعيل تتبع الخطوات الحي',
+                          onTap: widget.onEnableLiveTracking!,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
+          );
+        },
+      );
+    }
+
+    return BlocBuilder<ActivityDetailsCubit, ActivityDetailsState>(
+      bloc: widget.activityCubit,
+      builder: (context, actState) {
+        final actData = actState is ActivityDetailsSuccess ? actState.data : null;
+        final double apiProgress = actData?.currentProgress ?? widget.apiProgress;
+        final int apiProgressPct = actData?.progressPercentage.toInt() ?? widget.apiProgressPercent;
+        final double apiGoal = actData?.goal ?? 0;
+        final String apiUnit = actData?.unit ?? 'خطوة';
+
+        return BlocBuilder<WalkingCubit, WalkingState>(
+          builder: (context, state) {
+            return Scaffold(
+              body: ScreenBackground(
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      _buildAppBar(context, actData?.name ?? 'تتبع الخطوات'),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.h),
+                        child: _PeriodTabBar(
+                          tabs: _tabs,
+                          selectedIndex: _selectedTab,
+                          onTabChanged: (i) => _onTabChanged(i, context),
+                        ),
+                      ),
+                      SizedBox(height: 40.h),
+                      _ActivityCircle(
+                        percent: state.steps > 0
+                            ? state.progressPercent
+                            : (apiProgressPct / 100.0).clamp(0.0, 1.0),
+                        currentVal: state.steps > 0
+                            ? state.steps.toDouble()
+                            : apiProgress,
+                        goalVal: state.steps > 0 ? state.goalSteps : apiGoal,
+                        unit: apiUnit,
+                        goalPercent: state.steps > 0
+                            ? state.progressPercentInt
+                            : apiProgressPct,
+                        isRunning: false,
+                      ),
+                      SizedBox(height: 32.h),
+                      if (state.permissionStatus == HealthPermStatus.needsInstall)
+                        _PermissionBanner(
+                          message: 'لتفعيل التتبع الحي — ثبّت Health Connect من Play Store',
+                          onTap: () => context.read<WalkingCubit>().init(),
+                        )
+                      else if (state.permissionStatus == HealthPermStatus.denied)
+                        _PermissionBanner(
+                          message: 'لتفعيل التتبع الحي — اسمح بالوصول لبيانات الصحة',
+                          onTap: () => context.read<WalkingCubit>().init(),
+                        )
+                      else if (state.permissionStatus == HealthPermStatus.granted &&
+                          !state.isLoading)
+                        Expanded(
+                          child: _DailySummaryCard(
+                            distanceKm: state.distanceKm,
+                            unit: 'كم',
+                            minutes: state.activeMinutes,
+                            calories: state.caloriesKcal.round(),
+                            isWalking: true,
+                          ),
+                        )
+                      else
+                        const SizedBox.shrink(),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -251,104 +398,146 @@ class _WalkingScreenState extends State<_WalkingScreen>
 // RUNNING SCREEN
 // ═════════════════════════════════════════════════════════════════════════════
 
-class _RunningScreen extends StatelessWidget {
+class _RunningScreen extends StatefulWidget {
   final double apiProgress;
   final int apiProgressPercent;
   final int apiDurationMinutes;
   final double apiCalories;
+  final ActivityDetailsCubit activityCubit;
 
   const _RunningScreen({
     this.apiProgress = 0,
     this.apiProgressPercent = 0,
     this.apiDurationMinutes = 0,
     this.apiCalories = 0,
+    required this.activityCubit,
   });
 
   @override
+  State<_RunningScreen> createState() => _RunningScreenState();
+}
+
+class _RunningScreenState extends State<_RunningScreen> {
+  int _selectedTab = 0;
+  final List<String> _tabs = ['يومي', 'أسبوعي'];
+
+  void _onTabChanged(int index) {
+    setState(() => _selectedTab = index);
+    final period = index == 0 ? 'daily' : 'weekly';
+    widget.activityCubit.getActivityDetails(
+      widget.activityCubit.assessmentId,
+      widget.activityCubit.dayNumber,
+      widget.activityCubit.activityId,
+      period: period,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RunningCubit, RunningState>(
-      builder: (context, state) {
-        return Scaffold(
-          body: ScreenBackground(
-            child: SafeArea(
-              child: Column(
-                children: [
-                  _buildAppBar(context, 'تتبع الجري'),
-                  SizedBox(height: 40.h),
+    return BlocBuilder<ActivityDetailsCubit, ActivityDetailsState>(
+      bloc: widget.activityCubit,
+      builder: (context, actState) {
+        final actData = actState is ActivityDetailsSuccess ? actState.data : null;
+        final double apiProgress = actData?.currentProgress ?? widget.apiProgress;
+        final int apiProgressPct = actData?.progressPercentage.toInt() ?? widget.apiProgressPercent;
+        final double apiGoal = actData?.goal ?? widget.apiProgress;
+        final String apiUnit = actData?.unit ?? 'كم';
+        final int apiDuration = actData?.durationMinutes?.toInt() ?? widget.apiDurationMinutes;
+        final double apiCalories = actData?.caloriesBurned ?? widget.apiCalories;
 
-                  if (!state.permissionGranted)
-                    _PermissionBanner(
-                      message: 'يحتاج إذن الموقع والحركة',
-                      onTap: () =>
-                          context.read<RunningCubit>().requestPermissions(),
-                    )
-                  else ...[
-                    _ActivityCircle(
-                      percent: state.distanceKm > 0
-                          ? state.progressPercent
-                          : (apiProgressPercent / 100.0).clamp(0.0, 1.0),
-                      currentVal: state.distanceKm > 0
-                          ? state.distanceKm
-                          : apiProgress,
-                      goalVal: state.goalDistanceKm,
-                      unit: 'كم',
-                      goalPercent: state.distanceKm > 0
-                          ? state.progressPercentInt
-                          : apiProgressPercent,
-                      isRunning: true,
-                    ),
-                    SizedBox(height: 16.h),
-
-                    // Elapsed time
-                    Text(
-                      state.formattedTime,
-                      style: TextStyleManager.style28Bold.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
+        return BlocBuilder<RunningCubit, RunningState>(
+          builder: (context, state) {
+            return Scaffold(
+              body: ScreenBackground(
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      _buildAppBar(context, actData?.name ?? 'تتبع الجري'),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.h),
+                        child: _PeriodTabBar(
+                          tabs: _tabs,
+                          selectedIndex: _selectedTab,
+                          onTabChanged: _onTabChanged,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'الوقت المستغرق',
-                      style: TextStyleManager.style11Medium
-                          .copyWith(color: AppColors.textSecondary),
-                    ),
-                    SizedBox(height: 24.h),
+                      SizedBox(height: 40.h),
 
-                    Expanded(
-                      child: _DailySummaryCard(
-                        distanceKm: state.isRunning || state.distanceKm > 0
-                            ? state.distanceKm
-                            : apiProgress,
-                        unit: 'كم',
-                        minutes: state.isRunning || state.elapsedSeconds > 0
-                            ? state.elapsedSeconds ~/ 60
-                            : apiDurationMinutes,
-                        calories: state.isRunning || state.caloriesKcal > 0
-                            ? state.caloriesKcal.round()
-                            : apiCalories.round(),
-                        isWalking: false,
-                        pace: state.pace,
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
+                      if (!state.permissionGranted)
+                        _PermissionBanner(
+                          message: 'يحتاج إذن الموقع والحركة',
+                          onTap: () =>
+                              context.read<RunningCubit>().requestPermissions(),
+                        )
+                      else ...[
+                        _ActivityCircle(
+                          percent: state.distanceKm > 0
+                              ? state.progressPercent
+                              : (apiProgressPct / 100.0).clamp(0.0, 1.0),
+                          currentVal: state.distanceKm > 0
+                              ? state.distanceKm
+                              : apiProgress,
+                          goalVal: state.distanceKm > 0
+                              ? state.goalDistanceKm
+                              : apiGoal,
+                          unit: apiUnit,
+                          goalPercent: state.distanceKm > 0
+                              ? state.progressPercentInt
+                              : apiProgressPct,
+                          isRunning: true,
+                        ),
+                        SizedBox(height: 16.h),
 
-                    // Start / Stop button
-                    _StartStopButton(
-                      isRunning: state.isRunning,
-                      onTap: () {
-                        if (state.isRunning) {
-                          context.read<RunningCubit>().stopSession();
-                        } else {
-                          context.read<RunningCubit>().startSession();
-                        }
-                      },
-                    ),
-                    SizedBox(height: 24.h),
-                  ],
-                ],
+                        Text(
+                          state.formattedTime,
+                          style: TextStyleManager.style28Bold.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'الوقت المستغرق',
+                          style: TextStyleManager.style11Medium
+                              .copyWith(color: AppColors.textSecondary),
+                        ),
+                        SizedBox(height: 24.h),
+
+                        Expanded(
+                          child: _DailySummaryCard(
+                            distanceKm: state.isRunning || state.distanceKm > 0
+                                ? state.distanceKm
+                                : apiProgress,
+                            unit: apiUnit,
+                            minutes: state.isRunning || state.elapsedSeconds > 0
+                                ? state.elapsedSeconds ~/ 60
+                                : apiDuration,
+                            calories: state.isRunning || state.caloriesKcal > 0
+                                ? state.caloriesKcal.round()
+                                : apiCalories.round(),
+                            isWalking: false,
+                            pace: state.pace,
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+
+                        _StartStopButton(
+                          isRunning: state.isRunning,
+                          onTap: () {
+                            if (state.isRunning) {
+                              context.read<RunningCubit>().stopSession();
+                            } else {
+                              context.read<RunningCubit>().startSession();
+                            }
+                          },
+                        ),
+                        SizedBox(height: 24.h),
+                      ],
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );

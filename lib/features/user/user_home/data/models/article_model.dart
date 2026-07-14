@@ -41,7 +41,7 @@ class ArticleModel {
       try {
         final dt = DateTime.parse(publishedAt!).toLocal();
         // E.g., '2026-07-05'
-        formattedDate = DateFormat('yyyy-MM-dd').format(dt);
+        formattedDate = DateFormat('yyyy-MM-dd', 'en').format(dt);
       } catch (e) {
         formattedDate = publishedAt!;
       }

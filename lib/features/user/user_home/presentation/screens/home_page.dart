@@ -234,9 +234,9 @@ class _HomePageContent extends StatelessWidget {
                               title: currentActivity['name'] ?? 'home.hydration_title'.tr(),
                               time: 'home.hydration_all_day'.tr(),
                               description: currentActivity['description'] ?? 'home.hydration_desc'.tr(),
-                              extraLabel: '${currentActivity['currentProgress'] ?? 0} / ${currentActivity['goal'] ?? 0}',
-                              extraUnit: currentActivity['unit'] ?? 'home.water_unit'.tr(),
-                              extraIcon: null,
+                              extraLabel: '${currentActivity['currentProgress'] ?? 0}',
+                              extraUnit: '/ ${currentActivity['goal'] ?? 0} ${currentActivity['unit'] ?? ''}',
+                              extraIcon: _activityIcon(currentActivity['activityType'] as String? ?? ''),
                               done: currentActivity['isCompleted'] ?? false,
                               onDetailsPressed: () {
                                 final String activityType =
@@ -346,5 +346,18 @@ class _HomePageContent extends StatelessWidget {
         return const SizedBox.shrink();
       },
     );
+  }
+}
+
+IconData _activityIcon(String activityType) {
+  switch (activityType) {
+    case 'hydration':
+      return Icons.water_drop_outlined;
+    case 'walking':
+      return Icons.directions_walk;
+    case 'running':
+      return Icons.directions_run;
+    default:
+      return Icons.local_activity_outlined;
   }
 }

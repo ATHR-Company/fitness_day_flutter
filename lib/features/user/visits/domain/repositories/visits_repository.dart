@@ -8,5 +8,6 @@ abstract class VisitsRepository {
   Future<ApiResult<MealDetailsResponseModel>> getMealDetails(
       String assessmentId, int dayNumber, String mealId);
   Future<ApiResult<ActivityDetailsResponseModel>> getActivityDetails(
-      String assessmentId, int dayNumber, String activityId);
+      String assessmentId, int dayNumber, String activityId,
+      {String period = 'daily'});
 }

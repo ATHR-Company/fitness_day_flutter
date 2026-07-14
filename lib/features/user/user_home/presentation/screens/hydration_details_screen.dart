@@ -190,7 +190,7 @@ class _HydrationDetailsContentState extends State<_HydrationDetailsContent> {
                                 Directionality.of(context) ==
                                         ui.TextDirection.rtl
                                     ? Icons.arrow_forward_ios
-                                    : Icons.arrow_back_ios,
+                                    : Icons.arrow_forward_ios,
                                 size: 20.sp,
                                 color: AppColors.black,
                               ),
