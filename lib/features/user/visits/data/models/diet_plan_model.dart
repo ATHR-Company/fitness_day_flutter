@@ -24,10 +24,12 @@ class DietPlanResponseModel {
 }
 
 class DietPlanData {
+  final String assessmentId;
   final int dayNumber;
   final List<MealItem> meals;
 
   const DietPlanData({
+    required this.assessmentId,
     required this.dayNumber,
     required this.meals,
   });
@@ -35,6 +37,7 @@ class DietPlanData {
   factory DietPlanData.fromJson(Map<String, dynamic> json) {
     final mealsList = json['meals'] as List<dynamic>? ?? [];
     return DietPlanData(
+      assessmentId: json['assessmentId'] as String? ?? '',
       dayNumber: json['dayNumber'] as int? ?? 1,
       meals: mealsList
           .map((item) => MealItem.fromJson(item as Map<String, dynamic>))
@@ -49,6 +52,8 @@ class MealItem {
   final String categoryName;
   final String image;
   final int calories;
+  final String time;
+  final bool isCompleted;
 
   const MealItem({
     required this.id,
@@ -56,15 +61,19 @@ class MealItem {
     required this.categoryName,
     required this.image,
     required this.calories,
+    required this.time,
+    required this.isCompleted,
   });
 
   factory MealItem.fromJson(Map<String, dynamic> json) {
     return MealItem(
-      id: json['id'] as String? ?? json['_id'] as String? ?? '',
+      id: json['mealId'] as String? ?? json['id'] as String? ?? json['_id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       categoryName: json['categoryName'] as String? ?? '',
       image: json['image'] as String? ?? '',
       calories: json['calories'] as int? ?? json['calory'] as int? ?? 0,
+      time: json['time'] as String? ?? '',
+      isCompleted: json['isCompleted'] as bool? ?? false,
     );
   }
 }

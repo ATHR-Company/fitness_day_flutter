@@ -3,6 +3,7 @@ import 'package:fitness_day/core/constant/api_endpoints.dart';
 import 'package:fitness_day/features/user/visits/data/models/activity_details_model.dart';
 import 'package:fitness_day/features/user/visits/data/models/diet_plan_model.dart';
 import 'package:fitness_day/features/user/visits/data/models/meal_details_model.dart';
+import 'package:fitness_day/features/user/visits/data/models/update_meal_completion_model.dart';
 
 abstract class VisitsRemoteDataSource {
   Future<DietPlanResponseModel> getDietPlan(int day);
@@ -45,6 +46,17 @@ class VisitsRemoteDataSourceImpl implements VisitsRemoteDataSource {
       queryParameters: {'period': period},
     );
     return ActivityDetailsResponseModel.fromJson(
+        response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<UpdateMealCompletionResponseModel> updateMealCompletionStatus(
+      String assessmentId, int dayNumber, String mealId, bool isCompleted) async {
+    final response = await _apiService.patch(
+      ApiEndpoints.mealDetailsNew(assessmentId, dayNumber, mealId),
+      data: {'isCompleted': isCompleted},
+    );
+    return UpdateMealCompletionResponseModel.fromJson(
         response.data as Map<String, dynamic>);
   }
 }

@@ -31,7 +31,8 @@ class _DietPlanPageState extends State<DietPlanPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedDayIndex = 0;
 
-  List<TaskData> _mapMealsToTasks(BuildContext context, List<MealItem> meals) {
+  List<TaskData> _mapMealsToTasks(
+      BuildContext context, List<MealItem> meals, String assessmentId) {
     return meals.map((meal) {
       String categoryTitle = meal.categoryName;
       if (meal.categoryName.toLowerCase() == 'breakfast') {
@@ -42,11 +43,22 @@ class _DietPlanPageState extends State<DietPlanPage> {
         categoryTitle = 'وجبة العشاء';
       }
 
-      String time = '8:00 صباحاً';
-      if (meal.categoryName.toLowerCase() == 'lunch') {
-        time = '3:00 ظهراً';
-      } else if (meal.categoryName.toLowerCase() == 'dinner') {
-        time = '8:00 مساءً';
+      String time = '';
+      if (meal.time.isNotEmpty) {
+        final parsedTime = DateTime.tryParse(meal.time);
+        if (parsedTime != null) {
+          time = DateFormat('hh:mm a', context.locale.languageCode)
+              .format(parsedTime.toLocal());
+        }
+      }
+
+      if (time.isEmpty) {
+        time = '8:00 صباحاً';
+        if (meal.categoryName.toLowerCase() == 'lunch') {
+          time = '3:00 ظهراً';
+        } else if (meal.categoryName.toLowerCase() == 'dinner') {
+          time = '8:00 مساءً';
+        }
       }
 
       final isAr = context.locale.languageCode == 'ar';
@@ -60,12 +72,18 @@ class _DietPlanPageState extends State<DietPlanPage> {
         extraLabel: meal.calories.toString(),
         extraUnit: calorieUnit,
         extraIcon: Icons.local_fire_department,
-        done: false,
+        done: meal.isCompleted,
         onDetailsPressed: () {
           context.push(UserAppRoutes.mealDetails, extra: {
             'mealId': meal.id,
-            'assessmentId': getIt<AppCache>().getAssessmentId() ?? '',
+            'assessmentId': assessmentId.isNotEmpty
+                ? assessmentId
+                : (getIt<AppCache>().getAssessmentId() ?? ''),
             'dayNumber': _selectedDayIndex + 1,
+          }).then((_) {
+            if (context.mounted) {
+              context.read<DietPlanCubit>().getDietPlan(_selectedDayIndex + 1);
+            }
           });
         },
       );
@@ -109,7 +127,8 @@ class _DietPlanPageState extends State<DietPlanPage> {
                               child: _buildEmptyState(),
                             );
                           }
-                          final tasks = _mapMealsToTasks(context, meals);
+                          final tasks = _mapMealsToTasks(
+                              context, meals, state.dietPlanData?.assessmentId ?? '');
                           return _buildLayoutWithTabBar(
                             context,
                             child: SingleChildScrollView(

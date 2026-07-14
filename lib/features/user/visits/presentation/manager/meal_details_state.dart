@@ -14,7 +14,8 @@ class MealDetailsLoading extends MealDetailsState {
 
 class MealDetailsSuccess extends MealDetailsState {
   final MealDetailsData mealDetailsData;
-  const MealDetailsSuccess(this.mealDetailsData);
+  final bool isUpdating;
+  const MealDetailsSuccess(this.mealDetailsData, {this.isUpdating = false});
 }
 
 class MealDetailsFailure extends MealDetailsState {

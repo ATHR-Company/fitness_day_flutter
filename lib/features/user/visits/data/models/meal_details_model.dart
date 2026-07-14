@@ -23,9 +23,13 @@ class MealDetailsResponseModel {
 
 class MealDetailsData {
   final String id;
+  final String assessmentId;
+  final int dayNumber;
   final String name;
   final String categoryName;
   final String image;
+  final bool isCompleted;
+  final bool canEdit;
   final int calories;
   final List<IngredientItem> ingredients;
   final List<PreparationStepItem> preparationSteps;
@@ -33,14 +37,48 @@ class MealDetailsData {
 
   const MealDetailsData({
     required this.id,
+    required this.assessmentId,
+    required this.dayNumber,
     required this.name,
     required this.categoryName,
     required this.image,
+    required this.isCompleted,
+    required this.canEdit,
     required this.calories,
     required this.ingredients,
     required this.preparationSteps,
     required this.nutrition,
   });
+
+  MealDetailsData copyWith({
+    String? id,
+    String? assessmentId,
+    int? dayNumber,
+    String? name,
+    String? categoryName,
+    String? image,
+    bool? isCompleted,
+    bool? canEdit,
+    int? calories,
+    List<IngredientItem>? ingredients,
+    List<PreparationStepItem>? preparationSteps,
+    List<NutritionItem>? nutrition,
+  }) {
+    return MealDetailsData(
+      id: id ?? this.id,
+      assessmentId: assessmentId ?? this.assessmentId,
+      dayNumber: dayNumber ?? this.dayNumber,
+      name: name ?? this.name,
+      categoryName: categoryName ?? this.categoryName,
+      image: image ?? this.image,
+      isCompleted: isCompleted ?? this.isCompleted,
+      canEdit: canEdit ?? this.canEdit,
+      calories: calories ?? this.calories,
+      ingredients: ingredients ?? this.ingredients,
+      preparationSteps: preparationSteps ?? this.preparationSteps,
+      nutrition: nutrition ?? this.nutrition,
+    );
+  }
 
   factory MealDetailsData.fromJson(Map<String, dynamic> json) {
     final ingredientsList = json['ingredients'] as List<dynamic>? ?? [];
@@ -48,10 +86,14 @@ class MealDetailsData {
     final nutritionList = json['nutrition'] as List<dynamic>? ?? [];
 
     return MealDetailsData(
-      id: json['id'] as String? ?? json['_id'] as String? ?? '',
+      id: json['mealId'] as String? ?? json['id'] as String? ?? json['_id'] as String? ?? '',
+      assessmentId: json['assessmentId'] as String? ?? '',
+      dayNumber: json['dayNumber'] as int? ?? 1,
       name: json['name'] as String? ?? '',
       categoryName: json['categoryName'] as String? ?? '',
       image: json['image'] as String? ?? '',
+      isCompleted: json['isCompleted'] as bool? ?? false,
+      canEdit: json['canEdit'] as bool? ?? false,
       calories: json['calories'] as int? ?? json['calory'] as int? ?? 0,
       ingredients: ingredientsList
           .map((item) => IngredientItem.fromJson(item as Map<String, dynamic>))
