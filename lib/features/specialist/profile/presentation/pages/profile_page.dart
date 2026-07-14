@@ -1,6 +1,7 @@
 import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -10,142 +11,193 @@ import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/widgets/edit_profile_dialog.dart';
 import 'package:fitness_day/core/widgets/profile/language_dialog.dart';
+import 'package:fitness_day/core/injection/injection_container.dart' as di;
+import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_cubit.dart';
+import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_state.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      endDrawer: const AppDrawer(),
-      body: Builder(
-        builder: (context) {
-          return SafeArea(
-            child: Column(
-              children: [
-                SizedBox(height: 20.h),
+    return BlocProvider(
+      create: (context) => di.getIt<SpecialistProfileCubit>()..getSpecialistProfile(),
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        endDrawer: const AppDrawer(),
+        body: Builder(
+          builder: (context) {
+            return SafeArea(
+              child: Column(
+                children: [
+                  SizedBox(height: 20.h),
 
-                // Custom Header
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: AppHeader(
-                    title: 'profile.title'.tr(),
-                    onMenuPressed: () {
-                      Scaffold.of(context).openEndDrawer();
-                    },
+                  // Custom Header
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: AppHeader(
+                      title: 'profile.title'.tr(),
+                      onMenuPressed: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
+                    ),
                   ),
-                ),
 
-                SizedBox(height: 32.h),
+                  SizedBox(height: 32.h),
 
-                // Avatar Section
-                Column(
-                  children: [
-                    Stack(
-                      children: [
-                        Container(
-                          width: 100.w,
-                          height: 100.h,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: AppImage(
-                              SvgIcons.emptyProfile,
-                              width: 60.w,
-                              height: 60.h,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 8.h,
-                          left: 8.w, // Bottom left
-                          child: Container(
-                            width: 16.w,
-                            height: 16.h,
-                            decoration: BoxDecoration(
+                  Expanded(
+                    child: BlocBuilder<SpecialistProfileCubit, SpecialistProfileState>(
+                      builder: (context, state) {
+                        if (state is SpecialistProfileLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(
                               color: AppColors.primary,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppColors.white,
-                                width: 3,
+                            ),
+                          );
+                        } else if (state is SpecialistProfileFailure) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  state.message,
+                                  style: TextStyleManager.style14Medium.copyWith(color: AppColors.error),
+                                ),
+                                SizedBox(height: 16.h),
+                                ElevatedButton(
+                                  onPressed: () => context.read<SpecialistProfileCubit>().getSpecialistProfile(),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                  ),
+                                  child: Text(
+                                    "common.retry".tr(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else if (state is SpecialistProfileSuccess) {
+                          final data = state.data;
+                          return Column(
+                            children: [
+                              // Avatar Section
+                              Column(
+                                children: [
+                                  Stack(
+                                    children: [
+                                      Container(
+                                        width: 100.w,
+                                        height: 100.h,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withValues(alpha: 0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: AppImage(
+                                            data.avatar.isNotEmpty ? data.avatar : SvgIcons.emptyProfile,
+                                            width: data.avatar.isNotEmpty ? 100.w : 60.w,
+                                            height: data.avatar.isNotEmpty ? 100.h : 60.h,
+                                            isAvatar: data.avatar.isEmpty,
+                                            radius: data.avatar.isNotEmpty ? 50.r : null,
+                                            fit: data.avatar.isNotEmpty ? BoxFit.cover : BoxFit.contain,
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 8.h,
+                                        left: 8.w, // Bottom left
+                                        child: Container(
+                                          width: 16.w,
+                                          height: 16.h,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: AppColors.white,
+                                              width: 3,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  Text(
+                                    data.name,
+                                    style: TextStyleManager.heading2.copyWith(
+                                      color: AppColors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.sp,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      'conversations.dummy_name'
-                          .tr(), // Resuing 'spec_mock_name'.tr()
-                      style: TextStyleManager.heading2.copyWith(
-                        color: AppColors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18.sp,
-                      ),
-                    ),
-                  ],
-                ),
 
-                SizedBox(height: 32.h),
+                              SizedBox(height: 32.h),
 
-                // Menu Items List
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.symmetric(horizontal: 24.w),
-                    children: [
-                      _buildMenuItem(
-                        title: 'profile.personal_profile'.tr(),
-                        svgPath: SvgIcons.profile,
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            barrierColor: AppColors.scrimOverlay.withValues(
-                              alpha: 0.5,
-                            ),
-                            builder: (context) => const EditProfileDialog(),
+                              // Menu Items List
+                              Expanded(
+                                child: ListView(
+                                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                                  children: [
+                                    _buildMenuItem(
+                                      title: 'profile.personal_profile'.tr(),
+                                      svgPath: SvgIcons.profile,
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          barrierColor: AppColors.scrimOverlay.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          builder: (context) => const EditProfileDialog(),
+                                        );
+                                      },
+                                    ),
+                                    _buildMenuItem(
+                                      title: 'profile.language'.tr(),
+                                      svgPath: SvgIcons.lang,
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          barrierColor: AppColors.scrimOverlay.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          builder: (context) => const LanguageDialog(),
+                                        );
+                                      },
+                                    ),
+                                    _buildMenuItem(
+                                      title: 'profile.about_us'.tr(),
+                                      svgPath: SvgIcons.aboutUs,
+                                      onTap: () {},
+                                    ),
+                                    _buildMenuItem(
+                                      title: 'profile.terms_conditions'.tr(),
+                                      svgPath: SvgIcons.conditions,
+                                      onTap: () {},
+                                    ),
+                                    _buildMenuItem(
+                                      title: 'profile.privacy_policy'.tr(),
+                                      svgPath: SvgIcons.privacy,
+                                      onTap: () {},
+                                    ),
+                                    SizedBox(height: 40.h),
+                                  ],
+                                ),
+                              ),
+                            ],
                           );
-                        },
-                      ),
-                      _buildMenuItem(
-                        title: 'profile.language'.tr(),
-                        svgPath: SvgIcons.lang,
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            barrierColor: AppColors.scrimOverlay.withValues(
-                              alpha: 0.5,
-                            ),
-                            builder: (context) => const LanguageDialog(),
-                          );
-                        },
-                      ),
-                      _buildMenuItem(
-                        title: 'profile.about_us'.tr(),
-                        svgPath: SvgIcons.aboutUs,
-                        onTap: () {},
-                      ),
-                      _buildMenuItem(
-                        title: 'profile.terms_conditions'.tr(),
-                        svgPath: SvgIcons.conditions,
-                        onTap: () {},
-                      ),
-                      _buildMenuItem(
-                        title: 'profile.privacy_policy'.tr(),
-                        svgPath: SvgIcons.privacy,
-                        onTap: () {},
-                      ),
-                      SizedBox(height: 40.h),
-                    ],
+                        }
+                        return const SizedBox();
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
