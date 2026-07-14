@@ -149,7 +149,7 @@ Future<void> init() async {
   // ═════════════════════════════════════════════════
 
   getIt.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(),
+    () => AuthRemoteDataSourceImpl(getIt<ApiService>()),
   );
 
   getIt.registerLazySingleton<UserAuthRemoteDataSource>(
@@ -281,7 +281,11 @@ Future<void> init() async {
   // ═════════════════════════════════════════════════
 
   getIt.registerFactory<AuthCubit>(
-    () => AuthCubit(loginUseCase: getIt<LoginUseCase>()),
+    () => AuthCubit(
+      loginUseCase: getIt<LoginUseCase>(),
+      secureCache: getIt<SecureCache>(),
+      appCache: getIt<AppCache>(),
+    ),
   );
 
   getIt.registerFactory<UserAuthCubit>(
