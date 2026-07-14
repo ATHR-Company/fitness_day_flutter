@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:fitness_day/core/errors/error_handler.dart';
 import 'package:fitness_day/features/specialist/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:fitness_day/features/specialist/auth/domain/entities/auth_entity.dart';
 import 'package:fitness_day/features/specialist/auth/domain/repositories/auth_repository.dart';
@@ -17,7 +18,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final authModel = await remoteDataSource.login(phone, password);
       return Right(authModel);
     } catch (e) {
-      return Left(e.toString());
+      final failure = ErrorHandler.handle(e);
+      return Left(failure.message);
     }
   }
 }
