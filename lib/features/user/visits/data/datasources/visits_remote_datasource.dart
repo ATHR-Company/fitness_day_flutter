@@ -12,6 +12,8 @@ abstract class VisitsRemoteDataSource {
   Future<ActivityDetailsResponseModel> getActivityDetails(
       String assessmentId, int dayNumber, String activityId,
       {String period = 'daily'});
+  Future<UpdateMealCompletionResponseModel> updateMealCompletionStatus(
+      String assessmentId, int dayNumber, String mealId, bool isCompleted);
 }
 
 class VisitsRemoteDataSourceImpl implements VisitsRemoteDataSource {

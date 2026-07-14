@@ -50,7 +50,8 @@ class VisitsRepositoryImpl implements VisitsRepository {
 
   @override
   Future<ApiResult<UpdateMealCompletionResponseModel>> updateMealCompletionStatus(
-      String assessmentId, int dayNumber, String mealId, bool isCompleted) async {
+      String assessmentId, int dayNumber, String mealId,
+      bool isCompleted) async {
     try {
       final response = await _remoteDataSource.updateMealCompletionStatus(
           assessmentId, dayNumber, mealId, isCompleted);
