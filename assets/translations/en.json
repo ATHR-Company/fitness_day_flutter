@@ -167,9 +167,17 @@
     "hq_location": "Fitness Day HQ",
     "dummy_title": "Weekly Follow-up",
     "dummy_subtitle": "Weight follow-up and customizing diet and sports regimen",
-    "dummy_client": "Mohamed Abdullah"
+    "dummy_client": "Mohamed Abdullah",
+    "no_tasks": "No tasks for today"
   },
   "visit_details": {
+    "no_meals": "No meals added",
+    "no_exercises": "No exercises added",
+    "no_activities": "No activities added",
+    "calories_label": "Calories: ",
+    "kcal": "kcal",
+    "sets_label": "Sets: ",
+    "progress_label": "Progress: ",
     "title": "Visit Details",
     "tab_visit_data": "Visit Data",
     "tab_custom_plan": "Custom Plan",

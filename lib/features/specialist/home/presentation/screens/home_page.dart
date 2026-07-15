@@ -150,7 +150,10 @@ class HomePage extends StatelessWidget {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => const VisitDetailsPage(isUpcoming: true),
+                                              builder: (context) => VisitDetailsPage(
+                                                isUpcoming: true,
+                                                assessmentId: assessment.assessmentId,
+                                              ),
                                             ),
                                           );
                                         },

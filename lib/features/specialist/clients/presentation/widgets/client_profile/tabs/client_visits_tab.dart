@@ -103,7 +103,10 @@ class ClientVisitsTab extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => VisitDetailsPage(isUpcoming: isUpcoming),
+              builder: (_) => VisitDetailsPage(
+                isUpcoming: isUpcoming,
+                assessmentId: a.assessmentId ?? '',
+              ),
             ),
           );
         },

@@ -167,9 +167,17 @@
     "hq_location": "في مقر يوم الرشاقة",
     "dummy_title": "متابعة أسبوعية",
     "dummy_subtitle": "متابعة الوزن وتخصيص النظام الغذائي والرياضي له",
-    "dummy_client": "محمد عبدالله"
+    "dummy_client": "محمد عبدالله",
+    "no_tasks": "لا توجد مهام اليوم"
   },
   "visit_details": {
+    "no_meals": "لا توجد وجبات مضافة",
+    "no_exercises": "لا توجد تمارين مضافة",
+    "no_activities": "لا توجد أنشطة مضافة",
+    "calories_label": "السعرات: ",
+    "kcal": "سعرة",
+    "sets_label": "الجولات: ",
+    "progress_label": "التقدم: ",
     "title": "تفاصيل الزيارة",
     "tab_visit_data": "بيانات الزيارة",
     "tab_custom_plan": "النظام المخصص",

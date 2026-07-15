@@ -1,10 +1,10 @@
 import 'dart:ui' as ui;
-import 'package:fitness_day/core/widgets/plan_item_card.dart';
-import 'package:fitness_day/core/widgets/vertical_tab_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/widgets/upcoming_visit_show_screen.dart';
@@ -14,223 +14,479 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/core/widgets/reschedule_visit_dialog.dart';
-import '../../../../../core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/widgets/plan_item_card.dart';
+import 'package:fitness_day/core/widgets/vertical_tab_bar.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/widgets/report_text_field.dart';
 import '../../../../shared/conversations/presentation/pages/chat_details_page.dart';
 import 'add_activity_page.dart';
 import 'add_exercise_page.dart';
 import 'add_meal_page.dart';
+import 'package:fitness_day/core/injection/injection_container.dart' as di;
+import '../manager/visit_details_cubit.dart';
+import '../manager/visit_details_state.dart';
+import '../../data/models/specialist_assessment_visit_data_model.dart';
+import '../../data/models/specialist_assessment_health_report_model.dart';
+import '../../data/models/specialist_assessment_custom_plan_model.dart';
 
-class VisitDetailsPage extends StatefulWidget {
+class VisitDetailsPage extends StatelessWidget {
   final bool isUpcoming;
-  const VisitDetailsPage({super.key, this.isUpcoming = false});
+  final String assessmentId;
 
-  @override
-  State<VisitDetailsPage> createState() => _VisitDetailsPageState();
-}
-
-class _VisitDetailsPageState extends State<VisitDetailsPage> {
-  int _selectedTabIndex = 0;
-  int _selectedDayIndex = 0;
+  const VisitDetailsPage({
+    super.key,
+    required this.assessmentId,
+    this.isUpcoming = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isUpcoming) {
-      return UpcomingVisitShowScreen(
-        title: 'visit_details.title'.tr(),
-        trailingWidget: MessageIconButton(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
-            );
-          },
-        ),
-        visitTimeRemaining: 'visits.in_minutes'.tr(args: ['25']),
-        visitTitle: 'visits.dummy_title'.tr(),
-        visitSubtitle: 'visits.dummy_subtitle'.tr(),
-        personName: 'visits.dummy_client'.tr(),
-        personNameLabel: 'visits.client_name_label'.tr(),
-        visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
-        visitLocation: 'visits.hq_location'.tr(),
-        visitGoalTitle: 'visit_details.visit_goal_title'.tr(),
-        visitGoals: [
-          'visit_details.goal_1'.tr(),
-          'visit_details.goal_2'.tr(),
-          'visit_details.goal_3'.tr(),
-          'visit_details.goal_4'.tr(),
-        ],
-        bottomAction: Row(
-          children: [
-            Expanded(
-              child: CustomButton(
-                text: 'visit_details.start_visit'.tr(),
-                onPressed: () {},
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: CustomOutlinedButton(
-                text: 'visit_details.reschedule'.tr(),
-                onPressed: () {
-                  showRescheduleDialog(context);
-                },
-              ),
-            ),
-          ],
-        ),
-      );
+    return BlocProvider(
+      create: (context) => di.getIt<VisitDetailsCubit>()
+        ..loadVisitData(assessmentId),
+      child: _VisitDetailsPageContent(
+        assessmentId: assessmentId,
+        isUpcoming: isUpcoming,
+      ),
+    );
+  }
+}
+
+class _VisitDetailsPageContent extends StatefulWidget {
+  final String assessmentId;
+  final bool isUpcoming;
+
+  const _VisitDetailsPageContent({
+    required this.assessmentId,
+    required this.isUpcoming,
+  });
+
+  @override
+  State<_VisitDetailsPageContent> createState() => _VisitDetailsPageContentState();
+}
+
+class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
+  int _selectedTabIndex = 0;
+  int _selectedDayIndex = 0;
+
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _bmiController = TextEditingController();
+  final TextEditingController _fatPercentageController = TextEditingController();
+  final TextEditingController _fatWeightController = TextEditingController();
+  final TextEditingController _muscleWeightController = TextEditingController();
+  final TextEditingController _bmrController = TextEditingController();
+  final TextEditingController _leanMassController = TextEditingController();
+  final TextEditingController _musclePercentageController = TextEditingController();
+  final TextEditingController _proteinController = TextEditingController();
+
+  @override
+  void dispose() {
+    _weightController.dispose();
+    _heightController.dispose();
+    _bmiController.dispose();
+    _fatPercentageController.dispose();
+    _fatWeightController.dispose();
+    _muscleWeightController.dispose();
+    _bmrController.dispose();
+    _leanMassController.dispose();
+    _musclePercentageController.dispose();
+    _proteinController.dispose();
+    super.dispose();
+  }
+
+  void _onTabChanged(int index) {
+    setState(() {
+      _selectedTabIndex = index;
+    });
+
+    final cubit = context.read<VisitDetailsCubit>();
+    if (index == 0) {
+      cubit.loadVisitData(widget.assessmentId);
+    } else if (index == 1) {
+      cubit.loadHealthReport(widget.assessmentId);
+    } else if (index == 2) {
+      cubit.loadCustomPlan(widget.assessmentId, _selectedDayIndex + 1);
     }
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.visitsBackgroundGradient,
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              SizedBox(height: 20.h),
+  }
 
-              // 1. Back Header
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: AppBackHeader(
-                  title: 'visit_details.title'.tr(),
-                  trailingWidget: MessageIconButton(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
-                      );
-                    },
-                  ),
-                ),
+  void _onDayChanged(int dayIndex) {
+    setState(() {
+      _selectedDayIndex = dayIndex;
+    });
+    context.read<VisitDetailsCubit>().loadCustomPlan(widget.assessmentId, dayIndex + 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<VisitDetailsCubit, VisitDetailsState>(
+      listener: (context, state) {
+        if (state is VisitDetailsSuccess && state.healthReport != null) {
+          final hr = state.healthReport!;
+          _weightController.text = hr.weight != null ? hr.weight!.value.toString() : '';
+          _heightController.text = hr.height != null ? hr.height!.value.toString() : '';
+          _bmiController.text = hr.bmi != null
+              ? '${hr.bmi!.value} (${hr.bmi!.status ?? ""})'
+              : '';
+          _fatPercentageController.text = hr.fatPercentage != null ? hr.fatPercentage!.value.toString() : '';
+          _fatWeightController.text = hr.fatWeight != null ? hr.fatWeight!.value.toString() : '';
+          _muscleWeightController.text = hr.muscleWeight != null ? hr.muscleWeight!.value.toString() : '';
+          _bmrController.text = hr.bmr != null ? hr.bmr!.value.toString() : '';
+          _musclePercentageController.text = hr.musclePercentage != null ? hr.musclePercentage!.value.toString() : '';
+          _proteinController.text = hr.protein != null ? hr.protein!.value.toString() : '';
+
+          if (hr.weight != null && hr.fatWeight != null) {
+            _leanMassController.text = (hr.weight!.value - hr.fatWeight!.value).toStringAsFixed(1);
+          }
+        }
+      },
+      child: BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
+        builder: (context, state) {
+          if (state is VisitDetailsLoading) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
               ),
+            );
+          }
 
-              SizedBox(height: 32.h),
-
-              // 2. Segmented Control (3 tabs) — reversed so first tab is on the right (RTL)
-              
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: AppSegmentedControl(
-                    type: AppSegmentedControlType.unified,
-                  items: [
-                    'visit_details.tab_visit_data'.tr(),
-                    'visit_details.tab_report'.tr(),
-                    'visit_details.tab_custom_plan'.tr(),
+          if (state is VisitDetailsFailure) {
+            return Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(state.message),
+                    SizedBox(height: 16.h),
+                    ElevatedButton(
+                      onPressed: () {
+                        _onTabChanged(_selectedTabIndex);
+                      },
+                      child: Text('home.retry'.tr()),
+                    ),
                   ],
-                  selectedIndex: _selectedTabIndex,
-                  onItemSelected: (index) {
-                    setState(() {
-                      _selectedTabIndex = index;
-                    });
-                  },
-                  ),
-                ),
-                SizedBox(height: 24.h),
-
-              // 3. Content Area
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(bottom: 24.h),
-                  child: _buildTabContent(),
                 ),
               ),
+            );
+          }
 
-              // 4. Bottom Buttons
-              if (widget.isUpcoming || _selectedTabIndex != 0)
-                Container(
-                  padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-                  child: (widget.isUpcoming && _selectedTabIndex == 0)
-                      ? Row(
-                          children: [
-                            // Start Visit (Primary) — on the right in RTL
-                            Expanded(
-                              child: CustomButton(
-                                text: 'visit_details.start_visit'.tr(),
-                                onPressed: () {},
-                              ),
-                            ),
-                            SizedBox(width: 12.w),
-                            // Reschedule (Outlined) — on the left in RTL
-                            Expanded(
-                              child: CustomOutlinedButton(
-                                text: 'visit_details.reschedule'.tr(),
-                                onPressed: () {
-                                  showRescheduleDialog(context);
-                                },
-                              ),
-                            ),
-                          ],
-                        )
-                      : CustomButton(
-                          text: 'visit_details.end_visit'.tr(),
-                          color: AppColors.greenMint,
-                          onPressed: () {},
-                        ),
+          if (state is VisitDetailsSuccess) {
+            if (widget.isUpcoming && _selectedTabIndex == 0) {
+              final visitData = state.visitData;
+              if (visitData == null) {
+                return const Scaffold(
+                  body: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              String formattedTime = '';
+              if (visitData.weekStart.isNotEmpty) {
+                final parsed = DateTime.tryParse(visitData.weekStart);
+                if (parsed != null) {
+                  formattedTime = DateFormat('yyyy-MM-dd hh:mm a', context.locale.languageCode)
+                      .format(parsed.toLocal());
+                }
+              }
+              if (formattedTime.isEmpty) {
+                formattedTime = visitData.weekStart;
+              }
+
+              final goalsList = visitData.goal
+                  .split('\n')
+                  .map((e) => e.replaceAll('•', '').trim())
+                  .where((e) => e.isNotEmpty)
+                  .toList();
+
+              return UpcomingVisitShowScreen(
+                title: 'visit_details.title'.tr(),
+                trailingWidget: MessageIconButton(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
+                    );
+                  },
                 ),
-            ],
-          ),
-        ),
+                visitTimeRemaining: "home.commitment_rate".tr(args: [visitData.adherenceRate.toInt().toString()]),
+                visitTitle: visitData.name,
+                visitSubtitle: visitData.description,
+                personName: visitData.user?.name ?? '',
+                personNameLabel: 'visits.client_name_label'.tr(),
+                visitTime: formattedTime,
+                visitLocation: visitData.placement,
+                visitGoalTitle: 'visit_details.visit_goal_title'.tr(),
+                visitGoals: goalsList,
+                bottomAction: Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        text: 'visit_details.start_visit'.tr(),
+                        onPressed: () {},
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: CustomOutlinedButton(
+                        text: 'visit_details.reschedule'.tr(),
+                        onPressed: () {
+                          showRescheduleDialog(context);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return Scaffold(
+              body: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: AppColors.visitsBackgroundGradient,
+                ),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      SizedBox(height: 20.h),
+
+                      // 1. Back Header
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        child: AppBackHeader(
+                          title: 'visit_details.title'.tr(),
+                          trailingWidget: MessageIconButton(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 32.h),
+
+                      // 2. Segmented Control (3 tabs)
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        child: AppSegmentedControl(
+                          type: AppSegmentedControlType.unified,
+                          items: [
+                            'visit_details.tab_visit_data'.tr(),
+                            'visit_details.tab_report'.tr(),
+                            'visit_details.tab_custom_plan'.tr(),
+                          ],
+                          selectedIndex: _selectedTabIndex,
+                          onItemSelected: _onTabChanged,
+                        ),
+                      ),
+                      SizedBox(height: 24.h),
+
+                      // 3. Content Area
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.only(bottom: 24.h),
+                          child: _buildTabContent(state),
+                        ),
+                      ),
+
+                      // 4. Bottom Buttons
+                      if (widget.isUpcoming || _selectedTabIndex != 0)
+                        Container(
+                          padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+                          child: (widget.isUpcoming && _selectedTabIndex == 0)
+                              ? Row(
+                                  children: [
+                                    Expanded(
+                                      child: CustomButton(
+                                        text: 'visit_details.start_visit'.tr(),
+                                        onPressed: () {},
+                                      ),
+                                    ),
+                                    SizedBox(width: 12.w),
+                                    Expanded(
+                                      child: CustomOutlinedButton(
+                                        text: 'visit_details.reschedule'.tr(),
+                                        onPressed: () {
+                                          showRescheduleDialog(context);
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : CustomButton(
+                                  text: 'visit_details.end_visit'.tr(),
+                                  color: AppColors.greenMint,
+                                  onPressed: () {},
+                                ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
 
-  Widget _buildTabContent() {
+  Widget _buildTabContent(VisitDetailsSuccess state) {
     switch (_selectedTabIndex) {
       case 0:
-        return _buildVisitDataTab();
+        return _buildVisitDataTab(state.visitData);
       case 1:
-        return _buildReportTab();
+        return _buildReportTab(state.healthReport);
       case 2:
-        return _buildCustomPlanTab();
+        return _buildCustomPlanTab(state.customPlan);
       default:
-        return _buildVisitDataTab();
+        return _buildVisitDataTab(state.visitData);
     }
   }
 
-  Widget _buildVisitDataTab() {
+  Widget _buildVisitDataTab(SpecialistAssessmentVisitDataModel? visitData) {
+    if (visitData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    String formattedTime = '';
+    if (visitData.weekStart.isNotEmpty) {
+      final parsed = DateTime.tryParse(visitData.weekStart);
+      if (parsed != null) {
+        formattedTime = DateFormat('yyyy-MM-dd hh:mm a', context.locale.languageCode)
+            .format(parsed.toLocal());
+      }
+    }
+    if (formattedTime.isEmpty) {
+      formattedTime = visitData.weekStart;
+    }
+
+    final goalsList = visitData.goal
+        .split('\n')
+        .map((e) => e.replaceAll('•', '').trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         children: [
-          // Visit Card
           VisitCard(
             timeRemaining: widget.isUpcoming
-                ? 'visits.in_minutes'.tr(args: ['25'])
+                ? "home.commitment_rate".tr(args: [visitData.adherenceRate.toInt().toString()])
                 : '',
-            title: 'visits.dummy_title'.tr(),
-            subtitle: 'visits.dummy_subtitle'.tr(),
-            personName: 'visits.dummy_client'.tr(),
-            visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
-            location: 'visits.hq_location'.tr(),
+            title: visitData.name,
+            subtitle: visitData.description,
+            personName: visitData.user?.name ?? '',
+            visitTime: formattedTime,
+            location: visitData.placement,
             buttonText: 'visits.view_visit'.tr(),
             onViewPressed: () {},
             isUpcoming: widget.isUpcoming,
             showButton: false,
           ),
-
           SizedBox(height: 16.h),
-
-          // Visit Goal Card
           VisitGoalCard(
             title: 'visit_details.visit_goal_title'.tr(),
-            goals: [
-              'visit_details.goal_1'.tr(),
-              'visit_details.goal_2'.tr(),
-              'visit_details.goal_3'.tr(),
-              'visit_details.goal_4'.tr(),
-            ],
+            goals: goalsList,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCustomPlanTab() {
+  Widget _buildReportTab(SpecialistAssessmentHealthReportModel? healthReport) {
+    if (healthReport == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        children: [
+          ReportTextField(
+            label: '${'visit_details.weight'.tr()} :',
+            hintText: 'visit_details.write_weight'.tr(),
+            suffixText: healthReport.weight?.unit ?? 'visit_details.kg'.tr(),
+            controller: _weightController,
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: '${'visit_details.height'.tr()} :',
+            hintText: 'visit_details.write_height'.tr(),
+            suffixText: healthReport.height?.unit ?? 'visit_details.cm'.tr(),
+            controller: _heightController,
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.bmi'.tr(),
+            hintText: 'visit_details.bmi'.tr(),
+            controller: _bmiController,
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.body_fat_percentage'.tr(),
+            hintText: 'visit_details.write_body_fat_percentage'.tr(),
+            suffixText: healthReport.fatPercentage?.unit ?? '%',
+            controller: _fatPercentageController,
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.fat_mass'.tr(),
+            hintText: 'visit_details.fat_mass'.tr(),
+            suffixText: healthReport.fatWeight?.unit ?? 'visit_details.kg'.tr(),
+            controller: _fatWeightController,
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.muscle_weight'.tr(),
+            hintText: 'visit_details.muscle_weight'.tr(),
+            suffixText: healthReport.muscleWeight?.unit ?? 'visit_details.kg'.tr(),
+            controller: _muscleWeightController,
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: '${'visit_details.metabolic_rate'.tr()} :',
+            hintText: 'visit_details.write_total_metabolic_rate'.tr(),
+            suffixText: healthReport.bmr?.unit ?? '',
+            controller: _bmrController,
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.lean_mass'.tr(),
+            hintText: 'visit_details.write_lean_mass'.tr(),
+            controller: _leanMassController,
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: '${'visit_details.muscle_percentage'.tr()} :',
+            hintText: 'visit_details.write_muscle_percentage'.tr(),
+            suffixText: healthReport.musclePercentage?.unit ?? '%',
+            controller: _musclePercentageController,
+          ),
+          SizedBox(height: 16.h),
+          ReportTextField(
+            label: 'visit_details.protein_percentage'.tr(),
+            hintText: 'visit_details.write_protein_percentage'.tr(),
+            suffixText: healthReport.protein?.unit ?? '',
+            controller: _proteinController,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomPlanTab(SpecialistAssessmentCustomPlanModel? plan) {
+    if (plan == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -239,6 +495,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
           child: Padding(
             padding: EdgeInsets.fromLTRB(20.w, 16.h, 16.w, 0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildActionCard(
                   title: 'visit_details.add_meal'.tr(),
@@ -255,9 +512,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddExercisePage(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const AddExercisePage()),
                     );
                   },
                 ),
@@ -267,28 +522,53 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddActivityPage(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const AddActivityPage()),
                     );
                   },
                 ),
                 SizedBox(height: 32.h),
 
-                // Added Items List
-                _buildSectionTitle('visit_details.nutrition'.tr(), 1),
+                // Added Items Lists
+                _buildSectionTitle('visit_details.nutrition'.tr(), plan.meals.length),
                 SizedBox(height: 12.h),
-                _buildNutritionCard(),
+                if (plan.meals.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: Text(
+                      'visit_details.no_meals'.tr(),
+                      style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
+                    ),
+                  )
+                else
+                  ...plan.meals.map((meal) => _buildMealCard(meal)),
 
                 SizedBox(height: 24.h),
-                _buildSectionTitle('visit_details.exercises'.tr(), 1),
+                _buildSectionTitle('visit_details.exercises'.tr(), plan.workoutPlan.length),
                 SizedBox(height: 12.h),
-                _buildExerciseCard(),
+                if (plan.workoutPlan.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: Text(
+                      'visit_details.no_exercises'.tr(),
+                      style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
+                    ),
+                  )
+                else
+                  ...plan.workoutPlan.map((workout) => _buildExerciseCard(workout)),
 
                 SizedBox(height: 24.h),
-                _buildSectionTitle('visit_details.activity'.tr(), 1),
+                _buildSectionTitle('visit_details.activity'.tr(), plan.activities.length),
                 SizedBox(height: 12.h),
-                _buildActivityCard(),
+                if (plan.activities.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: Text(
+                      'visit_details.no_activities'.tr(),
+                      style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
+                    ),
+                  )
+                else
+                  ...plan.activities.map((activity) => _buildActivityCard(activity)),
               ],
             ),
           ),
@@ -305,11 +585,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
             'visit_details.day_7'.tr(),
           ],
           selectedIndex: _selectedDayIndex,
-          onItemSelected: (index) {
-            setState(() {
-              _selectedDayIndex = index;
-            });
-          },
+          onItemSelected: _onDayChanged,
         ),
       ],
     );
@@ -381,7 +657,6 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     );
   }
 
-  
   Widget _buildSectionTitle(String title, int count) {
     return Row(
       children: [
@@ -404,50 +679,52 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     );
   }
 
-  
-  Widget _buildNutritionCard() {
-    return PlanItemCard(showActions: true, 
-      title: 'visit_details_mock_breakfast'.tr(),
-      isCompleted: true,
-      time: 'visit_details_mock_breakfast_time'.tr(),
-      subtitle: 'visit_details_mock_breakfast_desc'.tr(),
-      details: RichText(
-        text: TextSpan(
-          style: TextStyleManager.style9Medium.copyWith(
-            color: AppColors.textSecondary,
-            height: 1.5,
-          ),
+  Widget _buildMealCard(SpecialistMealModel meal) {
+    String formattedTime = '';
+    if (meal.time.isNotEmpty) {
+      final parsed = DateTime.tryParse(meal.time);
+      if (parsed != null) {
+        formattedTime = DateFormat('hh:mm a', context.locale.languageCode).format(parsed.toLocal());
+      }
+    }
+    if (formattedTime.isEmpty) {
+      formattedTime = meal.time;
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: PlanItemCard(
+        title: meal.name,
+        isCompleted: meal.isCompleted,
+        time: formattedTime,
+        subtitle: meal.categoryName,
+        details: Row(
           children: [
-            TextSpan(text: 'visit_details_mock_qty_oats'.tr()),
-            TextSpan(
-              text: '45g',
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
+            if (meal.image.isNotEmpty) ...[
+              AppImage(
+                meal.image,
+                height: 50.h,
+                width: 50.w,
+                radius: 8.r,
               ),
-            ),
-            TextSpan(text: 'visit_details_mock_milk'.tr()),
-            TextSpan(
-              text: '250ml',
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextSpan(text: 'visit_details_mock_nuts'.tr()),
-            TextSpan(
-              text: '10g',
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextSpan(text: 'visit_details_mock_honey'.tr()),
-            TextSpan(
-              text: '5g',
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
+              SizedBox(width: 12.w),
+            ],
+            RichText(
+              text: TextSpan(
+                style: TextStyleManager.style9Medium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                children: [
+                  TextSpan(text: 'visit_details.calories_label'.tr()),
+                  TextSpan(
+                    text: '${meal.calories.toInt()} ',
+                    style: TextStyleManager.style9Medium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(text: 'visit_details.kcal'.tr()),
+                ],
               ),
             ),
           ],
@@ -456,170 +733,96 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
     );
   }
 
-  Widget _buildExerciseCard() {
-    return PlanItemCard(showActions: true, 
-      title: 'visit_details_mock_plank'.tr(),
-      isCompleted: true,
-      time: 'visit_details_mock_breakfast_time'.tr(),
-      details: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              children: [
-                TextSpan(text: 'visit_details_mock_sets'.tr()),
-                TextSpan(
-                  text: 'visit_details_mock_5_sets'.tr(),
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          RichText(
-            text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              children: [
-                TextSpan(text: 'visit_details_mock_rest_time'.tr()),
-                TextSpan(
-                  text: 'visit_details_mock_20_sec'.tr(),
-                  style: TextStyleManager.heading3.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          RichText(
-            text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              children: [
-                TextSpan(text: 'visit_details_mock_reps'.tr()),
-                TextSpan(
-                  text: '5',
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildExerciseCard(SpecialistWorkoutModel workout) {
+    String formattedTime = '';
+    if (workout.time.isNotEmpty) {
+      final parsed = DateTime.tryParse(workout.time);
+      if (parsed != null) {
+        formattedTime = DateFormat('hh:mm a', context.locale.languageCode).format(parsed.toLocal());
+      }
+    }
+    if (formattedTime.isEmpty) {
+      formattedTime = workout.time;
+    }
 
-  Widget _buildActivityCard() {
-    return PlanItemCard(showActions: true, 
-      title: 'visit_details_mock_walk'.tr(),
-      isCompleted: false,
-      details: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              children: [
-                TextSpan(text: 'visit_details_mock_steps'.tr()),
-                TextSpan(
-                  text: 'visit_details_mock_5000_steps'.tr(),
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          RichText(
-            text: TextSpan(
-              style: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              children: [
-                TextSpan(text: 'visit_details_mock_rest'.tr()),
-                TextSpan(
-                  text: 'visit_details_mock_20_sec'.tr(),
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReportTab() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Column(
-        children: [
-          ReportTextField(
-            label: '${'visit_details.weight'.tr()} :',
-            hintText: 'visit_details.write_weight'.tr(),
-            suffixText: 'visit_details.kg'.tr(),
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
-            label: '${'visit_details.height'.tr()} :',
-            hintText: 'visit_details.write_height'.tr(),
-            suffixText: 'visit_details.cm'.tr(),
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
-            label: 'visit_details.bmi'.tr(),
-            hintText: 'visit_details.bmi'.tr(),
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
-            label: 'visit_details.body_fat_percentage'.tr(),
-            hintText: 'visit_details.write_body_fat_percentage'.tr(),
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
-            label: 'visit_details.fat_mass'.tr(),
-            hintText: 'visit_details.fat_mass'.tr(),
-            suffixText: 'visit_details.kg'.tr(),
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
-            label: 'visit_details.muscle_weight'.tr(),
-            hintText: 'visit_details.muscle_weight'.tr(),
-            suffixText: 'visit_details.kg'.tr(),
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
-            label: '${'visit_details.metabolic_rate'.tr()} :',
-            hintText: 'visit_details.write_total_metabolic_rate'.tr(),
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
-            label: 'visit_details.lean_mass'.tr(),
-            hintText: 'visit_details.write_lean_mass'.tr(),
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
-            label: '${'visit_details.muscle_percentage'.tr()} :',
-            hintText: 'visit_details.write_muscle_percentage'.tr(),
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
-            label: 'visit_details.protein_percentage'.tr(),
-            hintText: 'visit_details.write_protein_percentage'.tr(),
-          ),
-        ],
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: PlanItemCard(
+        title: workout.name,
+        isCompleted: workout.isCompleted,
+        time: formattedTime,
+        subtitle: workout.description,
+        details: Row(
+          children: [
+            if (workout.photo.isNotEmpty) ...[
+              AppImage(
+                workout.photo,
+                height: 50.h,
+                width: 50.w,
+                radius: 8.r,
+              ),
+              SizedBox(width: 12.w),
+            ],
+            RichText(
+              text: TextSpan(
+                style: TextStyleManager.style9Medium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                children: [
+                  TextSpan(text: 'visit_details.sets_label'.tr()),
+                  TextSpan(
+                    text: '${workout.completedSets} / ${workout.totalSets}',
+                    style: TextStyleManager.style9Medium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActivityCard(SpecialistActivityModel activity) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12.h),
+      child: PlanItemCard(
+        title: activity.name,
+        isCompleted: activity.isCompleted,
+        subtitle: activity.description,
+        details: Row(
+          children: [
+            if (activity.image.isNotEmpty) ...[
+              AppImage(
+                activity.image,
+                height: 50.h,
+                width: 50.w,
+                radius: 8.r,
+              ),
+              SizedBox(width: 12.w),
+            ],
+            RichText(
+              text: TextSpan(
+                style: TextStyleManager.style9Medium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                children: [
+                  TextSpan(text: 'visit_details.progress_label'.tr()),
+                  TextSpan(
+                    text: '${activity.currentProgress.toStringAsFixed(1)} / ${activity.goal.toInt()} ${activity.unit}',
+                    style: TextStyleManager.style9Medium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

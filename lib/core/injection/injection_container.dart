@@ -42,6 +42,24 @@ import 'package:fitness_day/features/specialist/clients/presentation/manager/spe
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_cubit.dart';
 
+// Specialist Daily Tasks
+import 'package:fitness_day/features/specialist/tasks/data/datasources/specialist_daily_tasks_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/tasks/data/repositories/specialist_daily_tasks_repository_impl.dart';
+import 'package:fitness_day/features/specialist/tasks/domain/repositories/specialist_daily_tasks_repository.dart';
+import 'package:fitness_day/features/specialist/tasks/domain/usecases/get_specialist_daily_tasks_usecase.dart';
+import 'package:fitness_day/features/specialist/tasks/presentation/manager/specialist_daily_tasks_cubit.dart';
+
+// Specialist Visits & Assessment Details
+import 'package:fitness_day/features/specialist/visits/data/datasources/specialist_visits_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/visits/data/repositories/specialist_visits_repository_impl.dart';
+import 'package:fitness_day/features/specialist/visits/domain/repositories/specialist_visits_repository.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/get_assessment_history_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/get_visit_data_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/get_health_report_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/get_custom_plan_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/presentation/manager/visits_cubit.dart';
+import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
+
 // User Auth & Registration Setup
 import 'package:fitness_day/features/user/auth/data/datasources/user_auth_remote_datasource.dart';
 import 'package:fitness_day/features/user/auth/data/repositories/user_auth_repository_impl.dart';
@@ -502,5 +520,49 @@ Future<void> init() async {
   );
   getIt.registerFactory<ClientProgressCubit>(
     () => ClientProgressCubit(getIt<GetClientProgressUseCase>()),
+  );
+
+  // Specialist Daily Tasks
+  getIt.registerLazySingleton<SpecialistDailyTasksRemoteDataSource>(
+    () => SpecialistDailyTasksRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistDailyTasksRepository>(
+    () => SpecialistDailyTasksRepositoryImpl(getIt<SpecialistDailyTasksRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistDailyTasksUseCase>(
+    () => GetSpecialistDailyTasksUseCase(getIt<SpecialistDailyTasksRepository>()),
+  );
+  getIt.registerFactory<SpecialistDailyTasksCubit>(
+    () => SpecialistDailyTasksCubit(getIt<GetSpecialistDailyTasksUseCase>()),
+  );
+
+  // Specialist Visits & Details
+  getIt.registerLazySingleton<SpecialistVisitsRemoteDataSource>(
+    () => SpecialistVisitsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistVisitsRepository>(
+    () => SpecialistVisitsRepositoryImpl(getIt<SpecialistVisitsRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetAssessmentHistoryUseCase>(
+    () => GetAssessmentHistoryUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<GetVisitDataUseCase>(
+    () => GetVisitDataUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<GetHealthReportUseCase>(
+    () => GetHealthReportUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<GetCustomPlanUseCase>(
+    () => GetCustomPlanUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerFactory<VisitsCubit>(
+    () => VisitsCubit(getIt<GetAssessmentHistoryUseCase>()),
+  );
+  getIt.registerFactory<VisitDetailsCubit>(
+    () => VisitDetailsCubit(
+      getIt<GetVisitDataUseCase>(),
+      getIt<GetHealthReportUseCase>(),
+      getIt<GetCustomPlanUseCase>(),
+    ),
   );
 }

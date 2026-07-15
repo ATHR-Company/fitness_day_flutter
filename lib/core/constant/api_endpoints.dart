@@ -10,6 +10,9 @@ class ApiEndpoints {
   static const String specialistProfile = '/specialist/my-profile';
   static const String updateSpecialistProfile = '/specialist/update-my-profile';
   static const String specialistClients = '/specialist/clients';
+  static const String specialistDailyTasks = '/specialist/daily-tasks';
+  static const String specialistAssessmentHistory = '/specialist/assessment-history';
+  static String specialistAssessmentDetails(String id) => '/specialist/assessment-history/details/$id';
   static String specialistClientProfile(String userId) => '/specialist/clients/$userId/profile';
   static String specialistClientUpcomingAssessments(String userId) => '/specialist/clients/$userId/assessments/upcoming';
   static String specialistClientPreviousAssessments(String userId) => '/specialist/clients/$userId/assessments/previous';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -6,11 +7,51 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
-
+import 'package:fitness_day/core/injection/injection_container.dart' as di;
+import 'package:fitness_day/features/specialist/tasks/presentation/manager/specialist_daily_tasks_cubit.dart';
+import 'package:fitness_day/features/specialist/tasks/presentation/manager/specialist_daily_tasks_state.dart';
 import '../../../visits/presentation/pages/visit_details_page.dart';
 
 class TodayTasksPage extends StatelessWidget {
   const TodayTasksPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => di.getIt<SpecialistDailyTasksCubit>()..getDailyTasks(),
+      child: const _TodayTasksPageContent(),
+    );
+  }
+}
+
+class _TodayTasksPageContent extends StatefulWidget {
+  const _TodayTasksPageContent();
+
+  @override
+  State<_TodayTasksPageContent> createState() => _TodayTasksPageContentState();
+}
+
+class _TodayTasksPageContentState extends State<_TodayTasksPageContent> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<SpecialistDailyTasksCubit>().loadMoreDailyTasks();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,37 +67,113 @@ class TodayTasksPage extends StatelessWidget {
         body: SafeArea(
           child: Column(
             children: [
-              AppHeader(title: 'drawer.today_tasks'.tr()),
+              Builder(
+                builder: (context) => AppHeader(
+                  title: 'drawer.today_tasks'.tr(),
+                  onMenuPressed: () {
+                    Scaffold.of(context).openEndDrawer();
+                  },
+                ),
+              ),
               SizedBox(height: 16.h),
               Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.all(20.h),
-                  itemCount: 3,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: 12.h),
-                      child: VisitCard(
-                        isUpcoming: true,
-                        timeRemaining: '', // No badge
-                        title: 'home.weekly_follow_up'.tr(),
-                        subtitle: 'home.weekly_follow_up_desc'.tr(),
-                        personName: 'spec_mock_name'.tr(),
-                        visitTime: 'spec_mock_time3'.tr(),
-                        location: 'spec_mock_location'.tr(),
-                        buttonText: 'home.view_visit'.tr(),
-                        onViewPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const VisitDetailsPage(isUpcoming: true),
+                child: BlocBuilder<SpecialistDailyTasksCubit, SpecialistDailyTasksState>(
+                  builder: (context, state) {
+                    if (state is SpecialistDailyTasksLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is SpecialistDailyTasksFailure) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(state.message),
+                            SizedBox(height: 8.h),
+                            ElevatedButton(
+                              onPressed: () => context
+                                  .read<SpecialistDailyTasksCubit>()
+                                  .getDailyTasks(),
+                              child: Text('home.retry'.tr()),
                             ),
-                          );
-                        },
-                        secondaryButtonText: 'home.reschedule'.tr(),
-                        onSecondaryPressed: () {},
-                        iconPath: SvgIcons.needMonitor,
-                      ),
-                    );
+                          ],
+                        ),
+                      );
+                    } else if (state is SpecialistDailyTasksSuccess ||
+                        state is SpecialistDailyTasksLoadingMore) {
+                      final tasks = state is SpecialistDailyTasksSuccess
+                          ? state.tasks
+                          : (state as SpecialistDailyTasksLoadingMore).tasks;
+
+                      if (tasks.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'visits.no_tasks'.tr(),
+                          ),
+                        );
+                      }
+
+                      return RefreshIndicator(
+                        onRefresh: () => context
+                            .read<SpecialistDailyTasksCubit>()
+                            .getDailyTasks(isRefresh: true),
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.all(20.h),
+                          itemCount: tasks.length + (state is SpecialistDailyTasksLoadingMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index >= tasks.length) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16.h),
+                                child: const Center(child: CircularProgressIndicator()),
+                              );
+                            }
+
+                            final task = tasks[index];
+
+                            String formattedTime = '';
+                            if (task.weekStart.isNotEmpty) {
+                              final parsed = DateTime.tryParse(task.weekStart);
+                              if (parsed != null) {
+                                formattedTime = DateFormat('yyyy-MM-dd hh:mm a', context.locale.languageCode)
+                                    .format(parsed.toLocal());
+                              }
+                            }
+                            if (formattedTime.isEmpty) {
+                              formattedTime = task.weekStart;
+                            }
+
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 12.h),
+                              child: VisitCard(
+                                isUpcoming: true,
+                                timeRemaining: task.user != null
+                                    ? "home.commitment_rate".tr(args: [task.user!.adherenceRate.toInt().toString()])
+                                    : '',
+                                title: task.name,
+                                subtitle: task.description,
+                                personName: task.user?.name ?? '',
+                                visitTime: formattedTime,
+                                location: task.placement,
+                                buttonText: 'home.view_visit'.tr(),
+                                onViewPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => VisitDetailsPage(
+                                        isUpcoming: true,
+                                        assessmentId: task.assessmentId,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                iconPath: task.image.isNotEmpty ? task.image : SvgIcons.needMonitor,
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
                   },
                 ),
               ),
