@@ -84,10 +84,10 @@ class VisitsRepositoryImpl implements VisitsRepository {
   }
 
   @override
-  Future<ApiResult<void>> requestAssessmentChange(String assessmentId, {String? type, String? branchId, String? date}) async {
+  Future<ApiResult<String>> requestAssessmentChange(String assessmentId, {String? type, String? branchId, String? date}) async {
     try {
-      await _remoteDataSource.requestAssessmentChange(assessmentId, type: type, branchId: branchId, date: date);
-      return Success(null);
+      final message = await _remoteDataSource.requestAssessmentChange(assessmentId, type: type, branchId: branchId, date: date);
+      return Success(message);
     } catch (e) {
       return FailureResult(ErrorHandler.handle(e));
     }

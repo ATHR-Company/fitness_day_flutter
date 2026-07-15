@@ -20,7 +20,7 @@ abstract class VisitsRemoteDataSource {
       
   Future<AssessmentsResponse> getAssessments(String weekStartFrom, String weekStartTo);
   Future<List<BranchModel>> getBranches();
-  Future<void> requestAssessmentChange(String assessmentId, {String? type, String? branchId, String? date});
+  Future<String> requestAssessmentChange(String assessmentId, {String? type, String? branchId, String? date});
   Future<Map<String, dynamic>> getAssessmentDetails(String assessmentId, {int? dayNumber});
 }
 
@@ -92,7 +92,7 @@ class VisitsRemoteDataSourceImpl implements VisitsRemoteDataSource {
   }
 
   @override
-  Future<void> requestAssessmentChange(String assessmentId, {String? type, String? branchId, String? date}) async {
+  Future<String> requestAssessmentChange(String assessmentId, {String? type, String? branchId, String? date}) async {
     final Map<String, dynamic> data = {
       'assessmentId': assessmentId,
     };
@@ -105,7 +105,8 @@ class VisitsRemoteDataSourceImpl implements VisitsRemoteDataSource {
     if (date != null) {
       data['requestedWeekStart'] = date;
     }
-    await _apiService.post(ApiEndpoints.assessmentChangeRequests, data: data);
+    final response = await _apiService.post(ApiEndpoints.assessmentChangeRequests, data: data);
+    return response.data['message'] as String? ?? 'تم الإرسال بنجاح';
   }
 
   @override

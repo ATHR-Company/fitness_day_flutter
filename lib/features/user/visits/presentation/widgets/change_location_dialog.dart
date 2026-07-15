@@ -39,7 +39,7 @@ class _ChangeLocationDialogState extends State<ChangeLocationDialog> {
         if (state is ChangeAssessmentSuccess) {
           showAppSnackBar(
             context,
-            text: 'تم تعديل مكان الزيارة بنجاح',
+            text: state.message,
             isSuccess: true,
           );
           context.pop();

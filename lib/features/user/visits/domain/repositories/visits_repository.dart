@@ -27,7 +27,7 @@ abstract class VisitsRepository {
 
   Future<ApiResult<List<BranchModel>>> getBranches();
 
-  Future<ApiResult<void>> requestAssessmentChange(
+  Future<ApiResult<String>> requestAssessmentChange(
       String assessmentId, 
       {String? type, String? branchId, String? date});
 }

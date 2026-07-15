@@ -20,7 +20,14 @@ class BranchesLoaded extends ChangeAssessmentState {
   List<Object?> get props => [branches];
 }
 
-class ChangeAssessmentSuccess extends ChangeAssessmentState {}
+class ChangeAssessmentSuccess extends ChangeAssessmentState {
+  final String message;
+
+  const ChangeAssessmentSuccess({required this.message});
+
+  @override
+  List<Object?> get props => [message];
+}
 
 class ChangeAssessmentError extends ChangeAssessmentState {
   final String message;

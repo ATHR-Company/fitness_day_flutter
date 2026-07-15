@@ -62,7 +62,7 @@ class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
           if (state is ChangeAssessmentSuccess) {
             showAppSnackBar(
               context,
-              text: 'تم تعديل الميعاد بنجاح',
+              text: state.message,
               isSuccess: true,
             );
             Navigator.of(context).pop();

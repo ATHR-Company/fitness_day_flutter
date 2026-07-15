@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -38,13 +39,17 @@ class _RescheduleDialogState extends State<RescheduleDialog> {
     return BlocConsumer<ChangeAssessmentCubit, ChangeAssessmentState>(
       listener: (context, state) {
         if (state is ChangeAssessmentSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تم طلب إعادة الجدولة بنجاح')),
+          showAppSnackBar(
+            context,
+            text: state.message,
+            isSuccess: true,
           );
           context.pop();
         } else if (state is ChangeAssessmentError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
+          showAppSnackBar(
+            context,
+            text: state.message,
+            isError: true,
           );
         }
       },

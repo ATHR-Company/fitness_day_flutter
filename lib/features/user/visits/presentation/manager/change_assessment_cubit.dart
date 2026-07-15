@@ -31,9 +31,9 @@ class ChangeAssessmentCubit extends Cubit<ChangeAssessmentState> {
       date: date,
     );
     
-    if (result is Success<void>) {
-      emit(ChangeAssessmentSuccess());
-    } else if (result is FailureResult<void>) {
+    if (result is Success<String>) {
+      emit(ChangeAssessmentSuccess(message: result.data));
+    } else if (result is FailureResult<String>) {
       emit(ChangeAssessmentError(message: result.failure.message));
     }
   }
