@@ -1,6 +1,10 @@
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/assessments_cubit.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/change_assessment_cubit.dart';
 import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/features/shared/onboarding/presentation/pages/onboarding_page.dart'
     as onboarding;
@@ -112,7 +116,9 @@ class AppRouter {
             final map = state.extra as Map;
             return OtpVerificationPage(
               phoneNumber: map['phoneNumber']?.toString() ?? '',
-              signupToken: map['signupToken']?.toString() ?? map['resetToken']?.toString(),
+              signupToken:
+                  map['signupToken']?.toString() ??
+                  map['resetToken']?.toString(),
               isForgotPassword: map['isForgotPassword'] as bool? ?? false,
             );
           }
@@ -177,15 +183,41 @@ class AppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.visitLog,
-        builder: (context, state) => const VisitLogPage(),
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => getIt<AssessmentsCubit>()..fetchAssessmentsForCurrentWeek(),
+            ),
+            BlocProvider(
+              create: (_) => getIt<ChangeAssessmentCubit>(),
+            ),
+          ],
+          child: const VisitLogPage(),
+        ),
       ),
       GoRoute(
         path: UserAppRoutes.visitDetails,
-        builder: (context, state) => const VisitDetailsPage(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final assessmentId = extra['assessmentId'] as String? ?? '';
+          final dayNumber = extra['dayNumber'] as int? ?? 1;
+          return VisitDetailsPage(
+            assessmentId: assessmentId,
+            dayNumber: dayNumber,
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.upcomingVisitShow,
-        builder: (context, state) => const UserUpcomingVisitPage(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final assessmentId = extra['assessmentId'] as String? ?? '';
+          final dayNumber = extra['dayNumber'] as int? ?? 1;
+          return UserUpcomingVisitPage(
+            assessmentId: assessmentId,
+            dayNumber: dayNumber,
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.mealDetails,
@@ -209,7 +241,7 @@ class AppRouter {
         path: UserAppRoutes.workoutPlan,
         builder: (context, state) => const WorkoutPlanPage(),
       ),
-    GoRoute(
+      GoRoute(
         path: UserAppRoutes.hydrationDetails,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
@@ -231,7 +263,8 @@ class AppRouter {
         path: UserAppRoutes.workoutVideo,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
-          final workoutItemId = extra['workoutItemId'] as String? ?? '6a4cf59e38e6d8571647c112';
+          final workoutItemId =
+              extra['workoutItemId'] as String? ?? '6a4cf59e38e6d8571647c112';
           final assessmentId = extra['assessmentId'] as String? ?? '';
           final dayNumber = extra['dayNumber'] as int? ?? 1;
           return WorkoutVideoScreen(

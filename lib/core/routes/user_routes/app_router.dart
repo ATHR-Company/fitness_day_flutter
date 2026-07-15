@@ -20,6 +20,10 @@ import 'package:fitness_day/features/user/profile/presentation/pages/personal_pr
 
 import '../../../features/user/auth/presentation/pages/bmi_report_page.dart';
 import '../../../features/user/auth/presentation/pages/health_problems_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/assessments_cubit.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/change_assessment_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/visit_log_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/visit_details_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/user_upcoming_visit_page.dart';
@@ -129,15 +133,41 @@ class UserAppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.visitLog,
-        builder: (context, state) => const VisitLogPage(),
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => getIt<AssessmentsCubit>()..fetchAssessmentsForCurrentWeek(),
+            ),
+            BlocProvider(
+              create: (context) => getIt<ChangeAssessmentCubit>(),
+            ),
+          ],
+          child: const VisitLogPage(),
+        ),
       ),
       GoRoute(
         path: UserAppRoutes.visitDetails,
-        builder: (context, state) => const VisitDetailsPage(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final assessmentId = extra['assessmentId'] as String? ?? '';
+          final dayNumber = extra['dayNumber'] as int? ?? 1;
+          return VisitDetailsPage(
+            assessmentId: assessmentId,
+            dayNumber: dayNumber,
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.upcomingVisitShow,
-        builder: (context, state) => const UserUpcomingVisitPage(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final assessmentId = extra['assessmentId'] as String? ?? '';
+          final dayNumber = extra['dayNumber'] as int? ?? 1;
+          return UserUpcomingVisitPage(
+            assessmentId: assessmentId,
+            dayNumber: dayNumber,
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.mealDetails,

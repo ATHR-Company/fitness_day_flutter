@@ -94,6 +94,9 @@ import 'package:fitness_day/features/user/visits/domain/usecases/update_meal_com
 import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/meal_details_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/activity_details_cubit.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/assessments_cubit.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/change_assessment_cubit.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/assessment_details_cubit.dart';
 
 // User Workouts
 import 'package:fitness_day/features/user/workout/data/datasources/workout_remote_datasource.dart';
@@ -374,6 +377,18 @@ Future<void> init() async {
     () => DietPlanCubit(
       getDietPlanUseCase: getIt<GetDietPlanUseCase>(),
     ),
+  );
+  
+  getIt.registerFactory<AssessmentsCubit>(
+    () => AssessmentsCubit(getIt<VisitsRepository>()),
+  );
+  
+  getIt.registerFactory<ChangeAssessmentCubit>(
+    () => ChangeAssessmentCubit(getIt<VisitsRepository>()),
+  );
+
+  getIt.registerFactory<AssessmentDetailsCubit>(
+    () => AssessmentDetailsCubit(getIt<VisitsRepository>()),
   );
 
   getIt.registerFactory<MealDetailsCubit>(

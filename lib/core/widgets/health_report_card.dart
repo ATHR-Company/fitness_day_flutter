@@ -2,22 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:fitness_day/core/widgets/info_table_card.dart';
 
 class HealthReportCard extends StatelessWidget {
-  const HealthReportCard({super.key});
+  final Map<String, dynamic>? healthReport;
+  const HealthReportCard({super.key, this.healthReport});
 
   @override
   Widget build(BuildContext context) {
-    return const InfoTableCard(
+    if (healthReport == null) {
+      return const InfoTableCard(
+        title: 'تقريرك الصحي',
+        data: [],
+      );
+    }
+
+    String _val(String key) => healthReport![key]?['value']?.toString() ?? '-';
+    String _unit(String key) => healthReport![key]?['unit']?.toString() ?? '';
+    String _status(String key) => healthReport![key]?['status']?.toString() ?? '';
+
+    return InfoTableCard(
       title: 'تقريرك الصحي',
       data: [
-        TableRowData(label: 'الوزن :', value: '58.4', unit: 'كجم'),
-        TableRowData(label: 'الطول :', value: '167', unit: 'سم'),
-        TableRowData(label: 'BMI :', value: '22.0', unit: 'طبيعي'),
-        TableRowData(label: 'معدل الحرق :', value: '1284.4'),
-        TableRowData(label: 'وزن الدهون :', value: '15.7', unit: 'كجم'),
-        TableRowData(label: 'نسبة الدهون :', value: '24%'),
-        TableRowData(label: 'وزن العضلات :', value: '3.7', unit: 'كجم'),
-        TableRowData(label: 'نسبة العضلات :', value: '24%'),
-        TableRowData(label: 'البروتين :', value: '17.8'),
+        TableRowData(label: 'الوزن :', value: _val('weight'), unit: _unit('weight')),
+        TableRowData(label: 'الطول :', value: _val('height'), unit: _unit('height')),
+        TableRowData(label: 'BMI :', value: _val('bmi'), unit: _status('bmi')),
+        TableRowData(label: 'معدل الحرق :', value: _val('bmr'), unit: _unit('bmr')),
+        TableRowData(label: 'وزن الدهون :', value: _val('fatWeight'), unit: _unit('fatWeight')),
+        TableRowData(label: 'نسبة الدهون :', value: _val('fatPercentage'), unit: _unit('fatPercentage')),
+        TableRowData(label: 'وزن العضلات :', value: _val('muscleWeight'), unit: _unit('muscleWeight')),
+        TableRowData(label: 'نسبة العضلات :', value: _val('musclePercentage'), unit: _unit('musclePercentage')),
+        TableRowData(label: 'البروتين :', value: _val('protein'), unit: _unit('protein')),
       ],
     );
   }

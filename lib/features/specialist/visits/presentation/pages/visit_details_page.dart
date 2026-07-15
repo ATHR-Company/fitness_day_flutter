@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:fitness_day/core/widgets/upcoming_visit_show_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -58,8 +59,9 @@ class _VisitDetailsPageContent extends StatefulWidget {
   final bool isUpcoming;
 
   const _VisitDetailsPageContent({
+    super.key,
     required this.assessmentId,
-    required this.isUpcoming,
+    this.isUpcoming = false,
   });
 
   @override
@@ -120,74 +122,63 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<VisitDetailsCubit, VisitDetailsState>(
-      listener: (context, state) {
-        if (state is VisitDetailsSuccess && state.healthReport != null) {
-          final hr = state.healthReport!;
-          _weightController.text = hr.weight != null ? hr.weight!.value.toString() : '';
-          _heightController.text = hr.height != null ? hr.height!.value.toString() : '';
-          _bmiController.text = hr.bmi != null
-              ? '${hr.bmi!.value} (${hr.bmi!.status ?? ""})'
-              : '';
-          _fatPercentageController.text = hr.fatPercentage != null ? hr.fatPercentage!.value.toString() : '';
-          _fatWeightController.text = hr.fatWeight != null ? hr.fatWeight!.value.toString() : '';
-          _muscleWeightController.text = hr.muscleWeight != null ? hr.muscleWeight!.value.toString() : '';
-          _bmrController.text = hr.bmr != null ? hr.bmr!.value.toString() : '';
-          _musclePercentageController.text = hr.musclePercentage != null ? hr.musclePercentage!.value.toString() : '';
-          _proteinController.text = hr.protein != null ? hr.protein!.value.toString() : '';
-
-          if (hr.weight != null && hr.fatWeight != null) {
-            _leanMassController.text = (hr.weight!.value - hr.fatWeight!.value).toStringAsFixed(1);
-          }
-        }
-      },
-      child: BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
-        builder: (context, state) {
-          if (state is VisitDetailsLoading) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
+    if (widget.isUpcoming) {
+      return UpcomingVisitShowScreen(
+        title: 'visit_details.title'.tr(),
+        trailingWidget: MessageIconButton(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
             );
-          }
-
-          if (state is VisitDetailsFailure) {
-            return Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(state.message),
-                    SizedBox(height: 16.h),
-                    ElevatedButton(
-                      onPressed: () {
-                        _onTabChanged(_selectedTabIndex);
-                      },
-                      child: Text('home.retry'.tr()),
-                    ),
-                  ],
-                ),
+          },
+        ),
+        visitTimeRemaining: 'visits.in_minutes'.tr(args: ['25']),
+        visitTitle: 'visits.dummy_title'.tr(),
+        visitSubtitle: 'visits.dummy_subtitle'.tr(),
+        personName: 'visits.dummy_client'.tr(),
+        personNameLabel: 'visits.client_name_label'.tr(),
+        visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
+        visitLocation: 'visits.hq_location'.tr(),
+        visitGoalTitle: 'visit_details.visit_goal_title'.tr(),
+        visitGoals: [
+          'visit_details.goal_1'.tr(),
+          'visit_details.goal_2'.tr(),
+          'visit_details.goal_3'.tr(),
+          'visit_details.goal_4'.tr(),
+        ],
+        bottomAction: Row(
+          children: [
+            Expanded(
+              child: CustomButton(
+                text: 'visit_details.start_visit'.tr(),
+                onPressed: () {},
               ),
-            );
-          }
-
-          if (state is VisitDetailsSuccess) {
-            final showStartActions = widget.isUpcoming && _selectedTabIndex == 0 && !state.isStarted;
-            final showEndVisitButton = state.canFinishAssessment;
-
-            return LoaderHud(
-              isCall: state.isStarting,
-              child: Scaffold(
-              body: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: AppColors.visitsBackgroundGradient,
-                ),
-                child: SafeArea(
-                  child: Column(
-                    children: [
-                      SizedBox(height: 20.h),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: CustomOutlinedButton(
+                text: 'visit_details.reschedule'.tr(),
+                onPressed: () {
+                  showRescheduleDialog(context, widget.assessmentId);
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: AppColors.visitsBackgroundGradient,
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(height: 20.h),
 
                       // 1. Back Header
                       Padding(
@@ -225,62 +216,38 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
 
                       // 3. Content Area
                       Expanded(
-                        child: SingleChildScrollView(
-                          padding: EdgeInsets.only(bottom: 24.h),
-                          child: _buildTabContent(state),
+                        child: BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
+                          builder: (context, state) {
+                            if (state is VisitDetailsLoading) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+                            if (state is VisitDetailsFailure) {
+                              return Center(child: Text(state.message));
+                            }
+                            if (state is VisitDetailsSuccess) {
+                              return SingleChildScrollView(
+                                padding: EdgeInsets.only(bottom: 24.h),
+                                child: _buildTabContent(state),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                       ),
 
-                      // 4. Bottom Buttons
-                      if (showStartActions || showEndVisitButton)
-                        Container(
-                          padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-                          child: showStartActions
-                              ? Row(
-                                  children: [
-                                    Expanded(
-                                      child: CustomButton(
-                                        text: 'visit_details.start_visit'.tr(),
-                                        onPressed: () async {
-                                          final success = await context.read<VisitDetailsCubit>().startVisit(widget.assessmentId);
-                                          if (success && context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text('visit_details.start_success'.tr()),
-                                                backgroundColor: AppColors.primary,
-                                              ),
-                                            );
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                    SizedBox(width: 12.w),
-                                    Expanded(
-                                      child: CustomOutlinedButton(
-                                        text: 'visit_details.reschedule'.tr(),
-                                        onPressed: () {
-                                          showRescheduleDialog(context);
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : CustomButton(
-                                  text: 'visit_details.end_visit'.tr(),
-                                  color: AppColors.greenMint,
-                                  onPressed: () {},
-                                ),
-                        ),
-                    ],
+              // 4. Bottom Buttons — only for non-upcoming visits, on non-visit-data tabs
+              if (!widget.isUpcoming && _selectedTabIndex != 0)
+                Container(
+                  padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+                  child: CustomButton(
+                    text: 'visit_details.end_visit'.tr(),
+                    color: AppColors.greenMint,
+                    onPressed: () {},
                   ),
                 ),
-              ),
-            ),
-          );
-        }
-
-          return const SizedBox.shrink();
-        },
+            ],
+          ),
+        ),
       ),
     );
   }

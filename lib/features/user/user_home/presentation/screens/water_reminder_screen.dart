@@ -78,7 +78,16 @@ class _WaterReminderScreenState extends State<WaterReminderScreen> {
     final picked = await showModalBottomSheet<TimeOfDay>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => TimePickerBottomSheet(initialTime: isStart ? _startTime : _endTime),
+      builder: (_) => TimePickerBottomSheet(
+        initialTime: isStart ? _startTime : _endTime,
+        primaryColor: AppColors.waterAccent,
+        highlightBackgroundColor: AppColors.waterAccentLight,
+        backgroundGradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFF0FBFF), AppColors.white],
+        ),
+      ),
     );
     if (picked != null) {
       setState(() {

@@ -25,6 +25,9 @@ class VisitCard extends StatelessWidget {
   final Color? iconColor;
   final bool isCompleted;
   final bool isUpcoming;
+  final bool canChangePlaceOrTime;
+  final VoidCallback? onReschedulePressed;
+  final VoidCallback? onChangeLocationPressed;
 
   const VisitCard({
     super.key,
@@ -44,6 +47,9 @@ class VisitCard extends StatelessWidget {
     this.iconColor,
     this.isCompleted = false,
     this.isUpcoming = false,
+    this.canChangePlaceOrTime = false,
+    this.onReschedulePressed,
+    this.onChangeLocationPressed,
   });
 
   @override
@@ -153,6 +159,52 @@ class VisitCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                
+                // Extra actions for change place/time
+                if (canChangePlaceOrTime && isUpcoming) ...[
+                  SizedBox(height: 16.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: onReschedulePressed,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.primary),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.r),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 8.h),
+                          ),
+                          child: Text(
+                            'إعادة جدولة',
+                            style: TextStyleManager.style11Medium.copyWith(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: onChangeLocationPressed,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.primary),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.r),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 8.h),
+                          ),
+                          child: Text(
+                            'تغيير المكان',
+                            style: TextStyleManager.style11Medium.copyWith(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
