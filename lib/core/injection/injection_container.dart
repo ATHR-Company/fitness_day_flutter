@@ -10,7 +10,59 @@ import 'package:fitness_day/features/specialist/auth/data/datasources/auth_remot
 import 'package:fitness_day/features/specialist/auth/data/repositories/auth_repository_impl.dart';
 import 'package:fitness_day/features/specialist/auth/domain/repositories/auth_repository.dart';
 import 'package:fitness_day/features/specialist/auth/domain/usecases/login_usecase.dart';
+import 'package:fitness_day/features/specialist/auth/domain/usecases/logout_usecase.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_cubit.dart';
+
+// Specialist Home
+import 'package:fitness_day/features/specialist/home/data/datasources/specialist_home_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/home/data/repositories/specialist_home_repository_impl.dart';
+import 'package:fitness_day/features/specialist/home/domain/repositories/specialist_home_repository.dart';
+import 'package:fitness_day/features/specialist/home/domain/usecases/get_specialist_home_data_usecase.dart';
+import 'package:fitness_day/features/specialist/home/presentation/manager/specialist_home_cubit.dart';
+
+// Specialist Profile
+import 'package:fitness_day/features/specialist/profile/data/datasources/specialist_profile_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/profile/data/repositories/specialist_profile_repository_impl.dart';
+import 'package:fitness_day/features/specialist/profile/domain/repositories/specialist_profile_repository.dart';
+import 'package:fitness_day/features/specialist/profile/domain/usecases/get_specialist_profile_usecase.dart';
+import 'package:fitness_day/features/specialist/profile/domain/usecases/update_specialist_profile_usecase.dart';
+import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_cubit.dart';
+
+// Specialist Clients
+import 'package:fitness_day/features/specialist/clients/data/datasources/specialist_clients_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/clients/data/repositories/specialist_clients_repository_impl.dart';
+import 'package:fitness_day/features/specialist/clients/domain/repositories/specialist_clients_repository.dart';
+import 'package:fitness_day/features/specialist/clients/domain/usecases/get_specialist_clients_usecase.dart';
+import 'package:fitness_day/features/specialist/clients/domain/usecases/get_specialist_client_profile_usecase.dart';
+import 'package:fitness_day/features/specialist/clients/domain/usecases/get_upcoming_assessments_usecase.dart';
+import 'package:fitness_day/features/specialist/clients/domain/usecases/get_previous_assessments_usecase.dart';
+import 'package:fitness_day/features/specialist/clients/domain/usecases/get_client_progress_usecase.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_clients_cubit.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_client_profile_cubit.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_cubit.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_cubit.dart';
+
+// Specialist Daily Tasks
+import 'package:fitness_day/features/specialist/tasks/data/datasources/specialist_daily_tasks_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/tasks/data/repositories/specialist_daily_tasks_repository_impl.dart';
+import 'package:fitness_day/features/specialist/tasks/domain/repositories/specialist_daily_tasks_repository.dart';
+import 'package:fitness_day/features/specialist/tasks/domain/usecases/get_specialist_daily_tasks_usecase.dart';
+import 'package:fitness_day/features/specialist/tasks/presentation/manager/specialist_daily_tasks_cubit.dart';
+
+// Specialist Visits & Assessment Details
+import 'package:fitness_day/features/specialist/visits/data/datasources/specialist_visits_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/visits/data/repositories/specialist_visits_repository_impl.dart';
+import 'package:fitness_day/features/specialist/visits/domain/repositories/specialist_visits_repository.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/get_assessment_history_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/get_visit_data_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/get_health_report_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/get_custom_plan_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/start_visit_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/update_goal_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/update_health_report_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/update_custom_plan_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/presentation/manager/visits_cubit.dart';
+import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
 
 // User Auth & Registration Setup
 import 'package:fitness_day/features/user/auth/data/datasources/user_auth_remote_datasource.dart';
@@ -152,7 +204,7 @@ Future<void> init() async {
   // ═════════════════════════════════════════════════
 
   getIt.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(),
+    () => AuthRemoteDataSourceImpl(getIt<ApiService>()),
   );
 
   getIt.registerLazySingleton<UserAuthRemoteDataSource>(
@@ -201,6 +253,10 @@ Future<void> init() async {
   
   getIt.registerLazySingleton<LoginUseCase>(
     () => LoginUseCase(getIt<AuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<LogoutUseCase>(
+    () => LogoutUseCase(getIt<AuthRepository>()),
   );
 
   getIt.registerLazySingleton<UserSignupUseCase>(
@@ -284,7 +340,12 @@ Future<void> init() async {
   // ═════════════════════════════════════════════════
 
   getIt.registerFactory<AuthCubit>(
-    () => AuthCubit(loginUseCase: getIt<LoginUseCase>()),
+    () => AuthCubit(
+      loginUseCase: getIt<LoginUseCase>(),
+      logoutUseCase: getIt<LogoutUseCase>(),
+      secureCache: getIt<SecureCache>(),
+      appCache: getIt<AppCache>(),
+    ),
   );
 
   getIt.registerFactory<UserAuthCubit>(
@@ -406,5 +467,137 @@ Future<void> init() async {
   // Health & Activity tracking
   getIt.registerLazySingleton<FitnessHealthService>(
     () => FitnessHealthService(),
+  );
+
+  // Specialist Home
+  getIt.registerLazySingleton<SpecialistHomeRemoteDataSource>(
+    () => SpecialistHomeRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistHomeRepository>(
+    () => SpecialistHomeRepositoryImpl(getIt<SpecialistHomeRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistHomeDataUseCase>(
+    () => GetSpecialistHomeDataUseCase(getIt<SpecialistHomeRepository>()),
+  );
+  getIt.registerFactory<SpecialistHomeCubit>(
+    () => SpecialistHomeCubit(getIt<GetSpecialistHomeDataUseCase>()),
+  );
+
+  // Specialist Profile
+  getIt.registerLazySingleton<SpecialistProfileRemoteDataSource>(
+    () => SpecialistProfileRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistProfileRepository>(
+    () => SpecialistProfileRepositoryImpl(getIt<SpecialistProfileRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistProfileUseCase>(
+    () => GetSpecialistProfileUseCase(getIt<SpecialistProfileRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateSpecialistProfileUseCase>(
+    () => UpdateSpecialistProfileUseCase(getIt<SpecialistProfileRepository>()),
+  );
+  getIt.registerFactory<SpecialistProfileCubit>(
+    () => SpecialistProfileCubit(
+      getIt<GetSpecialistProfileUseCase>(),
+      getIt<UpdateSpecialistProfileUseCase>(),
+    ),
+  );
+
+  // Specialist Clients
+  getIt.registerLazySingleton<SpecialistClientsRemoteDataSource>(
+    () => SpecialistClientsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistClientsRepository>(
+    () => SpecialistClientsRepositoryImpl(getIt<SpecialistClientsRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistClientsUseCase>(
+    () => GetSpecialistClientsUseCase(getIt<SpecialistClientsRepository>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistClientProfileUseCase>(
+    () => GetSpecialistClientProfileUseCase(getIt<SpecialistClientsRepository>()),
+  );
+  getIt.registerFactory<SpecialistClientsCubit>(
+    () => SpecialistClientsCubit(getIt<GetSpecialistClientsUseCase>()),
+  );
+  getIt.registerFactory<SpecialistClientProfileCubit>(
+    () => SpecialistClientProfileCubit(getIt<GetSpecialistClientProfileUseCase>()),
+  );
+  getIt.registerLazySingleton<GetUpcomingAssessmentsUseCase>(
+    () => GetUpcomingAssessmentsUseCase(getIt<SpecialistClientsRepository>()),
+  );
+  getIt.registerLazySingleton<GetPreviousAssessmentsUseCase>(
+    () => GetPreviousAssessmentsUseCase(getIt<SpecialistClientsRepository>()),
+  );
+  getIt.registerFactory<ClientAssessmentsCubit>(
+    () => ClientAssessmentsCubit(
+      getIt<GetUpcomingAssessmentsUseCase>(),
+      getIt<GetPreviousAssessmentsUseCase>(),
+    ),
+  );
+  getIt.registerLazySingleton<GetClientProgressUseCase>(
+    () => GetClientProgressUseCase(getIt<SpecialistClientsRepository>()),
+  );
+  getIt.registerFactory<ClientProgressCubit>(
+    () => ClientProgressCubit(getIt<GetClientProgressUseCase>()),
+  );
+
+  // Specialist Daily Tasks
+  getIt.registerLazySingleton<SpecialistDailyTasksRemoteDataSource>(
+    () => SpecialistDailyTasksRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistDailyTasksRepository>(
+    () => SpecialistDailyTasksRepositoryImpl(getIt<SpecialistDailyTasksRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistDailyTasksUseCase>(
+    () => GetSpecialistDailyTasksUseCase(getIt<SpecialistDailyTasksRepository>()),
+  );
+  getIt.registerFactory<SpecialistDailyTasksCubit>(
+    () => SpecialistDailyTasksCubit(getIt<GetSpecialistDailyTasksUseCase>()),
+  );
+
+  // Specialist Visits & Details
+  getIt.registerLazySingleton<SpecialistVisitsRemoteDataSource>(
+    () => SpecialistVisitsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistVisitsRepository>(
+    () => SpecialistVisitsRepositoryImpl(getIt<SpecialistVisitsRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetAssessmentHistoryUseCase>(
+    () => GetAssessmentHistoryUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<GetVisitDataUseCase>(
+    () => GetVisitDataUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<GetHealthReportUseCase>(
+    () => GetHealthReportUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<GetCustomPlanUseCase>(
+    () => GetCustomPlanUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerFactory<VisitsCubit>(
+    () => VisitsCubit(getIt<GetAssessmentHistoryUseCase>()),
+  );
+  getIt.registerLazySingleton<StartVisitUseCase>(
+    () => StartVisitUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateGoalUseCase>(
+    () => UpdateGoalUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateHealthReportUseCase>(
+    () => UpdateHealthReportUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateCustomPlanUseCase>(
+    () => UpdateCustomPlanUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerFactory<VisitDetailsCubit>(
+    () => VisitDetailsCubit(
+      getIt<GetVisitDataUseCase>(),
+      getIt<GetHealthReportUseCase>(),
+      getIt<GetCustomPlanUseCase>(),
+      getIt<StartVisitUseCase>(),
+      getIt<UpdateGoalUseCase>(),
+      getIt<UpdateHealthReportUseCase>(),
+      getIt<UpdateCustomPlanUseCase>(),
+    ),
   );
 }

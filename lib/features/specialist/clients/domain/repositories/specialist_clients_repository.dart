@@ -1,0 +1,34 @@
+import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/features/specialist/clients/data/models/specialist_client_model.dart';
+import 'package:fitness_day/features/specialist/clients/data/models/client_assessment_model.dart';
+import 'package:fitness_day/features/specialist/clients/data/models/client_progress_model.dart';
+
+abstract class SpecialistClientsRepository {
+  Future<ApiResult<SpecialistClientsListResponseModel>> getSpecialistClients({
+    required int page,
+    required int limit,
+    required String status,
+    String? search,
+  });
+
+  Future<ApiResult<SpecialistClientProfileResponseModel>> getSpecialistClientProfile({
+    required String userId,
+  });
+
+  Future<ApiResult<ClientAssessmentsResponseModel>> getUpcomingAssessments({
+    required String userId,
+    required int page,
+    required int limit,
+  });
+
+  Future<ApiResult<ClientAssessmentsResponseModel>> getPreviousAssessments({
+    required String userId,
+    required int page,
+    required int limit,
+  });
+
+  Future<ApiResult<ClientProgressResponseModel>> getClientProgress({
+    required String userId,
+    required int visitNumber,
+  });
+}

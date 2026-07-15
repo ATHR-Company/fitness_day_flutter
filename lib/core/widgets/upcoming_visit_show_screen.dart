@@ -18,6 +18,8 @@ class UpcomingVisitShowScreen extends StatelessWidget {
   final String visitGoalTitle;
   final List<String> visitGoals;
   final Widget bottomAction;
+  final VoidCallback? onAddGoalPressed;
+  final VoidCallback? onEditGoalPressed;
 
   const UpcomingVisitShowScreen({
     super.key,
@@ -33,6 +35,8 @@ class UpcomingVisitShowScreen extends StatelessWidget {
     required this.visitGoalTitle,
     required this.visitGoals,
     required this.bottomAction,
+    this.onAddGoalPressed,
+    this.onEditGoalPressed,
   });
 
   @override
@@ -87,6 +91,8 @@ class UpcomingVisitShowScreen extends StatelessWidget {
                         VisitGoalCard(
                           title: visitGoalTitle,
                           goals: visitGoals,
+                          onAddPressed: onAddGoalPressed,
+                          onEditPressed: onEditGoalPressed,
                         ),
                       ],
                     ),

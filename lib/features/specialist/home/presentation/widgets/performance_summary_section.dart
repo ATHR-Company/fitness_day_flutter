@@ -9,7 +9,16 @@ import '../../../../../core/theme/app_text_styles.dart';
 import 'stat_card.dart';
 
 class PerformanceSummarySection extends StatelessWidget {
-  const PerformanceSummarySection({super.key});
+  final int dailyVisitsCount;
+  final int needsFollowUpCount;
+  final int clientsCount;
+
+  const PerformanceSummarySection({
+    super.key,
+    required this.dailyVisitsCount,
+    required this.needsFollowUpCount,
+    required this.clientsCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +43,7 @@ class PerformanceSummarySection extends StatelessWidget {
               child: AppImage(
                 SvgIcons.performanceCardGradient,
                 fit: BoxFit.fitWidth,
-                alignment: Alignment.bottomCenter,
+                //alignment: Alignment.bottomCenter,
               ),
             ),
           ),
@@ -56,7 +65,7 @@ class PerformanceSummarySection extends StatelessWidget {
                     Expanded(
                       child: StatCard(
                         title: "home.todays_visits".tr(),
-                        value: "2",
+                        value: dailyVisitsCount.toString(),
                         iconPath: SvgIcons.todaysVisit,
                       ),
                     ),
@@ -64,7 +73,7 @@ class PerformanceSummarySection extends StatelessWidget {
                     Expanded(
                       child: StatCard(
                         title: "home.needs_follow_up".tr(),
-                        value: "5",
+                        value: needsFollowUpCount.toString(),
                         iconPath: SvgIcons.needMonitor,
                       ),
                     ),
@@ -72,7 +81,7 @@ class PerformanceSummarySection extends StatelessWidget {
                     Expanded(
                       child: StatCard(
                         title: "home.clients_count".tr(),
-                        value: "15",
+                        value: clientsCount.toString(),
                         iconPath: SvgIcons.clientsNumber,
                       ),
                     ),

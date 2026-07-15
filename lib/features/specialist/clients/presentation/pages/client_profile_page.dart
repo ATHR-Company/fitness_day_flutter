@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/features/specialist/clients/data/models/specialist_client_model.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_client_profile_cubit.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_client_profile_state.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/tabs/client_data_tab.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/tabs/client_visits_tab.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/tabs/client_progress_tab.dart';
 
 class ClientProfilePage extends StatefulWidget {
-  const ClientProfilePage({super.key});
+  final String userId;
+
+  const ClientProfilePage({super.key, required this.userId});
 
   @override
   State<ClientProfilePage> createState() => _ClientProfilePageState();
@@ -20,6 +27,72 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider<SpecialistClientProfileCubit>(
+      create: (context) => getIt<SpecialistClientProfileCubit>()
+        ..getSpecialistClientProfile(userId: widget.userId),
+      child: BlocBuilder<SpecialistClientProfileCubit, SpecialistClientProfileState>(
+        builder: (context, state) {
+          if (state is SpecialistClientProfileLoading) {
+            return Scaffold(
+              backgroundColor: AppColors.white,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back_ios, color: AppColors.black, size: 20.sp),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              body: const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            );
+          } else if (state is SpecialistClientProfileFailure) {
+            return Scaffold(
+              backgroundColor: AppColors.white,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back_ios, color: AppColors.black, size: 20.sp),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.message,
+                      style: TextStyleManager.style14Medium.copyWith(color: AppColors.error),
+                    ),
+                    SizedBox(height: 16.h),
+                    ElevatedButton(
+                      onPressed: () => context.read<SpecialistClientProfileCubit>().getSpecialistClientProfile(
+                            userId: widget.userId,
+                          ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                      ),
+                      child: Text(
+                        "common.retry".tr(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          } else if (state is SpecialistClientProfileSuccess) {
+            return _buildContent(state.data);
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+
+  Widget _buildContent(SpecialistClientProfileDataModel clientData) {
     return Container(
       decoration: const BoxDecoration(
         gradient: AppColors.profileGradient,
@@ -61,21 +134,21 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
               ),
             ),
             SizedBox(height: 16.h),
-            Expanded(child: _buildTabContent()),
+            Expanded(child: _buildTabContent(clientData)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTabContent() {
+  Widget _buildTabContent(SpecialistClientProfileDataModel clientData) {
     switch (_selectedIndex) {
       case 0:
-        return const ClientDataTab();
+        return ClientDataTab(data: clientData);
       case 1:
-        return const ClientVisitsTab();
+        return ClientVisitsTab(userId: widget.userId);
       case 2:
-        return const ClientProgressTab();
+        return ClientProgressTab(userId: widget.userId);
       default:
         return const SizedBox.shrink();
     }

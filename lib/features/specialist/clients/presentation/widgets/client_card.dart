@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 
 enum ClientStatus { active, needsFollowUp, expired }
 
@@ -17,6 +18,7 @@ class ClientCard extends StatelessWidget {
   final ClientStatus status;
   final int? commitmentRate;
   final VoidCallback onViewProfile;
+  final String? avatarUrl;
 
   const ClientCard({
     super.key,
@@ -27,6 +29,7 @@ class ClientCard extends StatelessWidget {
     required this.status,
     this.commitmentRate,
     required this.onViewProfile,
+    this.avatarUrl,
   });
 
   @override
@@ -81,10 +84,12 @@ class ClientCard extends StatelessWidget {
                         border: Border.all(color: AppColors.divider, width: 2),
                       ),
                       child: ClipOval(
-                        child: Icon(
-                          Icons.person,
-                          size: 30.sp,
-                          color: Colors.grey,
+                        child: AppImage(
+                          avatarUrl ?? '',
+                          width: 50.r,
+                          height: 50.r,
+                          fit: BoxFit.cover,
+                          isAvatar: true,
                         ),
                       ),
                     ),

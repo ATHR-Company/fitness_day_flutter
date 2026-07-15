@@ -80,6 +80,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       case Success(:final data):
         await _secureCache.saveToken(data.accessToken);
         await _secureCache.saveRefreshToken(data.refreshToken);
+        await _appCache.saveUserType('user');
         await _appCache.saveIsLoggedIn(true);
         // Ensure cached user structure is initialized
         final currentUser = _appCache.getUser();
@@ -107,6 +108,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       case Success(:final data):
         await _secureCache.saveToken(data.accessToken);
         await _secureCache.saveRefreshToken(data.refreshToken);
+        await _appCache.saveUserType('user');
         await _appCache.saveIsLoggedIn(true);
         // Ensure cached user structure is initialized
         final currentUser = _appCache.getUser();
@@ -132,6 +134,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       case Success(:final data):
         await _secureCache.saveToken(data.accessToken);
         await _secureCache.saveRefreshToken(data.refreshToken);
+        await _appCache.saveUserType('user');
         await _appCache.saveIsLoggedIn(true);
         // Initialize cached user profile and set/override phone number
         final currentUser = _appCache.getUser();

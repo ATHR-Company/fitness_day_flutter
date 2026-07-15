@@ -11,6 +11,8 @@ abstract class AppCache {
   Future<void> deleteUser();
   Future<void> saveAssessmentId(String assessmentId);
   String? getAssessmentId();
+  Future<void> saveUserType(String userType);
+  String getUserType();
   Future<void> clear();
 }
 
@@ -23,6 +25,7 @@ class AppCacheImpl implements AppCache {
   static const _hasSeenOnboardingKey = 'has_seen_onboarding';
   static const _userKey = 'cached_user_profile';
   static const _assessmentIdKey = 'assessment_id';
+  static const _userTypeKey = 'user_type';
 
   @override
   Future<void> saveIsLoggedIn(bool isLoggedIn) async {
@@ -32,6 +35,16 @@ class AppCacheImpl implements AppCache {
   @override
   bool isLoggedIn() {
     return _storage.read(_isLoggedInKey) ?? false;
+  }
+
+  @override
+  Future<void> saveUserType(String userType) async {
+    await _storage.write(_userTypeKey, userType);
+  }
+
+  @override
+  String getUserType() {
+    return _storage.read(_userTypeKey) ?? 'user';
   }
 
   @override

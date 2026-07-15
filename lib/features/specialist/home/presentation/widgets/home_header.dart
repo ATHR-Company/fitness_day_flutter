@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:easy_localization/easy_localization.dart';
 import '../../../../../core/constant/app_assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
@@ -10,7 +9,16 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/routes/specialist_routes/app_routes.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  final String name;
+  final String branch;
+  final String avatarUrl;
+
+  const HomeHeader({
+    super.key,
+    required this.name,
+    required this.branch,
+    required this.avatarUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +38,11 @@ class HomeHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.greenSoftTint, width: 2),
-                image: const DecorationImage(
+                image: DecorationImage(
                   image: NetworkImage(
-                    'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
+                    avatarUrl.isNotEmpty
+                        ? avatarUrl
+                        : 'https://img.magnific.com/free-photo/young-bearded-man-with-striped-shirt_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
                   ),
                   fit: BoxFit.cover,
                 ),
@@ -48,7 +58,7 @@ class HomeHeader extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'spec_mock_name'.tr(),
+                  name,
                   style: TextStyleManager.style14Bold.copyWith(
                     color: AppColors.primary,
                   ),
@@ -66,7 +76,7 @@ class HomeHeader extends StatelessWidget {
                     SizedBox(width: 4.w),
                     Flexible(
                       child: Text(
-                        "home.specialist_role".tr(),
+                        branch,
                         style: TextStyleManager.style11Medium.copyWith(
                           color: AppColors.textSecondary,
                         ),
