@@ -3,17 +3,23 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_visit_data_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_health_report_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_custom_plan_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/start_visit_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/update_goal_usecase.dart';
 import 'visit_details_state.dart';
 
 class VisitDetailsCubit extends Cubit<VisitDetailsState> {
   final GetVisitDataUseCase _getVisitDataUseCase;
   final GetHealthReportUseCase _getHealthReportUseCase;
   final GetCustomPlanUseCase _getCustomPlanUseCase;
+  final StartVisitUseCase _startVisitUseCase;
+  final UpdateGoalUseCase _updateGoalUseCase;
 
   VisitDetailsCubit(
     this._getVisitDataUseCase,
     this._getHealthReportUseCase,
     this._getCustomPlanUseCase,
+    this._startVisitUseCase,
+    this._updateGoalUseCase,
   ) : super(const VisitDetailsInitial());
 
   Future<void> loadVisitData(String assessmentId) async {
@@ -106,5 +112,52 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
       case FailureResult(:final failure):
         emit(VisitDetailsFailure(failure.message));
     }
+  }
+
+  Future<bool> startVisit(String assessmentId) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+
+      final result = await _startVisitUseCase(assessmentId: assessmentId);
+
+      switch (result) {
+        case Success(:final data):
+          emit(currentState.copyWith(
+            isStarting: false,
+            isStarted: data.data?.isStarted ?? true,
+          ));
+          return true;
+        case FailureResult():
+          emit(currentState.copyWith(isStarting: false));
+          return false;
+      }
+    }
+    return false;
+  }
+
+  Future<(bool, String)> updateGoal(String assessmentId, String goal) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+
+      final result = await _updateGoalUseCase(assessmentId: assessmentId, goal: goal);
+
+      switch (result) {
+        case Success(:final data):
+          final updatedVisitData = currentState.visitData?.copyWith(
+            goal: data.data?.goal ?? goal,
+          );
+          emit(currentState.copyWith(
+            isStarting: false,
+            visitData: updatedVisitData,
+          ));
+          return (true, data.message);
+        case FailureResult(:final failure):
+          emit(currentState.copyWith(isStarting: false));
+          return (false, failure.message);
+      }
+    }
+    return (false, '');
   }
 }

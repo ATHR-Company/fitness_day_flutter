@@ -5,21 +5,29 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
+import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/specialist/clients/data/models/client_assessment_model.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_state.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/pages/visit_details_page.dart';
 
-class ClientVisitsTab extends StatelessWidget {
+class ClientVisitsTab extends StatefulWidget {
   final String userId;
 
   const ClientVisitsTab({super.key, required this.userId});
 
   @override
+  State<ClientVisitsTab> createState() => _ClientVisitsTabState();
+}
+
+class _ClientVisitsTabState extends State<ClientVisitsTab> {
+  int _selectedTabIndex = 0;
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<ClientAssessmentsCubit>(
-      create: (_) => getIt<ClientAssessmentsCubit>()..loadAssessments(userId: userId),
+      create: (_) => getIt<ClientAssessmentsCubit>()..loadAssessments(userId: widget.userId),
       child: BlocBuilder<ClientAssessmentsCubit, ClientAssessmentsState>(
         builder: (context, state) {
           if (state is ClientAssessmentsLoading) {
@@ -40,7 +48,7 @@ class ClientVisitsTab extends StatelessWidget {
                   ),
                   SizedBox(height: 16.h),
                   ElevatedButton(
-                    onPressed: () => context.read<ClientAssessmentsCubit>().loadAssessments(userId: userId),
+                    onPressed: () => context.read<ClientAssessmentsCubit>().loadAssessments(userId: widget.userId),
                     style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
                     child: Text('common.retry'.tr(), style: const TextStyle(color: Colors.white)),
                   ),
@@ -50,28 +58,47 @@ class ClientVisitsTab extends StatelessWidget {
           }
 
           if (state is ClientAssessmentsSuccess) {
-            return ListView(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+            final isUpcoming = _selectedTabIndex == 0;
+            final visits = isUpcoming ? state.upcoming : state.previous;
+
+            return Column(
               children: [
-                // ── Upcoming ──────────────────────────────────────────
-                Text('clients_page.upcoming_visit'.tr(), style: TextStyleManager.style14Bold),
                 SizedBox(height: 10.h),
-                if (state.upcoming.isEmpty)
-                  _buildEmpty('clients_page.no_upcoming_visits'.tr())
-                else
-                  ...state.upcoming.map((a) => _buildVisitCard(context, a, isUpcoming: true)),
-
-                SizedBox(height: 20.h),
-
-                // ── Previous ──────────────────────────────────────────
-                Text('clients_page.past_visits'.tr(), style: TextStyleManager.style14Bold),
-                SizedBox(height: 10.h),
-                if (state.previous.isEmpty)
-                  _buildEmpty('clients_page.no_past_visits'.tr())
-                else
-                  ...state.previous.map((a) => _buildVisitCard(context, a, isUpcoming: false)),
-
-                SizedBox(height: 24.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: AppSegmentedControl(
+                    items: [
+                      'visits.tab_upcoming'.tr(), // index 0
+                      'visits.tab_history'.tr(),  // index 1
+                    ],
+                    selectedIndex: _selectedTabIndex,
+                    onItemSelected: (index) {
+                      setState(() {
+                        _selectedTabIndex = index;
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                Expanded(
+                  child: visits.isEmpty
+                      ? Center(
+                          child: Text(
+                            isUpcoming
+                                ? 'clients_page.no_upcoming_visits'.tr()
+                                : 'clients_page.no_past_visits'.tr(),
+                            style: TextStyleManager.style13Medium.copyWith(color: AppColors.textSecondary),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          itemCount: visits.length,
+                          itemBuilder: (context, index) {
+                            final visit = visits[index];
+                            return _buildVisitCard(context, visit, isUpcoming: isUpcoming);
+                          },
+                        ),
+                ),
               ],
             );
           }
@@ -112,16 +139,6 @@ class ClientVisitsTab extends StatelessWidget {
         },
         secondaryButtonText: isUpcoming ? 'home.reschedule'.tr() : null,
         onSecondaryPressed: isUpcoming ? () {} : null,
-      ),
-    );
-  }
-
-  Widget _buildEmpty(String message) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 12.h),
-      child: Text(
-        message,
-        style: TextStyleManager.style13Medium.copyWith(color: AppColors.textSecondary),
       ),
     );
   }

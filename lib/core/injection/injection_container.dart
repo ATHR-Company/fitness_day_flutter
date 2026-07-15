@@ -57,6 +57,8 @@ import 'package:fitness_day/features/specialist/visits/domain/usecases/get_asses
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_visit_data_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_health_report_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_custom_plan_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/start_visit_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/update_goal_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visits_cubit.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
 
@@ -558,11 +560,19 @@ Future<void> init() async {
   getIt.registerFactory<VisitsCubit>(
     () => VisitsCubit(getIt<GetAssessmentHistoryUseCase>()),
   );
+  getIt.registerLazySingleton<StartVisitUseCase>(
+    () => StartVisitUseCase(getIt<SpecialistVisitsRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateGoalUseCase>(
+    () => UpdateGoalUseCase(getIt<SpecialistVisitsRepository>()),
+  );
   getIt.registerFactory<VisitDetailsCubit>(
     () => VisitDetailsCubit(
       getIt<GetVisitDataUseCase>(),
       getIt<GetHealthReportUseCase>(),
       getIt<GetCustomPlanUseCase>(),
+      getIt<StartVisitUseCase>(),
+      getIt<UpdateGoalUseCase>(),
     ),
   );
 }

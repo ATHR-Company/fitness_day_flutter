@@ -3,6 +3,8 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_as
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_visit_data_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_start_visit_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
 
 abstract class SpecialistVisitsRepository {
   Future<ApiResult<SpecialistAssessmentHistoryResponseModel>> getAssessmentHistory({
@@ -23,5 +25,14 @@ abstract class SpecialistVisitsRepository {
   Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> getCustomPlan({
     required String assessmentId,
     required int dayNumber,
+  });
+
+  Future<ApiResult<SpecialistStartVisitResponseModel>> startVisit({
+    required String assessmentId,
+  });
+
+  Future<ApiResult<SpecialistUpdateGoalResponseModel>> updateGoal({
+    required String assessmentId,
+    required String goal,
   });
 }

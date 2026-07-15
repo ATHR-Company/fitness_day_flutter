@@ -5,6 +5,8 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_as
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_visit_data_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_start_visit_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
 import 'package:fitness_day/features/specialist/visits/domain/repositories/specialist_visits_repository.dart';
 
 class SpecialistVisitsRepositoryImpl implements SpecialistVisitsRepository {
@@ -65,6 +67,34 @@ class SpecialistVisitsRepositoryImpl implements SpecialistVisitsRepository {
       final response = await remoteDataSource.getCustomPlan(
         assessmentId: assessmentId,
         dayNumber: dayNumber,
+      );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<SpecialistStartVisitResponseModel>> startVisit({
+    required String assessmentId,
+  }) async {
+    try {
+      final response = await remoteDataSource.startVisit(assessmentId: assessmentId);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<SpecialistUpdateGoalResponseModel>> updateGoal({
+    required String assessmentId,
+    required String goal,
+  }) async {
+    try {
+      final response = await remoteDataSource.updateGoal(
+        assessmentId: assessmentId,
+        goal: goal,
       );
       return Success(response);
     } catch (e) {

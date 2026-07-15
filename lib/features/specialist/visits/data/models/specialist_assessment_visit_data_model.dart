@@ -61,6 +61,30 @@ class SpecialistAssessmentVisitDataModel {
       goal: json['goal'] as String? ?? '',
     );
   }
+
+  SpecialistAssessmentVisitDataModel copyWith({
+    SpecialistAssessmentUserModel? user,
+    String? assessmentId,
+    String? name,
+    String? description,
+    String? image,
+    String? placement,
+    String? weekStart,
+    double? adherenceRate,
+    String? goal,
+  }) {
+    return SpecialistAssessmentVisitDataModel(
+      user: user ?? this.user,
+      assessmentId: assessmentId ?? this.assessmentId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      image: image ?? this.image,
+      placement: placement ?? this.placement,
+      weekStart: weekStart ?? this.weekStart,
+      adherenceRate: adherenceRate ?? this.adherenceRate,
+      goal: goal ?? this.goal,
+    );
+  }
 }
 
 class SpecialistAssessmentUserModel {

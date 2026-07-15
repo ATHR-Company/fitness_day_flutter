@@ -7,16 +7,17 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
-import 'package:fitness_day/core/widgets/upcoming_visit_show_screen.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/core/widgets/visit_goal_card.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/core/widgets/reschedule_visit_dialog.dart';
+import 'package:fitness_day/core/widgets/add_goal_dialog.dart';
 import 'package:fitness_day/core/widgets/plan_item_card.dart';
 import 'package:fitness_day/core/widgets/vertical_tab_bar.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/widgets/report_text_field.dart';
 import '../../../../shared/conversations/presentation/pages/chat_details_page.dart';
 import 'add_activity_page.dart';
@@ -171,67 +172,11 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
           }
 
           if (state is VisitDetailsSuccess) {
-            if (widget.isUpcoming && _selectedTabIndex == 0) {
-              final visitData = state.visitData;
-              if (visitData == null) {
-                return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
+            final showStartActions = widget.isUpcoming && _selectedTabIndex == 0 && !state.isStarted;
 
-              String formattedTime = '';
-              if (visitData.weekStart.isNotEmpty) {
-                final parsed = DateTime.tryParse(visitData.weekStart);
-                if (parsed != null) {
-                  formattedTime = DateFormat('yyyy-MM-dd hh:mm a', context.locale.languageCode)
-                      .format(parsed.toLocal());
-                }
-              }
-              if (formattedTime.isEmpty) {
-                formattedTime = visitData.weekStart;
-              }
-
-              final goalsList = visitData.goal
-                  .split('\n')
-                  .map((e) => e.replaceAll('•', '').trim())
-                  .where((e) => e.isNotEmpty)
-                  .toList();
-
-              return UpcomingVisitShowScreen(
-                title: 'visit_details.title'.tr(),
-                trailingWidget: MessageIconButton(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
-                    );
-                  },
-                ),
-                visitTimeRemaining: "home.commitment_rate".tr(args: [visitData.adherenceRate.toInt().toString()]),
-                visitTitle: visitData.name,
-                visitSubtitle: visitData.description,
-                personName: visitData.user?.name ?? '',
-                personNameLabel: 'visits.client_name_label'.tr(),
-                visitTime: formattedTime,
-                visitLocation: visitData.placement,
-                visitGoalTitle: 'visit_details.visit_goal_title'.tr(),
-                visitGoals: goalsList,
-                bottomAction: Row(
-                  children: [
-                    Expanded(
-                      child: CustomButton(
-                        text: 'visit_details.start_visit'.tr(),
-                        onPressed: () {},
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return Scaffold(
+            return LoaderHud(
+              isCall: state.isStarting,
+              child: Scaffold(
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
@@ -286,16 +231,26 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                       ),
 
                       // 4. Bottom Buttons
-                      if (widget.isUpcoming || _selectedTabIndex != 0)
+                      if (widget.isUpcoming || _selectedTabIndex != 0 || state.isStarted)
                         Container(
                           padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-                          child: (widget.isUpcoming && _selectedTabIndex == 0)
+                          child: showStartActions
                               ? Row(
                                   children: [
                                     Expanded(
                                       child: CustomButton(
                                         text: 'visit_details.start_visit'.tr(),
-                                        onPressed: () {},
+                                        onPressed: () async {
+                                          final success = await context.read<VisitDetailsCubit>().startVisit(widget.assessmentId);
+                                          if (success && context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('visit_details.start_success'.tr()),
+                                                backgroundColor: AppColors.primary,
+                                              ),
+                                            );
+                                          }
+                                        },
                                       ),
                                     ),
                                     SizedBox(width: 12.w),
@@ -319,8 +274,9 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   ),
                 ),
               ),
-            );
-          }
+            ),
+          );
+        }
 
           return const SizedBox.shrink();
         },
@@ -386,6 +342,40 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
           VisitGoalCard(
             title: 'visit_details.visit_goal_title'.tr(),
             goals: goalsList,
+            onAddPressed: () {
+              showAddGoalDialog(
+                context: context,
+                initialGoal: visitData.goal,
+                onSave: (goal) async {
+                  final cubit = context.read<VisitDetailsCubit>();
+                  final messenger = ScaffoldMessenger.of(context);
+                  final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(message),
+                      backgroundColor: success ? AppColors.primary : AppColors.error,
+                    ),
+                  );
+                },
+              );
+            },
+            onEditPressed: () {
+              showAddGoalDialog(
+                context: context,
+                initialGoal: visitData.goal,
+                onSave: (goal) async {
+                  final cubit = context.read<VisitDetailsCubit>();
+                  final messenger = ScaffoldMessenger.of(context);
+                  final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(message),
+                      backgroundColor: success ? AppColors.primary : AppColors.error,
+                    ),
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
