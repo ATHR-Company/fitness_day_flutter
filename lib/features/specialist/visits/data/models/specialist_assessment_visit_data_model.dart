@@ -33,6 +33,8 @@ class SpecialistAssessmentVisitDataModel {
   final String weekStart;
   final double adherenceRate;
   final String goal;
+  final bool isStarted;
+  final bool canFinishAssessment;
 
   SpecialistAssessmentVisitDataModel({
     this.user,
@@ -44,6 +46,8 @@ class SpecialistAssessmentVisitDataModel {
     required this.weekStart,
     required this.adherenceRate,
     required this.goal,
+    required this.isStarted,
+    required this.canFinishAssessment,
   });
 
   factory SpecialistAssessmentVisitDataModel.fromJson(Map<String, dynamic> json) {
@@ -59,6 +63,8 @@ class SpecialistAssessmentVisitDataModel {
       weekStart: json['weekStart'] as String? ?? '',
       adherenceRate: (json['adherenceRate'] as num?)?.toDouble() ?? 0.0,
       goal: json['goal'] as String? ?? '',
+      isStarted: json['isStarted'] as bool? ?? false,
+      canFinishAssessment: json['canFinishAssessment'] as bool? ?? false,
     );
   }
 
@@ -72,6 +78,8 @@ class SpecialistAssessmentVisitDataModel {
     String? weekStart,
     double? adherenceRate,
     String? goal,
+    bool? isStarted,
+    bool? canFinishAssessment,
   }) {
     return SpecialistAssessmentVisitDataModel(
       user: user ?? this.user,
@@ -83,6 +91,8 @@ class SpecialistAssessmentVisitDataModel {
       weekStart: weekStart ?? this.weekStart,
       adherenceRate: adherenceRate ?? this.adherenceRate,
       goal: goal ?? this.goal,
+      isStarted: isStarted ?? this.isStarted,
+      canFinishAssessment: canFinishAssessment ?? this.canFinishAssessment,
     );
   }
 }

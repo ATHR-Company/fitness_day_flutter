@@ -6,6 +6,8 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_as
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_start_visit_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_health_report_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 
 abstract class SpecialistVisitsRemoteDataSource {
   Future<SpecialistAssessmentHistoryResponseModel> getAssessmentHistory({
@@ -36,6 +38,35 @@ abstract class SpecialistVisitsRemoteDataSource {
     required String assessmentId,
     required String goal,
   });
+
+  Future<SpecialistUpdateHealthReportResponseModel> updateHealthReport({
+    required String assessmentId,
+    required double weight,
+    required double height,
+    required double bmi,
+    required double bmr,
+    required double fatWeight,
+    required double fatPercentage,
+    required double muscleWeight,
+    required double musclePercentage,
+    required double protein,
+  });
+
+  Future<SpecialistAssessmentCustomPlanResponseModel> updateCustomPlan({
+    required String assessmentId,
+    required int dayNumber,
+    required Map<String, dynamic> planData,
+  });
+
+  Future<List<SpecialistMealCategoryModel>> getMealCategories();
+
+  Future<List<SpecialistMealTemplateModel>> getMealTemplates({
+    required String categoryId,
+  });
+
+  Future<List<SpecialistActivityLookupModel>> getActivities();
+
+  Future<List<SpecialistExerciseLookupModel>> getExercises();
 }
 
 class SpecialistVisitsRemoteDataSourceImpl implements SpecialistVisitsRemoteDataSource {
@@ -126,5 +157,78 @@ class SpecialistVisitsRemoteDataSourceImpl implements SpecialistVisitsRemoteData
       },
     );
     return SpecialistUpdateGoalResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<SpecialistUpdateHealthReportResponseModel> updateHealthReport({
+    required String assessmentId,
+    required double weight,
+    required double height,
+    required double bmi,
+    required double bmr,
+    required double fatWeight,
+    required double fatPercentage,
+    required double muscleWeight,
+    required double musclePercentage,
+    required double protein,
+  }) async {
+    final response = await _apiService.patch(
+      ApiEndpoints.updateSpecialistAssessmentHealthReport(assessmentId),
+      data: {
+        'weight': weight,
+        'height': height,
+        'bmi': bmi,
+        'bmr': bmr,
+        'fatWeight': fatWeight,
+        'fatPercentage': fatPercentage,
+        'muscleWeight': muscleWeight,
+        'musclePercentage': musclePercentage,
+        'protein': protein,
+      },
+    );
+    return SpecialistUpdateHealthReportResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<SpecialistAssessmentCustomPlanResponseModel> updateCustomPlan({
+    required String assessmentId,
+    required int dayNumber,
+    required Map<String, dynamic> planData,
+  }) async {
+    final response = await _apiService.patch(
+      ApiEndpoints.updateSpecialistAssessmentPlan(assessmentId, dayNumber),
+      data: planData,
+    );
+    return SpecialistAssessmentCustomPlanResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<List<SpecialistMealCategoryModel>> getMealCategories() async {
+    final response = await _apiService.get(ApiEndpoints.specialistMealCategories);
+    final list = response.data['data'] as List<dynamic>? ?? [];
+    return list.map((e) => SpecialistMealCategoryModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  @override
+  Future<List<SpecialistMealTemplateModel>> getMealTemplates({
+    required String categoryId,
+  }) async {
+    final response = await _apiService.get(ApiEndpoints.specialistMealTemplates(categoryId));
+    final list = response.data['data'] as List<dynamic>? ?? [];
+    return list.map((e) => SpecialistMealTemplateModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  @override
+  Future<List<SpecialistActivityLookupModel>> getActivities() async {
+    final response = await _apiService.get(ApiEndpoints.specialistActivities);
+    final list = response.data['data'] as List<dynamic>? ?? [];
+    return list.map((e) => SpecialistActivityLookupModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  @override
+  Future<List<SpecialistExerciseLookupModel>> getExercises() async {
+    final response = await _apiService.get(ApiEndpoints.specialistExercises);
+    final list = response.data['data'] as List<dynamic>? ?? [];
+    return list.map((e) => SpecialistExerciseLookupModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 }

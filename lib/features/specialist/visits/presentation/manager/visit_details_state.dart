@@ -21,6 +21,7 @@ class VisitDetailsSuccess extends VisitDetailsState {
   final Map<int, SpecialistAssessmentCustomPlanModel> customPlanCache;
   final bool isStarted;
   final bool isStarting;
+  final bool canFinishAssessment;
 
   const VisitDetailsSuccess({
     this.visitData,
@@ -29,6 +30,7 @@ class VisitDetailsSuccess extends VisitDetailsState {
     required this.customPlanCache,
     this.isStarted = false,
     this.isStarting = false,
+    this.canFinishAssessment = false,
   });
 
   VisitDetailsSuccess copyWith({
@@ -38,6 +40,7 @@ class VisitDetailsSuccess extends VisitDetailsState {
     Map<int, SpecialistAssessmentCustomPlanModel>? customPlanCache,
     bool? isStarted,
     bool? isStarting,
+    bool? canFinishAssessment,
   }) {
     return VisitDetailsSuccess(
       visitData: visitData ?? this.visitData,
@@ -46,6 +49,7 @@ class VisitDetailsSuccess extends VisitDetailsState {
       customPlanCache: customPlanCache ?? this.customPlanCache,
       isStarted: isStarted ?? this.isStarted,
       isStarting: isStarting ?? this.isStarting,
+      canFinishAssessment: canFinishAssessment ?? this.canFinishAssessment,
     );
   }
 }

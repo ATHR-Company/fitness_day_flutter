@@ -173,6 +173,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
 
           if (state is VisitDetailsSuccess) {
             final showStartActions = widget.isUpcoming && _selectedTabIndex == 0 && !state.isStarted;
+            final showEndVisitButton = state.canFinishAssessment;
 
             return LoaderHud(
               isCall: state.isStarting,
@@ -231,7 +232,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                       ),
 
                       // 4. Bottom Buttons
-                      if (widget.isUpcoming || _selectedTabIndex != 0 || state.isStarted)
+                      if (showStartActions || showEndVisitButton)
                         Container(
                           padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                           child: showStartActions
@@ -291,7 +292,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
       case 1:
         return _buildReportTab(state.healthReport);
       case 2:
-        return _buildCustomPlanTab(state.customPlan);
+        return _buildCustomPlanTab(state.customPlan, _selectedDayIndex + 1);
       default:
         return _buildVisitDataTab(state.visitData);
     }
@@ -458,12 +459,61 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             suffixText: healthReport.protein?.unit ?? '',
             controller: _proteinController,
           ),
+          SizedBox(height: 24.h),
+          CustomButton(
+            text: 'visit_details.save'.tr(),
+            onPressed: () async {
+              final weight = double.tryParse(_weightController.text) ?? 0.0;
+              final height = double.tryParse(_heightController.text) ?? 0.0;
+
+              double parsedBmi = 0.0;
+              if (weight > 0 && height > 0) {
+                parsedBmi = double.parse((weight / ((height / 100) * (height / 100))).toStringAsFixed(2));
+              } else {
+                final bmiText = _bmiController.text.trim();
+                if (bmiText.isNotEmpty) {
+                  final firstWord = bmiText.split(RegExp(r'\s+')).first;
+                  parsedBmi = double.tryParse(firstWord) ?? 0.0;
+                }
+              }
+
+              final fatPercentage = double.tryParse(_fatPercentageController.text) ?? 0.0;
+              final fatWeight = double.tryParse(_fatWeightController.text) ?? 0.0;
+              final muscleWeight = double.tryParse(_muscleWeightController.text) ?? 0.0;
+              final bmr = double.tryParse(_bmrController.text) ?? 0.0;
+              final musclePercentage = double.tryParse(_musclePercentageController.text) ?? 0.0;
+              final protein = double.tryParse(_proteinController.text) ?? 0.0;
+
+              final cubit = context.read<VisitDetailsCubit>();
+              final messenger = ScaffoldMessenger.of(context);
+
+              final (success, message) = await cubit.updateHealthReport(
+                assessmentId: widget.assessmentId,
+                weight: weight,
+                height: height,
+                bmi: parsedBmi,
+                bmr: bmr,
+                fatWeight: fatWeight,
+                fatPercentage: fatPercentage,
+                muscleWeight: muscleWeight,
+                musclePercentage: musclePercentage,
+                protein: protein,
+              );
+
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                  backgroundColor: success ? AppColors.primary : AppColors.error,
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCustomPlanTab(SpecialistAssessmentCustomPlanModel? plan) {
+  Widget _buildCustomPlanTab(SpecialistAssessmentCustomPlanModel? plan, int dayNumber) {
     if (plan == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -483,7 +533,15 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const AddMealPage()),
+                      MaterialPageRoute(
+                        builder: (ctx) => BlocProvider.value(
+                          value: context.read<VisitDetailsCubit>(),
+                          child: AddMealPage(
+                            assessmentId: widget.assessmentId,
+                            dayNumber: dayNumber,
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -493,7 +551,15 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const AddExercisePage()),
+                      MaterialPageRoute(
+                        builder: (ctx) => BlocProvider.value(
+                          value: context.read<VisitDetailsCubit>(),
+                          child: AddExercisePage(
+                            assessmentId: widget.assessmentId,
+                            dayNumber: dayNumber,
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -503,7 +569,15 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const AddActivityPage()),
+                      MaterialPageRoute(
+                        builder: (ctx) => BlocProvider.value(
+                          value: context.read<VisitDetailsCubit>(),
+                          child: AddActivityPage(
+                            assessmentId: widget.assessmentId,
+                            dayNumber: dayNumber,
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),

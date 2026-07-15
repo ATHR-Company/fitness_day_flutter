@@ -5,6 +5,8 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_as
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_start_visit_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_health_report_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 
 abstract class SpecialistVisitsRepository {
   Future<ApiResult<SpecialistAssessmentHistoryResponseModel>> getAssessmentHistory({
@@ -35,4 +37,33 @@ abstract class SpecialistVisitsRepository {
     required String assessmentId,
     required String goal,
   });
+
+  Future<ApiResult<SpecialistUpdateHealthReportResponseModel>> updateHealthReport({
+    required String assessmentId,
+    required double weight,
+    required double height,
+    required double bmi,
+    required double bmr,
+    required double fatWeight,
+    required double fatPercentage,
+    required double muscleWeight,
+    required double musclePercentage,
+    required double protein,
+  });
+
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> updateCustomPlan({
+    required String assessmentId,
+    required int dayNumber,
+    required Map<String, dynamic> planData,
+  });
+
+  Future<ApiResult<List<SpecialistMealCategoryModel>>> getMealCategories();
+
+  Future<ApiResult<List<SpecialistMealTemplateModel>>> getMealTemplates({
+    required String categoryId,
+  });
+
+  Future<ApiResult<List<SpecialistActivityLookupModel>>> getActivities();
+
+  Future<ApiResult<List<SpecialistExerciseLookupModel>>> getExercises();
 }

@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
@@ -9,36 +10,76 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/selection_bottom_sheet.dart';
 import 'package:fitness_day/core/widgets/app_text_field.dart';
-
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/features/specialist/visits/data/datasources/specialist_visits_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
+import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
 
 class AddActivityPage extends StatefulWidget {
-  const AddActivityPage({super.key});
+  final String assessmentId;
+  final int dayNumber;
+
+  const AddActivityPage({
+    super.key,
+    required this.assessmentId,
+    required this.dayNumber,
+  });
 
   @override
   State<AddActivityPage> createState() => _AddActivityPageState();
 }
 
 class _AddActivityPageState extends State<AddActivityPage> {
-  String? _selectedActivityName;
+  final _remoteDataSource = getIt<SpecialistVisitsRemoteDataSource>();
+
+  List<SpecialistActivityLookupModel> _activities = [];
+  SpecialistActivityLookupModel? _selectedActivity;
+
+  TimeOfDay _selectedTime = const TimeOfDay(hour: 10, minute: 0);
+  final TextEditingController _goalController = TextEditingController();
+
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadActivities();
+  }
+
+  @override
+  void dispose() {
+    _goalController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadActivities() async {
+    setState(() => _isLoading = true);
+    try {
+      final list = await _remoteDataSource.getActivities();
+      setState(() {
+        _activities = list;
+        _isLoading = false;
+      });
+    } catch (_) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   void _showActivityNameSheet() {
-    final items = [
-      'add_activity.activity_1'.tr(),
-      'add_activity.activity_2'.tr(),
-      'add_activity.activity_3'.tr(),
-    ];
+    if (_activities.isEmpty) return;
+    final items = _activities.map((a) => a.name).toList();
     showSelectionBottomSheet(
       context: context,
       title: 'add_activity.activity_name'.tr(),
       items: items,
       showSearch: true,
-      initialSelectedIndex: _selectedActivityName != null
-          ? items.indexOf(_selectedActivityName!)
+      initialSelectedIndex: _selectedActivity != null
+          ? _activities.indexOf(_selectedActivity!)
           : 0,
       onConfirm: (index) {
         setState(() {
-          _selectedActivityName = items[index];
+          _selectedActivity = _activities[index];
         });
       },
     );
@@ -46,10 +87,10 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LoaderHud(
-        isCall: false,
-        child: Container(
+    return LoaderHud(
+      isCall: _isLoading,
+      child: Scaffold(
+        body: Container(
           width: double.infinity,
           height: double.infinity,
           decoration: const BoxDecoration(
@@ -59,88 +100,129 @@ class _AddActivityPageState extends State<AddActivityPage> {
             child: TopCenteredConstrainedBox(
               horizontalPadding: 0,
               child: Column(
-            children: [
-              SizedBox(height: 20.h),
+                children: [
+                  SizedBox(height: 20.h),
 
-              // Back Header
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: AppBackHeader(title: 'add_activity.title'.tr()),
-              ),
-
-              SizedBox(height: 32.h),
-
-              // Content Area
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 16.h,
+                  // Back Header
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: AppBackHeader(title: 'add_activity.title'.tr()),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Activity Name
-                      AppFieldLabel(text: 'add_activity.activity_name'.tr()),
-                      AppTextField(
-                        hintText:
-                            _selectedActivityName ??
-                            'add_activity.activity_name_hint'.tr(),
-                        suffixIcon: Icon(
-                          Directionality.of(context) == ui.TextDirection.rtl
-                              ? Icons.chevron_left
-                              : Icons.chevron_right,
-                          color: AppColors.textSecondary.withValues(alpha: 0.5),
-                          size: 24.sp,
-                        ),
-                        onTap: _showActivityNameSheet,
-                        valueColor: _selectedActivityName != null
-                            ? AppColors.black
-                            : AppColors.textSecondary.withValues(alpha: 0.5),
+
+                  SizedBox(height: 32.h),
+
+                  // Content Area
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.w,
+                        vertical: 16.h,
                       ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Activity Name
+                          AppFieldLabel(text: 'add_activity.activity_name'.tr()),
+                          AppTextField(
+                            hintText:
+                                _selectedActivity?.name ??
+                                'add_activity.activity_name_hint'.tr(),
+                            suffixIcon: Icon(
+                              Directionality.of(context) == ui.TextDirection.rtl
+                                  ? Icons.chevron_left
+                                  : Icons.chevron_right,
+                              color: AppColors.textSecondary.withValues(alpha: 0.5),
+                              size: 24.sp,
+                            ),
+                            onTap: _showActivityNameSheet,
+                            valueColor: _selectedActivity != null
+                                ? AppColors.black
+                                : AppColors.textSecondary.withValues(alpha: 0.5),
+                            readOnly: true,
+                          ),
 
-                      SizedBox(height: 20.h),
+                          SizedBox(height: 20.h),
 
-                      // Target Goal
-                      AppFieldLabel(text: 'add_activity.target_goal'.tr()),
-                      _buildTargetGoalField(),
+                          // Activity Time
+                          AppFieldLabel(text: 'add_meal.meal_time'.tr()),
+                          _buildTimeField(),
 
-                      SizedBox(height: 40.h),
-                    ],
+                          SizedBox(height: 20.h),
+
+                          // Target Goal
+                          AppFieldLabel(text: 'add_activity.target_goal'.tr()),
+                          _buildTargetGoalField(),
+
+                          SizedBox(height: 40.h),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
 
-              // Add Button
-              Container(
-                padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-                child: CustomButton(
-                  text: 'add_activity.add_button'.tr(),
-                  color: AppColors.primary,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
+                  // Add Button
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+                    child: CustomButton(
+                      text: 'add_activity.add_button'.tr(),
+                      color: AppColors.primary,
+                      onPressed: _onSave,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 
+  Widget _buildTimeField() {
+    final formatTime = DateFormat('hh:mm a', context.locale.languageCode);
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute);
 
+    return AppTextField(
+      hintText: formatTime.format(dt),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      onTap: () async {
+        final time = await showTimePicker(
+          context: context,
+          initialTime: _selectedTime,
+        );
+        if (time != null) {
+          setState(() {
+            _selectedTime = time;
+          });
+        }
+      },
+      readOnly: true,
+      suffixIcon: Icon(
+        Icons.access_time_rounded,
+        color: AppColors.primary,
+        size: 20.sp,
+      ),
+    );
+  }
 
   Widget _buildTargetGoalField() {
     return AppTextField(
+      controller: _goalController,
       hintText: 'add_activity.target_goal_hint'.tr(),
+      keyboardType: TextInputType.number,
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      suffixIcon: IntrinsicHeight(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
+      suffixIcon: _selectedActivity != null
+          ? Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
+              child: Text(
+                _selectedActivity!.unit,
+                style: TextStyleManager.style10Medium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          : Padding(
               padding: EdgeInsets.all(4.w),
               child: Container(
                 decoration: BoxDecoration(
@@ -156,6 +238,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   vertical: 8.h,
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'add_activity.step'.tr(),
@@ -173,9 +256,58 @@ class _AddActivityPageState extends State<AddActivityPage> {
                 ),
               ),
             ),
-          ],
+    );
+  }
+
+  Future<void> _onSave() async {
+    if (_selectedActivity == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يرجى اختيار اسم النشاط أولاً'),
+          backgroundColor: AppColors.error,
         ),
+      );
+      return;
+    }
+
+    final goal = int.tryParse(_goalController.text) ?? 0;
+
+    final now = DateTime.now();
+    final timeStr = DateTime(
+      now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute,
+    ).toUtc().toIso8601String();
+
+    final payload = {
+      'activities': [
+        {
+          'activityId': _selectedActivity!.id,
+          'goal': goal,
+          'time': timeStr,
+        }
+      ]
+    };
+
+    setState(() => _isLoading = true);
+    final cubit = context.read<VisitDetailsCubit>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final (success, message) = await cubit.updateCustomPlan(
+      assessmentId: widget.assessmentId,
+      dayNumber: widget.dayNumber,
+      planData: payload,
+    );
+
+    setState(() => _isLoading = false);
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: success ? AppColors.primary : AppColors.error,
       ),
     );
+
+    if (success) {
+      Navigator.pop(context);
+    }
   }
 }

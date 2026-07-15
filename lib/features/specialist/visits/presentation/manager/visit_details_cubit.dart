@@ -5,6 +5,9 @@ import 'package:fitness_day/features/specialist/visits/domain/usecases/get_healt
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_custom_plan_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/start_visit_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/update_goal_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/update_health_report_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/update_custom_plan_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
 import 'visit_details_state.dart';
 
 class VisitDetailsCubit extends Cubit<VisitDetailsState> {
@@ -13,6 +16,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
   final GetCustomPlanUseCase _getCustomPlanUseCase;
   final StartVisitUseCase _startVisitUseCase;
   final UpdateGoalUseCase _updateGoalUseCase;
+  final UpdateHealthReportUseCase _updateHealthReportUseCase;
 
   VisitDetailsCubit(
     this._getVisitDataUseCase,
@@ -20,7 +24,11 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
     this._getCustomPlanUseCase,
     this._startVisitUseCase,
     this._updateGoalUseCase,
+    this._updateHealthReportUseCase,
+    this._updateCustomPlanUseCase,
   ) : super(const VisitDetailsInitial());
+
+  final UpdateCustomPlanUseCase _updateCustomPlanUseCase;
 
   Future<void> loadVisitData(String assessmentId) async {
     final currentState = state;
@@ -35,12 +43,20 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
 
     switch (result) {
       case Success(:final data):
+        final isStartedFromApi = data.data?.isStarted ?? false;
+        final canFinish = data.data?.canFinishAssessment ?? false;
         if (state is VisitDetailsSuccess) {
-          emit((state as VisitDetailsSuccess).copyWith(visitData: data.data));
+          emit((state as VisitDetailsSuccess).copyWith(
+            visitData: data.data,
+            isStarted: isStartedFromApi,
+            canFinishAssessment: canFinish,
+          ));
         } else {
           emit(VisitDetailsSuccess(
             visitData: data.data,
             customPlanCache: const {},
+            isStarted: isStartedFromApi,
+            canFinishAssessment: canFinish,
           ));
         }
       case FailureResult(:final failure):
@@ -151,6 +167,85 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
           emit(currentState.copyWith(
             isStarting: false,
             visitData: updatedVisitData,
+          ));
+          return (true, data.message);
+        case FailureResult(:final failure):
+          emit(currentState.copyWith(isStarting: false));
+          return (false, failure.message);
+      }
+    }
+    return (false, '');
+  }
+
+  Future<(bool, String)> updateHealthReport({
+    required String assessmentId,
+    required double weight,
+    required double height,
+    required double bmi,
+    required double bmr,
+    required double fatWeight,
+    required double fatPercentage,
+    required double muscleWeight,
+    required double musclePercentage,
+    required double protein,
+  }) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+
+      final result = await _updateHealthReportUseCase(
+        assessmentId: assessmentId,
+        weight: weight,
+        height: height,
+        bmi: bmi,
+        bmr: bmr,
+        fatWeight: fatWeight,
+        fatPercentage: fatPercentage,
+        muscleWeight: muscleWeight,
+        musclePercentage: musclePercentage,
+        protein: protein,
+      );
+
+      switch (result) {
+        case Success(:final data):
+          emit(currentState.copyWith(
+            isStarting: false,
+            healthReport: data.data?.healthReport,
+          ));
+          return (true, data.message);
+        case FailureResult(:final failure):
+          emit(currentState.copyWith(isStarting: false));
+          return (false, failure.message);
+      }
+    }
+    return (false, '');
+  }
+
+  Future<(bool, String)> updateCustomPlan({
+    required String assessmentId,
+    required int dayNumber,
+    required Map<String, dynamic> planData,
+  }) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+
+      final result = await _updateCustomPlanUseCase(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        planData: planData,
+      );
+
+      switch (result) {
+        case Success(:final data):
+          final newCache = Map<int, SpecialistAssessmentCustomPlanModel>.from(currentState.customPlanCache);
+          if (data.data != null) {
+            newCache[dayNumber] = data.data!;
+          }
+          emit(currentState.copyWith(
+            isStarting: false,
+            customPlan: data.data,
+            customPlanCache: newCache,
           ));
           return (true, data.message);
         case FailureResult(:final failure):

@@ -42,7 +42,7 @@ class ReportTextField extends StatelessWidget {
             controller: controller,
             keyboardType: keyboardType,
             //textAlign: TextAlign.right,
-            style: TextStyleManager.heading3.copyWith(color: AppColors.black),
+            style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: TextStyleManager.style9Medium.copyWith(

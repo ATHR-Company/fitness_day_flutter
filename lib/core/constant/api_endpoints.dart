@@ -15,6 +15,14 @@ class ApiEndpoints {
   static String specialistAssessmentDetails(String id) => '/specialist/assessment-history/details/$id';
   static String startSpecialistAssessment(String id) => '/specialist/assessment-history/$id/start';
   static String updateSpecialistAssessmentGoal(String id) => '/specialist/assessment-history/$id/goal';
+  static String updateSpecialistAssessmentHealthReport(String id) => '/specialist/assessment-history/$id/health-report';
+  static String updateSpecialistAssessmentPlan(String assessmentId, int dayNumber) =>
+      '/specialist/assessments/$assessmentId/days/$dayNumber/plan';
+  static const String specialistMealCategories = '/specialist/assessments/meal-categories';
+  static String specialistMealTemplates(String categoryId) =>
+      '/specialist/assessments/meal-templates?mealCategoryId=$categoryId';
+  static const String specialistActivities = '/specialist/assessments/activities';
+  static const String specialistExercises = '/specialist/assessments/exercises';
   static String specialistClientProfile(String userId) => '/specialist/clients/$userId/profile';
   static String specialistClientUpcomingAssessments(String userId) => '/specialist/clients/$userId/assessments/upcoming';
   static String specialistClientPreviousAssessments(String userId) => '/specialist/clients/$userId/assessments/previous';

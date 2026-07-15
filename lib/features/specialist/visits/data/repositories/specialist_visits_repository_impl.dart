@@ -7,6 +7,8 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_as
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_start_visit_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_health_report_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 import 'package:fitness_day/features/specialist/visits/domain/repositories/specialist_visits_repository.dart';
 
 class SpecialistVisitsRepositoryImpl implements SpecialistVisitsRepository {
@@ -96,6 +98,98 @@ class SpecialistVisitsRepositoryImpl implements SpecialistVisitsRepository {
         assessmentId: assessmentId,
         goal: goal,
       );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<SpecialistUpdateHealthReportResponseModel>> updateHealthReport({
+    required String assessmentId,
+    required double weight,
+    required double height,
+    required double bmi,
+    required double bmr,
+    required double fatWeight,
+    required double fatPercentage,
+    required double muscleWeight,
+    required double musclePercentage,
+    required double protein,
+  }) async {
+    try {
+      final response = await remoteDataSource.updateHealthReport(
+        assessmentId: assessmentId,
+        weight: weight,
+        height: height,
+        bmi: bmi,
+        bmr: bmr,
+        fatWeight: fatWeight,
+        fatPercentage: fatPercentage,
+        muscleWeight: muscleWeight,
+        musclePercentage: musclePercentage,
+        protein: protein,
+      );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> updateCustomPlan({
+    required String assessmentId,
+    required int dayNumber,
+    required Map<String, dynamic> planData,
+  }) async {
+    try {
+      final response = await remoteDataSource.updateCustomPlan(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        planData: planData,
+      );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<List<SpecialistMealCategoryModel>>> getMealCategories() async {
+    try {
+      final response = await remoteDataSource.getMealCategories();
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<List<SpecialistMealTemplateModel>>> getMealTemplates({
+    required String categoryId,
+  }) async {
+    try {
+      final response = await remoteDataSource.getMealTemplates(categoryId: categoryId);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<List<SpecialistActivityLookupModel>>> getActivities() async {
+    try {
+      final response = await remoteDataSource.getActivities();
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<List<SpecialistExerciseLookupModel>>> getExercises() async {
+    try {
+      final response = await remoteDataSource.getExercises();
       return Success(response);
     } catch (e) {
       return FailureResult(ErrorHandler.handle(e));
