@@ -226,15 +226,6 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                         onPressed: () {},
                       ),
                     ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: CustomOutlinedButton(
-                        text: 'visit_details.reschedule'.tr(),
-                        onPressed: () {
-                          showRescheduleDialog(context);
-                        },
-                      ),
-                    ),
                   ],
                 ),
               );

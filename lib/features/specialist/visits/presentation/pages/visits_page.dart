@@ -61,7 +61,7 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
   }
 
   String _getTypeString(int index) {
-    return index == 0 ? 'UPCOMING' : 'HISTORY';
+    return index == 0 ? 'UPCOMING' : 'PREVIOUS';
   }
 
   @override
