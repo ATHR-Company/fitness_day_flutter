@@ -66,4 +66,31 @@ abstract class SpecialistVisitsRepository {
   Future<ApiResult<List<SpecialistActivityLookupModel>>> getActivities();
 
   Future<ApiResult<List<SpecialistExerciseLookupModel>>> getExercises();
+
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> addMeal({
+    required String assessmentId,
+    required int dayNumber,
+    required String mealCategoryId,
+    required String mealTemplateId,
+    required String time,
+    required List<Map<String, dynamic>> ingredientWeights,
+  });
+
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> addWorkout({
+    required String assessmentId,
+    required int dayNumber,
+    required String exerciseId,
+    required int sets,
+    required int reps,
+    required int restDuration,
+    required String time,
+  });
+
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> addActivity({
+    required String assessmentId,
+    required int dayNumber,
+    required String activityId,
+    required int goal,
+    required String time,
+  });
 }

@@ -8,6 +8,7 @@ import 'package:fitness_day/features/specialist/visits/domain/usecases/update_go
 import 'package:fitness_day/features/specialist/visits/domain/usecases/update_health_report_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/update_custom_plan_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
+import 'package:fitness_day/features/specialist/visits/domain/repositories/specialist_visits_repository.dart';
 import 'visit_details_state.dart';
 
 class VisitDetailsCubit extends Cubit<VisitDetailsState> {
@@ -17,6 +18,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
   final StartVisitUseCase _startVisitUseCase;
   final UpdateGoalUseCase _updateGoalUseCase;
   final UpdateHealthReportUseCase _updateHealthReportUseCase;
+  final SpecialistVisitsRepository _repository;
 
   VisitDetailsCubit(
     this._getVisitDataUseCase,
@@ -26,6 +28,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
     this._updateGoalUseCase,
     this._updateHealthReportUseCase,
     this._updateCustomPlanUseCase,
+    this._repository,
   ) : super(const VisitDetailsInitial());
 
   final UpdateCustomPlanUseCase _updateCustomPlanUseCase;
@@ -254,5 +257,100 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
       }
     }
     return (false, '');
+  }
+
+  Future<(bool, String)> addMeal({
+    required String assessmentId,
+    required int dayNumber,
+    required String mealCategoryId,
+    required String mealTemplateId,
+    required String time,
+    required List<Map<String, dynamic>> ingredientWeights,
+  }) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+      final result = await _repository.addMeal(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        mealCategoryId: mealCategoryId,
+        mealTemplateId: mealTemplateId,
+        time: time,
+        ingredientWeights: ingredientWeights,
+      );
+      return _handlePlanResult(result, dayNumber, currentState);
+    }
+    return (false, '');
+  }
+
+  Future<(bool, String)> addWorkout({
+    required String assessmentId,
+    required int dayNumber,
+    required String exerciseId,
+    required int sets,
+    required int reps,
+    required int restDuration,
+    required String time,
+  }) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+      final result = await _repository.addWorkout(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        exerciseId: exerciseId,
+        sets: sets,
+        reps: reps,
+        restDuration: restDuration,
+        time: time,
+      );
+      return _handlePlanResult(result, dayNumber, currentState);
+    }
+    return (false, '');
+  }
+
+  Future<(bool, String)> addActivity({
+    required String assessmentId,
+    required int dayNumber,
+    required String activityId,
+    required int goal,
+    required String time,
+  }) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+      final result = await _repository.addActivity(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        activityId: activityId,
+        goal: goal,
+        time: time,
+      );
+      return _handlePlanResult(result, dayNumber, currentState);
+    }
+    return (false, '');
+  }
+
+  (bool, String) _handlePlanResult(
+    ApiResult<SpecialistAssessmentCustomPlanResponseModel> result,
+    int dayNumber,
+    VisitDetailsSuccess currentState,
+  ) {
+    switch (result) {
+      case Success(:final data):
+        final newCache = Map<int, SpecialistAssessmentCustomPlanModel>.from(currentState.customPlanCache);
+        if (data.data != null) {
+          newCache[dayNumber] = data.data!;
+        }
+        emit(currentState.copyWith(
+          isStarting: false,
+          customPlan: data.data,
+          customPlanCache: newCache,
+        ));
+        return (true, data.message);
+      case FailureResult(:final failure):
+        emit(currentState.copyWith(isStarting: false));
+        return (false, failure.message);
+    }
   }
 }

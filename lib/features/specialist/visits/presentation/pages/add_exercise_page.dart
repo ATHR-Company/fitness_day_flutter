@@ -254,26 +254,18 @@ class _AddExercisePageState extends State<AddExercisePage> {
     final now = DateTime.now();
     final timeStr = DateTime(now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute).toUtc().toIso8601String();
 
-    final payload = {
-      'workoutItems': [
-        {
-          'exerciseId': _selectedExercise!.id,
-          'sets': sets,
-          'reps': reps,
-          'restDuration': rest,
-          'time': timeStr,
-        }
-      ]
-    };
-
     setState(() => _isLoading = true);
     final cubit = context.read<VisitDetailsCubit>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final (success, message) = await cubit.updateCustomPlan(
+    final (success, message) = await cubit.addWorkout(
       assessmentId: widget.assessmentId,
       dayNumber: widget.dayNumber,
-      planData: payload,
+      exerciseId: _selectedExercise!.id,
+      sets: sets,
+      reps: reps,
+      restDuration: rest,
+      time: timeStr,
     );
 
     setState(() => _isLoading = false);

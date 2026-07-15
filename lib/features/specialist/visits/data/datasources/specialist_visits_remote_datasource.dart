@@ -67,6 +67,33 @@ abstract class SpecialistVisitsRemoteDataSource {
   Future<List<SpecialistActivityLookupModel>> getActivities();
 
   Future<List<SpecialistExerciseLookupModel>> getExercises();
+
+  Future<SpecialistAssessmentCustomPlanResponseModel> addMeal({
+    required String assessmentId,
+    required int dayNumber,
+    required String mealCategoryId,
+    required String mealTemplateId,
+    required String time,
+    required List<Map<String, dynamic>> ingredientWeights,
+  });
+
+  Future<SpecialistAssessmentCustomPlanResponseModel> addWorkout({
+    required String assessmentId,
+    required int dayNumber,
+    required String exerciseId,
+    required int sets,
+    required int reps,
+    required int restDuration,
+    required String time,
+  });
+
+  Future<SpecialistAssessmentCustomPlanResponseModel> addActivity({
+    required String assessmentId,
+    required int dayNumber,
+    required String activityId,
+    required int goal,
+    required String time,
+  });
 }
 
 class SpecialistVisitsRemoteDataSourceImpl implements SpecialistVisitsRemoteDataSource {
@@ -230,5 +257,68 @@ class SpecialistVisitsRemoteDataSourceImpl implements SpecialistVisitsRemoteData
     final response = await _apiService.get(ApiEndpoints.specialistExercises);
     final list = response.data['data'] as List<dynamic>? ?? [];
     return list.map((e) => SpecialistExerciseLookupModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  @override
+  Future<SpecialistAssessmentCustomPlanResponseModel> addMeal({
+    required String assessmentId,
+    required int dayNumber,
+    required String mealCategoryId,
+    required String mealTemplateId,
+    required String time,
+    required List<Map<String, dynamic>> ingredientWeights,
+  }) async {
+    final response = await _apiService.post(
+      ApiEndpoints.addSpecialistDayMeal(assessmentId, dayNumber),
+      data: {
+        'mealCategoryId': mealCategoryId,
+        'mealTemplateId': mealTemplateId,
+        'time': time,
+        'ingredientWeights': ingredientWeights,
+      },
+    );
+    return SpecialistAssessmentCustomPlanResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<SpecialistAssessmentCustomPlanResponseModel> addWorkout({
+    required String assessmentId,
+    required int dayNumber,
+    required String exerciseId,
+    required int sets,
+    required int reps,
+    required int restDuration,
+    required String time,
+  }) async {
+    final response = await _apiService.post(
+      ApiEndpoints.addSpecialistDayWorkout(assessmentId, dayNumber),
+      data: {
+        'exerciseId': exerciseId,
+        'sets': sets,
+        'reps': reps,
+        'restDuration': restDuration,
+        'time': time,
+      },
+    );
+    return SpecialistAssessmentCustomPlanResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<SpecialistAssessmentCustomPlanResponseModel> addActivity({
+    required String assessmentId,
+    required int dayNumber,
+    required String activityId,
+    required int goal,
+    required String time,
+  }) async {
+    final response = await _apiService.post(
+      ApiEndpoints.addSpecialistDayActivity(assessmentId, dayNumber),
+      data: {
+        'activityId': activityId,
+        'goal': goal,
+        'time': time,
+      },
+    );
+    return SpecialistAssessmentCustomPlanResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 }

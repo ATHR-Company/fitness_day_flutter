@@ -583,6 +583,7 @@ Future<void> init() async {
       getIt<UpdateGoalUseCase>(),
       getIt<UpdateHealthReportUseCase>(),
       getIt<UpdateCustomPlanUseCase>(),
+      getIt<SpecialistVisitsRepository>(),
     ),
   );
 }

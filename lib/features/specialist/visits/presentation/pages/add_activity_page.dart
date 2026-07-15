@@ -277,24 +277,16 @@ class _AddActivityPageState extends State<AddActivityPage> {
       now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute,
     ).toUtc().toIso8601String();
 
-    final payload = {
-      'activities': [
-        {
-          'activityId': _selectedActivity!.id,
-          'goal': goal,
-          'time': timeStr,
-        }
-      ]
-    };
-
     setState(() => _isLoading = true);
     final cubit = context.read<VisitDetailsCubit>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final (success, message) = await cubit.updateCustomPlan(
+    final (success, message) = await cubit.addActivity(
       assessmentId: widget.assessmentId,
       dayNumber: widget.dayNumber,
-      planData: payload,
+      activityId: _selectedActivity!.id,
+      goal: goal,
+      time: timeStr,
     );
 
     setState(() => _isLoading = false);

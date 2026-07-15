@@ -18,6 +18,12 @@ class ApiEndpoints {
   static String updateSpecialistAssessmentHealthReport(String id) => '/specialist/assessment-history/$id/health-report';
   static String updateSpecialistAssessmentPlan(String assessmentId, int dayNumber) =>
       '/specialist/assessments/$assessmentId/days/$dayNumber/plan';
+  static String addSpecialistDayMeal(String assessmentId, int dayNumber) =>
+      '/specialist/assessments/$assessmentId/days/$dayNumber/meals';
+  static String addSpecialistDayWorkout(String assessmentId, int dayNumber) =>
+      '/specialist/assessments/$assessmentId/days/$dayNumber/workouts';
+  static String addSpecialistDayActivity(String assessmentId, int dayNumber) =>
+      '/specialist/assessments/$assessmentId/days/$dayNumber/activities';
   static const String specialistMealCategories = '/specialist/assessments/meal-categories';
   static String specialistMealTemplates(String categoryId) =>
       '/specialist/assessments/meal-templates?mealCategoryId=$categoryId';

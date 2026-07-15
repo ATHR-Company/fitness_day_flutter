@@ -318,7 +318,7 @@ class _AddMealPageState extends State<AddMealPage> {
       final controller = i['controller'] as TextEditingController;
       final weight = double.tryParse(controller.text) ?? i['weight'];
       return {
-        'ingredientId': i['ingredientId'],
+        'ingredientId': i['ingredientId'] as String,
         'weight': weight,
       };
     }).toList();
@@ -326,25 +326,17 @@ class _AddMealPageState extends State<AddMealPage> {
     final now = DateTime.now();
     final timeStr = DateTime(now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute).toUtc().toIso8601String();
 
-    final payload = {
-      'meals': [
-        {
-          'mealCategoryId': _selectedCategory!.id,
-          'mealTemplateId': _selectedTemplate!.id,
-          'time': timeStr,
-          'ingredientWeights': ingredientWeights,
-        }
-      ]
-    };
-
     setState(() => _isLoading = true);
     final cubit = context.read<VisitDetailsCubit>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final (success, message) = await cubit.updateCustomPlan(
+    final (success, message) = await cubit.addMeal(
       assessmentId: widget.assessmentId,
       dayNumber: widget.dayNumber,
-      planData: payload,
+      mealCategoryId: _selectedCategory!.id,
+      mealTemplateId: _selectedTemplate!.id,
+      time: timeStr,
+      ingredientWeights: ingredientWeights,
     );
 
     setState(() => _isLoading = false);

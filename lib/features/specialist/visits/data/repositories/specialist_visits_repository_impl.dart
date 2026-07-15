@@ -195,4 +195,76 @@ class SpecialistVisitsRepositoryImpl implements SpecialistVisitsRepository {
       return FailureResult(ErrorHandler.handle(e));
     }
   }
+
+  @override
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> addMeal({
+    required String assessmentId,
+    required int dayNumber,
+    required String mealCategoryId,
+    required String mealTemplateId,
+    required String time,
+    required List<Map<String, dynamic>> ingredientWeights,
+  }) async {
+    try {
+      final response = await remoteDataSource.addMeal(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        mealCategoryId: mealCategoryId,
+        mealTemplateId: mealTemplateId,
+        time: time,
+        ingredientWeights: ingredientWeights,
+      );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> addWorkout({
+    required String assessmentId,
+    required int dayNumber,
+    required String exerciseId,
+    required int sets,
+    required int reps,
+    required int restDuration,
+    required String time,
+  }) async {
+    try {
+      final response = await remoteDataSource.addWorkout(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        exerciseId: exerciseId,
+        sets: sets,
+        reps: reps,
+        restDuration: restDuration,
+        time: time,
+      );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> addActivity({
+    required String assessmentId,
+    required int dayNumber,
+    required String activityId,
+    required int goal,
+    required String time,
+  }) async {
+    try {
+      final response = await remoteDataSource.addActivity(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        activityId: activityId,
+        goal: goal,
+        time: time,
+      );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
 }
