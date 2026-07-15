@@ -270,7 +270,6 @@ class AppRouter {
           return WorkoutVideoScreen(
             workoutItemId: workoutItemId,
             assessmentId: assessmentId,
-            assessmentId: assessmentId,
             dayNumber: dayNumber,
           );
         },

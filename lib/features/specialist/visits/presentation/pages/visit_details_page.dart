@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:fitness_day/core/widgets/upcoming_visit_show_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,8 +57,12 @@ class VisitDetailsPage extends StatelessWidget {
 class _VisitDetailsPageContent extends StatefulWidget {
   final String assessmentId;
   final bool isUpcoming;
-  final String assessmentId;
-  const VisitDetailsPage({super.key, this.isUpcoming = false, this.assessmentId = ''});
+
+  const _VisitDetailsPageContent({
+    super.key,
+    required this.assessmentId,
+    this.isUpcoming = false,
+  });
 
   @override
   State<_VisitDetailsPageContent> createState() => _VisitDetailsPageContentState();
@@ -211,43 +216,34 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
 
                       // 3. Content Area
                       Expanded(
-                        child: SingleChildScrollView(
-                          padding: EdgeInsets.only(bottom: 24.h),
-                          child: _buildTabContent(state),
+                        child: BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
+                          builder: (context, state) {
+                            if (state is VisitDetailsLoading) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+                            if (state is VisitDetailsFailure) {
+                              return Center(child: Text(state.message));
+                            }
+                            if (state is VisitDetailsSuccess) {
+                              return SingleChildScrollView(
+                                padding: EdgeInsets.only(bottom: 24.h),
+                                child: _buildTabContent(state),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                       ),
 
-              // 4. Bottom Buttons
-              if (widget.isUpcoming || _selectedTabIndex != 0)
+              // 4. Bottom Buttons — only for non-upcoming visits, on non-visit-data tabs
+              if (!widget.isUpcoming && _selectedTabIndex != 0)
                 Container(
                   padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-                  child: (widget.isUpcoming && _selectedTabIndex == 0)
-                      ? Row(
-                          children: [
-                            // Start Visit (Primary) — on the right in RTL
-                            Expanded(
-                              child: CustomButton(
-                                text: 'visit_details.start_visit'.tr(),
-                                onPressed: () {},
-                              ),
-                            ),
-                            SizedBox(width: 12.w),
-                            // Reschedule (Outlined) — on the left in RTL
-                            Expanded(
-                              child: CustomOutlinedButton(
-                                text: 'visit_details.reschedule'.tr(),
-                                onPressed: () {
-                                  showRescheduleDialog(context, widget.assessmentId);
-                                },
-                              ),
-                            ),
-                          ],
-                        )
-                      : CustomButton(
-                          text: 'visit_details.end_visit'.tr(),
-                          color: AppColors.greenMint,
-                          onPressed: () {},
-                        ),
+                  child: CustomButton(
+                    text: 'visit_details.end_visit'.tr(),
+                    color: AppColors.greenMint,
+                    onPressed: () {},
+                  ),
                 ),
             ],
           ),
