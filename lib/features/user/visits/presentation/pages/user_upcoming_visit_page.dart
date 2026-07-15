@@ -10,7 +10,14 @@ import 'package:fitness_day/core/widgets/reschedule_visit_dialog.dart';
 import '../../../../shared/conversations/presentation/pages/chat_details_page.dart';
 
 class UserUpcomingVisitPage extends StatelessWidget {
-  const UserUpcomingVisitPage({super.key});
+  final String assessmentId;
+  final int dayNumber;
+
+  const UserUpcomingVisitPage({
+    super.key,
+    required this.assessmentId,
+    required this.dayNumber,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +59,7 @@ class UserUpcomingVisitPage extends StatelessWidget {
             child: CustomOutlinedButton(
               text: 'تغيير الميعاد',
               onPressed: () {
-                showRescheduleDialog(context);
+                showRescheduleDialog(context, assessmentId);
               },
             ),
           ),

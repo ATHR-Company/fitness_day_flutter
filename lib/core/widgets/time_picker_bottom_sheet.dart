@@ -6,15 +6,19 @@ import 'package:fitness_day/core/widgets/app_bottom_sheet.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 
-// ألوان صفحة الهايدريشن
-const _kWaterCyan = Color(0xFF23C4D7);
-const _kWaterLight = Color(0xFFDAF6FF);
-const _kWaterLighter = Color(0xFFF0FBFF);
-
 class TimePickerBottomSheet extends StatefulWidget {
   final TimeOfDay? initialTime;
+  final Color? primaryColor;
+  final Color? highlightBackgroundColor;
+  final LinearGradient? backgroundGradient;
 
-  const TimePickerBottomSheet({super.key, this.initialTime});
+  const TimePickerBottomSheet({
+    super.key, 
+    this.initialTime,
+    this.primaryColor,
+    this.highlightBackgroundColor,
+    this.backgroundGradient,
+  });
 
   @override
   State<TimePickerBottomSheet> createState() => _TimePickerBottomSheetState();
@@ -40,17 +44,21 @@ class _TimePickerBottomSheetState extends State<TimePickerBottomSheet> {
     }
   }
 
+  Color get _primaryColor => widget.primaryColor ?? AppColors.primary;
+  Color get _highlightBgColor => widget.highlightBackgroundColor ?? AppColors.lightGreenBackground2;
+  LinearGradient get _bgGradient => widget.backgroundGradient ?? const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [AppColors.lightGreenBackground, AppColors.white],
+      );
+
   @override
   Widget build(BuildContext context) {
     return AppBottomSheet(
       title: 'visit_details.select_time'.tr(),
-      closeIconColor: _kWaterCyan,
-      confirmColor: _kWaterCyan,
-      backgroundGradient: const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [_kWaterLighter, AppColors.white],
-      ),
+      closeIconColor: _primaryColor,
+      confirmColor: _primaryColor,
+      backgroundGradient: _bgGradient,
       onConfirm: () {
         Navigator.of(context).pop(TimeOfDay.fromDateTime(_selectedTime));
       },
@@ -59,14 +67,14 @@ class _TimePickerBottomSheetState extends State<TimePickerBottomSheet> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // حاوية التحديد بلون الهايدريشن
+            // حاوية التحديد
             Container(
               height: 56.h,
               decoration: BoxDecoration(
-                color: _kWaterLight,
+                color: _highlightBgColor,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
-                  color: _kWaterCyan.withValues(alpha: 0.3),
+                  color: _primaryColor.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -83,7 +91,7 @@ class _TimePickerBottomSheetState extends State<TimePickerBottomSheet> {
                   fontSize: 20.sp,
                 ),
                 highlightedTextStyle: TextStyleManager.heading2.copyWith(
-                  color: _kWaterCyan,
+                  color: _primaryColor,
                   fontWeight: FontWeight.bold,
                   fontSize: 24.sp,
                 ),

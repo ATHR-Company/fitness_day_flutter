@@ -39,4 +39,12 @@ class ApiEndpoints {
   // Activity tracking — send progress to backend
   static const String updateWalking = '/activities/walking/progress';
   static const String updateRunning = '/activities/running/progress';
+
+  // Assessments
+  static const String userAssessments = '/user-assessments';
+  static const String assessmentChangeRequests = '/assessment-change-requests';
+  static String assessmentDetails(String assessmentId) => '/user-assessments/$assessmentId/details';
+  
+  // Lookups
+  static const String branches = '/lookups/branches';
 }

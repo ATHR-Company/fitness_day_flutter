@@ -23,7 +23,8 @@ import 'add_meal_page.dart';
 
 class VisitDetailsPage extends StatefulWidget {
   final bool isUpcoming;
-  const VisitDetailsPage({super.key, this.isUpcoming = false});
+  final String assessmentId;
+  const VisitDetailsPage({super.key, this.isUpcoming = false, this.assessmentId = ''});
 
   @override
   State<VisitDetailsPage> createState() => _VisitDetailsPageState();
@@ -73,7 +74,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
               child: CustomOutlinedButton(
                 text: 'visit_details.reschedule'.tr(),
                 onPressed: () {
-                  showRescheduleDialog(context);
+                  showRescheduleDialog(context, widget.assessmentId);
                 },
               ),
             ),
@@ -160,7 +161,7 @@ class _VisitDetailsPageState extends State<VisitDetailsPage> {
                               child: CustomOutlinedButton(
                                 text: 'visit_details.reschedule'.tr(),
                                 onPressed: () {
-                                  showRescheduleDialog(context);
+                                  showRescheduleDialog(context, widget.assessmentId);
                                 },
                               ),
                             ),

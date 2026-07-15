@@ -167,7 +167,9 @@
     "hq_location": "في مقر يوم الرشاقة",
     "dummy_title": "متابعة أسبوعية",
     "dummy_subtitle": "متابعة الوزن وتخصيص النظام الغذائي والرياضي له",
-    "dummy_client": "محمد عبدالله"
+    "dummy_client": "محمد عبدالله",
+    "no_visits_this_week": "لا توجد زيارات هذا الأسبوع",
+    "no_visits_today": "لا توجد زيارات في هذا اليوم"
   },
   "visit_details": {
     "title": "تفاصيل الزيارة",
@@ -182,6 +184,9 @@
     "start_visit": "بدء الزيارة",
     "reschedule": "إعادة جدولة",
     "reschedule_title": "طلب تغيير ميعاد الزيارة",
+    "change_visit_location": "تغيير مكان الزيارة",
+    "request_change_time": " تغيير موعد الزيارة",
+    "what_to_change": "ماذا تريد أن تغير؟",
     "save": "حفظ",
     "cancel": "إلغاء",
     "weight": "الوزن",

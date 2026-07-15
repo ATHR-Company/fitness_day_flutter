@@ -12,7 +12,12 @@ class CurrentWeightCard extends StatelessWidget {
   final String unit;
   final String? status;
 
-  const CurrentWeightCard({super.key, this.weight, this.unit = 'kg', this.status});
+  const CurrentWeightCard({
+    super.key,
+    this.weight,
+    this.unit = 'kg',
+    this.status,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,45 +38,59 @@ class CurrentWeightCard extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // ── Scale icon ──────────────────────────────────────
               AppImage(SvgIcons.visitBorder, width: 60.w, height: 60.h),
-              SizedBox(width: 12.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'home.current_weight_title'.tr(),
-                    style: TextStyleManager.style11Medium.copyWith(
-                      color: AppColors.textPrimary,
+              SizedBox(width: 2.w),
+
+              // ── Label + value ───────────────────────────────────
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'home.current_weight_title'.tr(),
+                      style: TextStyleManager.style11Medium.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        weight != null ? weight.toString() : '--',
-                        style: TextStyleManager.style15Medium.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.sp,
+                    SizedBox(height: 4.h),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          weight != null
+                              ? weight!.toStringAsFixed(1)
+                              : '--',
+                          style: TextStyleManager.style15Medium.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        unit,
-                        style: TextStyleManager.style11Medium.copyWith(
-                          color: AppColors.textSecondary,
+                        SizedBox(width: 4.w),
+                        Text(
+                          unit,
+                          style: TextStyleManager.style11Medium.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const Spacer(),
+
+              // ── Status badge — fixed width, always visible ──────
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 4.h),
+                constraints: BoxConstraints(
+                  // minWidth: 60.w,
+                  // maxWidth: 90.w,
+                ),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 10.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.greenMint, width: 1.r),
                   gradient: AppColors.weightStatusGradient,
@@ -79,6 +98,9 @@ class CurrentWeightCard extends StatelessWidget {
                 ),
                 child: Text(
                   status ?? 'home.weight_status_healthy'.tr(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                   style: TextStyleManager.style9Medium.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,

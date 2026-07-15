@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:flutter/material.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,10 +12,14 @@ import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:intl/intl.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/features/user/visits/presentation/manager/change_assessment_cubit.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import '../../../../../core/constant/app_assets.dart';
 
 class RescheduleVisitDialog extends StatefulWidget {
-  const RescheduleVisitDialog({super.key});
+  final String assessmentId;
+  const RescheduleVisitDialog({super.key, required this.assessmentId});
 
   @override
   State<RescheduleVisitDialog> createState() => _RescheduleVisitDialogState();
@@ -50,109 +55,155 @@ class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
       timeText = timeFormat.format(dt);
     }
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.lightGreenBackground, AppColors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          borderRadius: BorderRadius.circular(32.r),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    'visit_details.reschedule_title'.tr(),
-                    style: TextStyleManager.heading3.copyWith(
-                      color: AppColors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+    return BlocProvider(
+      create: (context) => getIt<ChangeAssessmentCubit>(),
+      child: BlocConsumer<ChangeAssessmentCubit, ChangeAssessmentState>(
+        listener: (context, state) {
+          if (state is ChangeAssessmentSuccess) {
+            showAppSnackBar(
+              context,
+              text: 'تم تعديل الميعاد بنجاح',
+              isSuccess: true,
+            );
+            Navigator.of(context).pop();
+          } else if (state is ChangeAssessmentError) {
+            showAppSnackBar(
+              context,
+              text: state.message,
+              isError: true,
+            );
+          }
+        },
+        builder: (context, state) {
+          bool isLoading = state is ChangeAssessmentLoading;
+          
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            insetPadding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 32.h, horizontal: 24.w),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.lightGreenBackground, AppColors.white],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Icon(
-                    Icons.close,
-                    color: AppColors.primary,
-                    size: 28.sp,
+                borderRadius: BorderRadius.circular(32.r),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'visit_details.reschedule_title'.tr(),
+                          style: TextStyleManager.heading3.copyWith(
+                            color: AppColors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Icon(
+                          Icons.close,
+                          color: AppColors.primary,
+                          size: 28.sp,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 32.h),
+                  SizedBox(height: 32.h),
 
-            // Date Field
-            GestureDetector(
-              onTap: () async {
-                final date = await showModalBottomSheet<DateTime>(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) =>
-                      DatePickerBottomSheet(initialDate: _selectedDate),
-                );
-                if (date != null) {
-                  setState(() => _selectedDate = date);
-                }
-              },
-              child: _buildField(icon: SvgIcons.calendar, text: dateText),
-            ),
-
-            SizedBox(height: 16.h),
-
-            // Time Field
-            GestureDetector(
-              onTap: () async {
-                final time = await showModalBottomSheet<TimeOfDay>(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) =>
-                      TimePickerBottomSheet(initialTime: _selectedTime),
-                );
-                if (time != null) {
-                  setState(() => _selectedTime = time);
-                }
-              },
-              child: _buildField(icon: SvgIcons.clock, text: timeText),
-            ),
-
-            SizedBox(height: 32.h),
-
-            // Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: CustomOutlinedButton(
-                    text: 'visit_details.cancel'.tr(),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: CustomButton(
-                    text: 'visit_details.save'.tr(),
-                    onPressed: () {
-                      // TODO: Save action
-                      Navigator.of(context).pop();
+                  // Date Field
+                  GestureDetector(
+                    onTap: () async {
+                      final date = await showModalBottomSheet<DateTime>(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) =>
+                            DatePickerBottomSheet(initialDate: _selectedDate),
+                      );
+                      if (date != null) {
+                        setState(() => _selectedDate = date);
+                      }
                     },
+                    child: _buildField(icon: SvgIcons.calendar, text: dateText),
                   ),
-                ),
-              ],
+
+                  SizedBox(height: 16.h),
+
+                  // Time Field
+                  GestureDetector(
+                    onTap: () async {
+                      final time = await showModalBottomSheet<TimeOfDay>(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) =>
+                            TimePickerBottomSheet(initialTime: _selectedTime),
+                      );
+                      if (time != null) {
+                        setState(() => _selectedTime = time);
+                      }
+                    },
+                    child: _buildField(icon: SvgIcons.clock, text: timeText),
+                  ),
+
+                  SizedBox(height: 32.h),
+
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomOutlinedButton(
+                          text: 'visit_details.cancel'.tr(),
+                          onPressed: isLoading ? () {} : () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                      SizedBox(width: 16.w),
+                      Expanded(
+                        child: CustomButton(
+                          isLoading: isLoading,
+                          text: 'visit_details.save'.tr(),
+                          onPressed: isLoading
+                              ? () {}
+                              : () {
+                                  if (_selectedDate != null && _selectedTime != null) {
+                                    final DateTime newDate = DateTime(
+                                      _selectedDate!.year,
+                                      _selectedDate!.month,
+                                      _selectedDate!.day,
+                                      _selectedTime!.hour,
+                                      _selectedTime!.minute,
+                                    );
+                                    context.read<ChangeAssessmentCubit>().submitChangeRequest(
+                                      assessmentId: widget.assessmentId,
+                                      date: newDate.toUtc().toIso8601String(),
+                                    );
+                                  } else {
+                                    showAppSnackBar(
+                                      context,
+                                      text: 'يرجى اختيار التاريخ والوقت',
+                                      isError: true,
+                                    );
+                                  }
+                                },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -205,10 +256,10 @@ class _RescheduleVisitDialogState extends State<RescheduleVisitDialog> {
 }
 
 // Function to show the dialog
-void showRescheduleDialog(BuildContext context) {
+void showRescheduleDialog(BuildContext context, String assessmentId) {
   showDialog(
     context: context,
     barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
-    builder: (context) => const RescheduleVisitDialog(),
+    builder: (context) => RescheduleVisitDialog(assessmentId: assessmentId),
   );
 }
