@@ -137,6 +137,7 @@ class TaskCard extends StatelessWidget {
                         builder: (_) => ExerciseDetailsDialog(
                           workoutItemId: task.workoutItemId,
                           dayNumber: task.workoutDayNumber,
+                          assessmentId: task.workoutAssessmentId,
                         ),
                       );
                     } else if (task.route != null) {

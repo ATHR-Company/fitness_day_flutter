@@ -1,4 +1,5 @@
 
+import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/current_weight_card.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_home_cubit.dart';
@@ -243,8 +244,11 @@ class _HomePageContent extends StatelessWidget {
                                     currentActivity['activityType'] as String? ?? '';
                                 final String activityId =
                                     currentActivity['activityId'] as String? ?? '';
-                                final String assessmentId =
+                                final String rawAssessmentId =
                                     homeData?.dailyTasks?.assessmentId ?? '';
+                                final String assessmentId = rawAssessmentId.isNotEmpty
+                                    ? rawAssessmentId
+                                    : (getIt<AppCache>().getAssessmentId() ?? '');
                                 final int dayNumber =
                                     homeData?.dailyTasks?.dayNumber ?? 1;
                                 if (activityType == 'hydration') {

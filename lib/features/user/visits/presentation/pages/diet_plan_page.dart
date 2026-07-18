@@ -1,5 +1,3 @@
-import 'package:fitness_day/core/constant/app_assets.dart';
-import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/entities/task_data.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +16,8 @@ import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_state.dart';
 import 'package:fitness_day/features/user/visits/data/models/diet_plan_model.dart';
+import 'package:fitness_day/features/user/visits/presentation/widgets/diet_plan/diet_plan_empty_state.dart';
+import 'package:fitness_day/features/user/visits/presentation/widgets/shared/visits_section_title.dart';
 import 'package:go_router/go_router.dart';
 
 class DietPlanPage extends StatefulWidget {
@@ -36,11 +36,11 @@ class _DietPlanPageState extends State<DietPlanPage> {
     return meals.map((meal) {
       String categoryTitle = meal.categoryName;
       if (meal.categoryName.toLowerCase() == 'breakfast') {
-        categoryTitle = 'وجبة الافطار';
+        categoryTitle = LocaleKeys.add_meal_breakfast.tr();
       } else if (meal.categoryName.toLowerCase() == 'lunch') {
-        categoryTitle = 'وجبة الغداء';
+        categoryTitle = LocaleKeys.add_meal_lunch.tr();
       } else if (meal.categoryName.toLowerCase() == 'dinner') {
-        categoryTitle = 'وجبة العشاء';
+        categoryTitle = LocaleKeys.add_meal_dinner.tr();
       }
 
       String time = '';
@@ -53,23 +53,23 @@ class _DietPlanPageState extends State<DietPlanPage> {
       }
 
       if (time.isEmpty) {
-        time = '8:00 صباحاً';
+        time = LocaleKeys.diet_plan_default_breakfast_time.tr();
         if (meal.categoryName.toLowerCase() == 'lunch') {
-          time = '3:00 ظهراً';
+          time = LocaleKeys.diet_plan_default_lunch_time.tr();
         } else if (meal.categoryName.toLowerCase() == 'dinner') {
-          time = '8:00 مساءً';
+          time = LocaleKeys.diet_plan_default_dinner_time.tr();
         }
       }
 
       final isAr = context.locale.languageCode == 'ar';
-      final calorieUnit = isAr ? 'كالورى' : 'kcal';
+      final calorieUnit = LocaleKeys.visit_details_kcal.tr();
 
       return TaskData(
         imagePath: meal.image,
         title: isAr ? categoryTitle : meal.categoryName,
         description: meal.name,
         time: time,
-        extraLabel: meal.calories.toString(),
+        extraLabel: meal.calories % 1 == 0 ? meal.calories.toInt().toString() : meal.calories.toStringAsFixed(1),
         extraUnit: calorieUnit,
         extraIcon: Icons.local_fire_department,
         done: meal.isCompleted,
@@ -124,7 +124,7 @@ class _DietPlanPageState extends State<DietPlanPage> {
                           if (meals.isEmpty) {
                             return _buildLayoutWithTabBar(
                               context,
-                              child: _buildEmptyState(),
+                              child: const DietPlanEmptyState(),
                             );
                           }
                           final tasks = _mapMealsToTasks(
@@ -135,8 +135,8 @@ class _DietPlanPageState extends State<DietPlanPage> {
                               padding: EdgeInsets.fromLTRB(20.w, 0, 16.w, 24.h),
                               child: Column(
                                 children: [
-                                  _buildSectionTitle(
-                                    LocaleKeys.visit_details_nutrition.tr(),
+                                  VisitsSectionTitle(
+                                    title: LocaleKeys.visit_details_nutrition.tr(),
                                   ),
                                   SizedBox(height: 12.h),
                                   TodayTasksSection(tasks: tasks),
@@ -163,7 +163,7 @@ class _DietPlanPageState extends State<DietPlanPage> {
                         }
                         return _buildLayoutWithTabBar(
                           context,
-                          child: _buildEmptyState(),
+                          child: const DietPlanEmptyState(),
                         );
                       },
                     ),
@@ -201,51 +201,6 @@ class _DietPlanPageState extends State<DietPlanPage> {
             });
             context.read<DietPlanCubit>().getDietPlan(index + 1);
           },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 32.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AppImage(SvgIcons.noDiet),
-            SizedBox(height: 24.h),
-            Text(
-              'diet_plan.empty_title'.tr(),
-              style: TextStyleManager.heading2.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              'diet_plan.empty_subtitle'.tr(),
-              style: TextStyleManager.style14Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Row(
-      children: [
-        Text(
-          title,
-          style: TextStyleManager.heading2.copyWith(
-            color: AppColors.black,
-            fontWeight: FontWeight.bold,
-          ),
         ),
       ],
     );

@@ -15,14 +15,18 @@ import 'package:fitness_day/features/specialist/visits/data/datasources/speciali
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
 
+import 'package:fitness_day/features/user/workout/data/models/workout_details_model.dart';
+
 class AddExercisePage extends StatefulWidget {
   final String assessmentId;
   final int dayNumber;
+  final String? workoutItemId; // If provided, it's Edit Mode
 
   const AddExercisePage({
     super.key,
     required this.assessmentId,
     required this.dayNumber,
+    this.workoutItemId,
   });
 
   @override
@@ -45,7 +49,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
   @override
   void initState() {
     super.initState();
-    _loadExercises();
+    _initData();
   }
 
   @override
@@ -57,16 +61,50 @@ class _AddExercisePageState extends State<AddExercisePage> {
   }
 
   Future<void> _loadExercises() async {
-    setState(() => _isLoading = true);
     try {
       final list = await _remoteDataSource.getExercises();
-      setState(() {
-        _exercises = list;
-        _isLoading = false;
-      });
-    } catch (_) {
-      setState(() => _isLoading = false);
+      _exercises = list;
+    } catch (_) {}
+  }
+
+  Future<void> _initData() async {
+    setState(() => _isLoading = true);
+    await _loadExercises();
+
+    if (widget.workoutItemId != null && _exercises.isNotEmpty) {
+      try {
+        final workoutDetailsResp = await _remoteDataSource.getWorkoutDetails(
+          assessmentId: widget.assessmentId,
+          dayNumber: widget.dayNumber,
+          workoutItemId: widget.workoutItemId!,
+        );
+        final workoutDetails = workoutDetailsResp.data;
+
+        if (workoutDetails != null) {
+          // 1. Find and select exercise lookup by name
+          final matchedExercise = _exercises.firstWhere(
+            (e) => e.name.trim().toLowerCase() == workoutDetails.name.trim().toLowerCase(),
+            orElse: () => _exercises.first,
+          );
+          _selectedExercise = matchedExercise;
+
+          // 2. Set controllers
+          _setsController.text = workoutDetails.sets.toString();
+          _repsController.text = workoutDetails.reps.toString();
+          _restController.text = workoutDetails.restDuration.toString();
+
+          // 3. Parse time
+          if (workoutDetails.time.isNotEmpty) {
+            final parsed = DateTime.tryParse(workoutDetails.time);
+            if (parsed != null) {
+              _selectedTime = TimeOfDay.fromDateTime(parsed.toLocal());
+            }
+          }
+        }
+      } catch (_) {}
     }
+
+    setState(() => _isLoading = false);
   }
 
   void _showExerciseNameSheet() {
@@ -107,7 +145,9 @@ class _AddExercisePageState extends State<AddExercisePage> {
                 // Back Header
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: AppBackHeader(title: 'add_exercise.title'.tr()),
+                  child: AppBackHeader(
+                    title: widget.workoutItemId != null ? 'تعديل التمرين' : 'add_exercise.title'.tr(),
+                  ),
                 ),
 
                 SizedBox(height: 32.h),
@@ -195,7 +235,9 @@ class _AddExercisePageState extends State<AddExercisePage> {
                 Container(
                   padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                   child: CustomButton(
-                    text: 'add_exercise.add_button'.tr(),
+                    text: widget.workoutItemId != null
+                        ? 'visit_details.save'.tr()
+                        : 'add_exercise.add_button'.tr(),
                     color: AppColors.primary,
                     onPressed: _onSave,
                   ),
@@ -258,15 +300,37 @@ class _AddExercisePageState extends State<AddExercisePage> {
     final cubit = context.read<VisitDetailsCubit>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final (success, message) = await cubit.addWorkout(
-      assessmentId: widget.assessmentId,
-      dayNumber: widget.dayNumber,
-      exerciseId: _selectedExercise!.id,
-      sets: sets,
-      reps: reps,
-      restDuration: rest,
-      time: timeStr,
-    );
+    final bool success;
+    final String message;
+
+    if (widget.workoutItemId != null) {
+      // Edit mode (PATCH)
+      final result = await cubit.updateWorkout(
+        assessmentId: widget.assessmentId,
+        dayNumber: widget.dayNumber,
+        workoutItemId: widget.workoutItemId!,
+        exerciseId: _selectedExercise!.id,
+        sets: sets,
+        reps: reps,
+        restDuration: rest,
+        time: timeStr,
+      );
+      success = result.$1;
+      message = result.$2;
+    } else {
+      // Add mode (POST)
+      final result = await cubit.addWorkout(
+        assessmentId: widget.assessmentId,
+        dayNumber: widget.dayNumber,
+        exerciseId: _selectedExercise!.id,
+        sets: sets,
+        reps: reps,
+        restDuration: rest,
+        time: timeStr,
+      );
+      success = result.$1;
+      message = result.$2;
+    }
 
     setState(() => _isLoading = false);
 

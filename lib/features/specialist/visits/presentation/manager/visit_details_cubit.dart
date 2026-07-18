@@ -1,3 +1,4 @@
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_health_report_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_visit_data_usecase.dart';
@@ -80,11 +81,12 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
 
     switch (result) {
       case Success(:final data):
+        final healthReport = data.data ?? SpecialistAssessmentHealthReportModel();
         if (state is VisitDetailsSuccess) {
-          emit((state as VisitDetailsSuccess).copyWith(healthReport: data.data));
+          emit((state as VisitDetailsSuccess).copyWith(healthReport: healthReport));
         } else {
           emit(VisitDetailsSuccess(
-            healthReport: data.data,
+            healthReport: healthReport,
             customPlanCache: const {},
           ));
         }
@@ -118,11 +120,13 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
             emit((state as VisitDetailsSuccess).copyWith(
               customPlan: data.data,
               customPlanCache: newCache.cast<int, dynamic>().map((k, v) => MapEntry(k, v)),
+              canFinishAssessment: data.data?.canFinishAssessment ?? (state as VisitDetailsSuccess).canFinishAssessment,
             ));
           } else {
             emit(VisitDetailsSuccess(
               customPlan: data.data,
               customPlanCache: newCache.cast<int, dynamic>().map((k, v) => MapEntry(k, v)),
+              canFinishAssessment: data.data?.canFinishAssessment ?? false,
             ));
           }
         } else {
@@ -135,24 +139,34 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
 
   Future<bool> startVisit(String assessmentId) async {
     final currentState = state;
-    if (currentState is VisitDetailsSuccess) {
-      emit(currentState.copyWith(isStarting: true));
+    final prevSuccess = currentState is VisitDetailsSuccess ? currentState : null;
 
-      final result = await _startVisitUseCase(assessmentId: assessmentId);
+    if (prevSuccess != null) {
+      emit(prevSuccess.copyWith(isStarting: true));
+    }
 
-      switch (result) {
-        case Success(:final data):
-          emit(currentState.copyWith(
+    final result = await _startVisitUseCase(assessmentId: assessmentId);
+
+    switch (result) {
+      case Success(:final data):
+        if (prevSuccess != null) {
+          emit(prevSuccess.copyWith(
             isStarting: false,
             isStarted: data.data?.isStarted ?? true,
           ));
-          return true;
-        case FailureResult():
-          emit(currentState.copyWith(isStarting: false));
-          return false;
-      }
+        } else {
+          emit(VisitDetailsSuccess(
+            customPlanCache: const {},
+            isStarted: data.data?.isStarted ?? true,
+          ));
+        }
+        return true;
+      case FailureResult():
+        if (prevSuccess != null) {
+          emit(prevSuccess.copyWith(isStarting: false));
+        }
+        return false;
     }
-    return false;
   }
 
   Future<(bool, String)> updateGoal(String assessmentId, String goal) async {
@@ -331,6 +345,84 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
     return (false, '');
   }
 
+  Future<(bool, String)> updateMeal({
+    required String assessmentId,
+    required int dayNumber,
+    required String mealId,
+    required String mealCategoryId,
+    required String mealTemplateId,
+    required String time,
+    required List<Map<String, dynamic>> ingredientWeights,
+  }) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+      final result = await _repository.updateMeal(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        mealId: mealId,
+        mealCategoryId: mealCategoryId,
+        mealTemplateId: mealTemplateId,
+        time: time,
+        ingredientWeights: ingredientWeights,
+      );
+      return _handlePlanResult(result, dayNumber, currentState);
+    }
+    return (false, '');
+  }
+
+  Future<(bool, String)> updateWorkout({
+    required String assessmentId,
+    required int dayNumber,
+    required String workoutItemId,
+    required String exerciseId,
+    required int sets,
+    required int reps,
+    required int restDuration,
+    required String time,
+  }) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+      final result = await _repository.updateWorkout(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        workoutItemId: workoutItemId,
+        exerciseId: exerciseId,
+        sets: sets,
+        reps: reps,
+        restDuration: restDuration,
+        time: time,
+      );
+      return _handlePlanResult(result, dayNumber, currentState);
+    }
+    return (false, '');
+  }
+
+  Future<(bool, String)> updateActivity({
+    required String assessmentId,
+    required int dayNumber,
+    required String activityItemId,
+    required String activityId,
+    required int goal,
+    required String time,
+  }) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+      final result = await _repository.updateActivity(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        activityItemId: activityItemId,
+        activityId: activityId,
+        goal: goal,
+        time: time,
+      );
+      return _handlePlanResult(result, dayNumber, currentState);
+    }
+    return (false, '');
+  }
+
   (bool, String) _handlePlanResult(
     ApiResult<SpecialistAssessmentCustomPlanResponseModel> result,
     int dayNumber,
@@ -346,6 +438,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
           isStarting: false,
           customPlan: data.data,
           customPlanCache: newCache,
+          canFinishAssessment: data.data?.canFinishAssessment ?? currentState.canFinishAssessment,
         ));
         return (true, data.message);
       case FailureResult(:final failure):

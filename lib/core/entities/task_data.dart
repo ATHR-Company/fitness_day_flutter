@@ -15,6 +15,7 @@ class TaskData {
   final bool isExerciseDialog;
   final String? workoutItemId;
   final int? workoutDayNumber;
+  final String? workoutAssessmentId;
   final VoidCallback? onDetailsPressed;
 
   const TaskData({
@@ -32,6 +33,7 @@ class TaskData {
     this.isExerciseDialog = false,
     this.workoutItemId,
     this.workoutDayNumber,
+    this.workoutAssessmentId,
     this.onDetailsPressed,
   });
 
@@ -50,6 +52,7 @@ class TaskData {
     bool? isExerciseDialog,
     String? workoutItemId,
     int? workoutDayNumber,
+    String? workoutAssessmentId,
     VoidCallback? onDetailsPressed,
   }) {
     return TaskData(
@@ -67,6 +70,7 @@ class TaskData {
       isExerciseDialog: isExerciseDialog ?? this.isExerciseDialog,
       workoutItemId: workoutItemId ?? this.workoutItemId,
       workoutDayNumber: workoutDayNumber ?? this.workoutDayNumber,
+      workoutAssessmentId: workoutAssessmentId ?? this.workoutAssessmentId,
       onDetailsPressed: onDetailsPressed ?? this.onDetailsPressed,
     );
   }

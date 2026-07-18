@@ -28,12 +28,14 @@ class SpecialistAssessmentCustomPlanModel {
   final List<SpecialistMealModel> meals;
   final List<SpecialistWorkoutModel> workoutPlan;
   final List<SpecialistActivityModel> activities;
+  final bool canFinishAssessment;
 
   SpecialistAssessmentCustomPlanModel({
     required this.dayNumber,
     required this.meals,
     required this.workoutPlan,
     required this.activities,
+    this.canFinishAssessment = false,
   });
 
   factory SpecialistAssessmentCustomPlanModel.fromJson(Map<String, dynamic> json) {
@@ -51,6 +53,7 @@ class SpecialistAssessmentCustomPlanModel {
               ?.map((e) => SpecialistActivityModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      canFinishAssessment: json['canFinishAssessment'] as bool? ?? false,
     );
   }
 }
@@ -123,6 +126,7 @@ class SpecialistWorkoutModel {
 }
 
 class SpecialistActivityModel {
+  final String activityItemId;
   final String activityId;
   final String activityType;
   final String name;
@@ -134,6 +138,7 @@ class SpecialistActivityModel {
   final bool isCompleted;
 
   SpecialistActivityModel({
+    required this.activityItemId,
     required this.activityId,
     required this.activityType,
     required this.name,
@@ -147,6 +152,7 @@ class SpecialistActivityModel {
 
   factory SpecialistActivityModel.fromJson(Map<String, dynamic> json) {
     return SpecialistActivityModel(
+      activityItemId: json['activityItemId'] as String? ?? '',
       activityId: json['activityId'] as String? ?? '',
       activityType: json['activityType'] as String? ?? '',
       name: json['name'] as String? ?? '',

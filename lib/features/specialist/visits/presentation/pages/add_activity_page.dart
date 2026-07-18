@@ -16,14 +16,18 @@ import 'package:fitness_day/features/specialist/visits/data/datasources/speciali
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
 
+import 'package:fitness_day/features/user/visits/data/models/activity_details_model.dart';
+
 class AddActivityPage extends StatefulWidget {
   final String assessmentId;
   final int dayNumber;
+  final String? activityItemId; // If provided, it's Edit Mode
 
   const AddActivityPage({
     super.key,
     required this.assessmentId,
     required this.dayNumber,
+    this.activityItemId,
   });
 
   @override
@@ -44,7 +48,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
   @override
   void initState() {
     super.initState();
-    _loadActivities();
+    _initData();
   }
 
   @override
@@ -54,16 +58,46 @@ class _AddActivityPageState extends State<AddActivityPage> {
   }
 
   Future<void> _loadActivities() async {
-    setState(() => _isLoading = true);
     try {
       final list = await _remoteDataSource.getActivities();
-      setState(() {
-        _activities = list;
-        _isLoading = false;
-      });
-    } catch (_) {
-      setState(() => _isLoading = false);
+      _activities = list;
+    } catch (_) {}
+  }
+
+  Future<void> _initData() async {
+    setState(() => _isLoading = true);
+    await _loadActivities();
+
+    if (widget.activityItemId != null && _activities.isNotEmpty) {
+      try {
+        final activityDetailsResp = await _remoteDataSource.getActivityDetails(
+          assessmentId: widget.assessmentId,
+          dayNumber: widget.dayNumber,
+          activityItemId: widget.activityItemId!,
+        );
+        final activityDetails = activityDetailsResp.data;
+
+        // 1. Find and select activity lookup by name
+        final matchedActivity = _activities.firstWhere(
+          (a) => a.name.trim().toLowerCase() == activityDetails.name.trim().toLowerCase(),
+          orElse: () => _activities.first,
+        );
+        _selectedActivity = matchedActivity;
+
+        // 2. Set controllers
+        _goalController.text = activityDetails.goal.toInt().toString();
+
+        // 3. Parse time
+        if (activityDetails.time != null && activityDetails.time!.isNotEmpty) {
+          final parsed = DateTime.tryParse(activityDetails.time!);
+          if (parsed != null) {
+            _selectedTime = TimeOfDay.fromDateTime(parsed.toLocal());
+          }
+        }
+      } catch (_) {}
     }
+
+    setState(() => _isLoading = false);
   }
 
   void _showActivityNameSheet() {
@@ -106,7 +140,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   // Back Header
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.w),
-                    child: AppBackHeader(title: 'add_activity.title'.tr()),
+                    child: AppBackHeader(
+                      title: widget.activityItemId != null ? 'تعديل النشاط' : 'add_activity.title'.tr(),
+                    ),
                   ),
 
                   SizedBox(height: 32.h),
@@ -163,7 +199,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   Container(
                     padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                     child: CustomButton(
-                      text: 'add_activity.add_button'.tr(),
+                      text: widget.activityItemId != null
+                          ? 'visit_details.save'.tr()
+                          : 'add_activity.add_button'.tr(),
                       color: AppColors.primary,
                       onPressed: _onSave,
                     ),
@@ -281,13 +319,33 @@ class _AddActivityPageState extends State<AddActivityPage> {
     final cubit = context.read<VisitDetailsCubit>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final (success, message) = await cubit.addActivity(
-      assessmentId: widget.assessmentId,
-      dayNumber: widget.dayNumber,
-      activityId: _selectedActivity!.id,
-      goal: goal,
-      time: timeStr,
-    );
+    final bool success;
+    final String message;
+
+    if (widget.activityItemId != null) {
+      // Edit mode (PATCH)
+      final result = await cubit.updateActivity(
+        assessmentId: widget.assessmentId,
+        dayNumber: widget.dayNumber,
+        activityItemId: widget.activityItemId!,
+        activityId: _selectedActivity!.id,
+        goal: goal,
+        time: timeStr,
+      );
+      success = result.$1;
+      message = result.$2;
+    } else {
+      // Add mode (POST)
+      final result = await cubit.addActivity(
+        assessmentId: widget.assessmentId,
+        dayNumber: widget.dayNumber,
+        activityId: _selectedActivity!.id,
+        goal: goal,
+        time: timeStr,
+      );
+      success = result.$1;
+      message = result.$2;
+    }
 
     setState(() => _isLoading = false);
 

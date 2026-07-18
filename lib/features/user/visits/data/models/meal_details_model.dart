@@ -30,7 +30,8 @@ class MealDetailsData {
   final String image;
   final bool isCompleted;
   final bool canEdit;
-  final int calories;
+  final double calories;
+  final String time;
   final List<IngredientItem> ingredients;
   final List<PreparationStepItem> preparationSteps;
   final List<NutritionItem> nutrition;
@@ -45,6 +46,7 @@ class MealDetailsData {
     required this.isCompleted,
     required this.canEdit,
     required this.calories,
+    this.time = '',
     required this.ingredients,
     required this.preparationSteps,
     required this.nutrition,
@@ -59,7 +61,8 @@ class MealDetailsData {
     String? image,
     bool? isCompleted,
     bool? canEdit,
-    int? calories,
+    double? calories,
+    String? time,
     List<IngredientItem>? ingredients,
     List<PreparationStepItem>? preparationSteps,
     List<NutritionItem>? nutrition,
@@ -74,6 +77,7 @@ class MealDetailsData {
       isCompleted: isCompleted ?? this.isCompleted,
       canEdit: canEdit ?? this.canEdit,
       calories: calories ?? this.calories,
+      time: time ?? this.time,
       ingredients: ingredients ?? this.ingredients,
       preparationSteps: preparationSteps ?? this.preparationSteps,
       nutrition: nutrition ?? this.nutrition,
@@ -94,7 +98,8 @@ class MealDetailsData {
       image: json['image'] as String? ?? '',
       isCompleted: json['isCompleted'] as bool? ?? false,
       canEdit: json['canEdit'] as bool? ?? false,
-      calories: json['calories'] as int? ?? json['calory'] as int? ?? 0,
+      calories: (json['calories'] as num?)?.toDouble() ?? (json['calory'] as num?)?.toDouble() ?? 0.0,
+      time: json['time'] as String? ?? '',
       ingredients: ingredientsList
           .map((item) => IngredientItem.fromJson(item as Map<String, dynamic>))
           .toList(),

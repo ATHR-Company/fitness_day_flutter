@@ -187,7 +187,7 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: Icon(Icons.arrow_forward_ios,
+            child:Icon(Icons.arrow_back_ios,
                 color: AppColors.black, size: 20.sp),
           ),
           SizedBox(width: 12.w),

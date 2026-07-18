@@ -51,7 +51,7 @@ class MealItem {
   final String name;
   final String categoryName;
   final String image;
-  final int calories;
+  final double calories;
   final String time;
   final bool isCompleted;
 
@@ -71,7 +71,7 @@ class MealItem {
       name: json['name'] as String? ?? '',
       categoryName: json['categoryName'] as String? ?? '',
       image: json['image'] as String? ?? '',
-      calories: json['calories'] as int? ?? json['calory'] as int? ?? 0,
+      calories: (json['calories'] as num?)?.toDouble() ?? (json['calory'] as num?)?.toDouble() ?? 0.0,
       time: json['time'] as String? ?? '',
       isCompleted: json['isCompleted'] as bool? ?? false,
     );

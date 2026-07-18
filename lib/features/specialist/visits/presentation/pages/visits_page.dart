@@ -229,11 +229,15 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
                                           ? 'visits.view_visit'.tr()
                                           : 'visits.details'.tr(),
                                       onViewPressed: () {
+                                        // If isNew && isStarted, the visit was already started —
+                                        // open directly in history/details mode (no Start/Reschedule).
+                                        final openAsUpcoming = isUpcoming &&
+                                            !(visit.isNew && visit.isStarted);
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => VisitDetailsPage(
-                                              isUpcoming: isUpcoming,
+                                              isUpcoming: openAsUpcoming,
                                               assessmentId: visit.assessmentId,
                                             ),
                                           ),

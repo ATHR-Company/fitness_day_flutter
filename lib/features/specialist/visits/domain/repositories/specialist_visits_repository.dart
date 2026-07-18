@@ -7,6 +7,9 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_st
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
+import 'package:fitness_day/features/user/visits/data/models/meal_details_model.dart';
+import 'package:fitness_day/features/user/workout/data/models/workout_details_model.dart';
+import 'package:fitness_day/features/user/visits/data/models/activity_details_model.dart';
 
 abstract class SpecialistVisitsRepository {
   Future<ApiResult<SpecialistAssessmentHistoryResponseModel>> getAssessmentHistory({
@@ -92,5 +95,53 @@ abstract class SpecialistVisitsRepository {
     required String activityId,
     required int goal,
     required String time,
+  });
+
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> updateMeal({
+    required String assessmentId,
+    required int dayNumber,
+    required String mealId,
+    required String mealCategoryId,
+    required String mealTemplateId,
+    required String time,
+    required List<Map<String, dynamic>> ingredientWeights,
+  });
+
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> updateWorkout({
+    required String assessmentId,
+    required int dayNumber,
+    required String workoutItemId,
+    required String exerciseId,
+    required int sets,
+    required int reps,
+    required int restDuration,
+    required String time,
+  });
+
+  Future<ApiResult<SpecialistAssessmentCustomPlanResponseModel>> updateActivity({
+    required String assessmentId,
+    required int dayNumber,
+    required String activityItemId,
+    required String activityId,
+    required int goal,
+    required String time,
+  });
+
+  Future<ApiResult<MealDetailsResponseModel>> getMealDetails({
+    required String assessmentId,
+    required int dayNumber,
+    required String mealId,
+  });
+
+  Future<ApiResult<WorkoutDetailsResponseModel>> getWorkoutDetails({
+    required String assessmentId,
+    required int dayNumber,
+    required String workoutItemId,
+  });
+
+  Future<ApiResult<ActivityDetailsResponseModel>> getActivityDetails({
+    required String assessmentId,
+    required int dayNumber,
+    required String activityItemId,
   });
 }

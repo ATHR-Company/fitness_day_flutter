@@ -18,11 +18,19 @@ import 'package:fitness_day/features/specialist/visits/presentation/manager/visi
 class AddMealPage extends StatefulWidget {
   final String assessmentId;
   final int dayNumber;
+  final String? mealId;           // If provided → Edit Mode
+  final String? initialCategoryName; // Pre-selected category name (edit mode)
+  final String? initialMealName;     // Pre-selected meal name (edit mode)
+  final String? initialTime;         // Pre-selected time ISO string (edit mode)
 
   const AddMealPage({
     super.key,
     required this.assessmentId,
     required this.dayNumber,
+    this.mealId,
+    this.initialCategoryName,
+    this.initialMealName,
+    this.initialTime,
   });
 
   @override
@@ -45,7 +53,7 @@ class _AddMealPageState extends State<AddMealPage> {
   @override
   void initState() {
     super.initState();
-    _loadCategories();
+    _initData();
   }
 
   @override
@@ -58,16 +66,65 @@ class _AddMealPageState extends State<AddMealPage> {
   }
 
   Future<void> _loadCategories() async {
-    setState(() => _isLoading = true);
     try {
       final cats = await _remoteDataSource.getMealCategories();
-      setState(() {
-        _categories = cats;
-        _isLoading = false;
-      });
-    } catch (_) {
-      setState(() => _isLoading = false);
+      _categories = cats;
+    } catch (_) {}
+  }
+
+  Future<void> _initData() async {
+    setState(() => _isLoading = true);
+    await _loadCategories();
+
+    if (widget.mealId != null && _categories.isNotEmpty) {
+      // Edit mode: use data passed from the plan card (no GET request needed)
+      final categoryName = widget.initialCategoryName ?? '';
+      final mealName = widget.initialMealName ?? '';
+      final timeStr = widget.initialTime ?? '';
+
+      // 1. Match category by name
+      if (categoryName.isNotEmpty) {
+        final matchedCategory = _categories.firstWhere(
+          (c) => c.name.trim().toLowerCase() == categoryName.trim().toLowerCase(),
+          orElse: () => _categories.first,
+        );
+        _selectedCategory = matchedCategory;
+
+        // 2. Load templates for that category
+        try {
+          final temps = await _remoteDataSource.getMealTemplates(categoryId: matchedCategory.id);
+          _templates = temps;
+
+          // 3. Match template by meal name
+          if (mealName.isNotEmpty && _templates.isNotEmpty) {
+            final matchedTemplate = _templates.firstWhere(
+              (t) => t.name.trim().toLowerCase() == mealName.trim().toLowerCase(),
+              orElse: () => _templates.first,
+            );
+            _selectedTemplate = matchedTemplate;
+
+            // 4. Set ingredients with default weights
+            _ingredients = matchedTemplate.ingredients.map((i) => {
+              'ingredientId': i.ingredientId,
+              'name': i.name,
+              'weight': i.defaultWeight,
+              'unit': i.unit,
+              'controller': TextEditingController(text: i.defaultWeight.toStringAsFixed(0)),
+            }).toList();
+          }
+        } catch (_) {}
+      }
+
+      // 5. Parse time
+      if (timeStr.isNotEmpty) {
+        final parsed = DateTime.tryParse(timeStr);
+        if (parsed != null) {
+          _selectedTime = TimeOfDay.fromDateTime(parsed.toLocal());
+        }
+      }
     }
+
+    setState(() => _isLoading = false);
   }
 
   Future<void> _loadTemplates(String categoryId) async {
@@ -152,7 +209,9 @@ class _AddMealPageState extends State<AddMealPage> {
                 // Back Header
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: AppBackHeader(title: 'add_meal.title'.tr()),
+                  child: AppBackHeader(
+                    title: widget.mealId != null ? 'تعديل الوجبة' : 'add_meal.title'.tr(),
+                  ),
                 ),
 
                 SizedBox(height: 32.h),
@@ -262,7 +321,9 @@ class _AddMealPageState extends State<AddMealPage> {
                 Container(
                   padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                   child: CustomButton(
-                    text: 'add_meal.add_button'.tr(),
+                    text: widget.mealId != null
+                        ? 'visit_details.save'.tr()
+                        : 'add_meal.add_button'.tr(),
                     color: AppColors.primary,
                     onPressed: _onSave,
                   ),
@@ -318,7 +379,7 @@ class _AddMealPageState extends State<AddMealPage> {
       final controller = i['controller'] as TextEditingController;
       final weight = double.tryParse(controller.text) ?? i['weight'];
       return {
-        'ingredientId': i['ingredientId'] as String,
+        'ingredientId': i['ingredientId'],
         'weight': weight,
       };
     }).toList();
@@ -330,14 +391,35 @@ class _AddMealPageState extends State<AddMealPage> {
     final cubit = context.read<VisitDetailsCubit>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final (success, message) = await cubit.addMeal(
-      assessmentId: widget.assessmentId,
-      dayNumber: widget.dayNumber,
-      mealCategoryId: _selectedCategory!.id,
-      mealTemplateId: _selectedTemplate!.id,
-      time: timeStr,
-      ingredientWeights: ingredientWeights,
-    );
+    final bool success;
+    final String message;
+
+    if (widget.mealId != null) {
+      // Edit mode (PATCH)
+      final result = await cubit.updateMeal(
+        assessmentId: widget.assessmentId,
+        dayNumber: widget.dayNumber,
+        mealId: widget.mealId!,
+        mealCategoryId: _selectedCategory!.id,
+        mealTemplateId: _selectedTemplate!.id,
+        time: timeStr,
+        ingredientWeights: ingredientWeights,
+      );
+      success = result.$1;
+      message = result.$2;
+    } else {
+      // Add mode (POST)
+      final result = await cubit.addMeal(
+        assessmentId: widget.assessmentId,
+        dayNumber: widget.dayNumber,
+        mealCategoryId: _selectedCategory!.id,
+        mealTemplateId: _selectedTemplate!.id,
+        time: timeStr,
+        ingredientWeights: ingredientWeights,
+      );
+      success = result.$1;
+      message = result.$2;
+    }
 
     setState(() => _isLoading = false);
 

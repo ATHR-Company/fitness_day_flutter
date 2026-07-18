@@ -9,7 +9,7 @@ import 'package:fitness_day/features/user/visits/presentation/manager/change_ass
 import 'package:fitness_day/features/user/visits/data/models/branch_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'dart:ui' as ui;
+import 'package:fitness_day/generated/locale_keys.g.dart';
 
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
@@ -85,7 +85,7 @@ class _ChangeLocationDialogState extends State<ChangeLocationDialog> {
                   children: [
                     Expanded(
                       child: Text(
-                        'تعديل مكان الزيارة',
+                        LocaleKeys.visit_details_change_location_title.tr(),
                         style: TextStyleManager.heading3.copyWith(
                           color: AppColors.black,
                           fontWeight: FontWeight.bold,
@@ -116,7 +116,7 @@ class _ChangeLocationDialogState extends State<ChangeLocationDialog> {
                   child: _buildOption(
                     text: branches.isNotEmpty && _selectedBranch != null 
                         ? _selectedBranch!.name 
-                        : 'مقر يوم الرشاقة',
+                        : LocaleKeys.visit_details_default_branch_name.tr(),
                     isSelected: _selectedType == 'BRANCH',
                   ),
                 ),
@@ -130,7 +130,7 @@ class _ChangeLocationDialogState extends State<ChangeLocationDialog> {
                     });
                   },
                   child: _buildOption(
-                    text: 'اونلاين - البريد الالكتروني او الهاتف',
+                    text: LocaleKeys.visit_details_online_option_label.tr(),
                     isSelected: _selectedType == 'ONLINE',
                   ),
                 ),
@@ -178,12 +178,12 @@ class _ChangeLocationDialogState extends State<ChangeLocationDialog> {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: isSelected ? AppColors.primary : Colors.grey.withValues(alpha: 0.2), 
+          color: isSelected ? AppColors.primary : AppColors.divider.withValues(alpha: 0.2), 
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: AppColors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -197,8 +197,7 @@ class _ChangeLocationDialogState extends State<ChangeLocationDialog> {
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Text(
                 text,
-                textAlign: TextAlign.right,
-                textDirection: ui.TextDirection.rtl,
+                textAlign: TextAlign.start,
                 style: TextStyleManager.style11Medium.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.bold,
@@ -210,7 +209,7 @@ class _ChangeLocationDialogState extends State<ChangeLocationDialog> {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-              color: isSelected ? AppColors.primary : Colors.grey,
+              color: isSelected ? AppColors.primary : AppColors.divider,
             ),
           ),
         ],

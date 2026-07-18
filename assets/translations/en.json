@@ -170,7 +170,18 @@
     "dummy_client": "Mohamed Abdullah",
     "no_tasks": "No tasks for today",
     "no_visits_this_week": "No visits this week",
-    "no_visits_today": "No visits today"
+    "no_visits_today": "No visits today",
+    "upcoming_visit_title": "Upcoming Visit Details",
+    "upcoming_visit_subtitle": "InBody scan, monthly package renewal",
+    "specialist_name_mock": "Dr. Mohamed Abdullah",
+    "specialist_name_label": "Specialist Name :",
+    "clinic_location_mansoura": "Clinic Branch - Mansoura",
+    "upcoming_goal_1": "Measure weight and body fat rate",
+    "upcoming_goal_2": "Review and adjust the diet plan",
+    "upcoming_goal_3": "Assess current fitness level",
+    "upcoming_goal_4": "Set a workout plan for next week",
+    "change_location_button": "Change Location",
+    "change_time_button": "Change Time"
   },
   "visit_details": {
     "no_meals": "No meals added",
@@ -244,7 +255,29 @@
     "delete": "Delete »",
     "select_date": "Select Day",
     "select_time": "Select Time",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "visit_summary_title": "Visit Summary",
+    "change_location_title": "Edit Visit Location",
+    "default_branch_name": "Fitness Day Branch",
+    "online_option_label": "Online - Email or Phone",
+    "select_new_date": "Choose New Date"
+  },
+  "meal_details": {
+    "page_title": "Meal Details",
+    "added_by": "Added by Fitness Day",
+    "calories_pill_label": "Calories",
+    "preparation_method": "Preparation Method:",
+    "nutrition_facts": "Nutrition Facts",
+    "mark_incomplete": "Mark as Incomplete",
+    "complete_meal": "Complete Meal",
+    "back": "Back",
+    "nutrition_calories": "Calories (kcal)",
+    "nutrition_fat": "Fat (g)",
+    "nutrition_carbohydrates": "Carbohydrates (g)",
+    "nutrition_sugar": "Sugar (g)",
+    "nutrition_protein": "Protein (g)",
+    "nutrition_fiber": "Fiber (g)",
+    "nutrition_cholesterol": "Cholesterol (g)"
   },
   "add_meal": {
     "title": "Add Meal",
@@ -733,7 +766,10 @@
   },
   "diet_plan": {
     "empty_title": "No diet plan yet",
-    "empty_subtitle": "Your diet plan has not been added yet. Your diet plan will be updated by the specialist soon."
+    "empty_subtitle": "Your diet plan has not been added yet. Your diet plan will be updated by the specialist soon.",
+    "default_breakfast_time": "8:00 AM",
+    "default_lunch_time": "3:00 PM",
+    "default_dinner_time": "8:00 PM"
   },
   "market": {
     "order_success_title": "Order confirmed successfully",

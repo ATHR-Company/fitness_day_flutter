@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -83,6 +85,7 @@ class _SavedArticlesView extends StatelessWidget {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final isRtl = Directionality.of(context) == ui.TextDirection.rtl;
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -94,17 +97,15 @@ class _SavedArticlesView extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
       ),
-      leading: const SizedBox(),
-      actions: [
-        IconButton(
-          icon: Icon(
-            Icons.arrow_forward_ios,
-            color: AppColors.black,
-            size: 20.sp,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
+      automaticallyImplyLeading: false,
+      leading: IconButton(
+        icon: Icon(
+          isRtl ? Icons.arrow_back_ios_new : Icons.arrow_back_ios_new,
+          color: AppColors.black,
+          size: 20.sp,
         ),
-      ],
+        onPressed: () => Navigator.of(context).pop(),
+      ),
     );
   }
 

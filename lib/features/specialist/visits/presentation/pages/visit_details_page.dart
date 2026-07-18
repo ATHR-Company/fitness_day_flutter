@@ -101,6 +101,10 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
   void _onTabChanged(int index) {
     setState(() {
       _selectedTabIndex = index;
+      if (index == 1) {
+        // Reset flag so fields get re-populated when switching back to report tab
+        _reportFieldsPopulated = false;
+      }
     });
 
     final cubit = context.read<VisitDetailsCubit>();
@@ -147,24 +151,65 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
           'visit_details.goal_3'.tr(),
           'visit_details.goal_4'.tr(),
         ],
-        bottomAction: Row(
-          children: [
-            Expanded(
-              child: CustomButton(
-                text: 'visit_details.start_visit'.tr(),
-                onPressed: () {},
-              ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: CustomOutlinedButton(
-                text: 'visit_details.reschedule'.tr(),
-                onPressed: () {
-                  showRescheduleDialog(context, widget.assessmentId);
-                },
-              ),
-            ),
-          ],
+        showGoal: false,
+        bottomAction: BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
+          builder: (context, state) {
+            final isStarting = state is VisitDetailsSuccess && state.isStarting;
+            return Row(
+              children: [
+                Expanded(
+                  child: CustomButton(
+                    text: 'visit_details.start_visit'.tr(),
+                    isLoading: isStarting,
+                    onPressed: isStarting
+                        ? null
+                        : () async {
+                            final cubit = context.read<VisitDetailsCubit>();
+                            final messenger = ScaffoldMessenger.of(context);
+                            final success = await cubit.startVisit(widget.assessmentId);
+                            if (success && context.mounted) {
+                              messenger.showSnackBar(
+                                SnackBar(
+                                  content: Text('visit_details.start_success'.tr()),
+                                  backgroundColor: AppColors.primary,
+                                ),
+                              );
+                              cubit.loadVisitData(widget.assessmentId);
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BlocProvider.value(
+                                    value: cubit,
+                                    child: _VisitDetailsPageContent(
+                                      assessmentId: widget.assessmentId,
+                                      isUpcoming: false,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            } else if (!success && context.mounted) {
+                              messenger.showSnackBar(
+                                SnackBar(
+                                  content: Text('shared_val_err_required'.tr()),
+                                  backgroundColor: AppColors.error,
+                                ),
+                              );
+                            }
+                          },
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: CustomOutlinedButton(
+                    text: 'visit_details.reschedule'.tr(),
+                    onPressed: () {
+                      showRescheduleDialog(context, widget.assessmentId);
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       );
     }
@@ -235,15 +280,23 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                         ),
                       ),
 
-              // 4. Bottom Buttons — only for non-upcoming visits, on non-visit-data tabs
-              if (!widget.isUpcoming && _selectedTabIndex != 0)
-                Container(
-                  padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
-                  child: CustomButton(
-                    text: 'visit_details.end_visit'.tr(),
-                    color: AppColors.greenMint,
-                    onPressed: () {},
-                  ),
+              // 4. Bottom Buttons — always visible in Custom Plan tab
+              // disabled (outlined) when canFinishAssessment == false, active (greenMint) when true
+              if (!widget.isUpcoming && _selectedTabIndex == 2)
+                BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
+                  builder: (context, state) {
+                    final canFinish = state is VisitDetailsSuccess && state.canFinishAssessment;
+                    return Container(
+                      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+                      child: canFinish
+                          ? CustomButton(
+                              text: 'visit_details.end_visit'.tr(),
+                              color: AppColors.greenMint,
+                              onPressed: () {},
+                            )
+                          : _buildDisabledEndVisitButton(),
+                    );
+                  },
                 ),
             ],
           ),
@@ -282,7 +335,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
       formattedTime = visitData.weekStart;
     }
 
-    final goalsList = visitData.goal
+    final goalsList = (visitData.goal ?? '')
         .split('\n')
         .map((e) => e.replaceAll('•', '').trim())
         .where((e) => e.isNotEmpty)
@@ -307,53 +360,94 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             showButton: false,
           ),
           SizedBox(height: 16.h),
-          VisitGoalCard(
-            title: 'visit_details.visit_goal_title'.tr(),
-            goals: goalsList,
-            onAddPressed: () {
-              showAddGoalDialog(
-                context: context,
-                initialGoal: visitData.goal,
-                onSave: (goal) async {
-                  final cubit = context.read<VisitDetailsCubit>();
-                  final messenger = ScaffoldMessenger.of(context);
-                  final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                      backgroundColor: success ? AppColors.primary : AppColors.error,
-                    ),
-                  );
-                },
-              );
-            },
-            onEditPressed: () {
-              showAddGoalDialog(
-                context: context,
-                initialGoal: visitData.goal,
-                onSave: (goal) async {
-                  final cubit = context.read<VisitDetailsCubit>();
-                  final messenger = ScaffoldMessenger.of(context);
-                  final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
-                  messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                      backgroundColor: success ? AppColors.primary : AppColors.error,
-                    ),
-                  );
-                },
-              );
-            },
-          ),
+          if (visitData.isStarted)
+            VisitGoalCard(
+              title: 'visit_details.visit_goal_title'.tr(),
+              goals: goalsList,
+              onAddPressed: () {
+                showAddGoalDialog(
+                  context: context,
+                  initialGoal: visitData.goal ?? '',
+                  onSave: (goal) async {
+                    final cubit = context.read<VisitDetailsCubit>();
+                    final messenger = ScaffoldMessenger.of(context);
+                    final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                        backgroundColor: success ? AppColors.primary : AppColors.error,
+                      ),
+                    );
+                  },
+                );
+              },
+              onEditPressed: () {
+                showAddGoalDialog(
+                  context: context,
+                  initialGoal: visitData.goal ?? '',
+                  onSave: (goal) async {
+                    final cubit = context.read<VisitDetailsCubit>();
+                    final messenger = ScaffoldMessenger.of(context);
+                    final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                        backgroundColor: success ? AppColors.primary : AppColors.error,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
         ],
       ),
     );
+  }
+
+  bool _reportFieldsPopulated = false;
+
+  void _populateReportFields(SpecialistAssessmentHealthReportModel healthReport) {
+    if (_reportFieldsPopulated) return;
+    _reportFieldsPopulated = true;
+
+    if (healthReport.weight?.value != null && healthReport.weight!.value > 0) {
+      _weightController.text = healthReport.weight!.value.toStringAsFixed(0);
+    }
+    if (healthReport.height?.value != null && healthReport.height!.value > 0) {
+      _heightController.text = healthReport.height!.value.toStringAsFixed(0);
+    }
+    if (healthReport.bmi?.value != null && healthReport.bmi!.value > 0) {
+      _bmiController.text = healthReport.bmi!.value.toStringAsFixed(2);
+    }
+    if (healthReport.fatPercentage?.value != null && healthReport.fatPercentage!.value > 0) {
+      _fatPercentageController.text = healthReport.fatPercentage!.value.toStringAsFixed(0);
+    }
+    if (healthReport.fatWeight?.value != null && healthReport.fatWeight!.value > 0) {
+      _fatWeightController.text = healthReport.fatWeight!.value.toStringAsFixed(0);
+    }
+    if (healthReport.muscleWeight?.value != null && healthReport.muscleWeight!.value > 0) {
+      _muscleWeightController.text = healthReport.muscleWeight!.value.toStringAsFixed(0);
+    }
+    if (healthReport.bmr?.value != null && healthReport.bmr!.value > 0) {
+      _bmrController.text = healthReport.bmr!.value.toStringAsFixed(0);
+    }
+    if (healthReport.musclePercentage?.value != null && healthReport.musclePercentage!.value > 0) {
+      _musclePercentageController.text = healthReport.musclePercentage!.value.toStringAsFixed(0);
+    }
+    if (healthReport.protein?.value != null && healthReport.protein!.value > 0) {
+      _proteinController.text = healthReport.protein!.value.toStringAsFixed(0);
+    }
   }
 
   Widget _buildReportTab(SpecialistAssessmentHealthReportModel? healthReport) {
     if (healthReport == null) {
       return const Center(child: CircularProgressIndicator());
     }
+
+    // Pre-populate fields with existing data on first load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _populateReportFields(healthReport);
+    });
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -562,7 +656,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                     ),
                   )
                 else
-                  ...plan.meals.map((meal) => _buildMealCard(meal)),
+                  ...plan.meals.map((meal) => _buildMealCard(meal, dayNumber)),
 
                 SizedBox(height: 24.h),
                 _buildSectionTitle('visit_details.exercises'.tr(), plan.workoutPlan.length),
@@ -576,7 +670,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                     ),
                   )
                 else
-                  ...plan.workoutPlan.map((workout) => _buildExerciseCard(workout)),
+                  ...plan.workoutPlan.map((workout) => _buildExerciseCard(workout, dayNumber)),
 
                 SizedBox(height: 24.h),
                 _buildSectionTitle('visit_details.activity'.tr(), plan.activities.length),
@@ -590,7 +684,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                     ),
                   )
                 else
-                  ...plan.activities.map((activity) => _buildActivityCard(activity)),
+                  ...plan.activities.map((activity) => _buildActivityCard(activity, dayNumber)),
               ],
             ),
           ),
@@ -679,6 +773,34 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
+  Widget _buildDisabledEndVisitButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: null,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: AppColors.white,
+          disabledForegroundColor: AppColors.textSecondary.withValues(alpha: 0.5),
+          side: BorderSide(
+            color: AppColors.divider.withValues(alpha: 0.5),
+            width: 2,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28.r),
+          ),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
+        ),
+        child: Text(
+          'visit_details.end_visit'.tr(),
+          style: TextStyleManager.button.copyWith(
+            color: AppColors.textSecondary.withValues(alpha: 0.5),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionTitle(String title, int count) {
     return Row(
       children: [
@@ -701,7 +823,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildMealCard(SpecialistMealModel meal) {
+  Widget _buildMealCard(SpecialistMealModel meal, int dayNumber) {
     String formattedTime = '';
     if (meal.time.isNotEmpty) {
       final parsed = DateTime.tryParse(meal.time);
@@ -720,6 +842,25 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
         isCompleted: meal.isCompleted,
         time: formattedTime,
         subtitle: meal.categoryName,
+        showActions: true,
+        onEditPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (ctx) => BlocProvider.value(
+                value: context.read<VisitDetailsCubit>(),
+                child: AddMealPage(
+                  assessmentId: widget.assessmentId,
+                  dayNumber: dayNumber,
+                  mealId: meal.mealId,
+                  initialCategoryName: meal.categoryName,
+                  initialMealName: meal.name,
+                  initialTime: meal.time,
+                ),
+              ),
+            ),
+          );
+        },
         details: Row(
           children: [
             if (meal.image.isNotEmpty) ...[
@@ -755,7 +896,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildExerciseCard(SpecialistWorkoutModel workout) {
+  Widget _buildExerciseCard(SpecialistWorkoutModel workout, int dayNumber) {
     String formattedTime = '';
     if (workout.time.isNotEmpty) {
       final parsed = DateTime.tryParse(workout.time);
@@ -774,6 +915,22 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
         isCompleted: workout.isCompleted,
         time: formattedTime,
         subtitle: workout.description,
+        showActions: true,
+        onEditPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (ctx) => BlocProvider.value(
+                value: context.read<VisitDetailsCubit>(),
+                child: AddExercisePage(
+                  assessmentId: widget.assessmentId,
+                  dayNumber: dayNumber,
+                  workoutItemId: workout.workoutItemId,
+                ),
+              ),
+            ),
+          );
+        },
         details: Row(
           children: [
             if (workout.photo.isNotEmpty) ...[
@@ -808,13 +965,29 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildActivityCard(SpecialistActivityModel activity) {
+  Widget _buildActivityCard(SpecialistActivityModel activity, int dayNumber) {
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
       child: PlanItemCard(
         title: activity.name,
         isCompleted: activity.isCompleted,
         subtitle: activity.description,
+        showActions: true,
+        onEditPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (ctx) => BlocProvider.value(
+                value: context.read<VisitDetailsCubit>(),
+                child: AddActivityPage(
+                  assessmentId: widget.assessmentId,
+                  dayNumber: dayNumber,
+                  activityItemId: activity.activityItemId,
+                ),
+              ),
+            ),
+          );
+        },
         details: Row(
           children: [
             if (activity.image.isNotEmpty) ...[

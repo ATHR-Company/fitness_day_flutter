@@ -20,6 +20,7 @@ class UpcomingVisitShowScreen extends StatelessWidget {
   final Widget bottomAction;
   final VoidCallback? onAddGoalPressed;
   final VoidCallback? onEditGoalPressed;
+  final bool showGoal;
 
   const UpcomingVisitShowScreen({
     super.key,
@@ -37,6 +38,7 @@ class UpcomingVisitShowScreen extends StatelessWidget {
     required this.bottomAction,
     this.onAddGoalPressed,
     this.onEditGoalPressed,
+    this.showGoal = true,
   });
 
   @override
@@ -88,12 +90,13 @@ class UpcomingVisitShowScreen extends StatelessWidget {
                         SizedBox(height: 16.h),
 
                         // Goal Card
-                        VisitGoalCard(
-                          title: visitGoalTitle,
-                          goals: visitGoals,
-                          onAddPressed: onAddGoalPressed,
-                          onEditPressed: onEditGoalPressed,
-                        ),
+                        if (showGoal)
+                          VisitGoalCard(
+                            title: visitGoalTitle,
+                            goals: visitGoals,
+                            onAddPressed: onAddGoalPressed,
+                            onEditPressed: onEditGoalPressed,
+                          ),
                       ],
                     ),
                   ),

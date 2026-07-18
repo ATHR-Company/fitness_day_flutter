@@ -32,7 +32,7 @@ class SpecialistAssessmentVisitDataModel {
   final String placement;
   final String weekStart;
   final double adherenceRate;
-  final String goal;
+  final String? goal;
   final bool isStarted;
   final bool canFinishAssessment;
 
@@ -45,7 +45,7 @@ class SpecialistAssessmentVisitDataModel {
     required this.placement,
     required this.weekStart,
     required this.adherenceRate,
-    required this.goal,
+    this.goal,
     required this.isStarted,
     required this.canFinishAssessment,
   });
@@ -62,7 +62,7 @@ class SpecialistAssessmentVisitDataModel {
       placement: json['placement'] as String? ?? '',
       weekStart: json['weekStart'] as String? ?? '',
       adherenceRate: (json['adherenceRate'] as num?)?.toDouble() ?? 0.0,
-      goal: json['goal'] as String? ?? '',
+      goal: json['goal'] as String?,
       isStarted: json['isStarted'] as bool? ?? false,
       canFinishAssessment: json['canFinishAssessment'] as bool? ?? false,
     );

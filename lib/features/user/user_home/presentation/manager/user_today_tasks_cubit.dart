@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,7 +29,11 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
 
       final data = response.data['data'];
       final List tasks = data['tasks'] as List? ?? [];
-      final String assessmentId = data['assessmentId'] as String? ?? '';
+      final String assessmentIdFromApi = data['assessmentId'] as String? ?? '';
+      // Fallback to cached assessmentId (saved by UserHomeCubit) if API didn't return one
+      final String assessmentId = assessmentIdFromApi.isNotEmpty
+          ? assessmentIdFromApi
+          : (getIt<AppCache>().getAssessmentId() ?? '');
       _assessmentId = assessmentId;
 
       final List<TaskData> foodTasks = [];
@@ -70,6 +75,7 @@ class UserTodayTasksCubit extends Cubit<UserTodayTasksState> {
             isExerciseDialog: true,
             workoutItemId: workoutItemId,
             workoutDayNumber: dayNumber,
+            workoutAssessmentId: assessmentId,
           ));
         } else if (type == 'activity') {
           activityTasks.add(_buildActivityTask(task));

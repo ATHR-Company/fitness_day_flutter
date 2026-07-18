@@ -44,6 +44,7 @@ class SpecialistAssessmentHistoryItemModel {
   final double? adherenceRate;
   final String? goal;
   final bool isNew;
+  final bool isStarted;
 
   SpecialistAssessmentHistoryItemModel({
     this.user,
@@ -56,6 +57,7 @@ class SpecialistAssessmentHistoryItemModel {
     this.adherenceRate,
     this.goal,
     required this.isNew,
+    required this.isStarted,
   });
 
   factory SpecialistAssessmentHistoryItemModel.fromJson(Map<String, dynamic> json) {
@@ -72,6 +74,7 @@ class SpecialistAssessmentHistoryItemModel {
       adherenceRate: (json['adherenceRate'] as num?)?.toDouble(),
       goal: json['goal'] as String?,
       isNew: json['isNew'] as bool? ?? false,
+      isStarted: json['isStarted'] as bool? ?? false,
     );
   }
 }

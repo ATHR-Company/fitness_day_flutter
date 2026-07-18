@@ -170,7 +170,18 @@
     "dummy_client": "محمد عبدالله",
     "no_tasks": "لا توجد مهام اليوم",
     "no_visits_this_week": "لا توجد زيارات هذا الأسبوع",
-    "no_visits_today": "لا توجد زيارات في هذا اليوم"
+    "no_visits_today": "لا توجد زيارات في هذا اليوم",
+    "upcoming_visit_title": "تفاصيل الزيارة القادمة",
+    "upcoming_visit_subtitle": "كشف انبودي ، تجديد باقة الشهر",
+    "specialist_name_mock": "د/ محمد عبدالله",
+    "specialist_name_label": "اسم الأخصائي :",
+    "clinic_location_mansoura": "مقر العيادة - المنصورة",
+    "upcoming_goal_1": "قياس الوزن ومعدل الدهون",
+    "upcoming_goal_2": "مراجعة النظام الغذائي وتعديله",
+    "upcoming_goal_3": "تقييم مستوى اللياقة الحالي",
+    "upcoming_goal_4": "وضع خطة تدريب للأسبوع القادم",
+    "change_location_button": "تغيير المكان",
+    "change_time_button": "تغيير الميعاد"
   },
   "visit_details": {
     "no_meals": "لا توجد وجبات مضافة",
@@ -244,7 +255,29 @@
     "delete": "حذف »",
     "select_date": "حدد اليوم",
     "select_time": "حدد الميعاد",
-    "confirm": "تأكيد"
+    "confirm": "تأكيد",
+    "visit_summary_title": "ملخص الزيارة",
+    "change_location_title": "تعديل مكان الزيارة",
+    "default_branch_name": "مقر يوم الرشاقة",
+    "online_option_label": "اونلاين - البريد الالكتروني او الهاتف",
+    "select_new_date": "اختر الموعد الجديد"
+  },
+  "meal_details": {
+    "page_title": "تفاصيل الوجبة",
+    "added_by": "مضافة بواسطة يوم الرشاقة",
+    "calories_pill_label": "كالوري",
+    "preparation_method": "طريقة التحضير :",
+    "nutrition_facts": "بيانات الطعام",
+    "mark_incomplete": "إلغاء الإكمال",
+    "complete_meal": "إكمال الوجبة",
+    "back": "رجوع",
+    "nutrition_calories": "السعرات بالكالوري",
+    "nutrition_fat": "الدهون بالجرام",
+    "nutrition_carbohydrates": "الكربوهيدرات بالجرام",
+    "nutrition_sugar": "سكر بالجرام",
+    "nutrition_protein": "البروتين بالجرام",
+    "nutrition_fiber": "الالياف بالجرام",
+    "nutrition_cholesterol": "كوليسترول بالجرام"
   },
   "add_meal": {
     "title": "اضافة وجبة",
@@ -733,7 +766,10 @@
   },
   "diet_plan": {
     "empty_title": "لا يوجد نظام غذائي حتى الآن",
-    "empty_subtitle": "لم يتم إضافة نظامك الغذائي سيتم تحديث خطتك الغذائية من قبل الأخصائي قريباً."
+    "empty_subtitle": "لم يتم إضافة نظامك الغذائي سيتم تحديث خطتك الغذائية من قبل الأخصائي قريباً.",
+    "default_breakfast_time": "8:00 صباحاً",
+    "default_lunch_time": "3:00 ظهراً",
+    "default_dinner_time": "8:00 مساءً"
   },
   "common": {
     "weekdays": {

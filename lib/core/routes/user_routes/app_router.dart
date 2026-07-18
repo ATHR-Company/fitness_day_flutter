@@ -148,7 +148,7 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.visitDetails,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final extra = (state.extra as Map?)?.cast<String, dynamic>() ?? {};
           final assessmentId = extra['assessmentId'] as String? ?? '';
           final dayNumber = extra['dayNumber'] as int? ?? 1;
           return VisitDetailsPage(
@@ -160,7 +160,7 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.upcomingVisitShow,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final extra = (state.extra as Map?)?.cast<String, dynamic>() ?? {};
           final assessmentId = extra['assessmentId'] as String? ?? '';
           final dayNumber = extra['dayNumber'] as int? ?? 1;
           return UserUpcomingVisitPage(
@@ -172,7 +172,7 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.mealDetails,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final extra = (state.extra as Map?)?.cast<String, dynamic>() ?? {};
           final mealId = extra['mealId'] as String? ?? '';
           final assessmentId = extra['assessmentId'] as String? ?? '';
           final dayNumber = extra['dayNumber'] as int? ?? 1;
@@ -186,7 +186,7 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.hydrationDetails,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final extra = (state.extra as Map?)?.cast<String, dynamic>() ?? {};
           final assessmentId = extra['assessmentId'] as String? ?? '';
           final dayNumber = extra['dayNumber'] as int? ?? 1;
           final activityId = extra['activityId'] as String? ?? '';
@@ -200,7 +200,7 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.stepsDetails,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final extra = (state.extra as Map?)?.cast<String, dynamic>() ?? {};
           final activityTypeStr = extra['activityType'] as String? ?? 'walking';
           final type = activityTypeStr == 'running'
               ? ActivityType.running
@@ -216,7 +216,7 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.workoutVideo,
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final extra = (state.extra as Map?)?.cast<String, dynamic>() ?? {};
           final workoutItemId = extra['workoutItemId'] as String? ?? '6a4cf59e38e6d8571647c112';
           final assessmentId = extra['assessmentId'] as String? ?? '';
           final dayNumber = extra['dayNumber'] as int? ?? 1;

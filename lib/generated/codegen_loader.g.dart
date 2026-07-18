@@ -184,7 +184,20 @@ class CodegenLoader extends AssetLoader{
     "dummy_title": "متابعة أسبوعية",
     "dummy_subtitle": "متابعة الوزن وتخصيص النظام الغذائي والرياضي له",
     "dummy_client": "محمد عبدالله",
-    "no_tasks": "لا توجد مهام اليوم"
+    "no_tasks": "لا توجد مهام اليوم",
+    "no_visits_this_week": "لا توجد زيارات هذا الأسبوع",
+    "no_visits_today": "لا توجد زيارات في هذا اليوم",
+    "upcoming_visit_title": "تفاصيل الزيارة القادمة",
+    "upcoming_visit_subtitle": "كشف انبودي ، تجديد باقة الشهر",
+    "specialist_name_mock": "د/ محمد عبدالله",
+    "specialist_name_label": "اسم الأخصائي :",
+    "clinic_location_mansoura": "مقر العيادة - المنصورة",
+    "upcoming_goal_1": "قياس الوزن ومعدل الدهون",
+    "upcoming_goal_2": "مراجعة النظام الغذائي وتعديله",
+    "upcoming_goal_3": "تقييم مستوى اللياقة الحالي",
+    "upcoming_goal_4": "وضع خطة تدريب للأسبوع القادم",
+    "change_location_button": "تغيير المكان",
+    "change_time_button": "تغيير الميعاد"
   },
   "visit_details": {
     "no_meals": "لا توجد وجبات مضافة",
@@ -255,7 +268,29 @@ class CodegenLoader extends AssetLoader{
     "delete": "حذف »",
     "select_date": "حدد اليوم",
     "select_time": "حدد الميعاد",
-    "confirm": "تأكيد"
+    "confirm": "تأكيد",
+    "visit_summary_title": "ملخص الزيارة",
+    "change_location_title": "تعديل مكان الزيارة",
+    "default_branch_name": "مقر يوم الرشاقة",
+    "online_option_label": "اونلاين - البريد الالكتروني او الهاتف",
+    "select_new_date": "اختر الموعد الجديد"
+  },
+  "meal_details": {
+    "page_title": "تفاصيل الوجبة",
+    "added_by": "مضافة بواسطة يوم الرشاقة",
+    "calories_pill_label": "كالوري",
+    "preparation_method": "طريقة التحضير :",
+    "nutrition_facts": "بيانات الطعام",
+    "mark_incomplete": "إلغاء الإكمال",
+    "complete_meal": "إكمال الوجبة",
+    "back": "رجوع",
+    "nutrition_calories": "السعرات بالكالوري",
+    "nutrition_fat": "الدهون بالجرام",
+    "nutrition_carbohydrates": "الكربوهيدرات بالجرام",
+    "nutrition_sugar": "سكر بالجرام",
+    "nutrition_protein": "البروتين بالجرام",
+    "nutrition_fiber": "الالياف بالجرام",
+    "nutrition_cholesterol": "كوليسترول بالجرام"
   },
   "add_meal": {
     "title": "اضافة وجبة",
@@ -744,7 +779,10 @@ class CodegenLoader extends AssetLoader{
   },
   "diet_plan": {
     "empty_title": "لا يوجد نظام غذائي حتى الآن",
-    "empty_subtitle": "لم يتم إضافة نظامك الغذائي سيتم تحديث خطتك الغذائية من قبل الأخصائي قريباً."
+    "empty_subtitle": "لم يتم إضافة نظامك الغذائي سيتم تحديث خطتك الغذائية من قبل الأخصائي قريباً.",
+    "default_breakfast_time": "8:00 صباحاً",
+    "default_lunch_time": "3:00 ظهراً",
+    "default_dinner_time": "8:00 مساءً"
   },
   "common": {
     "weekdays": {
@@ -1084,7 +1122,20 @@ static const Map<String,dynamic> _en = {
     "dummy_title": "Weekly Follow-up",
     "dummy_subtitle": "Weight follow-up and customizing diet and sports regimen",
     "dummy_client": "Mohamed Abdullah",
-    "no_tasks": "No tasks for today"
+    "no_tasks": "No tasks for today",
+    "no_visits_this_week": "No visits this week",
+    "no_visits_today": "No visits on this day",
+    "upcoming_visit_title": "Upcoming Visit Details",
+    "upcoming_visit_subtitle": "InBody scan, monthly package renewal",
+    "specialist_name_mock": "Dr. Mohamed Abdullah",
+    "specialist_name_label": "Specialist Name :",
+    "clinic_location_mansoura": "Clinic Branch - Mansoura",
+    "upcoming_goal_1": "Measure weight and body fat rate",
+    "upcoming_goal_2": "Review and adjust the diet plan",
+    "upcoming_goal_3": "Assess current fitness level",
+    "upcoming_goal_4": "Set a workout plan for next week",
+    "change_location_button": "Change Location",
+    "change_time_button": "Change Time"
   },
   "visit_details": {
     "no_meals": "No meals added",
@@ -1155,7 +1206,29 @@ static const Map<String,dynamic> _en = {
     "delete": "Delete »",
     "select_date": "Select Day",
     "select_time": "Select Time",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "visit_summary_title": "Visit Summary",
+    "change_location_title": "Edit Visit Location",
+    "default_branch_name": "Fitness Day Branch",
+    "online_option_label": "Online - Email or Phone",
+    "select_new_date": "Choose New Date"
+  },
+  "meal_details": {
+    "page_title": "Meal Details",
+    "added_by": "Added by Fitness Day",
+    "calories_pill_label": "Calories",
+    "preparation_method": "Preparation Method:",
+    "nutrition_facts": "Nutrition Facts",
+    "mark_incomplete": "Mark as Incomplete",
+    "complete_meal": "Complete Meal",
+    "back": "Back",
+    "nutrition_calories": "Calories (kcal)",
+    "nutrition_fat": "Fat (g)",
+    "nutrition_carbohydrates": "Carbohydrates (g)",
+    "nutrition_sugar": "Sugar (g)",
+    "nutrition_protein": "Protein (g)",
+    "nutrition_fiber": "Fiber (g)",
+    "nutrition_cholesterol": "Cholesterol (g)"
   },
   "add_meal": {
     "title": "Add Meal",
@@ -1641,6 +1714,13 @@ static const Map<String,dynamic> _en = {
     "achievement_finish": "Finish",
     "well_done": "Well Done!",
     "well_done_desc": "You've accomplished a day of movement, keep it up to maintain health and relieve pain."
+  },
+  "diet_plan": {
+    "empty_title": "No diet plan yet",
+    "empty_subtitle": "Your diet plan hasn't been added yet. It will be updated by your specialist soon.",
+    "default_breakfast_time": "8:00 AM",
+    "default_lunch_time": "3:00 PM",
+    "default_dinner_time": "8:00 PM"
   },
   "common": {
     "weekdays": {

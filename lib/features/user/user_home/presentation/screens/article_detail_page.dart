@@ -72,93 +72,78 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == ui.TextDirection.rtl;
     return Container(
       decoration: const BoxDecoration(
         gradient: AppColors.visitsBackgroundGradient,
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: CustomScrollView(
-            slivers: [
-              // ── Custom App Bar ──────────────────────────────────────────
-              SliverToBoxAdapter(child: _buildHeader(context)),
-
-              // ── Article Image / Video Thumbnail ─────────────────────────
-              SliverToBoxAdapter(child: _buildMediaSection()),
-
-              // ── Meta Info (views + date) ────────────────────────────────
-              SliverToBoxAdapter(child: _buildMetaInfo()),
-
-              // ── Title ───────────────────────────────────────────────────
-              SliverToBoxAdapter(child: _buildTitle()),
-
-              // ── Body Content ────────────────────────────────────────────
-              SliverToBoxAdapter(child: _buildBodyContent()),
-
-              // ── Related Articles ────────────────────────────────────────
-              if (widget.relatedArticles.isNotEmpty) ...[
-                SliverToBoxAdapter(child: _buildRelatedArticlesHeader()),
-                SliverToBoxAdapter(child: _buildRelatedArticlesList(context)),
-              ],
-
-              // Bottom padding
-              SliverToBoxAdapter(child: SizedBox(height: 32.h)),
-            ],
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: Text(
+            LocaleKeys.home_article_detail_title.tr(),
+            style: TextStyleManager.heading2.copyWith(
+              color: AppColors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Header with back button and title
-  // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Save Bookmark
-          GestureDetector(
-            onTap: isLoadingDetail ? null : _toggleSave,
-            child: (isLoadingSave || isLoadingDetail)
-                ? SizedBox(
-                    width: 24.sp,
-                    height: 24.sp,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
-                  )
-                : Icon(
-                    isSaved ? Icons.bookmark : Icons.bookmark_border,
-                    size: 24.sp,
-                    color: AppColors.primary,
-                  ),
-          ),
-          // Title centered
-          Expanded(
-            child: Center(
-              child: Text(
-                LocaleKeys.home_article_detail_title.tr(),
-                style: TextStyleManager.heading2.copyWith(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.bold,
+          automaticallyImplyLeading: false,
+          leading: isRtl
+              ? IconButton(
+                  icon: Icon(Icons.arrow_back_ios, color: AppColors.black, size: 20.sp),
+                  onPressed: () => Navigator.of(context).pop(),
+                )
+              : IconButton(
+                  icon: Icon(Icons.arrow_back_ios, color: AppColors.black, size: 20.sp),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
+          actions: [
+            Padding(
+              padding: EdgeInsets.only(right: 12.w, left: 12.w),
+              child: GestureDetector(
+                onTap: isLoadingDetail ? null : _toggleSave,
+                child: (isLoadingSave || isLoadingDetail)
+                    ? SizedBox(
+                        width: 24.sp,
+                        height: 24.sp,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                      )
+                    : Icon(
+                        isSaved ? Icons.bookmark : Icons.bookmark_border,
+                        size: 24.sp,
+                        color: AppColors.primary,
+                      ),
               ),
             ),
-          ),
-          // Back button
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Icon(
-              Directionality.of(context) == ui.TextDirection.rtl
-                  ? Icons.arrow_forward_ios
-                  : Icons.arrow_back_ios_new,
-              size: 20.sp,
-              color: AppColors.black,
-            ),
-          ),
-        ],
+          ],
+        ),
+        body: CustomScrollView(
+          slivers: [
+            // ── Article Image / Video Thumbnail ─────────────────────────
+            SliverToBoxAdapter(child: _buildMediaSection()),
+
+            // ── Meta Info (views + date) ────────────────────────────────
+            SliverToBoxAdapter(child: _buildMetaInfo()),
+
+            // ── Title ───────────────────────────────────────────────────
+            SliverToBoxAdapter(child: _buildTitle()),
+
+            // ── Body Content ────────────────────────────────────────────
+            SliverToBoxAdapter(child: _buildBodyContent()),
+
+            // ── Related Articles ────────────────────────────────────────
+            if (widget.relatedArticles.isNotEmpty) ...[
+              SliverToBoxAdapter(child: _buildRelatedArticlesHeader()),
+              SliverToBoxAdapter(child: _buildRelatedArticlesList(context)),
+            ],
+
+            // Bottom padding
+            SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+          ],
+        ),
       ),
     );
   }
@@ -168,7 +153,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildMediaSection() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.r),
         child: Stack(
@@ -261,7 +246,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildTitle() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Text(
         widget.article.title,
         style: TextStyleManager.text2.copyWith(
@@ -332,7 +317,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildRelatedArticlesList(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Column(
         children: List.generate(widget.relatedArticles.length, (index) {
           return _RelatedArticleCard(

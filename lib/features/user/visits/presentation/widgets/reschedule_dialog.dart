@@ -7,6 +7,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/change_assessment_cubit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/generated/locale_keys.g.dart';
 
 class RescheduleDialog extends StatefulWidget {
   final String assessmentId;
@@ -71,7 +73,7 @@ class _RescheduleDialogState extends State<RescheduleDialog> {
                       onPressed: () => context.pop(),
                     ),
                     Text(
-                      'إعادة جدولة الزيارة',
+                      LocaleKeys.visit_details_reschedule_title.tr(),
                       style: TextStyleManager.style16Bold,
                     ),
                     SizedBox(width: 48.w),
@@ -83,7 +85,7 @@ class _RescheduleDialogState extends State<RescheduleDialog> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
+                      border: Border.all(color: AppColors.borderGrey),
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Row(
@@ -91,7 +93,7 @@ class _RescheduleDialogState extends State<RescheduleDialog> {
                       children: [
                         Text(
                           _selectedDate == null
-                              ? 'اختر الموعد الجديد'
+                              ? LocaleKeys.visit_details_select_new_date.tr()
                               : DateFormat('yyyy-MM-dd').format(_selectedDate!),
                           style: TextStyleManager.style14Medium,
                         ),
@@ -111,7 +113,7 @@ class _RescheduleDialogState extends State<RescheduleDialog> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
                           padding: EdgeInsets.symmetric(vertical: 12.h),
                         ),
-                        child: Text('إلغاء', style: TextStyleManager.style14Medium.copyWith(color: AppColors.primary)),
+                        child: Text(LocaleKeys.visit_details_cancel.tr(), style: TextStyleManager.style14Medium.copyWith(color: AppColors.primary)),
                       ),
                     ),
                     SizedBox(width: 16.w),
@@ -137,9 +139,9 @@ class _RescheduleDialogState extends State<RescheduleDialog> {
                             ? SizedBox(
                                 height: 20.h,
                                 width: 20.h,
-                                child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                child: const CircularProgressIndicator(color: AppColors.white, strokeWidth: 2),
                               )
-                            : Text('حفظ', style: TextStyleManager.style14Medium.copyWith(color: Colors.white)),
+                            : Text(LocaleKeys.visit_details_save.tr(), style: TextStyleManager.style14Medium.copyWith(color: AppColors.white)),
                       ),
                     ),
                   ],
