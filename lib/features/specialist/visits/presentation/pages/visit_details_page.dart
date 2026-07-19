@@ -16,7 +16,7 @@ import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/core/widgets/reschedule_visit_dialog.dart';
 import 'package:fitness_day/core/widgets/add_goal_dialog.dart';
 import 'package:fitness_day/core/widgets/plan_item_card.dart';
-import 'package:fitness_day/core/widgets/vertical_tab_bar.dart';
+import 'package:fitness_day/core/widgets/vertical_day_tab_bar.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/widgets/report_text_field.dart';
 import '../../../../shared/conversations/presentation/pages/chat_details_page.dart';
@@ -703,8 +703,8 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
           ),
         ),
         // Vertical Tab Bar (Left side in RTL)
-        VerticalTabBar(
-          items: [
+        VerticalDayTabBar(
+          days: [
             'visit_details.day_1'.tr(),
             'visit_details.day_2'.tr(),
             'visit_details.day_3'.tr(),
@@ -714,7 +714,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             'visit_details.day_7'.tr(),
           ],
           selectedIndex: _selectedDayIndex,
-          onItemSelected: _onDayChanged,
+          onDaySelected: _onDayChanged,
         ),
       ],
     );

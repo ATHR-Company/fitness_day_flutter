@@ -75,6 +75,14 @@ class ApiEndpoints {
   static const String updateWalking = '/activities/walking/progress';
   static const String updateRunning = '/activities/running/progress';
 
+  // Store / Market
+  static const String storeHome = '/store/home';
+  static const String storeProducts = '/products';
+  static String storeProductById(String id) => '/products/$id';
+  static const String storePlans = '/plans';
+  static String storePlanById(String id) => '/plans/$id';
+  static const String storeFavorites = '/favorites';
+
   // Assessments
   static const String userAssessments = '/user-assessments';
   static const String assessmentChangeRequests = '/assessment-change-requests';

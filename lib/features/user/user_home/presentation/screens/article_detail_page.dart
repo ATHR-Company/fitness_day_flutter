@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:fitness_day/features/user/user_home/domain/entities/article_data.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -149,49 +150,17 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Media section (image with play button overlay for video feel)
+  // Media section — horizontal banner carousel with dot indicators
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildMediaSection() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16.r),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            AppImage(
-              widget.article.imageUrl,
-              height: 200.h,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-            // Play button overlay
-            Container(
-              width: 56.w,
-              height: 56.w,
-              decoration: BoxDecoration(
-                color: AppColors.white.withValues(alpha: 0.85),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.black.withValues(alpha: 0.15),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.play_arrow_rounded,
-                color: AppColors.primary,
-                size: 32.sp,
-              ),
-            ),
+    // Build media list: prefer article.media, fallback to mainPhoto
+    final mediaItems = widget.article.media.isNotEmpty
+        ? widget.article.media
+        : [ArticleMediaItem(url: widget.article.imageUrl, type: 'PHOTO')];
 
-            // Author avatar (top left)
-          ],
-        ),
-      ),
-    );
+    if (mediaItems.isEmpty) return const SizedBox.shrink();
+
+    return _MediaCarousel(items: mediaItems);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -448,6 +417,110 @@ class _RelatedArticleCardState extends State<_RelatedArticleCard> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Media Carousel — horizontal banner with dot indicators
+// ─────────────────────────────────────────────────────────────────────────────
+class _MediaCarousel extends StatefulWidget {
+  final List<ArticleMediaItem> items;
+
+  const _MediaCarousel({required this.items});
+
+  @override
+  State<_MediaCarousel> createState() => _MediaCarouselState();
+}
+
+class _MediaCarouselState extends State<_MediaCarousel> {
+  final PageController _pageController = PageController();
+  int _currentIndex = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      child: Column(
+        children: [
+          // ── Banner ──────────────────────────────────────────────────────
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16.r),
+            child: SizedBox(
+              height: 200.h,
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: widget.items.length,
+                onPageChanged: (i) => setState(() => _currentIndex = i),
+                itemBuilder: (context, index) {
+                  final item = widget.items[index];
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Image / video thumbnail
+                      AppImage(
+                        item.url,
+                        height: 200.h,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      // Play button overlay — only for videos
+                      if (item.isVideo)
+                        Container(
+                          width: 56.w,
+                          height: 56.w,
+                          decoration: BoxDecoration(
+                            color: AppColors.white.withValues(alpha: 0.85),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.black.withValues(alpha: 0.15),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.play_arrow_rounded,
+                            color: AppColors.primary,
+                            size: 32.sp,
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+
+          // ── Dot indicators ──────────────────────────────────────────────
+          if (widget.items.length > 1) ...[
+            SizedBox(height: 10.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.items.length, (index) {
+                final isActive = index == _currentIndex;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  margin: EdgeInsets.symmetric(horizontal: 3.w),
+                  width: isActive ? 20.w : 8.w,
+                  height: 8.w,
+                  decoration: BoxDecoration(
+                    color: isActive ? AppColors.primary : AppColors.divider,
+                    borderRadius: BorderRadius.circular(4.r),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ],
       ),
     );
   }

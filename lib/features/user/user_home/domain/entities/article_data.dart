@@ -10,6 +10,15 @@ class ArticleDetail {
   });
 }
 
+class ArticleMediaItem {
+  final String url;
+  final String type; // 'PHOTO' or 'VIDEO'
+
+  const ArticleMediaItem({required this.url, required this.type});
+
+  bool get isVideo => type.toUpperCase() == 'VIDEO';
+}
+
 class ArticleData {
   final String id;
   final String imageUrl;
@@ -19,6 +28,7 @@ class ArticleData {
   final bool isSaved;
   final List<ArticleDetail> details;
   final List<ArticleData> relatedArticles;
+  final List<ArticleMediaItem> media;
 
   const ArticleData({
     required this.id,
@@ -29,6 +39,7 @@ class ArticleData {
     required this.isSaved,
     required this.details,
     this.relatedArticles = const [],
+    this.media = const [],
   });
 
   String get body => details.map((e) => e.description).join('\n\n');

@@ -1,37 +1,113 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
-import 'package:fitness_day/core/widgets/app_image.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
-import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
+import 'package:fitness_day/features/user/market/domain/entities/products_page_data.dart';
+import 'package:fitness_day/features/user/market/domain/entities/store_home_data.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_products_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/products_list_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/products_list_state.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/product_details_screen.dart';
+import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class ProductsListScreen extends StatefulWidget {
+class ProductsListScreen extends StatelessWidget {
   final String title;
-  final List<ProductData> products;
-  final bool isGrid;
+  final ProductsFilter filter;
 
+  /// Legacy constructor — passes a static list (kept for backward compat).
+  /// Prefer using [ProductsListScreen.withFilter] for real API data.
   const ProductsListScreen({
     super.key,
     required this.title,
-    required this.products,
-    this.isGrid = true,
+    required this.filter,
   });
 
+  /// Convenience factory for section "more" taps.
+  factory ProductsListScreen.byType({
+    required String title,
+    required String type,
+  }) {
+    return ProductsListScreen(
+      title: title,
+      filter: ProductsFilter.byType(type),
+    );
+  }
+
+  factory ProductsListScreen.byCategory({
+    required String title,
+    required String categoryId,
+  }) {
+    return ProductsListScreen(
+      title: title,
+      filter: ProductsFilter.byCategory(categoryId),
+    );
+  }
+
   @override
-  State<ProductsListScreen> createState() => _ProductsListScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ProductsListCubit(
+        getProductsUseCase: getIt<GetProductsUseCase>(),
+        filter: filter,
+      )..loadFirst(),
+      child: _ProductsListView(title: title),
+    );
+  }
 }
 
-class _ProductsListScreenState extends State<ProductsListScreen> {
-  late List<ProductData> _products;
+// ─────────────────────────────────────────────────────────────────────────────
+// View (stateful for scroll controller)
+// ─────────────────────────────────────────────────────────────────────────────
+class _ProductsListView extends StatefulWidget {
+  final String title;
+
+  const _ProductsListView({required this.title});
+
+  @override
+  State<_ProductsListView> createState() => _ProductsListViewState();
+}
+
+class _ProductsListViewState extends State<_ProductsListView> {
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _products = widget.products.map((product) => product).toList();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    // Trigger load-more when 200px from the bottom
+    if (currentScroll >= maxScroll - 200) {
+      context.read<ProductsListCubit>().loadMore();
+    }
+  }
+
+  ProductData _toProductData(StoreProductItem item) {
+    return ProductData(
+      id: item.id,
+      name: item.name,
+      imageUrl: item.mainPhoto,
+      currentPrice: item.price,
+      oldPrice: item.compareAtPrice,
+      isFavorite: item.isFavorite,
+      discountTag: item.badge,
+    );
   }
 
   @override
@@ -41,102 +117,97 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              _buildAppBar(context),
+              _AppBar(title: widget.title),
               Expanded(
-                child: widget.isGrid
-                    ? GridView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                child: BlocBuilder<ProductsListCubit, ProductsListState>(
+                  builder: (context, state) {
+                    if (state is ProductsListLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      );
+                    }
+
+                    if (state is ProductsListFailure) {
+                      return Center(
+                        child: Text(
+                          state.message,
+                          style: TextStyleManager.style14Medium,
+                        ),
+                      );
+                    }
+
+                    if (state is ProductsListSuccess) {
+                      if (state.products.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'market.no_products'.tr(),
+                            style: TextStyleManager.style14Medium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return GridView.builder(
+                        controller: _scrollController,
+                        padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 40.h),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           crossAxisSpacing: 16.w,
                           mainAxisSpacing: 16.h,
-                          childAspectRatio: 0.58, // Adjust based on card height
+                          childAspectRatio: 0.58,
                         ),
-                        itemCount: _products.length,
+                        // +1 for the loading indicator at the bottom
+                        itemCount: state.products.length + (state.isLoadingMore ? 1 : 0),
                         itemBuilder: (context, index) {
-                          final product = _products[index];
-                          final package = SubscriptionPackageData(
-                            imageUrl: product.imageUrl,
-                            name: product.name,
-                            currentPrice: product.currentPrice.toInt(),
-                            oldPrice: product.oldPrice?.toInt() ?? 0,
-                            isFavorite: product.isFavorite,
-                          );
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ProductDetailsScreen(product: product),
+                          if (index == state.products.length) {
+                            // Loading more indicator
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                  strokeWidth: 2,
                                 ),
-                              );
-                            },
-                            child: SubscriptionPackageCard(
-                              package: package,
-                              detailsLabelKey: 'home.add_to_cart',
-                              onFavoriteTap: () {
-                                setState(() {
-                                  _products[index] = ProductData(
-                                    id: product.id,
-                                    name: product.name,
-                                    imageUrl: product.imageUrl,
-                                    currentPrice: product.currentPrice,
-                                    oldPrice: product.oldPrice,
-                                    isFavorite: !product.isFavorite,
-                                    discountTag: product.discountTag,
-                                    offerTag: product.offerTag,
-                                  );
-                                });
-                              },
-                            ),
-                          );
-                        },
-                      )
-                    : ListView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-                        itemCount: _products.length,
-                        itemBuilder: (context, index) {
-                          final product = _products[index];
+                              ),
+                            );
+                          }
+
+                          final item = state.products[index];
+                          final product = _toProductData(item);
                           final package = SubscriptionPackageData(
+                            id: product.id,
                             imageUrl: product.imageUrl,
                             name: product.name,
                             currentPrice: product.currentPrice.toInt(),
                             oldPrice: product.oldPrice?.toInt() ?? 0,
                             isFavorite: product.isFavorite,
                           );
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 12.h),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ProductDetailsScreen(product: product),
-                                  ),
-                                );
-                              },
-                              child: SubscriptionPackageCard(
-                                package: package,
-                                detailsLabelKey: 'home.add_to_cart',
-                                onFavoriteTap: () {
-                                  setState(() {
-                                    _products[index] = ProductData(
-                                      id: product.id,
-                                      name: product.name,
-                                      imageUrl: product.imageUrl,
-                                      currentPrice: product.currentPrice,
-                                      oldPrice: product.oldPrice,
-                                      isFavorite: !product.isFavorite,
-                                      discountTag: product.discountTag,
-                                      offerTag: product.offerTag,
-                                    );
-                                  });
-                                },
+
+                          return SubscriptionPackageCard(
+                            package: package,
+                            badge: product.discountTag,
+                            detailsLabelKey: 'home.add_to_cart',
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProductDetailsScreen(product: product),
+                              ),
+                            ),
+                            onDetailsTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProductDetailsScreen(product: product),
                               ),
                             ),
                           );
                         },
-                      ),
+                      );
+                    }
+
+                    return const SizedBox.shrink();
+                  },
+                ),
               ),
             ],
           ),
@@ -144,14 +215,22 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
       ),
     );
   }
+}
 
-  Widget _buildAppBar(BuildContext context) {
+// ─────────────────────────────────────────────────────────────────────────────
+// App Bar
+// ─────────────────────────────────────────────────────────────────────────────
+class _AppBar extends StatelessWidget {
+  final String title;
+
+  const _AppBar({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
       child: Row(
         children: [
-            
-          // Back button
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Icon(
@@ -160,40 +239,32 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
               size: 20.sp,
             ),
           ),
-        
           const Spacer(),
-          
           Text(
-            widget.title,
+            title,
             style: TextStyleManager.heading2.copyWith(
               color: AppColors.black,
               fontWeight: FontWeight.w800,
             ),
           ),
-          
           const Spacer(),
-          // Cart Icon
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              width: 44.w,
-              height: 44.w,
-              padding: EdgeInsets.all(12.r),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.textSecondary.withValues(alpha: 0.2),
-                  width: 1,
-                ),
-              ),
-              child: AppImage(
-                SvgIcons.market_icon,
-                color: AppColors.textSecondary,
+          Container(
+            width: 44.w,
+            height: 44.w,
+            padding: EdgeInsets.all(12.r),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.textSecondary.withValues(alpha: 0.2),
+                width: 1,
               ),
             ),
+            child: AppImage(
+              SvgIcons.market_icon,
+              color: AppColors.textSecondary,
+            ),
           ),
-      
         ],
       ),
     );

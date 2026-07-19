@@ -4,13 +4,12 @@ import 'package:fitness_day/features/user/market/domain/entities/product_data.da
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/product_details_screen.dart';
 
-/// Sliver grid of product/package cards, reused by both the products and
-/// packages tabs on the market main screen.
+/// Sliver grid of product/package cards.
+/// Favourite is handled internally by the card via [ToggleFavoriteUseCase].
 class MarketProductsGrid extends StatelessWidget {
   final List<ProductData> products;
   final String detailsLabelKey;
   final void Function(ProductData product)? onItemTap;
-  final void Function(ProductData product)? onFavoriteTap;
   final void Function(ProductData product)? onDetailsTap;
 
   const MarketProductsGrid({
@@ -18,7 +17,6 @@ class MarketProductsGrid extends StatelessWidget {
     required this.products,
     this.detailsLabelKey = 'home.add_to_cart',
     this.onItemTap,
-    this.onFavoriteTap,
     this.onDetailsTap,
   });
 
@@ -36,6 +34,7 @@ class MarketProductsGrid extends StatelessWidget {
         delegate: SliverChildBuilderDelegate((context, index) {
           final p = products[index];
           final package = SubscriptionPackageData(
+            id: p.id,
             imageUrl: p.imageUrl,
             name: p.name,
             currentPrice: p.currentPrice.toInt(),
@@ -44,23 +43,22 @@ class MarketProductsGrid extends StatelessWidget {
           );
           return SubscriptionPackageCard(
             package: package,
+            badge: p.discountTag,
             detailsLabelKey: detailsLabelKey,
             onTap: onItemTap != null
                 ? () => onItemTap!(p)
                 : () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ProductDetailsScreen(product: p),
+                        builder: (_) => ProductDetailsScreen(product: p),
                       ),
                     ),
-            onFavoriteTap: () => onFavoriteTap?.call(p),
-            // Always provide a non-null onDetailsTap so button stays enabled
             onDetailsTap: onDetailsTap != null
                 ? () => onDetailsTap!(p)
                 : () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ProductDetailsScreen(product: p),
+                        builder: (_) => ProductDetailsScreen(product: p),
                       ),
                     ),
           );

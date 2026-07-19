@@ -110,6 +110,21 @@ import 'package:fitness_day/features/user/workout/presentation/manager/workout_d
 
 // User Home
 import 'package:fitness_day/features/user/user_home/data/datasources/user_home_remote_datasource.dart';
+
+// Market / Store
+import 'package:fitness_day/features/user/market/data/datasources/market_remote_datasource.dart';
+import 'package:fitness_day/features/user/market/data/repositories/market_repository_impl.dart';
+import 'package:fitness_day/features/user/market/domain/repositories/market_repository.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_store_home_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_products_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_product_by_id_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_plans_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_plan_by_id_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/toggle_favorite_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/market_home_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/product_details_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/plans_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/plan_details_cubit.dart';
 import 'package:fitness_day/features/user/user_home/data/repositories/user_home_repository_impl.dart';
 import 'package:fitness_day/features/user/user_home/domain/repositories/user_home_repository.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
@@ -467,6 +482,44 @@ Future<void> init() async {
   // Health & Activity tracking
   getIt.registerLazySingleton<FitnessHealthService>(
     () => FitnessHealthService(),
+  );
+
+  // Market / Store
+  getIt.registerLazySingleton<MarketRemoteDataSource>(
+    () => MarketRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<MarketRepository>(
+    () => MarketRepositoryImpl(getIt<MarketRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetStoreHomeUseCase>(
+    () => GetStoreHomeUseCase(getIt<MarketRepository>()),
+  );
+  getIt.registerLazySingleton<GetProductsUseCase>(
+    () => GetProductsUseCase(getIt<MarketRepository>()),
+  );
+  getIt.registerLazySingleton<GetProductByIdUseCase>(
+    () => GetProductByIdUseCase(getIt<MarketRepository>()),
+  );
+  getIt.registerLazySingleton<GetPlansUseCase>(
+    () => GetPlansUseCase(getIt<MarketRepository>()),
+  );
+  getIt.registerLazySingleton<GetPlanByIdUseCase>(
+    () => GetPlanByIdUseCase(getIt<MarketRepository>()),
+  );
+  getIt.registerLazySingleton<ToggleFavoriteUseCase>(
+    () => ToggleFavoriteUseCase(getIt<MarketRepository>()),
+  );
+  getIt.registerFactory<MarketHomeCubit>(
+    () => MarketHomeCubit(getIt<GetStoreHomeUseCase>()),
+  );
+  getIt.registerFactory<ProductDetailsCubit>(
+    () => ProductDetailsCubit(getIt<GetProductByIdUseCase>()),
+  );
+  getIt.registerFactory<PlansCubit>(
+    () => PlansCubit(getIt<GetPlansUseCase>()),
+  );
+  getIt.registerFactory<PlanDetailsCubit>(
+    () => PlanDetailsCubit(getIt<GetPlanByIdUseCase>()),
   );
 
   // Specialist Home
