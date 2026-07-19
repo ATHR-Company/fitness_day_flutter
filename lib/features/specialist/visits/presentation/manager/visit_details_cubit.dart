@@ -1,4 +1,5 @@
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_health_report_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/assessment_current_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_visit_data_usecase.dart';
@@ -156,9 +157,19 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
     switch (result) {
       case Success(:final data):
         if (prevSuccess != null) {
+          final isStartedFromApi = data.data?.isStarted ?? true;
+          // Optimistically move currentState off NOT_STARTED and mark visitData as
+          // started so the UI doesn't flash back to the "Upcoming" screen (or hide
+          // the goal card, which is gated on visitData.isStarted) while
+          // loadVisitData() catches up.
+          final updatedVisitData = prevSuccess.visitData?.copyWith(
+            currentState: AssessmentCurrentState.inProgress,
+            isStarted: isStartedFromApi,
+          );
           emit(prevSuccess.copyWith(
             isStarting: false,
-            isStarted: data.data?.isStarted ?? true,
+            isStarted: isStartedFromApi,
+            visitData: updatedVisitData,
           ));
         } else {
           emit(VisitDetailsSuccess(
@@ -173,6 +184,28 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
         }
         return false;
     }
+  }
+
+  Future<(bool, String)> finishVisit(String assessmentId) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+
+      final result = await _repository.finishVisit(assessmentId: assessmentId);
+
+      switch (result) {
+        case Success(:final data):
+          emit(currentState.copyWith(
+            isStarting: false,
+            canFinishAssessment: !(data.data?.isFinished ?? true),
+          ));
+          return (true, data.message);
+        case FailureResult(:final failure):
+          emit(currentState.copyWith(isStarting: false));
+          return (false, failure.message);
+      }
+    }
+    return (false, '');
   }
 
   Future<(bool, String)> updateGoal(String assessmentId, String goal) async {

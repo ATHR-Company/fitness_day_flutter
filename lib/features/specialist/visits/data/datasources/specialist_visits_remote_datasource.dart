@@ -5,6 +5,7 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_as
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_start_visit_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_finish_visit_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
@@ -35,6 +36,10 @@ abstract class SpecialistVisitsRemoteDataSource {
   });
 
   Future<SpecialistStartVisitResponseModel> startVisit({
+    required String assessmentId,
+  });
+
+  Future<SpecialistFinishVisitResponseModel> finishVisit({
     required String assessmentId,
   });
 
@@ -222,6 +227,16 @@ class SpecialistVisitsRemoteDataSourceImpl implements SpecialistVisitsRemoteData
       ApiEndpoints.startSpecialistAssessment(assessmentId),
     );
     return SpecialistStartVisitResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<SpecialistFinishVisitResponseModel> finishVisit({
+    required String assessmentId,
+  }) async {
+    final response = await _apiService.patch(
+      ApiEndpoints.finishSpecialistAssessment(assessmentId),
+    );
+    return SpecialistFinishVisitResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   @override

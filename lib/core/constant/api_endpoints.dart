@@ -14,6 +14,7 @@ class ApiEndpoints {
   static const String specialistAssessmentHistory = '/specialist/assessment-history';
   static String specialistAssessmentDetails(String id) => '/specialist/assessment-history/details/$id';
   static String startSpecialistAssessment(String id) => '/specialist/assessment-history/$id/start';
+  static String finishSpecialistAssessment(String id) => '/specialist/assessment-history/$id/finish';
   static String updateSpecialistAssessmentGoal(String id) => '/specialist/assessment-history/$id/goal';
   static String updateSpecialistAssessmentHealthReport(String id) => '/specialist/assessment-history/$id/health-report';
   static String updateSpecialistAssessmentPlan(String assessmentId, int dayNumber) =>

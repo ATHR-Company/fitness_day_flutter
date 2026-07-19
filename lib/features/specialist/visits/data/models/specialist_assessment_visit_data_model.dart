@@ -1,3 +1,5 @@
+import 'assessment_current_state.dart';
+
 class SpecialistAssessmentVisitDataResponseModel {
   final bool success;
   final int statusCode;
@@ -35,6 +37,8 @@ class SpecialistAssessmentVisitDataModel {
   final String? goal;
   final bool isStarted;
   final bool canFinishAssessment;
+  // Null when the backend doesn't send this field yet — see [AssessmentCurrentState.fromJson].
+  final AssessmentCurrentState? currentState;
 
   SpecialistAssessmentVisitDataModel({
     this.user,
@@ -48,6 +52,7 @@ class SpecialistAssessmentVisitDataModel {
     this.goal,
     required this.isStarted,
     required this.canFinishAssessment,
+    this.currentState,
   });
 
   factory SpecialistAssessmentVisitDataModel.fromJson(Map<String, dynamic> json) {
@@ -65,6 +70,7 @@ class SpecialistAssessmentVisitDataModel {
       goal: json['goal'] as String?,
       isStarted: json['isStarted'] as bool? ?? false,
       canFinishAssessment: json['canFinishAssessment'] as bool? ?? false,
+      currentState: AssessmentCurrentState.fromJson(json['currentState'] as String?),
     );
   }
 
@@ -80,6 +86,7 @@ class SpecialistAssessmentVisitDataModel {
     String? goal,
     bool? isStarted,
     bool? canFinishAssessment,
+    AssessmentCurrentState? currentState,
   }) {
     return SpecialistAssessmentVisitDataModel(
       user: user ?? this.user,
@@ -93,6 +100,7 @@ class SpecialistAssessmentVisitDataModel {
       goal: goal ?? this.goal,
       isStarted: isStarted ?? this.isStarted,
       canFinishAssessment: canFinishAssessment ?? this.canFinishAssessment,
+      currentState: currentState ?? this.currentState,
     );
   }
 }
