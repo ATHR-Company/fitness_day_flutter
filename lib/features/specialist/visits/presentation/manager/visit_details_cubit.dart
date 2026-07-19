@@ -108,24 +108,26 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
 
     final result = await _getCustomPlanUseCase(assessmentId: assessmentId, dayNumber: dayNumber);
 
+    final baseState = currentState is VisitDetailsSuccess ? currentState : null;
+
     switch (result) {
       case Success(:final data):
         if (data.data != null) {
-          final newCache = state is VisitDetailsSuccess
-              ? Map<int, dynamic>.from((state as VisitDetailsSuccess).customPlanCache)
-              : <int, dynamic>{};
-          newCache[dayNumber] = data.data;
+          final newCache = baseState != null
+              ? Map<int, SpecialistAssessmentCustomPlanModel>.from(baseState.customPlanCache)
+              : <int, SpecialistAssessmentCustomPlanModel>{};
+          newCache[dayNumber] = data.data!;
 
-          if (state is VisitDetailsSuccess) {
-            emit((state as VisitDetailsSuccess).copyWith(
+          if (baseState != null) {
+            emit(baseState.copyWith(
               customPlan: data.data,
-              customPlanCache: newCache.cast<int, dynamic>().map((k, v) => MapEntry(k, v)),
-              canFinishAssessment: data.data?.canFinishAssessment ?? (state as VisitDetailsSuccess).canFinishAssessment,
+              customPlanCache: newCache,
+              canFinishAssessment: data.data?.canFinishAssessment ?? baseState.canFinishAssessment,
             ));
           } else {
             emit(VisitDetailsSuccess(
               customPlan: data.data,
-              customPlanCache: newCache.cast<int, dynamic>().map((k, v) => MapEntry(k, v)),
+              customPlanCache: newCache,
               canFinishAssessment: data.data?.canFinishAssessment ?? false,
             ));
           }

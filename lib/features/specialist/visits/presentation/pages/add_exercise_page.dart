@@ -10,22 +10,24 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/selection_bottom_sheet.dart';
 import 'package:fitness_day/core/widgets/app_text_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/core/widgets/time_picker_bottom_sheet.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/utils/plan_day_time.dart';
 import 'package:fitness_day/features/specialist/visits/data/datasources/specialist_visits_remote_datasource.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
 
-import 'package:fitness_day/features/user/workout/data/models/workout_details_model.dart';
-
 class AddExercisePage extends StatefulWidget {
   final String assessmentId;
   final int dayNumber;
+  final String weekStart;      // Assessment week start — base date for the day
   final String? workoutItemId; // If provided, it's Edit Mode
 
   const AddExercisePage({
     super.key,
     required this.assessmentId,
     required this.dayNumber,
+    required this.weekStart,
     this.workoutItemId,
   });
 
@@ -170,8 +172,8 @@ class _AddExercisePageState extends State<AddExercisePage> {
                               'add_exercise.exercise_name_hint'.tr(),
                           suffixIcon: Icon(
                             Directionality.of(context) == ui.TextDirection.rtl
-                                ? Icons.chevron_left
-                                : Icons.chevron_right,
+                                ? Icons.chevron_right
+                                : Icons.chevron_left,
                             color: AppColors.textSecondary.withValues(alpha: 0.5),
                             size: 24.sp,
                           ),
@@ -259,9 +261,11 @@ class _AddExercisePageState extends State<AddExercisePage> {
       hintText: formatTime.format(dt),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       onTap: () async {
-        final time = await showTimePicker(
+        final time = await showModalBottomSheet<TimeOfDay>(
           context: context,
-          initialTime: _selectedTime,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => TimePickerBottomSheet(initialTime: _selectedTime),
         );
         if (time != null) {
           setState(() {
@@ -270,11 +274,6 @@ class _AddExercisePageState extends State<AddExercisePage> {
         }
       },
       readOnly: true,
-      suffixIcon: Icon(
-        Icons.access_time_rounded,
-        color: AppColors.primary,
-        size: 20.sp,
-      ),
     );
   }
 
@@ -293,8 +292,11 @@ class _AddExercisePageState extends State<AddExercisePage> {
     final reps = int.tryParse(_repsController.text) ?? 12;
     final rest = int.tryParse(_restController.text) ?? 60;
 
-    final now = DateTime.now();
-    final timeStr = DateTime(now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute).toUtc().toIso8601String();
+    final timeStr = buildPlanItemTime(
+      weekStart: widget.weekStart,
+      dayNumber: widget.dayNumber,
+      time: _selectedTime,
+    );
 
     setState(() => _isLoading = true);
     final cubit = context.read<VisitDetailsCubit>();

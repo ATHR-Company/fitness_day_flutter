@@ -18,7 +18,6 @@ import 'package:fitness_day/core/widgets/add_goal_dialog.dart';
 import 'package:fitness_day/core/widgets/plan_item_card.dart';
 import 'package:fitness_day/core/widgets/vertical_tab_bar.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
-import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/widgets/report_text_field.dart';
 import '../../../../shared/conversations/presentation/pages/chat_details_page.dart';
 import 'add_activity_page.dart';
@@ -312,7 +311,14 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
       case 1:
         return _buildReportTab(state.healthReport);
       case 2:
-        return _buildCustomPlanTab(state.customPlan, _selectedDayIndex + 1);
+        if (state.visitData == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return _buildCustomPlanTab(
+          state.customPlan,
+          _selectedDayIndex + 1,
+          state.visitData!.weekStart,
+        );
       default:
         return _buildVisitDataTab(state.visitData);
     }
@@ -574,7 +580,11 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildCustomPlanTab(SpecialistAssessmentCustomPlanModel? plan, int dayNumber) {
+  Widget _buildCustomPlanTab(
+    SpecialistAssessmentCustomPlanModel? plan,
+    int dayNumber,
+    String weekStart,
+  ) {
     if (plan == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -600,6 +610,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                           child: AddMealPage(
                             assessmentId: widget.assessmentId,
                             dayNumber: dayNumber,
+                            weekStart: weekStart,
                           ),
                         ),
                       ),
@@ -618,6 +629,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                           child: AddExercisePage(
                             assessmentId: widget.assessmentId,
                             dayNumber: dayNumber,
+                            weekStart: weekStart,
                           ),
                         ),
                       ),
@@ -636,6 +648,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                           child: AddActivityPage(
                             assessmentId: widget.assessmentId,
                             dayNumber: dayNumber,
+                            weekStart: weekStart,
                           ),
                         ),
                       ),
@@ -656,7 +669,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                     ),
                   )
                 else
-                  ...plan.meals.map((meal) => _buildMealCard(meal, dayNumber)),
+                  ...plan.meals.map((meal) => _buildMealCard(meal, dayNumber, weekStart)),
 
                 SizedBox(height: 24.h),
                 _buildSectionTitle('visit_details.exercises'.tr(), plan.workoutPlan.length),
@@ -670,7 +683,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                     ),
                   )
                 else
-                  ...plan.workoutPlan.map((workout) => _buildExerciseCard(workout, dayNumber)),
+                  ...plan.workoutPlan.map((workout) => _buildExerciseCard(workout, dayNumber, weekStart)),
 
                 SizedBox(height: 24.h),
                 _buildSectionTitle('visit_details.activity'.tr(), plan.activities.length),
@@ -684,7 +697,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                     ),
                   )
                 else
-                  ...plan.activities.map((activity) => _buildActivityCard(activity, dayNumber)),
+                  ...plan.activities.map((activity) => _buildActivityCard(activity, dayNumber, weekStart)),
               ],
             ),
           ),
@@ -823,7 +836,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildMealCard(SpecialistMealModel meal, int dayNumber) {
+  Widget _buildMealCard(SpecialistMealModel meal, int dayNumber, String weekStart) {
     String formattedTime = '';
     if (meal.time.isNotEmpty) {
       final parsed = DateTime.tryParse(meal.time);
@@ -852,6 +865,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 child: AddMealPage(
                   assessmentId: widget.assessmentId,
                   dayNumber: dayNumber,
+                  weekStart: weekStart,
                   mealId: meal.mealId,
                   initialCategoryName: meal.categoryName,
                   initialMealName: meal.name,
@@ -896,7 +910,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildExerciseCard(SpecialistWorkoutModel workout, int dayNumber) {
+  Widget _buildExerciseCard(SpecialistWorkoutModel workout, int dayNumber, String weekStart) {
     String formattedTime = '';
     if (workout.time.isNotEmpty) {
       final parsed = DateTime.tryParse(workout.time);
@@ -925,6 +939,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 child: AddExercisePage(
                   assessmentId: widget.assessmentId,
                   dayNumber: dayNumber,
+                  weekStart: weekStart,
                   workoutItemId: workout.workoutItemId,
                 ),
               ),
@@ -965,7 +980,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildActivityCard(SpecialistActivityModel activity, int dayNumber) {
+  Widget _buildActivityCard(SpecialistActivityModel activity, int dayNumber, String weekStart) {
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
       child: PlanItemCard(
@@ -982,6 +997,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 child: AddActivityPage(
                   assessmentId: widget.assessmentId,
                   dayNumber: dayNumber,
+                  weekStart: weekStart,
                   activityItemId: activity.activityItemId,
                 ),
               ),
