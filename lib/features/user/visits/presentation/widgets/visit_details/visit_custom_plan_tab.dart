@@ -7,7 +7,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/task_card.dart';
 import 'package:fitness_day/core/widgets/today_tasks_section.dart';
-import 'package:fitness_day/core/widgets/vertical_tab_bar.dart';
+import 'package:fitness_day/core/widgets/vertical_day_tab_bar.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/hydration_details_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/steps_details_screen.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/assessment_details_cubit.dart';
@@ -72,8 +72,8 @@ class VisitCustomPlanTab extends StatelessWidget {
         ),
 
         // Vertical day tabs
-        VerticalTabBar(
-          items: [
+        VerticalDayTabBar(
+          days: [
             LocaleKeys.visit_details_day_1.tr(),
             LocaleKeys.visit_details_day_2.tr(),
             LocaleKeys.visit_details_day_3.tr(),
@@ -83,7 +83,7 @@ class VisitCustomPlanTab extends StatelessWidget {
             LocaleKeys.visit_details_day_7.tr(),
           ],
           selectedIndex: selectedDayIndex,
-          onItemSelected: onDaySelected,
+          onDaySelected: onDaySelected,
         ),
       ],
     );

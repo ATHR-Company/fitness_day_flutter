@@ -10,6 +10,7 @@ class ArticleModel {
   final int viewsCount;
   final bool isSaved;
   final List<dynamic> relatedArticles;
+  final List<dynamic> media;
 
   ArticleModel({
     required this.id,
@@ -20,6 +21,7 @@ class ArticleModel {
     this.viewsCount = 0,
     this.isSaved = false,
     this.relatedArticles = const [],
+    this.media = const [],
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class ArticleModel {
       viewsCount: json['viewsCount'] ?? 0,
       isSaved: json['isSaved'] ?? false,
       relatedArticles: json['relatedArticles'] ?? [],
+      media: json['media'] ?? [],
     );
   }
 
@@ -69,6 +72,13 @@ class ArticleModel {
       );
     }).toList();
 
+    final List<ArticleMediaItem> mappedMedia = media.map((e) {
+      return ArticleMediaItem(
+        url: e['url'] ?? '',
+        type: e['type'] ?? 'PHOTO',
+      );
+    }).toList();
+
     return ArticleData(
       id: id,
       imageUrl: mainPhoto,
@@ -78,6 +88,7 @@ class ArticleModel {
       isSaved: isSaved,
       details: mappedDetails,
       relatedArticles: mappedRelated,
+      media: mappedMedia,
     );
   }
 }
