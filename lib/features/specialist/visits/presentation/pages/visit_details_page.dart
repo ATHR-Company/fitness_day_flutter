@@ -125,7 +125,16 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isUpcoming) {
+    return BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
+      builder: (context, topState) {
+        // The caller only knows the visit's status at navigation time (e.g. Home's
+        // upcoming list doesn't carry isStarted). Once real visit data loads, trust
+        // it over the caller's static hint so the same visit renders the same way
+        // no matter which screen linked here.
+        final loadedVisitData = topState is VisitDetailsSuccess ? topState.visitData : null;
+        final effectiveIsUpcoming = widget.isUpcoming && !(loadedVisitData?.isStarted ?? false);
+
+        if (effectiveIsUpcoming) {
       return UpcomingVisitShowScreen(
         title: 'visit_details.title'.tr(),
         trailingWidget: MessageIconButton(
@@ -281,7 +290,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
 
               // 4. Bottom Buttons — always visible in Custom Plan tab
               // disabled (outlined) when canFinishAssessment == false, active (greenMint) when true
-              if (!widget.isUpcoming && _selectedTabIndex == 2)
+              if (!effectiveIsUpcoming && _selectedTabIndex == 2)
                 BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
                   builder: (context, state) {
                     final canFinish = state is VisitDetailsSuccess && state.canFinishAssessment;
@@ -301,6 +310,8 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 
@@ -384,6 +395,10 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                         backgroundColor: success ? AppColors.primary : AppColors.error,
                       ),
                     );
+
+                    if (success && mounted) {
+                      _onTabChanged(1);
+                    }
                   },
                 );
               },
@@ -573,6 +588,10 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   backgroundColor: success ? AppColors.primary : AppColors.error,
                 ),
               );
+
+              if (success && mounted) {
+                _onTabChanged(2);
+              }
             },
           ),
         ],

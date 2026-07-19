@@ -45,12 +45,14 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
 
     final result = await _getVisitDataUseCase(assessmentId: assessmentId);
 
+    final baseState = currentState is VisitDetailsSuccess ? currentState : null;
+
     switch (result) {
       case Success(:final data):
         final isStartedFromApi = data.data?.isStarted ?? false;
         final canFinish = data.data?.canFinishAssessment ?? false;
-        if (state is VisitDetailsSuccess) {
-          emit((state as VisitDetailsSuccess).copyWith(
+        if (baseState != null) {
+          emit(baseState.copyWith(
             visitData: data.data,
             isStarted: isStartedFromApi,
             canFinishAssessment: canFinish,
@@ -79,11 +81,13 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
 
     final result = await _getHealthReportUseCase(assessmentId: assessmentId);
 
+    final baseState = currentState is VisitDetailsSuccess ? currentState : null;
+
     switch (result) {
       case Success(:final data):
         final healthReport = data.data ?? SpecialistAssessmentHealthReportModel();
-        if (state is VisitDetailsSuccess) {
-          emit((state as VisitDetailsSuccess).copyWith(healthReport: healthReport));
+        if (baseState != null) {
+          emit(baseState.copyWith(healthReport: healthReport));
         } else {
           emit(VisitDetailsSuccess(
             healthReport: healthReport,
