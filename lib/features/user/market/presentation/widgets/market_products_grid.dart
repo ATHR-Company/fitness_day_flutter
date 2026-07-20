@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_cart_card.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/product_details_screen.dart';
 
@@ -10,14 +12,12 @@ class MarketProductsGrid extends StatelessWidget {
   final List<ProductData> products;
   final String detailsLabelKey;
   final void Function(ProductData product)? onItemTap;
-  final void Function(ProductData product)? onDetailsTap;
 
   const MarketProductsGrid({
     super.key,
     required this.products,
-    this.detailsLabelKey = 'home.add_to_cart',
+    this.detailsLabelKey = 'market.add_to_cart',
     this.onItemTap,
-    this.onDetailsTap,
   });
 
   @override
@@ -41,20 +41,14 @@ class MarketProductsGrid extends StatelessWidget {
             oldPrice: p.oldPrice?.toInt() ?? 0,
             isFavorite: p.isFavorite,
           );
-          return SubscriptionPackageCard(
+          // Card body opens details; the button adds to cart (shows ✓ once in).
+          return ProductCartCard(
             package: package,
+            itemType: CartItemType.product,
             badge: p.discountTag,
             detailsLabelKey: detailsLabelKey,
             onTap: onItemTap != null
                 ? () => onItemTap!(p)
-                : () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ProductDetailsScreen(product: p),
-                      ),
-                    ),
-            onDetailsTap: onDetailsTap != null
-                ? () => onDetailsTap!(p)
                 : () => Navigator.push(
                       context,
                       MaterialPageRoute(

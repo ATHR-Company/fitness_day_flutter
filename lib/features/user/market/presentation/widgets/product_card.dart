@@ -13,11 +13,17 @@ class ProductCard extends StatelessWidget {
   final VoidCallback? onAddToCart;
   final VoidCallback? onFavoriteToggle;
 
+  /// Live cart state — drives the ✓ "added" button and its spinner.
+  final bool isInCart;
+  final bool isAdding;
+
   const ProductCard({
     super.key,
     required this.product,
     this.onAddToCart,
     this.onFavoriteToggle,
+    this.isInCart = false,
+    this.isAdding = false,
   });
 
   @override
@@ -68,7 +74,7 @@ class ProductCard extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.all(6.r),
                       decoration: BoxDecoration(
-                        color: AppColors.white.withOpacity(0.9),
+                        color: AppColors.white.withValues(alpha: 0.9),
                         shape: BoxShape.circle,
                         boxShadow: AppShadows.primaryShadow,
                       ),
@@ -160,32 +166,47 @@ class ProductCard extends StatelessWidget {
                 SizedBox(
                   height: 38.h,
                   child: ElevatedButton(
-                    onPressed: onAddToCart ?? () {},
+                    onPressed: (isInCart || isAdding) ? null : onAddToCart,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.marketGreen,
+                      disabledBackgroundColor: AppColors.marketGreen,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       elevation: 0,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'market.add_to_cart'.tr(),
-                          style: TextStyleManager.style11Medium.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
+                    child: isAdding
+                        ? SizedBox(
+                            width: 16.sp,
+                            height: 16.sp,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.white,
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                (isInCart
+                                        ? 'market.added'
+                                        : 'market.add_to_cart')
+                                    .tr(),
+                                style: TextStyleManager.style11Medium.copyWith(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Icon(
+                                isInCart
+                                    ? Icons.check_circle_rounded
+                                    : Icons.shopping_bag_outlined,
+                                size: 16.sp,
+                                color: AppColors.white,
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Icon(
-                          Icons.shopping_bag_outlined,
-                          size: 16.sp,
-                          color: AppColors.white,
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],

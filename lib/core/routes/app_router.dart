@@ -257,7 +257,18 @@ class AppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.stepsDetails,
-        builder: (context, state) => const StepsDetailsScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final activityType = extra['activityType'] as String? ?? 'walking';
+          return StepsDetailsScreen(
+            type: activityType == 'running'
+                ? ActivityType.running
+                : ActivityType.walking,
+            assessmentId: extra['assessmentId'] as String? ?? '',
+            dayNumber: extra['dayNumber'] as int? ?? 1,
+            activityId: extra['activityId'] as String? ?? '',
+          );
+        },
       ),
       GoRoute(
         path: UserAppRoutes.workoutVideo,

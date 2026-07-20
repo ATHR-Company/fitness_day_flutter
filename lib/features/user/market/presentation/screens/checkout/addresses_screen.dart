@@ -1,35 +1,82 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/features/user/market/domain/entities/address_data.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/addresses_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/edit_address_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/payment_method_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/order_summary_panel.dart';
 
-class AddressesScreen extends StatefulWidget {
+class AddressesScreen extends StatelessWidget {
   const AddressesScreen({super.key});
 
   @override
-  State<AddressesScreen> createState() => _AddressesScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => getIt<AddressesCubit>()..load(),
+      child: const _AddressesView(),
+    );
+  }
 }
 
-class _AddressesScreenState extends State<AddressesScreen> {
-  String? selectedAddressId;
+class _AddressesView extends StatelessWidget {
+  const _AddressesView();
 
-  // Sample addresses - replace with actual data from state management
-  final List<Map<String, dynamic>> addresses = [
-    {
-      'id': '1',
-      'name': 'market.mock_address_home_name'.tr(),
-      'details': 'market.mock_address_home_details'.tr(),
-    },
-    {
-      'id': '2',
-      'name': 'market.mock_address_office_name'.tr(),
-      'details': 'market.mock_address_office_details'.tr(),
-    },
-  ];
+  Future<void> _openEdit(BuildContext context, {AddressData? address}) {
+    final cubit = context.read<AddressesCubit>();
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: cubit,
+          child: EditAddressScreen(address: address),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, AddressData address) async {
+    final cubit = context.read<AddressesCubit>();
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('market.delete_address_title'.tr()),
+        content: Text('market.delete_address_confirm'.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text('market.cancel_sub_back'.tr()),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(
+              'market.delete_button'.tr(),
+              style: const TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final bool ok = await cubit.deleteAddress(address.id);
+    if (!context.mounted) return;
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('market.address_delete_error'.tr()),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +87,34 @@ class _AddressesScreenState extends State<AddressesScreen> {
           children: [
             _buildAppBar(context),
             Expanded(
-              child: addresses.isEmpty
-                  ? _buildEmptyState()
-                  : _buildAddressesList(),
+              child: BlocBuilder<AddressesCubit, AddressesState>(
+                builder: (context, state) {
+                  if (state is AddressesFailure) {
+                    return _buildErrorState(context, state.message);
+                  }
+                  if (state is AddressesSuccess) {
+                    return state.addresses.isEmpty
+                        ? _buildEmptyState()
+                        : _buildAddressesList(context, state);
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  );
+                },
+              ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomButton(context),
+      bottomNavigationBar: BlocBuilder<AddressesCubit, AddressesState>(
+        builder: (context, state) {
+          final String? selectedId =
+              state is AddressesSuccess ? state.selectedAddressId : null;
+          final bool isMutating =
+              state is AddressesSuccess && state.isMutating;
+          return _buildBottomButton(context, selectedId, isMutating);
+        },
+      ),
     );
   }
 
@@ -81,6 +148,39 @@ class _AddressesScreenState extends State<AddressesScreen> {
     );
   }
 
+  Widget _buildErrorState(BuildContext context, String message) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 40.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: AppColors.error, size: 48.sp),
+            SizedBox(height: 12.h),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyleManager.style13Medium
+                  .copyWith(color: AppColors.textSecondary),
+            ),
+            SizedBox(height: 16.h),
+            ElevatedButton(
+              onPressed: () => context.read<AddressesCubit>().load(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
+              child: Text(
+                'market.retry_button'.tr(),
+                style: TextStyleManager.style11Medium
+                    .copyWith(color: AppColors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -88,7 +188,6 @@ class _AddressesScreenState extends State<AddressesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Envelope illustration
             Container(
               width: 300.w,
               height: 300.h,
@@ -99,7 +198,6 @@ class _AddressesScreenState extends State<AddressesScreen> {
                 ),
               ),
             ),
-            // SizedBox(height: 24.h),
             Text(
               'market.no_addresses_message'.tr(),
               textAlign: TextAlign.center,
@@ -114,7 +212,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
     );
   }
 
-  Widget _buildAddressesList() {
+  Widget _buildAddressesList(BuildContext context, AddressesSuccess state) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
@@ -129,7 +227,9 @@ class _AddressesScreenState extends State<AddressesScreen> {
             ),
           ),
           SizedBox(height: 16.h),
-          ...addresses.map((address) => _buildAddressCard(address)),
+          ...state.addresses.map(
+            (address) => _buildAddressCard(context, address, state),
+          ),
           SizedBox(height: 33.h),
           Container(
             width: double.infinity,
@@ -137,14 +237,18 @@ class _AddressesScreenState extends State<AddressesScreen> {
             color: AppColors.divider,
           ),
           SizedBox(height: 33.h),
-          _buildAddNewAddressButton(),
+          _buildAddNewAddressButton(context),
         ],
       ),
     );
   }
 
-  Widget _buildAddressCard(Map<String, dynamic> address) {
-    final isSelected = selectedAddressId == address['id'];
+  Widget _buildAddressCard(
+    BuildContext context,
+    AddressData address,
+    AddressesSuccess state,
+  ) {
+    final bool isSelected = state.selectedAddressId == address.id;
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(16.w),
@@ -160,13 +264,9 @@ class _AddressesScreenState extends State<AddressesScreen> {
       ),
       child: Row(
         children: [
-              // Radio button
           GestureDetector(
-            onTap: () {
-              setState(() {
-                selectedAddressId = address['id'];
-              });
-            },
+            onTap: () =>
+                context.read<AddressesCubit>().selectAddress(address.id),
             child: Container(
               width: 20.w,
               height: 20.w,
@@ -178,30 +278,23 @@ class _AddressesScreenState extends State<AddressesScreen> {
                       : AppColors.textPlaceholder,
                   width: 2,
                 ),
-                color: isSelected ? AppColors.primary : Colors.transparent, // transparent is semantic here
+                color: isSelected ? AppColors.primary : Colors.transparent,
               ),
               child: isSelected
-                  ? Icon(
-                      Icons.circle,
-                      size: 10.sp,
-                      color: AppColors.white,
-                    )
+                  ? Icon(Icons.circle, size: 10.sp, color: AppColors.white)
                   : null,
             ),
           ),
-      SizedBox(width: 12.w),    
+          SizedBox(width: 12.w),
           Expanded(
             child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  selectedAddressId = address['id'];
-                });
-              },
+              onTap: () =>
+                  context.read<AddressesCubit>().selectAddress(address.id),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    address['name'],
+                    address.title,
                     style: TextStyleManager.style10Medium.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
@@ -209,7 +302,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    address['details'],
+                    '${address.district}، ${address.street}',
                     style: TextStyleManager.style9Medium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -219,67 +312,34 @@ class _AddressesScreenState extends State<AddressesScreen> {
             ),
           ),
           SizedBox(width: 12.w),
-          // Edit button
           GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => EditAddressScreen(
-                    addressData: {
-                      'name': address['name'] ?? '',
-                      'neighborhood': address['neighborhood'] ?? '',
-                      'street': address['street'] ?? '',
-                      'postalCode': address['postalCode'] ?? '',
-                      'buildingNumber': address['buildingNumber'] ?? '',
-                    },
-                  ),
-                ),
-              );
-            },
-            child:  Icon(
-                Icons.edit,
-                size: 20.sp,
-                color: AppColors.primary,
-              ),
-          
+            onTap: () => _openEdit(context, address: address),
+            child: Icon(Icons.edit, size: 20.sp, color: AppColors.primary),
           ),
-        
-      
+          SizedBox(width: 12.w),
+          GestureDetector(
+            onTap: () => _confirmDelete(context, address),
+            child: Icon(Icons.delete_outline, size: 20.sp, color: AppColors.error),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildAddNewAddressButton() {
+  Widget _buildAddNewAddressButton(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // No addressData passed → add mode: empty fields, title "اضافة عنوان جديد"
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const EditAddressScreen(),
-          ),
-        );
-      },
+      onTap: () => _openEdit(context),
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(
-            color: AppColors.primary,
-            width: 1.5,
-          ),
+          border: Border.all(color: AppColors.primary, width: 1.5),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.arrow_back_ios,
-              size: 16.sp,
-              color: AppColors.primary,
-            ),
+            Icon(Icons.arrow_back_ios, size: 16.sp, color: AppColors.primary),
             SizedBox(width: 8.w),
             Text(
               'market.add_new_address'.tr(),
@@ -294,7 +354,11 @@ class _AddressesScreenState extends State<AddressesScreen> {
     );
   }
 
-  Widget _buildBottomButton(BuildContext context) {
+  Widget _buildBottomButton(
+    BuildContext context,
+    String? selectedAddressId,
+    bool isMutating,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -324,18 +388,25 @@ class _AddressesScreenState extends State<AddressesScreen> {
                   borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-              SizedBox(height: 33.h),
+              SizedBox(height: 16.h),
+              const OrderSummaryPanel(),
+              SizedBox(height: 16.h),
               SizedBox(
                 width: double.infinity,
                 height: 50.h,
                 child: ElevatedButton(
-                  onPressed: selectedAddressId == null
+                  onPressed: selectedAddressId == null || isMutating
                       ? null
                       : () {
+                          final checkoutCubit = context.read<CheckoutCubit>();
+                          checkoutCubit.setAddress(selectedAddressId);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const PaymentMethodScreen(),
+                              builder: (_) => BlocProvider.value(
+                                value: checkoutCubit,
+                                child: const PaymentMethodScreen(),
+                              ),
                             ),
                           );
                         },

@@ -37,7 +37,12 @@ class StepsDetailsScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => getIt<ActivityDetailsCubit>()
         ..getActivityDetails(assessmentId, dayNumber, activityId),
-      child: _StepsDetailsLoader(type: type),
+      child: _StepsDetailsLoader(
+        type: type,
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        activityId: activityId,
+      ),
     );
   }
 }
@@ -46,7 +51,16 @@ class StepsDetailsScreen extends StatelessWidget {
 /// while subsequent period-switch calls run in the background.
 class _StepsDetailsLoader extends StatefulWidget {
   final ActivityType type;
-  const _StepsDetailsLoader({required this.type});
+  final String assessmentId;
+  final int dayNumber;
+  final String activityId;
+
+  const _StepsDetailsLoader({
+    required this.type,
+    required this.assessmentId,
+    required this.dayNumber,
+    required this.activityId,
+  });
 
   @override
   State<_StepsDetailsLoader> createState() => _StepsDetailsLoaderState();
@@ -67,6 +81,9 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
     if (widget.type == ActivityType.running) {
       _runningCubit = RunningCubit(
         apiService: getIt(),
+        assessmentId: widget.assessmentId,
+        dayNumber: widget.dayNumber,
+        activityId: widget.activityId,
         goalDistanceKm: data.goal,
       );
       // Don't call requestPermissions() automatically — user triggers it
@@ -153,6 +170,10 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
                   _walkingCubit = WalkingCubit(
                     healthService: getIt(),
                     apiService: getIt(),
+                    storage: getIt(),
+                    assessmentId: widget.assessmentId,
+                    dayNumber: widget.dayNumber,
+                    activityId: widget.activityId,
                     goalSteps: data.goal,
                     goalDistanceKm: data.goal,
                   )..init();

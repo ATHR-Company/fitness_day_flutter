@@ -1,19 +1,21 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/features/user/market/domain/entities/address_data.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/addresses_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/map_picker_screen.dart';
-import 'package:fitness_day/features/user/market/presentation/screens/checkout/payment_method_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/static_map_preview.dart';
 
 class EditAddressScreen extends StatefulWidget {
-  /// Pass [addressData] to pre-fill fields (edit mode).
+  /// Pass [address] to pre-fill fields (edit mode).
   /// Leave null to open in add mode with empty fields.
-  final Map<String, String>? addressData;
+  final AddressData? address;
 
-  const EditAddressScreen({super.key, this.addressData});
+  const EditAddressScreen({super.key, this.address});
 
   @override
   State<EditAddressScreen> createState() => _EditAddressScreenState();
@@ -26,30 +28,27 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
   late final TextEditingController _neighborhoodController;
   late final TextEditingController _streetController;
   late final TextEditingController _postalCodeController;
-  late final TextEditingController _buildingNumberController;
 
   LatLng? _pickedLocation;
+  bool _isDefault = false;
+  bool _isSaving = false;
 
-  bool get _isEditMode => widget.addressData != null;
+  bool get _isEditMode => widget.address != null;
 
   @override
   void initState() {
     super.initState();
-    final data = widget.addressData;
-    _nameController = TextEditingController(text: data?['name'] ?? '');
+    final address = widget.address;
+    _nameController = TextEditingController(text: address?.title ?? '');
     _neighborhoodController =
-        TextEditingController(text: data?['neighborhood'] ?? '');
-    _streetController = TextEditingController(text: data?['street'] ?? '');
+        TextEditingController(text: address?.district ?? '');
+    _streetController = TextEditingController(text: address?.street ?? '');
     _postalCodeController =
-        TextEditingController(text: data?['postalCode'] ?? '');
-    _buildingNumberController =
-        TextEditingController(text: data?['buildingNumber'] ?? '');
+        TextEditingController(text: address?.postalCode ?? '');
+    _isDefault = address?.isDefault ?? false;
 
-    // Restore saved coordinates when editing
-    final lat = double.tryParse(data?['lat'] ?? '');
-    final lng = double.tryParse(data?['lng'] ?? '');
-    if (lat != null && lng != null) {
-      _pickedLocation = LatLng(lat, lng);
+    if (address != null) {
+      _pickedLocation = LatLng(address.lat, address.lng);
     }
   }
 
@@ -59,7 +58,6 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     _neighborhoodController.dispose();
     _streetController.dispose();
     _postalCodeController.dispose();
-    _buildingNumberController.dispose();
     super.dispose();
   }
 
@@ -77,11 +75,9 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
   }
 
   // ── Save ────────────────────────────────────────────────────────────────────
-  void _onSave() {
-    // Validate form first
+  Future<void> _onSave() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    // Validate location
     if (_pickedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -97,20 +93,38 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
       return;
     }
 
-    if (_isEditMode) {
-      Navigator.pop(context, {
-        'name': _nameController.text.trim(),
-        'neighborhood': _neighborhoodController.text.trim(),
-        'street': _streetController.text.trim(),
-        'postalCode': _postalCodeController.text.trim(),
-        'buildingNumber': _buildingNumberController.text.trim(),
-        'lat': _pickedLocation!.latitude.toString(),
-        'lng': _pickedLocation!.longitude.toString(),
-      });
+    final input = AddressInput(
+      title: _nameController.text.trim(),
+      district: _neighborhoodController.text.trim(),
+      street: _streetController.text.trim(),
+      postalCode: _postalCodeController.text.trim(),
+      lat: _pickedLocation!.latitude,
+      lng: _pickedLocation!.longitude,
+      isDefault: _isDefault,
+    );
+
+    setState(() => _isSaving = true);
+    final cubit = context.read<AddressesCubit>();
+    final bool ok = _isEditMode
+        ? await cubit.updateAddress(widget.address!.id, input)
+        : await cubit.createAddress(input);
+
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
+    if (ok) {
+      Navigator.pop(context);
     } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const PaymentMethodScreen()),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'market.address_save_error'.tr(),
+            style: TextStyleManager.style11Medium
+                .copyWith(color: AppColors.white),
+          ),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
@@ -167,13 +181,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         validator: _postalCodeValidator,
                       ),
                       SizedBox(height: 16.h),
-                      _buildField(
-                        label: 'market.building_number_label'.tr(),
-                        hint: '18',
-                        controller: _buildingNumberController,
-                        keyboardType: TextInputType.number,
-                        validator: _requiredValidator,
-                      ),
+                      _buildDefaultToggle(),
                       SizedBox(height: 40.h),
                     ],
                   ),
@@ -266,7 +274,6 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
           GestureDetector(
             onTap: _openMapPicker,
             child: Container(
-              // height: 100.h,
               padding: EdgeInsets.symmetric(vertical: 14.h),
               width: double.infinity,
               decoration: BoxDecoration(
@@ -299,6 +306,36 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     );
   }
 
+  Widget _buildDefaultToggle() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(
+          color: AppColors.textSecondary.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'market.set_as_default_label'.tr(),
+            style: TextStyleManager.style11Medium.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.black,
+            ),
+          ),
+          Switch(
+            value: _isDefault,
+            activeThumbColor: AppColors.primary,
+            onChanged: (value) => setState(() => _isDefault = value),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
@@ -306,7 +343,9 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
         alignment: Alignment.center,
         children: [
           Text(
-            _isEditMode ? 'market.edit_address_title'.tr() : 'market.add_new_address'.tr(),
+            _isEditMode
+                ? 'market.edit_address_title'.tr()
+                : 'market.add_new_address'.tr(),
             textAlign: TextAlign.center,
             style: TextStyleManager.heading2.copyWith(
               color: AppColors.black,
@@ -373,16 +412,16 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
             validator: validator,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             decoration: InputDecoration(
-            labelStyle: TextStyleManager.style9Medium.copyWith(
-              color: AppColors.textPrimary,
-            ),
-            hintText: hint,
-            hintStyle: TextStyleManager.style9Medium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-            errorStyle: TextStyleManager.style9Medium.copyWith(
-              color: AppColors.error,
-            ),
+              labelStyle: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textPrimary,
+              ),
+              hintText: hint,
+              hintStyle: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              errorStyle: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.error,
+              ),
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16.w,
@@ -438,7 +477,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                 width: double.infinity,
                 height: 50.h,
                 child: ElevatedButton(
-                  onPressed: _onSave,
+                  onPressed: _isSaving ? null : _onSave,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
@@ -446,13 +485,24 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                     ),
                     elevation: 0,
                   ),
-                  child: Text(
-                    _isEditMode ? 'market.edit_button'.tr() : 'market.add_button'.tr(),
-                    style: TextStyleManager.style15Medium.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: _isSaving
+                      ? SizedBox(
+                          width: 20.w,
+                          height: 20.w,
+                          child: const CircularProgressIndicator(
+                            color: AppColors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          _isEditMode
+                              ? 'market.edit_button'.tr()
+                              : 'market.add_button'.tr(),
+                          style: TextStyleManager.style15Medium.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ],

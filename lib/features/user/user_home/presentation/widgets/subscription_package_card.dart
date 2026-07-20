@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
@@ -20,6 +21,13 @@ class SubscriptionPackageCard extends StatefulWidget {
   /// Optional badge text (e.g. "عرض خاص") shown top-left of image.
   final String? badge;
 
+  /// When provided, the bottom button becomes an *add to cart* action instead
+  /// of a details navigation: it calls this, shows a spinner while [isAdding],
+  /// and switches to a ✓ "added" state once [isInCart].
+  final VoidCallback? onAddToCart;
+  final bool isInCart;
+  final bool isAdding;
+
   const SubscriptionPackageCard({
     super.key,
     required this.package,
@@ -28,6 +36,9 @@ class SubscriptionPackageCard extends StatefulWidget {
     this.onTap,
     this.onDetailsTap,
     this.badge,
+    this.onAddToCart,
+    this.isInCart = false,
+    this.isAdding = false,
   });
 
   @override
@@ -61,6 +72,84 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
     } finally {
       if (mounted) setState(() => _isTogglingFavorite = false);
     }
+  }
+
+  Widget _buildDetailsButton() {
+    return ElevatedButton(
+      onPressed: widget.onDetailsTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        elevation: 0,
+        padding: EdgeInsets.symmetric(horizontal: 10.w),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(width: 4.w),
+          Text(
+            widget.detailsLabelKey.tr(),
+            style: TextStyleManager.style9Medium.copyWith(
+              color: AppColors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(width: 4.w),
+          Icon(Icons.keyboard_double_arrow_right,
+              size: 14.sp, color: AppColors.white),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddToCartButton() {
+    final bool added = widget.isInCart;
+    return ElevatedButton(
+      // Disabled while adding, and once already in the cart.
+      onPressed: (widget.isAdding || added) ? null : widget.onAddToCart,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: added ? AppColors.marketGreen : AppColors.primary,
+        disabledBackgroundColor:
+            added ? AppColors.marketGreen : AppColors.primary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        elevation: 0,
+        padding: EdgeInsets.symmetric(horizontal: 10.w),
+      ),
+      child: widget.isAdding
+          ? SizedBox(
+              width: 14.sp,
+              height: 14.sp,
+              child: const CircularProgressIndicator(
+                strokeWidth: 1.6,
+                color: AppColors.white,
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(width: 4.w),
+                Text(
+                  (added ? 'market.added' : widget.detailsLabelKey).tr(),
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(width: 4.w),
+                added
+                    ? Icon(Icons.check_circle_rounded,
+                        size: 14.sp, color: AppColors.white)
+                    : AppImage(SvgIcons.market_icon,
+                        width: 14.sp, height: 14.sp, color: AppColors.white),
+              ],
+            ),
+    );
   }
 
   @override
@@ -217,35 +306,9 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                       alignment: AlignmentDirectional.centerEnd,
                       child: SizedBox(
                         height: 32.h,
-                        child: ElevatedButton(
-                          onPressed: widget.onDetailsTap,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            elevation: 0,
-                            padding:
-                                EdgeInsets.symmetric(horizontal: 10.w),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(width: 4.w),
-                              Text(
-                                widget.detailsLabelKey.tr(),
-                                style: TextStyleManager.style9Medium.copyWith(
-                                  color: AppColors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              SizedBox(width: 4.w),
-                              Icon(Icons.keyboard_double_arrow_right,
-                                  size: 14.sp, color: AppColors.white),
-                            ],
-                          ),
-                        ),
+                        child: widget.onAddToCart != null
+                            ? _buildAddToCartButton()
+                            : _buildDetailsButton(),
                       ),
                     ),
                   ],

@@ -7,6 +7,7 @@ import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:fitness_day/features/user/market/domain/entities/plans_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/store_home_data.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/market_home_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/market_home_state.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/plans_cubit.dart';
@@ -17,6 +18,7 @@ import 'package:fitness_day/features/user/market/presentation/widgets/market_cat
 import 'package:fitness_day/features/user/market/presentation/widgets/market_products_grid.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_section_header.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_tab_bar.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_card_shimmer.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/package_details_dialog.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_banner.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
@@ -40,6 +42,8 @@ class _MarketMainScreenState extends State<MarketMainScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    // Load the cart once so every product card can reflect membership (the ✓).
+    getIt<CartCubit>().loadCart();
   }
 
   @override
@@ -116,14 +120,19 @@ class _ProductsTab extends StatelessWidget {
 
   const _ProductsTab({required this.toProductData});
 
+  /// Keeps the first occurrence of each product id — a product may appear in
+  /// more than one section (offers / sellers / new).
+  List<ProductData> _dedupeById(List<ProductData> items) {
+    final seen = <String>{};
+    return items.where((p) => seen.add(p.id)).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MarketHomeCubit, MarketHomeState>(
       builder: (context, state) {
         if (state is MarketHomeLoading || state is MarketHomeInitial) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
+          return const ProductsGridShimmer();
         }
 
         if (state is MarketHomeFailure) {
@@ -171,26 +180,11 @@ class _ProductsTab extends StatelessWidget {
                 child: MarketCategoriesRow(
                   categories: categoryNames,
                   selectedIndex: state.selectedCategoryIndex,
-                  onSelect: (i) {
-                    context.read<MarketHomeCubit>().selectCategory(i);
-                    if (i > 0) {
-                      final catId = data.categories[i - 1].id;
-                      final catName = data.categories[i - 1].name;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ProductsListScreen.byCategory(
-                            title: catName,
-                            categoryId: catId,
-                          ),
-                        ),
-                      ).then((_) {
-                        if (context.mounted) {
-                          context.read<MarketHomeCubit>().selectCategory(0);
-                        }
-                      });
-                    }
-                  },
+                  // Selecting a category filters the products inline below the
+                  // row (replacing the banners/sections) instead of opening a
+                  // separate page.
+                  onSelect: (i) =>
+                      context.read<MarketHomeCubit>().selectCategory(i),
                 ),
               ),
             ),
@@ -263,13 +257,14 @@ class _ProductsTab extends StatelessWidget {
                 MarketProductsGrid(products: filteredNewProducts),
               ],
             ] else ...[
-              // Filtered category — show all matching products together
+              // Filtered category — show all matching products together,
+              // de-duplicated since a product can appear in several sections.
               MarketProductsGrid(
-                products: [
+                products: _dedupeById([
                   ...filteredBestOffers,
                   ...filteredBestSellers,
                   ...filteredNewProducts,
-                ],
+                ]),
               ),
             ],
 

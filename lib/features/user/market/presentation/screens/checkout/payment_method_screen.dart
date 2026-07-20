@@ -1,31 +1,54 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/core/constant/app_assets.dart';
-import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
-import 'package:fitness_day/features/user/market/presentation/widgets/order_success_dialog.dart';
+import 'package:fitness_day/features/user/market/domain/entities/order_data.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/checkout/order_review_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/order_summary_panel.dart';
 
-class PaymentMethodScreen extends StatefulWidget {
+class PaymentMethodScreen extends StatelessWidget {
   const PaymentMethodScreen({super.key});
 
-  @override
-  State<PaymentMethodScreen> createState() => _PaymentMethodScreenState();
-}
-
-class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
-  String selectedPaymentMethod = 'mada';
-
-  final List<Map<String, dynamic>> paymentMethods = [
-    {'id': 'visa', 'name': 'Visa', 'asset': AppImages.visaMaster, 'isNetwork': false},
-    {'id': 'mada', 'name': 'Mada', 'asset': AppImages.mada, 'isNetwork': false},
-    {'id': 'tabby', 'name': 'Tabby', 'asset': AppImages.tabby, 'isNetwork': false},
-    {'id': 'stc_pay', 'name': 'STC Pay', 'asset': AppImages.stcPay, 'isNetwork': false},
-    {'id': 'bank_transfer', 'name': 'market.payment_bank_transfer'.tr(), 'asset': AppImages.bankTransfer, 'isNetwork': false},
-    {'id': 'tamara', 'name': 'Tamara', 'asset': AppImages.tamara, 'isNetwork': false},
+  static const List<_PaymentOption> _options = [
+    _PaymentOption(CheckoutPaymentMethod.cash, 'market.payment_cash', Icons.payments_outlined),
+    _PaymentOption(CheckoutPaymentMethod.paypal, 'market.payment_paypal', Icons.account_balance_wallet_outlined),
   ];
+
+  Future<void> _confirm(BuildContext context) async {
+    final cubit = context.read<CheckoutCubit>();
+    // PayPal's webview handoff is not wired yet — only CASH can place an order.
+    if (cubit.state.paymentMethod == CheckoutPaymentMethod.paypal) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('market.paypal_not_available'.tr())),
+      );
+      return;
+    }
+
+    final ok = await cubit.submit();
+    if (!context.mounted) return;
+    if (ok) {
+      // Order created — the review screen applies the coupon live and shows
+      // the discounted summary from the order.
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BlocProvider.value(
+            value: cubit,
+            child: const OrderReviewScreen(),
+          ),
+        ),
+      );
+    } else {
+      final msg = cubit.state.errorMessage;
+      if (msg != null && msg.isNotEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(msg)));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +74,17 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                       ),
                     ),
                     SizedBox(height: 16.h),
-                    _buildPaymentGrid(),
+                    BlocBuilder<CheckoutCubit, CheckoutState>(
+                      builder: (context, state) {
+                        return Column(
+                          children: _options.map((opt) {
+                            final bool isSelected =
+                                state.paymentMethod == opt.method;
+                            return _buildOptionCard(context, opt, isSelected);
+                          }).toList(),
+                        );
+                      },
+                    ),
                     SizedBox(height: 40.h),
                   ],
                 ),
@@ -94,85 +127,52 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
     );
   }
 
-  Widget _buildPaymentGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: paymentMethods.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 16.h,
-        crossAxisSpacing: 16.w,
-        childAspectRatio: 2.2, // wide enough for the cards in image
-      ),
-      itemBuilder: (context, index) {
-        final method = paymentMethods[index];
-        final isSelected = selectedPaymentMethod == method['id'];
-        
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              selectedPaymentMethod = method['id'];
-            });
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(8.r),
-              border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.textSecondary.withValues(alpha: 0.2),
-                width: isSelected ? 1.5 : 1,
+  Widget _buildOptionCard(
+      BuildContext context, _PaymentOption opt, bool isSelected) {
+    return GestureDetector(
+      onTap: () => context.read<CheckoutCubit>().setPaymentMethod(opt.method),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : AppColors.textSecondary.withValues(alpha: 0.2),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(opt.icon, color: AppColors.primary, size: 22.sp),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Text(
+                opt.labelKey.tr(),
+                style: TextStyleManager.style13Medium.copyWith(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Depending on if we have the assets or not, we show a placeholder text if image fails
-                // Or we can just use a text for now if assets are missing
-                Expanded(
-                  child: method['id'] == 'bank_transfer'
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              method['name'],
-                              style: TextStyleManager.style9Medium.copyWith(
-                                color: AppColors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: 4.w),
-                            Icon(Icons.account_balance, color: AppColors.black, size: 10.sp),
-                          ],
-                        )
-                      : Center(
-                          child: Text(
-                            method['name'],
-                            style: TextStyleManager.style13Medium.copyWith(
-                              color: AppColors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+            Container(
+              width: 16.w,
+              height: 16.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textPlaceholder,
+                  width: isSelected ? 4 : 1,
                 ),
-                SizedBox(width: 8.w),
-                Container(
-                  width: 16.w,
-                  height: 16.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? AppColors.primary : AppColors.textPlaceholder,
-                      width: isSelected ? 4 : 1,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
@@ -206,35 +206,46 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-          SizedBox(height: 33.h),
-              SizedBox(
-                width: double.infinity,
-                height: 50.h,
-                child: ElevatedButton(
-                  onPressed: () {
-                    OrderSuccessDialog.show(
-                      context,
-                      onGoHome: () {
-                        Navigator.of(context).pop(); // close dialog
-                        context.go(UserAppRoutes.store); // navigate to store
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.r),
+              SizedBox(height: 16.h),
+              const OrderSummaryPanel(),
+              SizedBox(height: 16.h),
+              BlocBuilder<CheckoutCubit, CheckoutState>(
+                builder: (context, state) {
+                  final bool submitting =
+                      state.status == CheckoutSubmitStatus.submitting;
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 50.h,
+                    child: ElevatedButton(
+                      onPressed: submitting ? null : () => _confirm(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        disabledBackgroundColor:
+                            AppColors.primary.withValues(alpha: 0.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.r),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: submitting
+                          ? SizedBox(
+                              width: 22.w,
+                              height: 22.w,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.white,
+                              ),
+                            )
+                          : Text(
+                              'market.confirm_order'.tr(),
+                              style: TextStyleManager.style15Medium.copyWith(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    'market.next_button'.tr(),
-                    style: TextStyleManager.style15Medium.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),
@@ -242,4 +253,11 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
       ),
     );
   }
+}
+
+class _PaymentOption {
+  final CheckoutPaymentMethod method;
+  final String labelKey;
+  final IconData icon;
+  const _PaymentOption(this.method, this.labelKey, this.icon);
 }

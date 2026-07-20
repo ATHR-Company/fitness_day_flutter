@@ -125,6 +125,30 @@ import 'package:fitness_day/features/user/market/presentation/manager/market_hom
 import 'package:fitness_day/features/user/market/presentation/manager/product_details_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/plans_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/plan_details_cubit.dart';
+import 'package:fitness_day/features/user/market/data/datasources/address_remote_datasource.dart';
+import 'package:fitness_day/features/user/market/data/repositories/address_repository_impl.dart';
+import 'package:fitness_day/features/user/market/domain/repositories/address_repository.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_addresses_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/create_address_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/update_address_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/delete_address_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/addresses_cubit.dart';
+import 'package:fitness_day/features/user/market/data/datasources/cart_remote_datasource.dart';
+import 'package:fitness_day/features/user/market/data/repositories/cart_repository_impl.dart';
+import 'package:fitness_day/features/user/market/domain/repositories/cart_repository.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_cart_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/add_to_cart_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/update_cart_quantity_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/remove_cart_item_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
+import 'package:fitness_day/features/user/market/data/datasources/checkout_remote_datasource.dart';
+import 'package:fitness_day/features/user/market/data/repositories/checkout_repository_impl.dart';
+import 'package:fitness_day/features/user/market/domain/repositories/checkout_repository.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_branches_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/checkout_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/apply_coupon_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/edit_delivery_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
 import 'package:fitness_day/features/user/user_home/data/repositories/user_home_repository_impl.dart';
 import 'package:fitness_day/features/user/user_home/domain/repositories/user_home_repository.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
@@ -520,6 +544,92 @@ Future<void> init() async {
   );
   getIt.registerFactory<PlanDetailsCubit>(
     () => PlanDetailsCubit(getIt<GetPlanByIdUseCase>()),
+  );
+
+  // Addresses (checkout / delivery)
+  getIt.registerLazySingleton<AddressRemoteDataSource>(
+    () => AddressRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<AddressRepository>(
+    () => AddressRepositoryImpl(getIt<AddressRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetAddressesUseCase>(
+    () => GetAddressesUseCase(getIt<AddressRepository>()),
+  );
+  getIt.registerLazySingleton<CreateAddressUseCase>(
+    () => CreateAddressUseCase(getIt<AddressRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateAddressUseCase>(
+    () => UpdateAddressUseCase(getIt<AddressRepository>()),
+  );
+  getIt.registerLazySingleton<DeleteAddressUseCase>(
+    () => DeleteAddressUseCase(getIt<AddressRepository>()),
+  );
+  getIt.registerFactory<AddressesCubit>(
+    () => AddressesCubit(
+      getAddressesUseCase: getIt<GetAddressesUseCase>(),
+      createAddressUseCase: getIt<CreateAddressUseCase>(),
+      updateAddressUseCase: getIt<UpdateAddressUseCase>(),
+      deleteAddressUseCase: getIt<DeleteAddressUseCase>(),
+    ),
+  );
+
+  // Cart — CartCubit is a singleton so add-to-cart state (and the ✓ marker)
+  // is shared across every store screen.
+  getIt.registerLazySingleton<CartRemoteDataSource>(
+    () => CartRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<CartRepository>(
+    () => CartRepositoryImpl(getIt<CartRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetCartUseCase>(
+    () => GetCartUseCase(getIt<CartRepository>()),
+  );
+  getIt.registerLazySingleton<AddToCartUseCase>(
+    () => AddToCartUseCase(getIt<CartRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateCartQuantityUseCase>(
+    () => UpdateCartQuantityUseCase(getIt<CartRepository>()),
+  );
+  getIt.registerLazySingleton<RemoveCartItemUseCase>(
+    () => RemoveCartItemUseCase(getIt<CartRepository>()),
+  );
+  getIt.registerLazySingleton<CartCubit>(
+    () => CartCubit(
+      getCartUseCase: getIt<GetCartUseCase>(),
+      addToCartUseCase: getIt<AddToCartUseCase>(),
+      updateQuantityUseCase: getIt<UpdateCartQuantityUseCase>(),
+      removeItemUseCase: getIt<RemoveCartItemUseCase>(),
+    ),
+  );
+
+  // Checkout — CheckoutCubit is a factory: one instance per checkout flow,
+  // shared across the flow's pushed screens via BlocProvider.value.
+  getIt.registerLazySingleton<CheckoutRemoteDataSource>(
+    () => CheckoutRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<CheckoutRepository>(
+    () => CheckoutRepositoryImpl(getIt<CheckoutRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetBranchesUseCase>(
+    () => GetBranchesUseCase(getIt<CheckoutRepository>()),
+  );
+  getIt.registerLazySingleton<CheckoutUseCase>(
+    () => CheckoutUseCase(getIt<CheckoutRepository>()),
+  );
+  getIt.registerLazySingleton<ApplyCouponUseCase>(
+    () => ApplyCouponUseCase(getIt<CheckoutRepository>()),
+  );
+  getIt.registerLazySingleton<EditDeliveryUseCase>(
+    () => EditDeliveryUseCase(getIt<CheckoutRepository>()),
+  );
+  getIt.registerFactory<CheckoutCubit>(
+    () => CheckoutCubit(
+      checkoutUseCase: getIt<CheckoutUseCase>(),
+      applyCouponUseCase: getIt<ApplyCouponUseCase>(),
+      editDeliveryUseCase: getIt<EditDeliveryUseCase>(),
+      getBranchesUseCase: getIt<GetBranchesUseCase>(),
+    ),
   );
 
   // Specialist Home

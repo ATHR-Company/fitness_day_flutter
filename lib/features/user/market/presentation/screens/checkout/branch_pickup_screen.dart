@@ -1,12 +1,27 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/payment_method_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/order_summary_panel.dart';
 
-class BranchPickupScreen extends StatelessWidget {
+class BranchPickupScreen extends StatefulWidget {
   const BranchPickupScreen({super.key});
+
+  @override
+  State<BranchPickupScreen> createState() => _BranchPickupScreenState();
+}
+
+class _BranchPickupScreenState extends State<BranchPickupScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final cubit = context.read<CheckoutCubit>();
+    if (cubit.state.branches.isEmpty) cubit.loadBranches();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +38,7 @@ class BranchPickupScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildBranchSelector(),
+                    _buildBranchSelector(context),
                     SizedBox(height: 24.h),
                     _buildContactInfo(),
                     SizedBox(height: 24.h),
@@ -70,38 +85,81 @@ class BranchPickupScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBranchSelector() {
-    return Container(
-      height: 56.h,
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(8.r),
-        border: Border.all(
-          color: AppColors.textSecondary.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: 16.w,
-            height: 16.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.primary, width: 4),
+  Widget _buildBranchSelector(BuildContext context) {
+    return BlocBuilder<CheckoutCubit, CheckoutState>(
+      builder: (context, state) {
+        if (state.branchesLoading) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 24.h),
+            child: const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
             ),
-          ),
-          SizedBox(width: 8.w),
-          Text(
-            'market.branch_name_qatif'.tr(),
-            style: TextStyleManager.style13Medium.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.bold,
+          );
+        }
+        if (state.branches.isEmpty) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 24.h),
+            child: Center(
+              child: Text(
+                'market.no_branches'.tr(),
+                style: TextStyleManager.style11Medium
+                    .copyWith(color: AppColors.textSecondary),
+              ),
             ),
-          ),
-        ],
-      ),
+          );
+        }
+        return Column(
+          children: state.branches.map((branch) {
+            final bool isSelected = state.branchIdentity == branch.id;
+            return GestureDetector(
+              onTap: () =>
+                  context.read<CheckoutCubit>().setBranch(branch.id),
+              child: Container(
+                margin: EdgeInsets.only(bottom: 12.h),
+                height: 56.h,
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.textSecondary.withValues(alpha: 0.2),
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 16.w,
+                      height: 16.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.textPlaceholder,
+                          width: isSelected ? 4 : 1,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        branch.name,
+                        style: TextStyleManager.style13Medium.copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 
@@ -129,7 +187,6 @@ class BranchPickupScreen extends StatelessWidget {
               child: Icon(Icons.call, color: AppColors.white, size: 16.sp),
             ),
             SizedBox(width: 8.w),
-
             Text(
               '+966543759100',
               style: TextStyleManager.style13Medium.copyWith(
@@ -283,34 +340,50 @@ class BranchPickupScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-              SizedBox(height: 33.h),
-              SizedBox(
-                width: double.infinity,
-                height: 50.h,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const PaymentMethodScreen(),
+              SizedBox(height: 16.h),
+              const OrderSummaryPanel(),
+              SizedBox(height: 16.h),
+              BlocBuilder<CheckoutCubit, CheckoutState>(
+                builder: (context, state) {
+                  final bool hasBranch = state.branchIdentity != null;
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 50.h,
+                    child: ElevatedButton(
+                      onPressed: hasBranch
+                          ? () {
+                              final checkoutCubit =
+                                  context.read<CheckoutCubit>();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BlocProvider.value(
+                                    value: checkoutCubit,
+                                    child: const PaymentMethodScreen(),
+                                  ),
+                                ),
+                              );
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        disabledBackgroundColor:
+                            AppColors.textSecondary.withValues(alpha: 0.3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.r),
+                        ),
+                        elevation: 0,
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.r),
+                      child: Text(
+                        'market.confirm_order'.tr(),
+                        style: TextStyleManager.style15Medium.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    'market.confirm_order'.tr(),
-                    style: TextStyleManager.style15Medium.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),

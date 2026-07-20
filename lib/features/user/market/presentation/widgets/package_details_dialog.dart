@@ -4,8 +4,9 @@ import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
-import 'package:fitness_day/features/user/market/domain/entities/plans_data.dart';
+import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/plan_details_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/cancel_subscription_dialog.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,8 @@ class PackageDetailsDialog extends StatelessWidget {
       descriptions: const [],
       isSubscribed: isSubscribed,
       expiryDate: expiryDate,
+      cartItemId: package!.id,
+      cartItemType: CartItemType.product,
     );
   }
 }
@@ -134,6 +137,8 @@ class _PlanDetailsDialogContentState extends State<_PlanDetailsDialogContent> {
           descriptions: details.descriptions,
           isSubscribed: widget.isSubscribed,
           expiryDate: widget.expiryDate,
+          cartItemId: details.id,
+          cartItemType: CartItemType.plan,
         );
       },
     );
@@ -154,6 +159,8 @@ class _StaticDialogContent extends StatelessWidget {
   final List<String> descriptions;
   final bool isSubscribed;
   final String? expiryDate;
+  final String? cartItemId;
+  final CartItemType cartItemType;
 
   const _StaticDialogContent({
     required this.name,
@@ -166,7 +173,74 @@ class _StaticDialogContent extends StatelessWidget {
     required this.descriptions,
     required this.isSubscribed,
     this.expiryDate,
+    this.cartItemId,
+    this.cartItemType = CartItemType.plan,
   });
+
+  Future<void> _addToCart(BuildContext context, CartCubit cart) async {
+    final id = cartItemId;
+    if (id == null) return;
+    final ok = await cart.addToCart(itemType: cartItemType, itemIdentity: id);
+    if (!ok && context.mounted) {
+      final msg = cart.state.errorMessage;
+      if (msg != null && msg.isNotEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(msg)));
+      }
+    }
+  }
+
+  Widget _buildAddToCartButton(BuildContext context) {
+    final cart = getIt<CartCubit>();
+    return BlocBuilder<CartCubit, CartState>(
+      bloc: cart,
+      builder: (context, state) {
+        final bool added = cartItemId != null && state.isInCart(cartItemId!);
+        final bool adding = cartItemId != null && state.isAdding(cartItemId!);
+        return ElevatedButton(
+          onPressed:
+              (added || adding) ? null : () => _addToCart(context, cart),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: added ? AppColors.marketGreen : AppColors.primary,
+            disabledBackgroundColor:
+                added ? AppColors.marketGreen : AppColors.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24.r),
+            ),
+            elevation: 0,
+          ),
+          child: adding
+              ? SizedBox(
+                  width: 20.w,
+                  height: 20.w,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.white,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (added)
+                      Icon(Icons.check_circle_rounded,
+                          color: AppColors.white, size: 20.sp)
+                    else
+                      AppImage(SvgIcons.market_icon,
+                          color: AppColors.white, width: 20.w, height: 20.h),
+                    SizedBox(width: 8.w),
+                    Text(
+                      (added ? 'market.added' : 'market.add_to_cart').tr(),
+                      style: TextStyleManager.style13Medium.copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -413,33 +487,7 @@ class _StaticDialogContent extends StatelessWidget {
                     EdgeInsets.symmetric(horizontal: 40.w, vertical: 8.h),
                 child: SizedBox(
                   height: 48.h,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24.r),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AppImage(SvgIcons.market_icon,
-                            color: AppColors.white,
-                            width: 20.w,
-                            height: 20.h),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'market.add_to_cart'.tr(),
-                          style: TextStyleManager.style13Medium.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: _buildAddToCartButton(context),
                 ),
               ),
             ],

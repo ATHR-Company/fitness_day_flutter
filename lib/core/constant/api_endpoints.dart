@@ -71,9 +71,11 @@ class ApiEndpoints {
       '/workout-plan/assessments/$assessmentId/days/$dayNumber/workouts/$workoutItemId/sets/$setNumber/complete';
   static String dailyTasks(int dayNumber) => '/daily-tasks/days/$dayNumber';
 
-  // Activity tracking — send progress to backend
-  static const String updateWalking = '/activities/walking/progress';
-  static const String updateRunning = '/activities/running/progress';
+  // Activity tracking — send progress deltas to backend.
+  // The server applies these with $inc, so the payload must be the change
+  // since the last acknowledged sync, never a cumulative total.
+  static const String syncWalking = '/user-activities/walking/sync';
+  static const String syncRunning = '/user-activities/running/sync';
 
   // Store / Market
   static const String storeHome = '/store/home';
@@ -83,6 +85,18 @@ class ApiEndpoints {
   static String storePlanById(String id) => '/plans/$id';
   static const String storeFavorites = '/favorites';
 
+  // Cart
+  static const String cart = '/cart';
+  // The line is identified by the item id in the path:
+  //   PATCH  /cart/items/:itemIdentity  — body { quantity } (absolute)
+  //   DELETE /cart/items/:itemIdentity  — no body
+  static String cartItem(String itemIdentity) => '/cart/items/$itemIdentity';
+  static const String cartCheckout = '/cart/checkout';
+  static String applyOrderCoupon(String orderIdentity) =>
+      '/orders/$orderIdentity/coupon';
+  static String editOrderDelivery(String orderIdentity) =>
+      '/orders/$orderIdentity/delivery';
+
   // Assessments
   static const String userAssessments = '/user-assessments';
   static const String assessmentChangeRequests = '/assessment-change-requests';
@@ -90,4 +104,8 @@ class ApiEndpoints {
   
   // Lookups
   static const String branches = '/lookups/branches';
+
+  // Addresses
+  static const String addresses = '/addresses';
+  static String addressById(String id) => '/addresses/$id';
 }

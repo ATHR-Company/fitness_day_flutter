@@ -196,14 +196,16 @@ class _UserTodayTasksPageContentState
 
   VoidCallback? _buildActivityCallback(
       BuildContext context, TaskData task) {
-    final String titleLower = task.title.toLowerCase();
     // Extract IDs stored in routeExtra by UserTodayTasksCubit
     final extra = task.routeExtra as Map<String, dynamic>?;
     final String assessmentId = extra?['assessmentId'] as String? ?? '';
     final int dayNumber = extra?['dayNumber'] as int? ?? 1;
     final String activityId = extra?['activityId'] as String? ?? '';
+    // Dispatch on the server's activityType, not the localized title — a
+    // renamed activity ("مشي سريع") must still open its screen.
+    final String activityType = extra?['activityType'] as String? ?? '';
 
-    if (titleLower.contains('ترطيب') || titleLower.contains('hydration')) {
+    if (activityType == 'hydration') {
       return () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -215,7 +217,7 @@ class _UserTodayTasksPageContentState
             ),
           );
     }
-    if (titleLower.contains('مشي') || titleLower.contains('walking')) {
+    if (activityType == 'walking') {
       return () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -228,7 +230,7 @@ class _UserTodayTasksPageContentState
             ),
           );
     }
-    if (titleLower.contains('جري') || titleLower.contains('running')) {
+    if (activityType == 'running') {
       return () => Navigator.push(
             context,
             MaterialPageRoute(

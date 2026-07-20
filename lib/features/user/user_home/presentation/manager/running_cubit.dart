@@ -20,6 +20,13 @@ part 'running_state.dart';
 class RunningCubit extends Cubit<RunningState> {
   final ApiService _apiService;
 
+  /// Identifies the plan activity this progress is credited to. Captured when
+  /// the screen opens and deliberately frozen for the whole session — a run
+  /// that crosses midnight is one session and stays on its starting day.
+  final String assessmentId;
+  final int dayNumber;
+  final String activityId;
+
   // ─── GPS ──────────────────────────────────────────────────────────────────
   StreamSubscription<Position>? _gpsSub;
   Position? _lastPos;
@@ -39,6 +46,9 @@ class RunningCubit extends Cubit<RunningState> {
 
   RunningCubit({
     required ApiService apiService,
+    required this.assessmentId,
+    required this.dayNumber,
+    required this.activityId,
     required double goalDistanceKm,
   })  : _apiService = apiService,
         super(RunningState(goalDistanceKm: goalDistanceKm));
@@ -152,6 +162,11 @@ class RunningCubit extends Cubit<RunningState> {
       (StepCount event) {
         final int total = event.steps;
         _stepBaseline ??= total; // baseline = value at session start
+        // Device rebooted mid-session: the sensor's cumulative-since-boot
+        // value drops below our baseline — rebaseline instead of freezing.
+        if (total < _stepBaseline!) {
+          _stepBaseline = total;
+        }
         final int sessionSteps = (total - _stepBaseline!).clamp(0, total);
         emit(state.copyWith(steps: sessionSteps));
       },
@@ -182,20 +197,29 @@ class RunningCubit extends Cubit<RunningState> {
   Future<void> _syncToBackend({bool final_ = false}) async {
     final double delta =
         (state.distanceKm - _lastSyncedDistanceKm).clamp(0.0, state.distanceKm);
-    if (delta <= 0) return;
+    // A final sync must go out even with no new distance — `isFinal` is the
+    // only thing that completes a running activity server-side.
+    if (delta <= 0 && !final_) return;
 
     try {
       final response = await _apiService.post(
-        ApiEndpoints.updateRunning,
+        ApiEndpoints.syncRunning,
         data: {
-          'distance': double.parse(delta.toStringAsFixed(3)),
-          'duration_seconds': state.elapsedSeconds,
-          'is_final': final_,
+          'assessmentId': assessmentId,
+          'dayNumber': dayNumber,
+          'activityId': activityId,
+          // Server contract is metres, not kilometres.
+          'deltaDistance': double.parse((delta * 1000).toStringAsFixed(1)),
+          // TODO(backend): cumulative session time — pending confirmation that
+          // the server wants a per-sync delta here. Applied with $inc today,
+          // so this over-reports duration. Do not ship before that is settled.
+          'durationSeconds': state.elapsedSeconds,
+          'isFinal': final_,
         },
       );
 
       // Backend returns calories
-      final dynamic calories = response.data?['data']?['calories'];
+      final dynamic calories = response.data?['data']?['caloriesBurned'];
       if (calories != null && !isClosed) {
         final double kcal = (calories as num).toDouble();
         emit(state.copyWith(caloriesKcal: kcal));

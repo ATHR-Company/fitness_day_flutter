@@ -5,6 +5,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
+import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/products_page_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/store_home_data.dart';
@@ -12,6 +13,8 @@ import 'package:fitness_day/features/user/market/domain/usecases/get_products_us
 import 'package:fitness_day/features/user/market/presentation/manager/products_list_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/products_list_state.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/product_details_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_card_shimmer.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_cart_card.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -122,9 +125,7 @@ class _ProductsListViewState extends State<_ProductsListView> {
                 child: BlocBuilder<ProductsListCubit, ProductsListState>(
                   builder: (context, state) {
                     if (state is ProductsListLoading) {
-                      return const Center(
-                        child: CircularProgressIndicator(color: AppColors.primary),
-                      );
+                      return const ProductsGridShimmer();
                     }
 
                     if (state is ProductsListFailure) {
@@ -184,17 +185,12 @@ class _ProductsListViewState extends State<_ProductsListView> {
                             isFavorite: product.isFavorite,
                           );
 
-                          return SubscriptionPackageCard(
+                          return ProductCartCard(
                             package: package,
+                            itemType: CartItemType.product,
                             badge: product.discountTag,
-                            detailsLabelKey: 'home.add_to_cart',
+                            detailsLabelKey: 'market.add_to_cart',
                             onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ProductDetailsScreen(product: product),
-                              ),
-                            ),
-                            onDetailsTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ProductDetailsScreen(product: product),
