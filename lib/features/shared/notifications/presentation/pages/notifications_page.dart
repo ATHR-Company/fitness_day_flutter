@@ -9,12 +9,49 @@ import '../../../../../core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 
+/// View-model for a single notification card, used when [NotificationsPage]
+/// is fed real data (see [NotificationsPage.items]).
+class NotificationItem {
+  final String title;
+  final String subtitle;
+  final String time;
+  final bool isRead;
+  final String? image;
+  final VoidCallback? onToggleRead;
+
+  const NotificationItem({
+    required this.title,
+    required this.subtitle,
+    required this.time,
+    required this.isRead,
+    this.image,
+    this.onToggleRead,
+  });
+}
+
 class NotificationsPage extends StatelessWidget {
   final bool isEmpty;
+
+  /// Real notification data. When null, the page falls back to its legacy
+  /// static/dummy content (used by roles with no backend integration yet).
+  final List<NotificationItem>? items;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? errorMessage;
+  final VoidCallback? onRetry;
+  final Future<void> Function()? onRefresh;
+  final ScrollController? scrollController;
 
   const NotificationsPage({
     super.key,
     this.isEmpty = false, // Set to true to see the empty state
+    this.items,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.errorMessage,
+    this.onRetry,
+    this.onRefresh,
+    this.scrollController,
   });
 
   @override
@@ -47,16 +84,102 @@ class NotificationsPage extends StatelessWidget {
 
                   SizedBox(height: 32.h),
 
-                  Expanded(
-                    child: isEmpty
-                        ? _buildEmptyState()
-                        : _buildPopulatedState(),
-                  ),
+                  Expanded(child: _buildBody()),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(errorMessage!),
+            SizedBox(height: 8.h),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: Text('home.retry'.tr()),
+            ),
+          ],
+        ),
+      );
+    }
+    if (items != null) {
+      return items!.isEmpty ? _buildEmptyState() : _buildDynamicState(items!);
+    }
+    return isEmpty ? _buildEmptyState() : _buildPopulatedState();
+  }
+
+  Widget _buildDynamicState(List<NotificationItem> items) {
+    final unread = items.where((n) => !n.isRead).toList();
+    final read = items.where((n) => n.isRead).toList();
+
+    return RefreshIndicator(
+      onRefresh: onRefresh ?? () async {},
+      child: ListView(
+        controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+        children: [
+          if (unread.isNotEmpty) ...[
+            Text(
+              'notifications.new_notifications'.tr(),
+              style: TextStyleManager.heading2.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            for (final item in unread) ...[
+              _buildNotificationCard(
+                title: item.title,
+                subtitle: item.subtitle,
+                time: item.time,
+                isRead: item.isRead,
+                image: item.image,
+                onToggleRead: item.onToggleRead,
+              ),
+              SizedBox(height: 12.h),
+            ],
+            SizedBox(height: 16.h),
+          ],
+          if (read.isNotEmpty) ...[
+            Text(
+              'notifications.previous_notifications'.tr(),
+              style: TextStyleManager.heading2.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 16.h),
+            for (final item in read) ...[
+              _buildNotificationCard(
+                title: item.title,
+                subtitle: item.subtitle,
+                time: item.time,
+                isRead: item.isRead,
+                image: item.image,
+                onToggleRead: item.onToggleRead,
+              ),
+              SizedBox(height: 12.h),
+            ],
+          ],
+          if (isLoadingMore)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+          SizedBox(height: 24.h),
+        ],
       ),
     );
   }
@@ -180,6 +303,8 @@ class NotificationsPage extends StatelessWidget {
     required String subtitle,
     required String time,
     required bool isRead,
+    String? image,
+    VoidCallback? onToggleRead,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -206,29 +331,13 @@ class NotificationsPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Bell Icon (Right side in RTL)
-          Container(
-            padding: EdgeInsets.all(8.w),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+          (image != null && image.isNotEmpty)
+              ? AppImage(image, height: 50.sp, width: 20.sp)
+              : Icon(
+                  Icons.notifications_active,
+                  color: AppColors.primary,
+                  size: 50.sp,
                 ),
-              ],
-              border: Border.all(
-                color: AppColors.divider.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-            child: Icon(
-              Icons.notifications_active,
-              color: AppColors.primary,
-              size: 20.sp,
-            ),
-          ),
 
           SizedBox(width: 12.w),
 
@@ -275,8 +384,11 @@ class NotificationsPage extends StatelessWidget {
           // Read / Unread icon (Left side in RTL)
           Padding(
             padding: EdgeInsets.only(top: 4.h),
-            child: AppImage(
-              isRead ? SvgIcons.read : SvgIcons.unread,
+            child: GestureDetector(
+              onTap: onToggleRead,
+              child: AppImage(
+                isRead ? SvgIcons.read : SvgIcons.unread,
+              ),
             ),
           ),
         ],

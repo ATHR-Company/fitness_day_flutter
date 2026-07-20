@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Internet for map tiles -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Required on Android 13+ to display notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Health & Activity tracking -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />

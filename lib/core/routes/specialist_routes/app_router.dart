@@ -8,7 +8,7 @@ import 'package:fitness_day/features/shared/role_selection/presentation/pages/ro
 import 'package:fitness_day/features/specialist/auth/presentation/pages/login_page.dart';
 import 'package:fitness_day/features/specialist/home/presentation/screens/home_page.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/pages/clients_page.dart';
-import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
+import 'package:fitness_day/features/specialist/notifications/presentation/pages/specialist_notifications_page.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/pages/profile_page.dart';
 import 'package:fitness_day/features/specialist/tasks/presentation/pages/today_tasks_page.dart';
 
@@ -53,7 +53,7 @@ class SpecialistAppRouter {
       ),
       GoRoute(
         path: SpecialistAppRoutes.notifications,
-        builder: (context, state) => const NotificationsPage(),
+        builder: (context, state) => const SpecialistNotificationsPage(),
       ),
       GoRoute(
         path: SpecialistAppRoutes.clients,

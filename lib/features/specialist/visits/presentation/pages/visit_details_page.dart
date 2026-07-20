@@ -18,7 +18,6 @@ import 'package:fitness_day/core/widgets/add_goal_dialog.dart';
 import 'package:fitness_day/core/widgets/plan_item_card.dart';
 import 'package:fitness_day/core/widgets/vertical_day_tab_bar.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
-import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/widgets/report_text_field.dart';
 import '../../../../shared/conversations/presentation/pages/chat_details_page.dart';
 import 'add_activity_page.dart';
@@ -28,6 +27,7 @@ import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import '../manager/visit_details_cubit.dart';
 import '../manager/visit_details_state.dart';
 import '../../data/models/specialist_assessment_visit_data_model.dart';
+import '../../data/models/assessment_current_state.dart';
 import '../../data/models/specialist_assessment_health_report_model.dart';
 import '../../data/models/specialist_assessment_custom_plan_model.dart';
 
@@ -59,7 +59,6 @@ class _VisitDetailsPageContent extends StatefulWidget {
   final bool isUpcoming;
 
   const _VisitDetailsPageContent({
-    super.key,
     required this.assessmentId,
     this.isUpcoming = false,
   });
@@ -126,7 +125,31 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isUpcoming) {
+    return BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
+      builder: (context, topState) {
+        // The caller only knows the visit's status at navigation time (e.g. Home's
+        // upcoming list doesn't carry isStarted), so its isUpcoming hint can be wrong.
+        // Wait for real visit data before choosing a screen — guessing from the hint
+        // would flash the wrong screen (or wrong button) for a frame, then snap to the
+        // correct one once data loads.
+        final loadedVisitData = topState is VisitDetailsSuccess ? topState.visitData : null;
+
+        if (loadedVisitData == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        // currentState is the authoritative signal, but it's null if the backend
+        // hasn't sent it for this response — fall back to isStarted rather than
+        // silently assuming NOT_STARTED, which would hide the whole real screen
+        // (tabs, goal card, everything) for a visit that's actually in progress.
+        final assessmentState = loadedVisitData.currentState;
+        final effectiveIsUpcoming = assessmentState != null
+            ? assessmentState == AssessmentCurrentState.notStarted
+            : !loadedVisitData.isStarted;
+
+        if (effectiveIsUpcoming) {
       return UpcomingVisitShowScreen(
         title: 'visit_details.title'.tr(),
         trailingWidget: MessageIconButton(
@@ -281,18 +304,50 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                       ),
 
               // 4. Bottom Buttons — always visible in Custom Plan tab
-              // disabled (outlined) when canFinishAssessment == false, active (greenMint) when true
-              if (!widget.isUpcoming && _selectedTabIndex == 2)
+              // button state is driven by the assessment's currentState:
+              // IN_PROGRESS -> disabled "finish", READY_TO_FINISH -> active "finish",
+              // COMPLETED / NOT_STARTED -> hidden (NOT_STARTED is handled by the Upcoming screen instead)
+              if (!effectiveIsUpcoming && _selectedTabIndex == 2)
                 BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
                   builder: (context, state) {
-                    final canFinish = state is VisitDetailsSuccess && state.canFinishAssessment;
+                    final visitData = state is VisitDetailsSuccess ? state.visitData : null;
+                    final currentState = visitData?.currentState;
+                    final isFinishing = state is VisitDetailsSuccess && state.isStarting;
+
+                    if (currentState == AssessmentCurrentState.completed ||
+                        currentState == AssessmentCurrentState.notStarted) {
+                      return const SizedBox.shrink();
+                    }
+
+                    // currentState missing (backend hasn't sent it) — fall back to
+                    // canFinishAssessment rather than hiding the button outright.
+                    final canFinish = currentState != null
+                        ? currentState == AssessmentCurrentState.readyToFinish
+                        : (state is VisitDetailsSuccess && state.canFinishAssessment);
+
                     return Container(
                       padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                       child: canFinish
                           ? CustomButton(
                               text: 'visit_details.end_visit'.tr(),
                               color: AppColors.greenMint,
-                              onPressed: () {},
+                              isLoading: isFinishing,
+                              onPressed: isFinishing
+                                  ? null
+                                  : () async {
+                                      final cubit = context.read<VisitDetailsCubit>();
+                                      final messenger = ScaffoldMessenger.of(context);
+                                      final (success, message) = await cubit.finishVisit(widget.assessmentId);
+                                      messenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text(message),
+                                          backgroundColor: success ? AppColors.primary : AppColors.error,
+                                        ),
+                                      );
+                                      if (success && mounted) {
+                                        Navigator.pop(context);
+                                      }
+                                    },
                             )
                           : _buildDisabledEndVisitButton(),
                     );
@@ -303,6 +358,8 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
         ),
       ),
     );
+      },
+    );
   }
 
   Widget _buildTabContent(VisitDetailsSuccess state) {
@@ -312,7 +369,14 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
       case 1:
         return _buildReportTab(state.healthReport);
       case 2:
-        return _buildCustomPlanTab(state.customPlan, _selectedDayIndex + 1);
+        if (state.visitData == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return _buildCustomPlanTab(
+          state.customPlan,
+          _selectedDayIndex + 1,
+          state.visitData!.weekStart,
+        );
       default:
         return _buildVisitDataTab(state.visitData);
     }
@@ -360,7 +424,12 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             showButton: false,
           ),
           SizedBox(height: 16.h),
-          if (visitData.isStarted)
+          // Prefer currentState (authoritative) over isStarted, which some responses
+          // (e.g. COMPLETED assessments) don't send at all — that would otherwise
+          // default to false and hide the goal card for a visit that's clearly done.
+          if (visitData.currentState != null
+              ? visitData.currentState != AssessmentCurrentState.notStarted
+              : visitData.isStarted)
             VisitGoalCard(
               title: 'visit_details.visit_goal_title'.tr(),
               goals: goalsList,
@@ -378,6 +447,10 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                         backgroundColor: success ? AppColors.primary : AppColors.error,
                       ),
                     );
+
+                    if (success && mounted) {
+                      _onTabChanged(1);
+                    }
                   },
                 );
               },
@@ -567,6 +640,10 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   backgroundColor: success ? AppColors.primary : AppColors.error,
                 ),
               );
+
+              if (success && mounted) {
+                _onTabChanged(2);
+              }
             },
           ),
         ],
@@ -574,7 +651,11 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildCustomPlanTab(SpecialistAssessmentCustomPlanModel? plan, int dayNumber) {
+  Widget _buildCustomPlanTab(
+    SpecialistAssessmentCustomPlanModel? plan,
+    int dayNumber,
+    String weekStart,
+  ) {
     if (plan == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -600,6 +681,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                           child: AddMealPage(
                             assessmentId: widget.assessmentId,
                             dayNumber: dayNumber,
+                            weekStart: weekStart,
                           ),
                         ),
                       ),
@@ -618,6 +700,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                           child: AddExercisePage(
                             assessmentId: widget.assessmentId,
                             dayNumber: dayNumber,
+                            weekStart: weekStart,
                           ),
                         ),
                       ),
@@ -636,6 +719,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                           child: AddActivityPage(
                             assessmentId: widget.assessmentId,
                             dayNumber: dayNumber,
+                            weekStart: weekStart,
                           ),
                         ),
                       ),
@@ -656,7 +740,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                     ),
                   )
                 else
-                  ...plan.meals.map((meal) => _buildMealCard(meal, dayNumber)),
+                  ...plan.meals.map((meal) => _buildMealCard(meal, dayNumber, weekStart)),
 
                 SizedBox(height: 24.h),
                 _buildSectionTitle('visit_details.exercises'.tr(), plan.workoutPlan.length),
@@ -670,7 +754,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                     ),
                   )
                 else
-                  ...plan.workoutPlan.map((workout) => _buildExerciseCard(workout, dayNumber)),
+                  ...plan.workoutPlan.map((workout) => _buildExerciseCard(workout, dayNumber, weekStart)),
 
                 SizedBox(height: 24.h),
                 _buildSectionTitle('visit_details.activity'.tr(), plan.activities.length),
@@ -684,7 +768,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                     ),
                   )
                 else
-                  ...plan.activities.map((activity) => _buildActivityCard(activity, dayNumber)),
+                  ...plan.activities.map((activity) => _buildActivityCard(activity, dayNumber, weekStart)),
               ],
             ),
           ),
@@ -823,7 +907,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildMealCard(SpecialistMealModel meal, int dayNumber) {
+  Widget _buildMealCard(SpecialistMealModel meal, int dayNumber, String weekStart) {
     String formattedTime = '';
     if (meal.time.isNotEmpty) {
       final parsed = DateTime.tryParse(meal.time);
@@ -852,6 +936,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 child: AddMealPage(
                   assessmentId: widget.assessmentId,
                   dayNumber: dayNumber,
+                  weekStart: weekStart,
                   mealId: meal.mealId,
                   initialCategoryName: meal.categoryName,
                   initialMealName: meal.name,
@@ -896,7 +981,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildExerciseCard(SpecialistWorkoutModel workout, int dayNumber) {
+  Widget _buildExerciseCard(SpecialistWorkoutModel workout, int dayNumber, String weekStart) {
     String formattedTime = '';
     if (workout.time.isNotEmpty) {
       final parsed = DateTime.tryParse(workout.time);
@@ -925,6 +1010,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 child: AddExercisePage(
                   assessmentId: widget.assessmentId,
                   dayNumber: dayNumber,
+                  weekStart: weekStart,
                   workoutItemId: workout.workoutItemId,
                 ),
               ),
@@ -965,7 +1051,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     );
   }
 
-  Widget _buildActivityCard(SpecialistActivityModel activity, int dayNumber) {
+  Widget _buildActivityCard(SpecialistActivityModel activity, int dayNumber, String weekStart) {
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
       child: PlanItemCard(
@@ -982,6 +1068,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 child: AddActivityPage(
                   assessmentId: widget.assessmentId,
                   dayNumber: dayNumber,
+                  weekStart: weekStart,
                   activityItemId: activity.activityItemId,
                 ),
               ),

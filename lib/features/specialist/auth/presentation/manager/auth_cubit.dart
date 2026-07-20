@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/network/device_type_helper.dart';
+import 'package:fitness_day/core/network/fcm_helper.dart';
 import 'package:fitness_day/features/specialist/auth/domain/usecases/login_usecase.dart';
 import 'package:fitness_day/features/specialist/auth/domain/usecases/logout_usecase.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
@@ -21,7 +23,13 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> login(String phone, String password) async {
     emit(AuthLoading());
-    final result = await loginUseCase.call(phone, password);
+    final fcmToken = await FcmHelper.getToken();
+    final result = await loginUseCase.call(
+      phone,
+      password,
+      fcmToken: fcmToken,
+      deviceType: DeviceTypeHelper.current,
+    );
     await result.fold(
       (failure) async {
         emit(AuthFailure(failure));
