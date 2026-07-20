@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:fitness_day/core/network/device_type_helper.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -50,7 +50,7 @@ class _SignUpPageState extends State<SignUpPage> {
         password: _passwordController.text,
         passwordConfirm: _confirmPasswordController.text,
         fcmToken: 'test_fcm_token',
-        deviceType: Platform.isIOS ? 'ios' : 'android',
+        deviceType: DeviceTypeHelper.current,
       );
       context.read<UserAuthCubit>().signup(request);
     }

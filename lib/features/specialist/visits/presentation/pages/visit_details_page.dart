@@ -59,7 +59,6 @@ class _VisitDetailsPageContent extends StatefulWidget {
   final bool isUpcoming;
 
   const _VisitDetailsPageContent({
-    super.key,
     required this.assessmentId,
     this.isUpcoming = false,
   });

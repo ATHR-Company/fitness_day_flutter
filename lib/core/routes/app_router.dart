@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/assessments_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/change_assessment_cubit.dart';
 import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
+import 'package:fitness_day/features/specialist/notifications/presentation/pages/specialist_notifications_page.dart';
 import 'package:fitness_day/features/shared/onboarding/presentation/pages/onboarding_page.dart'
     as onboarding;
 import 'package:fitness_day/features/shared/role_selection/presentation/pages/role_selection_page.dart';
@@ -51,7 +53,12 @@ import 'package:fitness_day/features/user/workout/presentation/pages/workout_pla
 /// Single combined router — keeps ALL user + specialist routes so that
 /// swapping routerConfig is never needed and "Page Not Found" never occurs.
 class AppRouter {
+  /// Lets code without a BuildContext (e.g. FCM notification-tap handlers)
+  /// navigate through the router.
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   static final GoRouter router = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: SharedRoutes.splash,
     routes: [
       // ── Shared ────────────────────────────────────────────────────────────
@@ -89,7 +96,7 @@ class AppRouter {
       ),
       GoRoute(
         path: SpecialistAppRoutes.notifications,
-        builder: (context, state) => const NotificationsPage(),
+        builder: (context, state) => const SpecialistNotificationsPage(),
       ),
       GoRoute(
         path: SpecialistAppRoutes.clients,

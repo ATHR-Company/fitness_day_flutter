@@ -12,7 +12,20 @@
           "package_name": "com.example.fitness_day"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "308069649363-a5vl1o80atve9adtbamk1r06g1qs18bf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fitness_day",
+            "certificate_hash": "28fabda8a282cd8ec881be60b0719f61fdcba8b1"
+          }
+        },
+        {
+          "client_id": "308069649363-5qn9ole74gehrr242rnhi9lsvduhrt87.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBg3UVoZ0axp0Ut3dNRXsKQOajnh1BtnXE"
@@ -20,10 +33,22 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "308069649363-5qn9ole74gehrr242rnhi9lsvduhrt87.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "308069649363-cmlemvln3dc2ghldnvg60vs4f5c1u6vn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fitnessDay"
+              }
+            }
+          ]
         }
       }
     }
   ],
-  "configuration_version": "1"
+  "0": "1"
 }

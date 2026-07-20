@@ -12,10 +12,17 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<String, AuthEntity>> login(
     String phone,
-    String password,
-  ) async {
+    String password, {
+    required String fcmToken,
+    required String deviceType,
+  }) async {
     try {
-      final authModel = await remoteDataSource.login(phone, password);
+      final authModel = await remoteDataSource.login(
+        phone,
+        password,
+        fcmToken: fcmToken,
+        deviceType: deviceType,
+      );
       return Right(authModel);
     } catch (e) {
       final failure = ErrorHandler.handle(e);

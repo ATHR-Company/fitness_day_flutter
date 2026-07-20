@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/network/device_type_helper.dart';
 import 'package:fitness_day/core/network/fcm_helper.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_signup_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_verify_otp_models.dart';
@@ -101,7 +102,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       idToken: idToken,
       provider: provider,
       fcmToken: actualFcmToken,
-      deviceType: 'android',
+      deviceType: DeviceTypeHelper.current,
     );
     final result = await _socialAuthUseCase(request);
     switch (result) {

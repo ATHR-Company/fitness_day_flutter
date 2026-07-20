@@ -1,5 +1,6 @@
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:fitness_day/core/network/device_type_helper.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,7 +49,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
           phone: _phoneController.text.trim(),
           password: _passwordController.text,
           fcmToken: '',
-          deviceType: Theme.of(context).platform == TargetPlatform.iOS ? 'ios' : 'android',
+          deviceType: DeviceTypeHelper.current,
         ),
       );
     }
