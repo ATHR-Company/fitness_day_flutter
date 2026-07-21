@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,10 +13,10 @@ import 'package:fitness_day/core/widgets/profile/change_password_dialog.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
+import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
+import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_state.dart';
 
 import '../../../user_home/presentation/widgets/user_app_drawer.dart';
-import 'package:fitness_day/core/cache/app_cache.dart';
-import 'package:fitness_day/core/injection/injection_container.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -26,7 +27,12 @@ class UserProfilePage extends StatefulWidget {
 
 class _UserProfilePageState extends State<UserProfilePage> {
   int _selectedTab = 0; // 0 = Settings, 1 = Fitness Day
-  bool _notificationsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserProfileCubit>().getUserProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,62 +74,71 @@ class _UserProfilePageState extends State<UserProfilePage> {
                         borderRadius: BorderRadius.circular(16.r),
                         boxShadow: AppShadows.profileItemShadow,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Edit Button
-
-                          // Avatar + Name/Email (RTL Layout)
-                          Row(
+                      child: BlocBuilder<UserProfileCubit, UserProfileState>(
+                        builder: (context, state) {
+                          final data = state is UserProfileSuccess ? state.data : null;
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                width: 50.r,
-                                height: 50.r,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: AppImage(
-                                    SvgIcons.person,
-                                    width: 28.w,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 16.w),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
+                              // Avatar + Name/Identifier (RTL Layout)
+                              Row(
                                 children: [
-                                  Text(
-                                    getIt<AppCache>().getUser().name,
-                                    style: TextStyleManager.style14Bold.copyWith(
-                                      color: AppColors.black,
+                                  Container(
+                                    width: 50.r,
+                                    height: 50.r,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
                                     ),
+                                    child: (data?.avatar.isNotEmpty ?? false)
+                                        ? AppImage(
+                                            data!.avatar,
+                                            radius: 25.r,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Center(
+                                            child: AppImage(
+                                              SvgIcons.person,
+                                              width: 28.w,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
                                   ),
-                                  SizedBox(height: 4.h),
-                                  Text(
-                                    getIt<AppCache>().getUser().email,
-                                    style: TextStyleManager.style11Medium.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
+                                  SizedBox(width: 16.w),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        data?.fullName ?? '',
+                                        style: TextStyleManager.style14Bold.copyWith(
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4.h),
+                                      Text(
+                                        data?.identifier ?? '',
+                                        style: TextStyleManager.style11Medium.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
+                              GestureDetector(
+                                onTap: () {
+                                  context.push(UserAppRoutes.personalProfile);
+                                },
+                                child: AppImage(
+                                  SvgIcons.editProfile,
+                                  width: 30.r,
+                                  height: 30.r,
+                                ),
+                              ),
                             ],
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              context.push(UserAppRoutes.personalProfile);
-                            },
-                            child: AppImage(
-                              SvgIcons.editProfile,
-                              width: 30.r,
-                              height: 30.r,
-                            ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -150,11 +165,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
                   // List of Menu Items
                   Expanded(
-                    child: ListView(
-                      padding: EdgeInsets.symmetric(horizontal: 24.w),
-                      children: _selectedTab == 0
-                          ? _buildSettingsItems(context)
-                          : _buildFitnessDayItems(context),
+                    child: BlocBuilder<UserProfileCubit, UserProfileState>(
+                      builder: (context, state) {
+                        final notificationsEnabled =
+                            state is UserProfileSuccess ? state.data.notificationsEnabled : true;
+                        return ListView(
+                          padding: EdgeInsets.symmetric(horizontal: 24.w),
+                          children: _selectedTab == 0
+                              ? _buildSettingsItems(context, notificationsEnabled)
+                              : _buildFitnessDayItems(context),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -167,7 +188,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   // ── Settings Tab ───────────────────────────────────────────────────────────
-  List<Widget> _buildSettingsItems(BuildContext context) => [
+  List<Widget> _buildSettingsItems(BuildContext context, bool notificationsEnabled) => [
         _buildMenuItem(
           title: 'profile.personal_profile'.tr(),
           iconWidget: _buildCircleIcon(iconPath: SvgIcons.profile),
@@ -190,10 +211,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
           title: 'drawer.notifications_alerts'.tr(),
           iconWidget: _buildCircleIcon(iconPath: SvgIcons.notifications),
           trailing: Switch(
-            value: _notificationsEnabled,
+            value: notificationsEnabled,
             activeColor: AppColors.primary,
             onChanged: (val) {
-              setState(() => _notificationsEnabled = val);
+              context.read<UserProfileCubit>().toggleNotifications();
             },
           ),
           onTap: () {},

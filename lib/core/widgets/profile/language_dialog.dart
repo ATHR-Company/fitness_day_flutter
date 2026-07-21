@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -6,6 +7,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/constant/app_locale.dart';
+import 'package:fitness_day/fitness_day.dart';
+import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'profile_dialog_base.dart';
 
 class LanguageDialog extends StatefulWidget {
@@ -31,6 +34,10 @@ class _LanguageDialogState extends State<LanguageDialog> {
       onSave: () async {
         AppLocale.set(_selectedLang);   // ← update interceptor immediately
         await context.setLocale(Locale(_selectedLang));
+        if (RoleNotifier.instance.value == AppRole.user) {
+          // ignore: use_build_context_synchronously
+          context.read<UserProfileCubit>().updateLang(_selectedLang);
+        }
       },
       child: Row(
         children: [

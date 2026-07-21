@@ -76,6 +76,16 @@ import 'package:fitness_day/features/user/notifications/domain/repositories/user
 import 'package:fitness_day/features/user/notifications/domain/usecases/get_user_notifications_usecase.dart';
 import 'package:fitness_day/features/user/notifications/domain/usecases/toggle_user_notification_read_usecase.dart';
 import 'package:fitness_day/features/user/notifications/presentation/manager/user_notifications_cubit.dart';
+
+// User Profile
+import 'package:fitness_day/features/user/profile/data/datasources/user_profile_remote_datasource.dart';
+import 'package:fitness_day/features/user/profile/data/repositories/user_profile_repository_impl.dart';
+import 'package:fitness_day/features/user/profile/domain/repositories/user_profile_repository.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/get_user_profile_usecase.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/update_user_profile_usecase.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/toggle_user_notifications_usecase.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/update_user_lang_usecase.dart';
+import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/features/specialist/notifications/presentation/manager/specialist_notifications_cubit.dart';
 
 // User Auth & Registration Setup
@@ -816,6 +826,38 @@ Future<void> init() async {
     () => UserNotificationsCubit(
       getIt<GetUserNotificationsUseCase>(),
       getIt<ToggleUserNotificationReadUseCase>(),
+    ),
+  );
+
+  // User Profile
+  getIt.registerLazySingleton<UserProfileRemoteDataSource>(
+    () => UserProfileRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<UserProfileRepository>(
+    () => UserProfileRepositoryImpl(getIt<UserProfileRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetUserProfileUseCase>(
+    () => GetUserProfileUseCase(getIt<UserProfileRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateUserProfileUseCase>(
+    () => UpdateUserProfileUseCase(getIt<UserProfileRepository>()),
+  );
+  getIt.registerLazySingleton<ToggleUserNotificationsUseCase>(
+    () => ToggleUserNotificationsUseCase(getIt<UserProfileRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateUserLangUseCase>(
+    () => UpdateUserLangUseCase(getIt<UserProfileRepository>()),
+  );
+  // Lazy singleton (not factory): shared across UserProfilePage and
+  // PersonalProfilePage so edits on one are reflected on the other without
+  // an extra refetch, matching how UserSetupCubit is provided app-wide.
+  getIt.registerLazySingleton<UserProfileCubit>(
+    () => UserProfileCubit(
+      getIt<GetUserProfileUseCase>(),
+      getIt<UpdateUserProfileUseCase>(),
+      getIt<ToggleUserNotificationsUseCase>(),
+      getIt<UpdateUserLangUseCase>(),
+      getIt<AppCache>(),
     ),
   );
 }

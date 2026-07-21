@@ -53,6 +53,10 @@ class ApiEndpoints {
   static const String healthQuestions = '/health-questions';
   static const String completePersonalData = '/users/complete-personal-data';
   static const String submitHealthAnswers = '/users/submit-health-answers';
+  static const String usersProfile = '/users/my-profile';
+  static const String updateUsersProfile = '/users/update-my-profile';
+  static const String usersNotificationsToggle = '/users/notifications/toggle';
+  static const String usersLang = '/users/lang';
   static const String authRefresh = '/auth/refresh';
   static const String socialAuth = '/auth/social';
   static const String dietPlan = '/diet-plan';
