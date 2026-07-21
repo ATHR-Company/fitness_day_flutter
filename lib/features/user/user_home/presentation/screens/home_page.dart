@@ -347,6 +347,25 @@ class _HomePageContent extends StatelessWidget {
       ),
         ));
         }
+        if (state is UserHomeError) {
+          return Scaffold(
+            backgroundColor: AppColors.white,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(state.message, style: TextStyleManager.heading3.copyWith(color: AppColors.black)),
+                  SizedBox(height: 16.h),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                    onPressed: () => context.read<UserHomeCubit>().loadHomeData(),
+                    child: Text('Retry', style: TextStyleManager.heading3.copyWith(color: AppColors.white)),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
         return const SizedBox.shrink();
       },
     );

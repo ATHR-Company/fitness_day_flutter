@@ -68,6 +68,14 @@ import 'package:fitness_day/features/specialist/notifications/data/repositories/
 import 'package:fitness_day/features/specialist/notifications/domain/repositories/specialist_notifications_repository.dart';
 import 'package:fitness_day/features/specialist/notifications/domain/usecases/get_specialist_notifications_usecase.dart';
 import 'package:fitness_day/features/specialist/notifications/domain/usecases/toggle_notification_read_usecase.dart';
+
+// User Notifications
+import 'package:fitness_day/features/user/notifications/data/datasources/user_notifications_remote_datasource.dart';
+import 'package:fitness_day/features/user/notifications/data/repositories/user_notifications_repository_impl.dart';
+import 'package:fitness_day/features/user/notifications/domain/repositories/user_notifications_repository.dart';
+import 'package:fitness_day/features/user/notifications/domain/usecases/get_user_notifications_usecase.dart';
+import 'package:fitness_day/features/user/notifications/domain/usecases/toggle_user_notification_read_usecase.dart';
+import 'package:fitness_day/features/user/notifications/presentation/manager/user_notifications_cubit.dart';
 import 'package:fitness_day/features/specialist/notifications/presentation/manager/specialist_notifications_cubit.dart';
 
 // User Auth & Registration Setup
@@ -788,6 +796,26 @@ Future<void> init() async {
     () => SpecialistNotificationsCubit(
       getIt<GetSpecialistNotificationsUseCase>(),
       getIt<ToggleNotificationReadUseCase>(),
+    ),
+  );
+
+  // User Notifications
+  getIt.registerLazySingleton<UserNotificationsRemoteDataSource>(
+    () => UserNotificationsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<UserNotificationsRepository>(
+    () => UserNotificationsRepositoryImpl(getIt<UserNotificationsRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetUserNotificationsUseCase>(
+    () => GetUserNotificationsUseCase(getIt<UserNotificationsRepository>()),
+  );
+  getIt.registerLazySingleton<ToggleUserNotificationReadUseCase>(
+    () => ToggleUserNotificationReadUseCase(getIt<UserNotificationsRepository>()),
+  );
+  getIt.registerFactory<UserNotificationsCubit>(
+    () => UserNotificationsCubit(
+      getIt<GetUserNotificationsUseCase>(),
+      getIt<ToggleUserNotificationReadUseCase>(),
     ),
   );
 }

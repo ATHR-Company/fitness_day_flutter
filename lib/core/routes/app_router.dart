@@ -6,8 +6,8 @@ import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/assessments_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/change_assessment_cubit.dart';
-import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/features/specialist/notifications/presentation/pages/specialist_notifications_page.dart';
+import 'package:fitness_day/features/user/notifications/presentation/pages/user_notifications_page.dart';
 import 'package:fitness_day/features/shared/onboarding/presentation/pages/onboarding_page.dart'
     as onboarding;
 import 'package:fitness_day/features/shared/role_selection/presentation/pages/role_selection_page.dart';
@@ -174,7 +174,7 @@ class AppRouter {
       ),
       GoRoute(
         path: UserAppRoutes.notifications,
-        builder: (context, state) => const NotificationsPage(),
+        builder: (context, state) => const UserNotificationsPage(),
       ),
       GoRoute(
         path: UserAppRoutes.profile,

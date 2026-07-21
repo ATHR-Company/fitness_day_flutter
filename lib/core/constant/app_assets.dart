@@ -117,7 +117,7 @@ class SvgIcons {
   static const String market_icon = '$_svgPath/market_icon.svg';
   static const String usersGroup = '$_svgPath/users-group.svg';
   static const String noDiet = '$_svgPath/no_diet.svg';
-
+  static const String noNotifications = '$_svgPath/no_notifications.svg';
 }
 
 /// PNG/JPG asset paths used throughout the application.

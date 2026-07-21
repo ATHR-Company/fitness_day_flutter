@@ -15,6 +15,8 @@ class ApiEndpoints {
   static const String specialistNotifications = '/specialist/notifications';
   static String specialistNotificationRead(String notificationId) =>
       '/specialist/notifications/$notificationId/read';
+  static const String notifications = '/notifications';
+  static String notificationRead(String notificationId) => '/notifications/$notificationId/read';
   static String specialistAssessmentDetails(String id) => '/specialist/assessment-history/details/$id';
   static String startSpecialistAssessment(String id) => '/specialist/assessment-history/$id/start';
   static String finishSpecialistAssessment(String id) => '/specialist/assessment-history/$id/finish';

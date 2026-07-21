@@ -42,6 +42,11 @@ class NotificationsPage extends StatelessWidget {
   final Future<void> Function()? onRefresh;
   final ScrollController? scrollController;
 
+  /// The role-appropriate end drawer. Defaults to the specialist [AppDrawer]
+  /// for backward compatibility — callers for the user role MUST pass
+  /// `UserAppDrawer()` here, since its routes differ from the specialist's.
+  final Widget drawer;
+
   const NotificationsPage({
     super.key,
     this.isEmpty = false, // Set to true to see the empty state
@@ -52,12 +57,13 @@ class NotificationsPage extends StatelessWidget {
     this.onRetry,
     this.onRefresh,
     this.scrollController,
+    this.drawer = const AppDrawer(),
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: const AppDrawer(),
+      endDrawer: drawer,
       body: Builder(
         builder: (context) {
           return Container(
@@ -190,7 +196,7 @@ class NotificationsPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AppImage(SvgIcons.notification),
+          AppImage(SvgIcons.noNotifications, width: 100.w,),
           SizedBox(height: 32.h),
           Text(
             'notifications.empty_title'.tr(),

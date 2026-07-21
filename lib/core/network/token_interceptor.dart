@@ -1,14 +1,54 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
 import 'package:fitness_day/core/constant/app_locale.dart';
+import 'package:fitness_day/core/routes/app_router.dart';
+import 'package:fitness_day/core/routes/shared/shared_routes.dart';
+import 'package:fitness_day/fitness_day.dart';
 
 class TokenInterceptor extends Interceptor {
   final SecureCache _secureCache;
 
   TokenInterceptor(this._secureCache);
+
+  // Ensures concurrent 401s / proactive-refresh checks share a single
+  // in-flight refresh call instead of each racing the (often single-use,
+  // rotating) refresh token — a losing racer would otherwise wipe the
+  // valid token the winner just saved.
+  Future<String?>? _refreshFuture;
+
+  Future<String?> _refreshSingleFlight() {
+    return _refreshFuture ??= _refreshFromStoredToken().whenComplete(() {
+      _refreshFuture = null;
+    });
+  }
+
+  Future<String?> _refreshFromStoredToken() async {
+    final refreshToken = await _secureCache.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) return null;
+    return _performRefresh(refreshToken);
+  }
+
+  /// The session can no longer be authenticated (no refresh token, or the
+  /// backend rejected it) — clear all local session state and send the user
+  /// back to role selection so they can log in again.
+  Future<void> _handleSessionExpired() async {
+    await _secureCache.deleteToken();
+    await _secureCache.deleteRefreshToken();
+    try {
+      await GetIt.instance<AppCache>().clear();
+    } catch (_) {}
+    RoleNotifier.instance.setRole(AppRole.none);
+
+    final context = AppRouter.navigatorKey.currentContext;
+    if (context != null) {
+      context.go(SharedRoutes.roleSelection);
+    }
+  }
 
   bool _isTokenExpired(String token) {
     try {
@@ -69,12 +109,9 @@ class TokenInterceptor extends Interceptor {
     var token = await _secureCache.getToken();
     if (token != null && token.isNotEmpty) {
       if (_isTokenExpired(token)) {
-        final refreshToken = await _secureCache.getRefreshToken();
-        if (refreshToken != null && refreshToken.isNotEmpty) {
-          final newToken = await _performRefresh(refreshToken);
-          if (newToken != null) {
-            token = newToken;
-          }
+        final newToken = await _refreshSingleFlight();
+        if (newToken != null) {
+          token = newToken;
         }
       }
       options.headers['Authorization'] = 'Bearer $token';
@@ -88,9 +125,9 @@ class TokenInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     if (err.response?.statusCode == 401) {
-      final refreshToken = await _secureCache.getRefreshToken();
-      if (refreshToken != null && refreshToken.isNotEmpty) {
-        final newAccessToken = await _performRefresh(refreshToken);
+      final currentRefreshToken = await _secureCache.getRefreshToken();
+      if (currentRefreshToken != null && currentRefreshToken.isNotEmpty) {
+        final newAccessToken = await _refreshSingleFlight();
         if (newAccessToken != null) {
           // Retry original request lazily resolving Dio to prevent DI cycle
           final dio = GetIt.instance<Dio>();
@@ -116,6 +153,9 @@ class TokenInterceptor extends Interceptor {
           }
         }
       }
+      // Reached only when there was no refresh token, or the refresh
+      // attempt itself failed — the session is unrecoverable.
+      await _handleSessionExpired();
     }
     super.onError(err, handler);
   }
