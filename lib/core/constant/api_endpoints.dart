@@ -112,6 +112,7 @@ class ApiEndpoints {
       '/orders/$orderIdentity/delivery';
 
   // Assessments
+  static const String userProgress = '/assessments/progress';
   static const String userAssessments = '/user-assessments';
   static const String assessmentChangeRequests = '/assessment-change-requests';
   static String assessmentDetails(String assessmentId) => '/user-assessments/$assessmentId/details';

@@ -56,6 +56,7 @@ class OrderModel {
   final double total;
   final OrderCoupon? coupon;
   final String createdAt;
+  final int? itemsCount;
 
   const OrderModel({
     required this.id,
@@ -71,6 +72,7 @@ class OrderModel {
     required this.total,
     this.coupon,
     required this.createdAt,
+    this.itemsCount,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -91,6 +93,7 @@ class OrderModel {
       total: (json['total'] as num?)?.toDouble() ?? 0.0,
       coupon: _parseCoupon(json['coupon']),
       createdAt: json['createdAt']?.toString() ?? '',
+      itemsCount: (json['itemsCount'] as num?)?.toInt(),
     );
   }
 
@@ -119,6 +122,7 @@ class OrderModel {
         total: total,
         coupon: coupon,
         createdAt: createdAt,
+        itemsCount: itemsCount,
       );
 }
 

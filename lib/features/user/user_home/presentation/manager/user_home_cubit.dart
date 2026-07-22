@@ -38,6 +38,10 @@ class UserHomeCubit extends Cubit<UserHomeState> {
     final homeData = (homeResult as Success).data.data;
     final bool isSubscribed = homeData?.subscription != null;
 
+    // Cache subscription status so every screen (market, profile…) can read it
+    // without having to depend on UserHomeCubit.
+    getIt<AppCache>().saveIsSubscribed(isSubscribed);
+
     // Cache assessmentId for use in meal/workout detail screens
     final String? assessmentId = homeData?.dailyTasks?.assessmentId;
     if (assessmentId != null && assessmentId.isNotEmpty) {

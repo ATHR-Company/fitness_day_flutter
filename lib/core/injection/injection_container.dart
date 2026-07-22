@@ -42,6 +42,13 @@ import 'package:fitness_day/features/specialist/clients/presentation/manager/spe
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_cubit.dart';
 
+// User Progress
+import 'package:fitness_day/features/user/progress/data/datasources/user_progress_remote_datasource.dart';
+import 'package:fitness_day/features/user/progress/data/repositories/user_progress_repository_impl.dart';
+import 'package:fitness_day/features/user/progress/domain/repositories/user_progress_repository.dart';
+import 'package:fitness_day/features/user/progress/domain/usecases/get_user_progress_usecase.dart';
+import 'package:fitness_day/features/user/progress/presentation/manager/user_progress_cubit.dart';
+
 // Specialist Daily Tasks
 import 'package:fitness_day/features/specialist/tasks/data/datasources/specialist_daily_tasks_remote_datasource.dart';
 import 'package:fitness_day/features/specialist/tasks/data/repositories/specialist_daily_tasks_repository_impl.dart';
@@ -147,6 +154,8 @@ import 'package:fitness_day/features/user/market/domain/usecases/get_store_home_
 import 'package:fitness_day/features/user/market/domain/usecases/get_products_usecase.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/get_product_by_id_usecase.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/get_plans_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_favorites_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/favorites_cubit.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/get_plan_by_id_usecase.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/toggle_favorite_usecase.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/market_home_cubit.dart';
@@ -177,6 +186,8 @@ import 'package:fitness_day/features/user/market/domain/usecases/checkout_usecas
 import 'package:fitness_day/features/user/market/domain/usecases/apply_coupon_usecase.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/edit_delivery_usecase.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_orders_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/orders_cubit.dart';
 import 'package:fitness_day/features/user/user_home/data/repositories/user_home_repository_impl.dart';
 import 'package:fitness_day/features/user/user_home/domain/repositories/user_home_repository.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
@@ -565,7 +576,19 @@ Future<void> init() async {
     () => MarketHomeCubit(getIt<GetStoreHomeUseCase>()),
   );
   getIt.registerFactory<ProductDetailsCubit>(
-    () => ProductDetailsCubit(getIt<GetProductByIdUseCase>()),
+    () => ProductDetailsCubit(
+      getIt<GetProductByIdUseCase>(),
+      getIt<ToggleFavoriteUseCase>(),
+    ),
+  );
+  getIt.registerLazySingleton<GetFavoritesUseCase>(
+    () => GetFavoritesUseCase(getIt<MarketRepository>()),
+  );
+  getIt.registerFactory<FavoritesCubit>(
+    () => FavoritesCubit(
+      getIt<GetFavoritesUseCase>(),
+      getIt<ToggleFavoriteUseCase>(),
+    ),
   );
   getIt.registerFactory<PlansCubit>(
     () => PlansCubit(getIt<GetPlansUseCase>()),
@@ -659,6 +682,12 @@ Future<void> init() async {
       getBranchesUseCase: getIt<GetBranchesUseCase>(),
     ),
   );
+  getIt.registerLazySingleton<GetOrdersUseCase>(
+    () => GetOrdersUseCase(getIt<CheckoutRepository>()),
+  );
+  getIt.registerFactory<OrdersCubit>(
+    () => OrdersCubit(getIt<GetOrdersUseCase>()),
+  );
 
   // Specialist Home
   getIt.registerLazySingleton<SpecialistHomeRemoteDataSource>(
@@ -730,6 +759,20 @@ Future<void> init() async {
   );
   getIt.registerFactory<ClientProgressCubit>(
     () => ClientProgressCubit(getIt<GetClientProgressUseCase>()),
+  );
+
+  // User Progress
+  getIt.registerLazySingleton<UserProgressRemoteDataSource>(
+    () => UserProgressRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<UserProgressRepository>(
+    () => UserProgressRepositoryImpl(getIt<UserProgressRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetUserProgressUseCase>(
+    () => GetUserProgressUseCase(getIt<UserProgressRepository>()),
+  );
+  getIt.registerFactory<UserProgressCubit>(
+    () => UserProgressCubit(getIt<GetUserProgressUseCase>()),
   );
 
   // Specialist Daily Tasks

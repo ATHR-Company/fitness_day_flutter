@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/user_app_drawer.dart';
@@ -95,7 +96,7 @@ class _UserNotificationsPageContentState extends State<_UserNotificationsPageCon
               .toList(),
           onRefresh: () => cubit.getNotifications(isRefresh: true),
           scrollController: _scrollController,
-          drawer: const UserAppDrawer(),
+          drawer: UserAppDrawer(isSubscribed: di.getIt<AppCache>().getIsSubscribed()),
         );
       },
     );

@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/scan_meal_screen.dart';
 import 'package:fitness_day/features/user/challenges/presentation/screens/challenges_screen.dart';
+import 'package:fitness_day/features/user/progress/presentation/pages/user_progress_page.dart';
+import 'package:fitness_day/core/services/app_share_service.dart';
 
 class Categories extends StatelessWidget {
   const Categories({super.key});
@@ -20,14 +22,21 @@ class Categories extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const ChallengesScreen()),
         );
       }),
-      _Item(SvgIcons.achievement, 'home.category_progress'.tr(), onTap: () {}),
+      _Item(SvgIcons.achievement, 'home.category_progress'.tr(), onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const UserProgressPage()),
+        );
+      }),
       _Item(SvgIcons.barcode,     'home.category_calories'.tr(), onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ScanMealScreen()),
         );
       }),
-      _Item(SvgIcons.share,       'home.category_share'.tr(), onTap: () {}),
+      _Item(SvgIcons.share,       'home.category_share'.tr(), onTap: () {
+        AppShareService.shareApp(context);
+      }),
     ];
 
     return Row(

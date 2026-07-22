@@ -67,7 +67,13 @@ class ClientProgressTab extends StatelessWidget {
             return ListView(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               children: [
-                ProgressChart(userId: userId),
+                ProgressChart(
+                  data: state.data,
+                  selectedVisitNumber: state.selectedVisitNumber,
+                  onSelectVisit: (visitNumber) => context
+                      .read<ClientProgressCubit>()
+                      .loadProgress(userId: userId, visitNumber: visitNumber),
+                ),
                 SizedBox(height: 32.h),
                 Text(
                   'clients_page.visit_summary'.tr(),

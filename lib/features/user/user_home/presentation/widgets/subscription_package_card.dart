@@ -5,6 +5,8 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/toggle_favorite_usecase.dart';
 import 'package:fitness_day/features/user/user_home/domain/entities/subscription_package_data.dart';
 import 'package:flutter/material.dart';
@@ -63,15 +65,23 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
       _isFavorite = !_isFavorite;
       _isTogglingFavorite = true;
     });
-    try {
-      final useCase = getIt<ToggleFavoriteUseCase>();
-      await useCase(widget.package.id);
-    } catch (_) {
-      // Roll back on failure
-      if (mounted) setState(() => _isFavorite = !_isFavorite);
-    } finally {
-      if (mounted) setState(() => _isTogglingFavorite = false);
-    }
+    // A package is a PLAN, not a product — the server keys favourites by both.
+    final result = await getIt<ToggleFavoriteUseCase>()(
+      itemType: CartItemType.plan,
+      itemIdentity: widget.package.id,
+    );
+    if (!mounted) return;
+
+    // The use case reports failure through ApiResult rather than throwing, so
+    // the rollback has to be driven off the result, not a catch block.
+    setState(() {
+      if (result is Success<bool>) {
+        _isFavorite = result.data;
+      } else {
+        _isFavorite = !_isFavorite;
+      }
+      _isTogglingFavorite = false;
+    });
   }
 
   Widget _buildDetailsButton() {

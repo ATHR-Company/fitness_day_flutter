@@ -9,6 +9,8 @@ import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/visits/data/models/assessment_model.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/assessments_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/widgets/change_visit_dialog.dart';
@@ -34,7 +36,7 @@ class _VisitLogPageState extends State<VisitLogPage> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.transparent,
-      endDrawer: const UserAppDrawer(),
+      endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
       body: ScreenBackground(
         child: SafeArea(
           child: Column(

@@ -18,7 +18,8 @@ import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/features/user/profile/data/models/user_profile_model.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_state.dart';
-
+import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 import '../../../user_home/presentation/widgets/user_app_drawer.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -40,7 +41,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: const UserAppDrawer(),
+        endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
       body: BlocListener<UserProfileCubit, UserProfileState>(
         listenWhen: (previous, current) => current is UserProfileUpdateFailure,
         listener: (context, state) {
@@ -260,7 +261,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _buildMenuItem(
           title: 'home.category_progress'.tr(), // "التقدم"
           iconWidget: _buildCircleIcon(iconPath: SvgIcons.progress),
-          onTap: () {},
+          onTap: () {
+            context.push(UserAppRoutes.progress);
+          },
         ),
         _buildMenuItem(
           title: 'profile_page.awards'.tr(), // "الجوائز"

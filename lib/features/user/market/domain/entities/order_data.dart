@@ -64,6 +64,7 @@ class OrderData {
   final double total;
   final OrderCoupon? coupon;
   final String createdAt;
+  final int? itemsCount;
 
   const OrderData({
     required this.id,
@@ -79,6 +80,7 @@ class OrderData {
     required this.total,
     this.coupon,
     required this.createdAt,
+    this.itemsCount,
   });
 }
 

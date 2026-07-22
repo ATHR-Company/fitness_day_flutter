@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/services/app_share_service.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
@@ -93,6 +94,14 @@ class _ProductDetailsViewState extends State<_ProductDetailsView> {
                             onPageChanged: (i) =>
                                 context.read<ProductDetailsCubit>().selectPhoto(i),
                             pageController: _pageController,
+                            isFavorite: product.isFavorite,
+                            onFavoriteTap: () =>
+                                context.read<ProductDetailsCubit>().toggleFavorite(),
+                            onShareTap: () => AppShareService.shareProduct(
+                              context,
+                              productId: product.id,
+                              productName: product.name,
+                            ),
                           ),
                           SizedBox(height: 16.h),
 
@@ -154,12 +163,18 @@ class _PhotoCarousel extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onPageChanged;
   final PageController pageController;
+  final bool isFavorite;
+  final VoidCallback onFavoriteTap;
+  final VoidCallback onShareTap;
 
   const _PhotoCarousel({
     required this.photos,
     required this.selectedIndex,
     required this.onPageChanged,
     required this.pageController,
+    required this.isFavorite,
+    required this.onFavoriteTap,
+    required this.onShareTap,
   });
 
   @override
@@ -191,9 +206,13 @@ class _PhotoCarousel extends StatelessWidget {
                   start: 12.w,
                   child: Row(
                     children: [
-                      _IconBtn(Icons.favorite_border, AppColors.primary),
+                      _IconBtn(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        AppColors.primary,
+                        onTap: onFavoriteTap,
+                      ),
                       SizedBox(width: 8.w),
-                      _IconBtn(Icons.share, AppColors.primary),
+                      _IconBtn(Icons.share, AppColors.primary, onTap: onShareTap),
                     ],
                   ),
                 ),
@@ -228,18 +247,22 @@ class _PhotoCarousel extends StatelessWidget {
 class _IconBtn extends StatelessWidget {
   final IconData icon;
   final Color color;
+  final VoidCallback? onTap;
 
-  const _IconBtn(this.icon, this.color);
+  const _IconBtn(this.icon, this.color, {this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8.r),
-      decoration: BoxDecoration(
-        color: AppColors.black.withValues(alpha: 0.4),
-        shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(8.r),
+        decoration: BoxDecoration(
+          color: AppColors.black.withValues(alpha: 0.4),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: color, size: 20.sp),
       ),
-      child: Icon(icon, color: color, size: 20.sp),
     );
   }
 }

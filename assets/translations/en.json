@@ -915,6 +915,8 @@
     "offer_2": "Two boxes for 299 SAR instead of 500 SAR.",
     "offer_3": "Choose the suitable offer from the options before adding the product to cart",
     "market_title": "Store",
+    "favorites_title": "Favourites",
+    "favorites_empty": "You haven't added anything to your favourites yet",
     "category_all": "All",
     "category_slimming": "Slimming Products",
     "category_supplements": "Nutritional Supplements",
@@ -929,7 +931,19 @@
     "details_button": "Details",
     "mock_product_diet_coffee": "Diet Slim Premium Coffee, Coffee Flavor 2 kg 50 scoops",
     "mock_discount_tag": "50% for limited time",
-    "mock_offer_tag": "Buy 1 Get 1 Free"
+    "mock_offer_tag": "Buy 1 Get 1 Free",
+    "orders_title": "My Orders",
+    "no_orders_title": "No orders yet",
+    "no_orders_message": "You haven't placed any orders yet.\nShop in the store and add your favorite products!",
+    "order_id": "Order ID: #{}",
+    "order_date": "Order Date: {}",
+    "order_total": "Total: {} {}",
+    "order_status_pending_payment": "Pending Payment",
+    "order_status_completed": "Completed",
+    "order_status_cancelled": "Cancelled",
+    "order_status_pending": "Pending",
+    "items_count_single": "1 product",
+    "items_count_multi": "{} products"
   },
   "common": {
     "weekdays": {
@@ -951,9 +965,14 @@
       "fri": "Friday"
     }
   },
+  "share": {
+    "app_subject": "Fitness Day",
+    "app_message": "Download Fitness Day and start your journey to a stronger you 💪"
+  },
   "hydration": {
     "title": "Drink Water",
     "manual": "Manual",
+    "decrease": "Remove",
     "reminder_time_label": "Next reminder",
     "enter_manually": "Enter the amount manually",
     "save": "Save",

@@ -935,6 +935,8 @@
     "offer_2": "عرض حبتين بسعر 299 ريال بدلاً من 500 ريال.",
     "offer_3": "اختر العرض المناسب لك من خانة الخيارات قبل إضافة المنتج إلى السلة",
     "market_title": "المتجر",
+    "favorites_title": "المفضلة",
+    "favorites_empty": "لم تُضف أي شيء إلى المفضلة بعد",
     "category_all": "الكل",
     "category_slimming": "منتجات التنحيف",
     "category_supplements": "مكملات غذائية",
@@ -949,11 +951,28 @@
     "details_button": "تفاصيل",
     "mock_product_diet_coffee": "قهوة تنحيف دايت سبريم الاقتصادي، نكهة القهوة 2 كيلو 50 سكوب",
     "mock_discount_tag": "50% لفترة محدودة",
-    "mock_offer_tag": "حبة + حبة مجاناً"
+    "mock_offer_tag": "حبة + حبة مجاناً",
+    "orders_title": "طلباتي",
+    "no_orders_title": "لا توجد طلبات حتى الآن",
+    "no_orders_message": "لم تقم بإنشاء أي طلبات بعد.\nتسوّق في المتجر وأضف منتجاتك المفضلة!",
+    "order_id": "رقم الطلب: #{}",
+    "order_date": "تاريخ الطلب: {}",
+    "order_total": "الإجمالي: {} {}",
+    "order_status_pending_payment": "في انتظار الدفع",
+    "order_status_completed": "مكتمل",
+    "order_status_cancelled": "ملغي",
+    "order_status_pending": "قيد المراجعة",
+    "items_count_single": "منتج واحد",
+    "items_count_multi": "{} منتجات"
+  },
+  "share": {
+    "app_subject": "يوم الرشاقة",
+    "app_message": "حمّل تطبيق يوم الرشاقة وابدأ رحلتك نحو نسختك الأقوى 💪"
   },
   "hydration": {
     "title": "اشرب الماء",
     "manual": "يدوي",
+    "decrease": "إنقاص",
     "reminder_time_label": "التذكير القادم",
     "enter_manually": "أدخل الكمية يدوياً",
     "save": "حفظ",

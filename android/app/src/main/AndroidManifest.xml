@@ -85,5 +85,11 @@
         <intent>
             <action android:name="androidx.health.ACTION_REQUEST_HEALTH_PERMISSIONS" />
         </intent>
+        <!-- share_plus: required on Android 11+ so the share sheet can list
+             apps that accept plain text (ACTION_SEND). -->
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="text/plain" />
+        </intent>
     </queries>
 </manifest>

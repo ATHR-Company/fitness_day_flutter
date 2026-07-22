@@ -19,6 +19,8 @@ abstract class AppCache {
   });
   bool isPersonalDataComplete();
   bool isSurveyComplete();
+  Future<void> saveIsSubscribed(bool isSubscribed);
+  bool getIsSubscribed();
   Future<void> clear();
 }
 
@@ -34,6 +36,7 @@ class AppCacheImpl implements AppCache {
   static const _userTypeKey = 'user_type';
   static const _personalDataCompleteKey = 'is_personal_data_complete';
   static const _surveyCompleteKey = 'is_survey_complete';
+  static const _isSubscribedKey = 'is_subscribed';
 
   @override
   Future<void> saveIsLoggedIn(bool isLoggedIn) async {
@@ -128,6 +131,16 @@ class AppCacheImpl implements AppCache {
   @override
   String? getAssessmentId() {
     return _storage.read(_assessmentIdKey);
+  }
+
+  @override
+  Future<void> saveIsSubscribed(bool isSubscribed) async {
+    await _storage.write(_isSubscribedKey, isSubscribed);
+  }
+
+  @override
+  bool getIsSubscribed() {
+    return _storage.read(_isSubscribedKey) ?? false;
   }
 
   @override

@@ -1,32 +1,32 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/specialist/clients/data/models/client_progress_model.dart';
-import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_cubit.dart';
-import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_state.dart';
 
+/// Presentation-only progress chart. It renders the given [data] for the
+/// [selectedVisitNumber] and reports visit changes through [onSelectVisit],
+/// so it can be driven by any cubit (specialist client progress or the
+/// logged-in user's own progress).
 class ProgressChart extends StatelessWidget {
-  final String userId;
+  final ClientProgressDataModel data;
+  final int selectedVisitNumber;
+  final void Function(int visitNumber) onSelectVisit;
 
-  const ProgressChart({super.key, required this.userId});
+  const ProgressChart({
+    super.key,
+    required this.data,
+    required this.selectedVisitNumber,
+    required this.onSelectVisit,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ClientProgressCubit, ClientProgressState>(
-      builder: (context, state) {
-        if (state is! ClientProgressSuccess) {
-          return const SizedBox.shrink();
-        }
-
-        final data = state.data;
-        final selectedVisitNumber = state.selectedVisitNumber;
-        final chart = data.chart ?? [];
+    final chart = data.chart ?? [];
         final currentWeightVal = data.currentWeight?.value?.toString() ?? '0';
         final currentWeightUnit = data.currentWeight?.unit ?? 'clients_page.kg'.tr();
 
@@ -131,12 +131,7 @@ class ProgressChart extends StatelessWidget {
                         size: 20.sp,
                       ),
                       onPressed: prevVisitNum != null
-                          ? () {
-                              context.read<ClientProgressCubit>().loadProgress(
-                                    userId: userId,
-                                    visitNumber: prevVisitNum,
-                                  );
-                            }
+                          ? () => onSelectVisit(prevVisitNum)
                           : null,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -151,12 +146,7 @@ class ProgressChart extends StatelessWidget {
                         size: 20.sp,
                       ),
                       onPressed: nextVisitNum != null
-                          ? () {
-                              context.read<ClientProgressCubit>().loadProgress(
-                                    userId: userId,
-                                    visitNumber: nextVisitNum,
-                                  );
-                            }
+                          ? () => onSelectVisit(nextVisitNum)
                           : null,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -196,10 +186,7 @@ class ProgressChart extends StatelessWidget {
                           }
                           final xVal = barTouchResponse.spot!.touchedBarGroup.x;
                           if (xVal != selectedVisitNumber && visitNumbers.contains(xVal)) {
-                            context.read<ClientProgressCubit>().loadProgress(
-                                  userId: userId,
-                                  visitNumber: xVal,
-                                );
+                            onSelectVisit(xVal);
                           }
                         },
                         touchTooltipData: BarTouchTooltipData(
@@ -286,8 +273,6 @@ class ProgressChart extends StatelessWidget {
             ),
           ],
         );
-      },
-    );
   }
 
   BarChartGroupData _buildBar(int x, double y, bool isActive) {

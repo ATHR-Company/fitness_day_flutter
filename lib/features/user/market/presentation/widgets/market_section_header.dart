@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -41,7 +43,9 @@ class MarketSectionHeader extends StatelessWidget {
                 ),
                 SizedBox(width: 4.w),
                 Icon(
-                  Icons.keyboard_double_arrow_right,
+                  Directionality.of(context) == ui.TextDirection.rtl
+                      ? Icons.keyboard_double_arrow_left
+                      : Icons.keyboard_double_arrow_right,
                   size: 16.sp,
                   color: AppColors.primary,
                 ),

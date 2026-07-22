@@ -9,6 +9,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/checkout_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/orders_screen.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 
 class CartScreen extends StatefulWidget {
@@ -99,8 +100,42 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
           ),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OrdersScreen()),
+                );
+              },
+              child: _buildIconButton(
+                child: AppImage(
+                  SvgIcons.market_icon,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildIconButton({required Widget child, Color? background}) {
+    return Container(
+      width: 38.w,
+      height: 38.w,
+      padding: EdgeInsets.all(10.r),
+      decoration: BoxDecoration(
+        color: background ?? AppColors.white,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: AppColors.textSecondary.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Center(child: child),
     );
   }
 

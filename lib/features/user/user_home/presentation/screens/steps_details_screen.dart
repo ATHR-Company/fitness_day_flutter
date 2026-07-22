@@ -14,6 +14,16 @@ import '../../../../../core/theme/app_text_styles.dart';
 
 enum ActivityType { walking, running }
 
+/// Running goals used to be stored in kilometres while progress was reported in
+/// metres; the backend now normalises the goal to metres in the response layer.
+/// Accept both so the app is correct on either side of that deploy: a running
+/// goal below this threshold can only be the old kilometre form (nobody sets a
+/// 100 km target), anything above it is already metres.
+const double _kRunningGoalMetresThreshold = 100;
+
+double _runningGoalKm(double rawGoal) =>
+    rawGoal >= _kRunningGoalMetresThreshold ? rawGoal / 1000 : rawGoal;
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Entry point — loads activity details from API, then injects goals into cubit
 // ─────────────────────────────────────────────────────────────────────────────
@@ -84,7 +94,8 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
         assessmentId: widget.assessmentId,
         dayNumber: widget.dayNumber,
         activityId: widget.activityId,
-        goalDistanceKm: data.goal,
+        activityItemId: data.activityItemId,
+        goalDistanceKm: _runningGoalKm(data.goal),
       );
       // Don't call requestPermissions() automatically — user triggers it
     }
@@ -151,8 +162,6 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
             _cachedData;
         if (data == null) return const SizedBox.shrink();
 
-        final double goalSteps = data.goal;
-        final double goalDistanceKm = data.goal;
         final double currentProgress = data.currentProgress;
         final int progressPercent = data.progressPercentage.toInt();
         final activityCubit = context.read<ActivityDetailsCubit>();
@@ -174,6 +183,7 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
                     assessmentId: widget.assessmentId,
                     dayNumber: widget.dayNumber,
                     activityId: widget.activityId,
+                    activityItemId: data.activityItemId,
                     goalSteps: data.goal,
                     goalDistanceKm: data.goal,
                   )..init();
@@ -461,7 +471,9 @@ class _RunningScreenState extends State<_RunningScreen> {
         final actData = actState is ActivityDetailsSuccess ? actState.data : null;
         final double apiProgress = actData?.currentProgress ?? widget.apiProgress;
         final int apiProgressPct = actData?.progressPercentage.toInt() ?? widget.apiProgressPercent;
-        final double apiGoal = actData?.goal ?? widget.apiProgress;
+        final double apiGoal = actData != null
+            ? _runningGoalKm(actData.goal)
+            : widget.apiProgress;
         final String apiUnit = actData?.unit ?? 'كم';
         final int apiDuration = actData?.durationMinutes?.toInt() ?? widget.apiDurationMinutes;
         final double apiCalories = actData?.caloriesBurned ?? widget.apiCalories;

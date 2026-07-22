@@ -29,6 +29,12 @@ class ActivityDetailsData {
   final String name;
   final String description;
   final String unit;
+
+  /// `_id` of this activity *inside the plan day*. Unlike [activityId] — which
+  /// is the shared catalog reference and is identical for every "running" item
+  /// in the plan — this is unique per item, so it is what the sync endpoints
+  /// match on. Empty when the backend has not been deployed yet.
+  final String activityItemId;
   final double goal;
   final double currentProgress;
   final double progressPercentage;
@@ -48,6 +54,7 @@ class ActivityDetailsData {
     required this.name,
     required this.description,
     required this.unit,
+    this.activityItemId = '',
     required this.goal,
     required this.currentProgress,
     required this.progressPercentage,
@@ -69,6 +76,8 @@ class ActivityDetailsData {
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
       unit: json['unit'] as String? ?? '',
+      activityItemId:
+          json['activityItemId'] as String? ?? json['_id'] as String? ?? '',
       goal: (json['goal'] as num?)?.toDouble() ?? 0.0,
       currentProgress: (json['currentProgress'] as num?)?.toDouble() ?? 0.0,
       progressPercentage:
