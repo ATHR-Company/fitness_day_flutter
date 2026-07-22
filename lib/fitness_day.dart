@@ -6,6 +6,7 @@ import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_c
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
+import 'package:fitness_day/core/widgets/offline_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -77,6 +78,10 @@ class FitnessDay extends StatelessWidget {
               ),
               // Single stable router — never swapped, so navigation state is preserved.
               routerConfig: AppRouter.router,
+              // App-wide offline banner: slides down whenever the device
+              // loses connectivity, on top of every route.
+              builder: (context, child) =>
+                  OfflineBanner(child: child ?? const SizedBox.shrink()),
             ),
           ),
         );

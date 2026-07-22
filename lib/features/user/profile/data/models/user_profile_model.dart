@@ -68,6 +68,13 @@ class UserProfileDataModel {
   }
 }
 
+class ChangePhoneOtpResponse {
+  final String changePhoneToken;
+  final String message;
+
+  ChangePhoneOtpResponse({required this.changePhoneToken, required this.message});
+}
+
 class UserProfileUpdateResponseModel {
   final bool success;
   final int statusCode;

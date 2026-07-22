@@ -8,6 +8,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import '../../../../../core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
+import 'package:fitness_day/core/widgets/network_error_view.dart';
 
 /// View-model for a single notification card, used when [NotificationsPage]
 /// is fed real data (see [NotificationsPage.items]).
@@ -105,19 +106,7 @@ class NotificationsPage extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
     if (errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(errorMessage!),
-            SizedBox(height: 8.h),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: Text('home.retry'.tr()),
-            ),
-          ],
-        ),
-      );
+      return NetworkErrorView(onRetry: onRetry);
     }
     if (items != null) {
       return items!.isEmpty ? _buildEmptyState() : _buildDynamicState(items!);

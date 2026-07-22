@@ -66,7 +66,15 @@ class _SplashScreenState extends State<SplashScreen> {
           context.go(SpecialistAppRoutes.home);
         } else {
           RoleNotifier.instance.setRole(AppRole.user);
-          context.go(UserAppRoutes.home);
+          // Resume onboarding if the user signed up but didn't finish
+          // completing their personal data / health survey before closing.
+          if (!appCache.isPersonalDataComplete()) {
+            context.go(UserAppRoutes.userInfo);
+          } else if (!appCache.isSurveyComplete()) {
+            context.go(UserAppRoutes.healthProblems);
+          } else {
+            context.go(UserAppRoutes.home);
+          }
         }
       } else if (appCache.hasSeenOnboarding()) {
         context.go(SharedRoutes.roleSelection);

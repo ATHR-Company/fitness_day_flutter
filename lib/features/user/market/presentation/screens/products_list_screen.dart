@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/widgets/network_error_view.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
@@ -129,11 +130,8 @@ class _ProductsListViewState extends State<_ProductsListView> {
                     }
 
                     if (state is ProductsListFailure) {
-                      return Center(
-                        child: Text(
-                          state.message,
-                          style: TextStyleManager.style14Medium,
-                        ),
+                      return NetworkErrorView(
+                        onRetry: () => context.read<ProductsListCubit>().loadFirst(),
                       );
                     }
 

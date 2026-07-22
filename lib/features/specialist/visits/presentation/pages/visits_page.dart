@@ -10,6 +10,7 @@ import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/core/widgets/network_error_view.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visits_cubit.dart';
@@ -146,21 +147,11 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
                             if (state is VisitsLoading) {
                               return const Center(child: CircularProgressIndicator());
                             } else if (state is VisitsFailure) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(state.message),
-                                    SizedBox(height: 8.h),
-                                    ElevatedButton(
-                                      onPressed: () => context.read<VisitsCubit>().getVisits(
-                                            type: _getTypeString(_selectedTabIndex),
-                                            search: _searchController.text,
-                                          ),
-                                      child: Text('home.retry'.tr()),
+                              return NetworkErrorView(
+                                onRetry: () => context.read<VisitsCubit>().getVisits(
+                                      type: _getTypeString(_selectedTabIndex),
+                                      search: _searchController.text,
                                     ),
-                                  ],
-                                ),
                               );
                             } else if (state is VisitsSuccess || state is VisitsLoadingMore) {
                               final visits = state is VisitsSuccess

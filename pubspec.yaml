@@ -67,6 +67,9 @@ dependencies:
   health: ^12.2.0
   pedometer: ^4.0.1
 
+  # Connectivity / network status
+  connectivity_plus: ^6.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -13,6 +13,12 @@ abstract class AppCache {
   String? getAssessmentId();
   Future<void> saveUserType(String userType);
   String getUserType();
+  Future<void> saveCompletionStatus({
+    required bool personalData,
+    required bool survey,
+  });
+  bool isPersonalDataComplete();
+  bool isSurveyComplete();
   Future<void> clear();
 }
 
@@ -26,6 +32,8 @@ class AppCacheImpl implements AppCache {
   static const _userKey = 'cached_user_profile';
   static const _assessmentIdKey = 'assessment_id';
   static const _userTypeKey = 'user_type';
+  static const _personalDataCompleteKey = 'is_personal_data_complete';
+  static const _surveyCompleteKey = 'is_survey_complete';
 
   @override
   Future<void> saveIsLoggedIn(bool isLoggedIn) async {
@@ -45,6 +53,28 @@ class AppCacheImpl implements AppCache {
   @override
   String getUserType() {
     return _storage.read(_userTypeKey) ?? 'user';
+  }
+
+  @override
+  Future<void> saveCompletionStatus({
+    required bool personalData,
+    required bool survey,
+  }) async {
+    await _storage.write(_personalDataCompleteKey, personalData);
+    await _storage.write(_surveyCompleteKey, survey);
+  }
+
+  // Defaults to `true` so users cached before this flag existed (and any
+  // unknown state) are treated as complete and routed to home, never falsely
+  // redirected into onboarding.
+  @override
+  bool isPersonalDataComplete() {
+    return _storage.read(_personalDataCompleteKey) ?? true;
+  }
+
+  @override
+  bool isSurveyComplete() {
+    return _storage.read(_surveyCompleteKey) ?? true;
   }
 
   @override

@@ -1,4 +1,11 @@
 {
+  "errors": {
+    "no_internet_title": "No internet connection",
+    "no_internet_subtitle": "Please check your network connection and try again.",
+    "retry": "Retry",
+    "offline_banner": "No internet connection",
+    "back_online": "Back online"
+  },
   "login": {
     "welcome_text": "Happy to see you again. Log in to continue your journey towards your strongest version",
     "phone_hint": "Phone Number",
@@ -82,6 +89,7 @@
     "review_plan": "Review Plan",
     "see_all": "See All",
     "see_more": "See More",
+    "retry": "Retry",
     "commitment_rate": "Commitment Rate: {}%",
     "weekly_follow_up": "Weekly Follow-up",
     "weekly_follow_up_desc": "Weight tracking and diet plan\ncustomization",
@@ -381,7 +389,12 @@
     "new_password": "New Password",
     "confirm_new_password": "Confirm New Password",
     "english": "English",
-    "arabic": "العربية"
+    "arabic": "العربية",
+    "change_phone": "Edit Phone Number",
+    "new_phone_hint": "New Phone Number",
+    "send_code": "Send Code",
+    "verify_code": "Verify Code",
+    "change_phone_otp_subtitle": "Enter the verification code sent to your new phone number"
   },
   "profile_page": {
     "change_photo": "Change Profile Photo",

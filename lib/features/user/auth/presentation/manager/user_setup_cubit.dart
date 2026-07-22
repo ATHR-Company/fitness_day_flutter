@@ -163,6 +163,10 @@ class UserSetupCubit extends Cubit<UserSetupState> {
           birthDate: birthDate,
         );
         await _appCache.saveUser(updated);
+        await _appCache.saveCompletionStatus(
+          personalData: data.isPersonalDataComplete,
+          survey: data.isSurveyComplete,
+        );
         emit(CompletePersonalDataSuccess(data.message));
       case FailureResult(:final failure):
         emit(UserSetupFailure(failure.message));
@@ -188,6 +192,10 @@ class UserSetupCubit extends Cubit<UserSetupState> {
       case Success(:final data):
         bodyReport = data.bodyReport;
         isSubscribed = data.isSubscribed;
+        await _appCache.saveCompletionStatus(
+          personalData: data.isPersonalDataComplete,
+          survey: data.isSurveyComplete,
+        );
         emit(SubmitHealthAnswersSuccess(
           bodyReport: data.bodyReport,
           isSubscribed: data.isSubscribed,

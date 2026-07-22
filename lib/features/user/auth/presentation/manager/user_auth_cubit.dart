@@ -83,6 +83,10 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _secureCache.saveRefreshToken(data.refreshToken);
         await _appCache.saveUserType('user');
         await _appCache.saveIsLoggedIn(true);
+        await _appCache.saveCompletionStatus(
+          personalData: data.isPersonalDataComplete,
+          survey: data.isSurveyComplete,
+        );
         // Ensure cached user structure is initialized
         final currentUser = _appCache.getUser();
         await _appCache.saveUser(currentUser);
@@ -111,6 +115,10 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _secureCache.saveRefreshToken(data.refreshToken);
         await _appCache.saveUserType('user');
         await _appCache.saveIsLoggedIn(true);
+        await _appCache.saveCompletionStatus(
+          personalData: data.isPersonalDataComplete,
+          survey: data.isSurveyComplete,
+        );
         // Ensure cached user structure is initialized
         final currentUser = _appCache.getUser();
         await _appCache.saveUser(currentUser);
@@ -137,6 +145,10 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _secureCache.saveRefreshToken(data.refreshToken);
         await _appCache.saveUserType('user');
         await _appCache.saveIsLoggedIn(true);
+        await _appCache.saveCompletionStatus(
+          personalData: data.isPersonalDataComplete,
+          survey: data.isSurveyComplete,
+        );
         // Initialize cached user profile and set/override phone number
         final currentUser = _appCache.getUser();
         await _appCache.saveUser(currentUser.copyWith(phone: request.phone));

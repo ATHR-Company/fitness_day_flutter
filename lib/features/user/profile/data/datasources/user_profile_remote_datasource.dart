@@ -17,6 +17,23 @@ abstract class UserProfileRemoteDataSource {
   Future<UserProfileDataModel> toggleNotifications();
 
   Future<UserProfileDataModel> updateLang(String lang);
+
+  /// Returns the API's own success message.
+  Future<String> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String newPasswordConfirm,
+  });
+
+  Future<ChangePhoneOtpResponse> requestChangePhoneOtp(String phone);
+
+  /// Returns the API's own success message.
+  Future<String> verifyChangePhoneOtp({
+    required String changePhoneToken,
+    required String otp,
+  });
+
+  Future<void> signout();
 }
 
 class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
@@ -72,5 +89,56 @@ class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
     );
     final data = (response.data as Map<String, dynamic>)['data'] as Map<String, dynamic>? ?? {};
     return UserProfileDataModel.fromJson(data);
+  }
+
+  @override
+  Future<String> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String newPasswordConfirm,
+  }) async {
+    final response = await _apiService.patch(
+      ApiEndpoints.changePassword,
+      data: {
+        'oldPassword': oldPassword,
+        'newPassword': newPassword,
+        'newPasswordConfirm': newPasswordConfirm,
+      },
+    );
+    return (response.data as Map<String, dynamic>)['message'] as String? ?? '';
+  }
+
+  @override
+  Future<ChangePhoneOtpResponse> requestChangePhoneOtp(String phone) async {
+    final response = await _apiService.post(
+      ApiEndpoints.changePhoneRequestOtp,
+      data: {'phone': phone},
+    );
+    final json = response.data as Map<String, dynamic>;
+    final data = json['data'] as Map<String, dynamic>? ?? {};
+    return ChangePhoneOtpResponse(
+      changePhoneToken: data['changePhoneToken'] as String? ?? '',
+      message: json['message'] as String? ?? '',
+    );
+  }
+
+  @override
+  Future<String> verifyChangePhoneOtp({
+    required String changePhoneToken,
+    required String otp,
+  }) async {
+    final response = await _apiService.post(
+      ApiEndpoints.changePhoneVerifyOtp,
+      data: {
+        'changePhoneToken': changePhoneToken,
+        'otp': otp,
+      },
+    );
+    return (response.data as Map<String, dynamic>)['message'] as String? ?? '';
+  }
+
+  @override
+  Future<void> signout() async {
+    await _apiService.post(ApiEndpoints.userSignout);
   }
 }
