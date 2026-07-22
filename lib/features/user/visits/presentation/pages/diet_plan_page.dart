@@ -99,7 +99,7 @@ class _DietPlanPageState extends State<DietPlanPage> {
           return Scaffold(
             key: _scaffoldKey,
             backgroundColor: AppColors.scaffoldBackground,
-            endDrawer: const UserAppDrawer(),
+            endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
             body: SafeArea(
               child: Column(
                 children: [

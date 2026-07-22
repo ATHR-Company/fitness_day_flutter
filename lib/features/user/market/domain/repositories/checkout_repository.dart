@@ -12,4 +12,5 @@ abstract class CheckoutRepository {
     required String orderIdentity,
     required String deliveryMethod,
   });
+  Future<ApiResult<List<OrderData>>> getOrders();
 }

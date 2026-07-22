@@ -17,6 +17,7 @@ import 'package:fitness_day/features/user/user_home/presentation/screens/home_pa
 import 'package:fitness_day/features/shared/notifications/presentation/pages/notifications_page.dart';
 import 'package:fitness_day/features/user/profile/presentation/pages/user_profile_page.dart';
 import 'package:fitness_day/features/user/profile/presentation/pages/personal_profile_page.dart';
+import 'package:fitness_day/features/user/progress/presentation/pages/user_progress_page.dart';
 
 import '../../../features/user/auth/presentation/pages/bmi_report_page.dart';
 import '../../../features/user/auth/presentation/pages/health_problems_page.dart';
@@ -130,6 +131,10 @@ class UserAppRouter {
       GoRoute(
         path: UserAppRoutes.personalProfile,
         builder: (context, state) => const PersonalProfilePage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.progress,
+        builder: (context, state) => const UserProgressPage(),
       ),
       GoRoute(
         path: UserAppRoutes.visitLog,

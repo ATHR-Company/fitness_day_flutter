@@ -11,6 +11,7 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/user_ap
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_cubit.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_state.dart';
 import 'package:fitness_day/features/user/workout/data/models/workout_plan_model.dart';
@@ -77,7 +78,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
           return Scaffold(
             key: _scaffoldKey,
             backgroundColor: AppColors.scaffoldBackground,
-            endDrawer: const UserAppDrawer(),
+            endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
             body: SafeArea(
               child: Column(
                 children: [

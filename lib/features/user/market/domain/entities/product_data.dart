@@ -35,4 +35,19 @@ class ProductData {
     this.photos = const [],
     this.details = const [],
   });
+
+  ProductData copyWith({bool? isFavorite}) {
+    return ProductData(
+      id: id,
+      name: name,
+      imageUrl: imageUrl,
+      currentPrice: currentPrice,
+      oldPrice: oldPrice,
+      isFavorite: isFavorite ?? this.isFavorite,
+      discountTag: discountTag,
+      offerTag: offerTag,
+      photos: photos,
+      details: details,
+    );
+  }
 }

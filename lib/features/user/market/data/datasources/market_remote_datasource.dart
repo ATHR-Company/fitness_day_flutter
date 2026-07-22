@@ -1,6 +1,8 @@
 import 'package:fitness_day/core/constant/api_endpoints.dart';
 import 'package:fitness_day/core/network/api_service.dart';
+import '../../domain/entities/cart_data.dart';
 import '../../domain/entities/products_page_data.dart';
+import '../models/favorites_page_model.dart';
 import '../models/plan_details_model.dart';
 import '../models/plans_model.dart';
 import '../models/product_details_model.dart';
@@ -17,7 +19,11 @@ abstract class MarketRemoteDataSource {
   Future<ProductDetailsModel> getProductById(String id);
   Future<PlansModel> getPlans({int page = 1, int limit = 8});
   Future<PlanDetailsModel> getPlanById(String id);
-  Future<bool> toggleFavorite(String productIdentity);
+  Future<bool> toggleFavorite({
+    required CartItemType itemType,
+    required String itemIdentity,
+  });
+  Future<FavoritesPageModel> getFavorites({int page = 1, int limit = 10});
 }
 
 class MarketRemoteDataSourceImpl implements MarketRemoteDataSource {
@@ -72,11 +78,26 @@ class MarketRemoteDataSourceImpl implements MarketRemoteDataSource {
   }
 
   @override
-  Future<bool> toggleFavorite(String productIdentity) async {
+  Future<bool> toggleFavorite({
+    required CartItemType itemType,
+    required String itemIdentity,
+  }) async {
     final response = await apiService.post(
       ApiEndpoints.storeFavorites,
-      data: {'productIdentity': productIdentity},
+      data: {
+        'itemType': itemType.apiValue,
+        'itemIdentity': itemIdentity,
+      },
     );
     return response.data['data']?['isFavorite'] ?? false;
+  }
+
+  @override
+  Future<FavoritesPageModel> getFavorites({int page = 1, int limit = 10}) async {
+    final response = await apiService.get(
+      ApiEndpoints.storeFavorites,
+      queryParameters: {'page': page, 'limit': limit},
+    );
+    return FavoritesPageModel.fromJson(response.data);
   }
 }

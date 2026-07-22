@@ -14,12 +14,22 @@ abstract class CheckoutRemoteDataSource {
     required String orderIdentity,
     required String deliveryMethod,
   });
+  Future<List<OrderModel>> getOrders();
 }
 
 class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
   final ApiService apiService;
 
   CheckoutRemoteDataSourceImpl(this.apiService);
+
+  @override
+  Future<List<OrderModel>> getOrders() async {
+    final response = await apiService.get('/orders');
+    final List raw = response.data['data']['data'] as List? ?? [];
+    return raw
+        .map((e) => OrderModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
 
   @override
   Future<List<BranchModel>> getBranches() async {

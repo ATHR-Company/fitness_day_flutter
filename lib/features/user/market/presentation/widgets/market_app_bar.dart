@@ -6,11 +6,22 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 
-/// App bar for the market main screen — title, cart button, and drawer menu.
+/// The title stays centred on the screen, so the three buttons have to stay
+/// narrow enough not to reach it. At 38 they clear the centred title; going
+/// back up to 44 makes the last button sit on top of it.
+final double _kIconSize = 38.w;
+final double _kIconGap = 6.w;
+
+/// App bar for the market main screen — title, cart, drawer menu, favourites.
 class MarketAppBar extends StatelessWidget {
   final VoidCallback onCartTap;
+  final VoidCallback? onFavoritesTap;
 
-  const MarketAppBar({super.key, required this.onCartTap});
+  const MarketAppBar({
+    super.key,
+    required this.onCartTap,
+    this.onFavoritesTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +43,39 @@ class MarketAppBar extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: onCartTap,
-                child: _buildIconButton(SvgIcons.market_icon),
+                child: _buildIconButton(
+                  child: AppImage(
+                    SvgIcons.market_icon,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ),
-              SizedBox(width: 8.w),
+                SizedBox(width: _kIconGap),
+              // Favourites
+              GestureDetector(
+                onTap: onFavoritesTap,
+                child: _buildIconButton(
+                  child: Icon(
+                    Icons.favorite,
+                    color: AppColors.textSecondary,
+                    size: 18.sp,
+                  ),
+                ),
+              ),
+              SizedBox(width: _kIconGap),
               // Menu
               Builder(
                 builder: (ctx) => GestureDetector(
                   onTap: () => Scaffold.of(ctx).openEndDrawer(),
-                  child: _buildIconButton(SvgIcons.menuIcon),
+                  child: _buildIconButton(
+                    child: AppImage(
+                      SvgIcons.menuIcon,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                 ),
               ),
+            
             ],
           ),
         ],
@@ -49,23 +83,20 @@ class MarketAppBar extends StatelessWidget {
     );
   }
 
-  Widget _buildIconButton(String asset) {
+  Widget _buildIconButton({required Widget child, Color? background}) {
     return Container(
-      width: 44.w,
-      height: 44.w,
-      padding: EdgeInsets.all(12.r),
+      width: _kIconSize,
+      height: _kIconSize,
+      padding: EdgeInsets.all(10.r),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: background ?? AppColors.white,
         shape: BoxShape.circle,
         border: Border.all(
           color: AppColors.textSecondary.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
-      child: AppImage(
-        asset,
-        color: AppColors.textSecondary,
-      ),
+      child: Center(child: child),
     );
   }
 }

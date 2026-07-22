@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
 import 'package:fitness_day/core/services/health_service.dart';
 import 'package:fitness_day/core/network/api_service.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
@@ -32,6 +33,12 @@ class WalkingCubit extends Cubit<WalkingState> {
   final int dayNumber;
   final String activityId;
 
+  /// Unique `_id` of the item inside the plan day. [activityId] is only the
+  /// catalog reference and is shared by every walking item in the day, so the
+  /// server matches on this instead — without it a day holding two walking
+  /// activities would credit both on every sync.
+  final String activityItemId;
+
   Timer? _pollTimer;
   static const Duration _kPollInterval = Duration(seconds: 30);
 
@@ -42,6 +49,19 @@ class WalkingCubit extends Cubit<WalkingState> {
   int _lastSentSteps = 0;
   double _lastSentDistanceKm = 0;
   String _trackedDateKey = '';
+
+  /// An attempt that was built but never acknowledged. It is retried byte-for
+  /// byte — same deltas, same [_pendingSyncId] — so that if the request
+  /// actually reached the server and only the response was lost, the server
+  /// recognises the replay and does not apply the increment twice. Persisted
+  /// so a crash mid-request cannot double-count either.
+  String? _pendingSyncId;
+  int _pendingDeltaSteps = 0;
+  double _pendingDeltaDistanceM = 0;
+  int _pendingTargetSteps = 0;
+  double _pendingTargetDistanceKm = 0;
+
+  static const Uuid _uuid = Uuid();
 
   // ─── Live pedometer (instant UI feedback between polls) ────────────────────
   StreamSubscription<StepCount>? _pedometerSub;
@@ -56,6 +76,7 @@ class WalkingCubit extends Cubit<WalkingState> {
     required this.assessmentId,
     required this.dayNumber,
     required this.activityId,
+    required this.activityItemId,
     required double goalSteps,
     required double goalDistanceKm,
   })  : _healthService = healthService,
@@ -209,12 +230,51 @@ class WalkingCubit extends Cubit<WalkingState> {
         (_storage.read('walking_sent_distance_$_baselineScope') as num?)
                 ?.toDouble() ??
             0.0;
+    _loadPending();
   }
 
   Future<void> _persistBaseline() async {
     await _storage.write('walking_sent_steps_$_baselineScope', _lastSentSteps);
     await _storage.write(
         'walking_sent_distance_$_baselineScope', _lastSentDistanceKm);
+  }
+
+  void _loadPending() {
+    _pendingSyncId = _storage.read<String>('walking_pending_id_$_baselineScope');
+    if (_pendingSyncId == null) return;
+    _pendingDeltaSteps =
+        _storage.read<int>('walking_pending_steps_$_baselineScope') ?? 0;
+    _pendingDeltaDistanceM =
+        (_storage.read('walking_pending_dist_$_baselineScope') as num?)
+                ?.toDouble() ??
+            0.0;
+    _pendingTargetSteps =
+        _storage.read<int>('walking_pending_target_steps_$_baselineScope') ?? 0;
+    _pendingTargetDistanceKm =
+        (_storage.read('walking_pending_target_dist_$_baselineScope') as num?)
+                ?.toDouble() ??
+            0.0;
+  }
+
+  Future<void> _persistPending() async {
+    await _storage.write('walking_pending_id_$_baselineScope', _pendingSyncId);
+    await _storage.write(
+        'walking_pending_steps_$_baselineScope', _pendingDeltaSteps);
+    await _storage.write(
+        'walking_pending_dist_$_baselineScope', _pendingDeltaDistanceM);
+    await _storage.write(
+        'walking_pending_target_steps_$_baselineScope', _pendingTargetSteps);
+    await _storage.write(
+        'walking_pending_target_dist_$_baselineScope', _pendingTargetDistanceKm);
+  }
+
+  Future<void> _clearPending() async {
+    _pendingSyncId = null;
+    await _storage.remove('walking_pending_id_$_baselineScope');
+    await _storage.remove('walking_pending_steps_$_baselineScope');
+    await _storage.remove('walking_pending_dist_$_baselineScope');
+    await _storage.remove('walking_pending_target_steps_$_baselineScope');
+    await _storage.remove('walking_pending_target_dist_$_baselineScope');
   }
 
   /// Sends only the **delta** since last send — server accumulates the total.
@@ -224,11 +284,29 @@ class WalkingCubit extends Cubit<WalkingState> {
   }) async {
     _loadBaselineForToday();
 
-    final int stepDelta = (steps - _lastSentSteps).clamp(0, steps);
-    final double distDelta =
-        (distanceKm - _lastSentDistanceKm).clamp(0.0, distanceKm);
+    // The server matches on activityItemId; without it the request would be
+    // rejected, so hold the progress in the baseline and retry once the
+    // details response carries the id.
+    if (activityItemId.isEmpty) return;
 
-    if (stepDelta == 0 && distDelta == 0) return;
+    // Reuse an unacknowledged attempt verbatim; only build a fresh one when
+    // nothing is outstanding.
+    if (_pendingSyncId == null) {
+      final int stepDelta = (steps - _lastSentSteps).clamp(0, steps);
+      final double distDelta =
+          (distanceKm - _lastSentDistanceKm).clamp(0.0, distanceKm);
+
+      if (stepDelta == 0 && distDelta == 0) return;
+
+      _pendingSyncId = _uuid.v4();
+      _pendingDeltaSteps = stepDelta;
+      // Server contract is metres, not kilometres.
+      _pendingDeltaDistanceM =
+          double.parse((distDelta * 1000).toStringAsFixed(1));
+      _pendingTargetSteps = steps;
+      _pendingTargetDistanceKm = distanceKm;
+      await _persistPending();
+    }
 
     try {
       await _apiService.post(
@@ -237,17 +315,19 @@ class WalkingCubit extends Cubit<WalkingState> {
           'assessmentId': assessmentId,
           'dayNumber': dayNumber,
           'activityId': activityId,
-          'deltaSteps': stepDelta,
-          // Server contract is metres, not kilometres.
-          'deltaDistance': double.parse((distDelta * 1000).toStringAsFixed(1)),
+          'activityItemId': activityItemId,
+          'deltaSteps': _pendingDeltaSteps,
+          'deltaDistance': _pendingDeltaDistanceM,
+          'syncId': _pendingSyncId,
         },
       );
-      _lastSentSteps = steps;
-      _lastSentDistanceKm = distanceKm;
+      _lastSentSteps = _pendingTargetSteps;
+      _lastSentDistanceKm = _pendingTargetDistanceKm;
+      await _clearPending();
       await _persistBaseline();
     } catch (e) {
       debugPrint('WalkingCubit._syncToBackend error: $e');
-      // Non-fatal — will retry on next poll
+      // Non-fatal — the pending attempt is retried unchanged on the next poll.
     }
   }
 }

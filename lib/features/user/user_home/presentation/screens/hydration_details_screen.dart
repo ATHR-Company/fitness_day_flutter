@@ -1,3 +1,4 @@
+
 import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
@@ -14,7 +15,6 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/user/user_home/presentation/screens/water_reminder_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/hydration/manual_add_sheet.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/hydration/water_action_button.dart';
 
@@ -81,13 +81,6 @@ class _HydrationDetailsContentState extends State<_HydrationDetailsContent> {
     setState(() => _isUpdating = true);
     await context.read<ActivityDetailsCubit>().decreaseHydration(amount: 0.25);
     if (mounted) setState(() => _isUpdating = false);
-  }
-
-  void _showWaterReminderScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const WaterReminderScreen()),
-    );
   }
 
   @override
@@ -175,6 +168,19 @@ class _HydrationDetailsContentState extends State<_HydrationDetailsContent> {
                             horizontal: 20.w, vertical: 10.h),
                         child: Row(
                           children: [
+                            // Arrow is the FIRST child:
+                            // • RTL (Arabic)  → appears on the RIGHT  ✓
+                            // • LTR (English) → appears on the LEFT   ✓
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Icon(
+                                Directionality.of(context) == ui.TextDirection.rtl
+                                    ? Icons.arrow_back_ios
+                                    : Icons.arrow_back_ios,
+                                size: 20.sp,
+                                color: AppColors.black,
+                              ),
+                            ),
                             const Spacer(),
                             Text(
                               name,
@@ -184,17 +190,6 @@ class _HydrationDetailsContentState extends State<_HydrationDetailsContent> {
                               ),
                             ),
                             const Spacer(),
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Icon(
-                                Directionality.of(context) ==
-                                        ui.TextDirection.rtl
-                                    ? Icons.arrow_forward_ios
-                                    : Icons.arrow_forward_ios,
-                                size: 20.sp,
-                                color: AppColors.black,
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -292,14 +287,16 @@ class _HydrationDetailsContentState extends State<_HydrationDetailsContent> {
                             Padding(
                               padding: EdgeInsets.only(top: 40.h),
                               child: WaterActionButton(
-                                iconWidget: AppImage(
-                                  SvgIcons.WaterClock,
-                                  width: 30.w,
-                                  height: 30.w,
-                                  fit: BoxFit.contain,
+                                iconWidget: Icon(
+                                  Icons.remove,
+                                  size: 30.sp,
+                                  color: _isUpdating
+                                      ? AppColors.hydrationAccent
+                                          .withValues(alpha: 0.4)
+                                      : AppColors.hydrationAccent,
                                 ),
-                                label: 'hydration.reminder_time_label'.tr(),
-                                onTap: _showWaterReminderScreen,
+                                label: 'hydration.decrease'.tr(),
+                                onTap: _isUpdating ? null : _onDecrease,
                                 size: 80,
                               ),
                             ),
@@ -308,42 +305,6 @@ class _HydrationDetailsContentState extends State<_HydrationDetailsContent> {
                       ),
 
                       const Spacer(),
-
-                      // ── Minus button ──
-                      Padding(
-                        padding: EdgeInsetsDirectional.only(
-                            bottom: 50.h, start: 30.w),
-                        child: Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: GestureDetector(
-                            onTap: _isUpdating ? null : _onDecrease,
-                            child: Container(
-                              width: 40.w,
-                              height: 40.w,
-                              decoration: BoxDecoration(
-                                color: AppColors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: _isUpdating
-                                    ? []
-                                    : [
-                                        BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        )
-                                      ],
-                              ),
-                              child: Icon(
-                                Icons.remove,
-                                color: _isUpdating
-                                    ? AppColors.hydrationAccent.withValues(alpha: 0.4)
-                                    : AppColors.hydrationAccent,
-                                size: 24.sp,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),

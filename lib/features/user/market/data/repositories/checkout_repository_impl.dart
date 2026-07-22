@@ -66,6 +66,17 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
     }
   }
 
+  @override
+  Future<ApiResult<List<OrderData>>> getOrders() async {
+    try {
+      final models = await remoteDataSource.getOrders();
+      return Success(models.map((m) => m.toEntity()).toList());
+    } catch (e) {
+      return FailureResult(
+          ServerFailure(_messageOf(e, 'Failed to load orders')));
+    }
+  }
+
   /// Surface the backend's localized message when present.
   String _messageOf(Object error, String fallback) {
     if (error is DioException) {

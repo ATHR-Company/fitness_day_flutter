@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
 import 'package:fitness_day/core/network/api_service.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
 
@@ -27,6 +28,12 @@ class RunningCubit extends Cubit<RunningState> {
   final int dayNumber;
   final String activityId;
 
+  /// Unique `_id` of the item inside the plan day. [activityId] is only the
+  /// catalog reference and is shared by every running item in the day, so the
+  /// server matches on this instead — without it a day holding two running
+  /// activities would credit both on every sync.
+  final String activityItemId;
+
   // ─── GPS ──────────────────────────────────────────────────────────────────
   StreamSubscription<Position>? _gpsSub;
   Position? _lastPos;
@@ -40,15 +47,32 @@ class RunningCubit extends Cubit<RunningState> {
   DateTime? _startTime;
 
   // ─── Backend sync ─────────────────────────────────────────────────────────
-  /// Distance (km) already reported to the server in this session.
+  /// Distance (km) and elapsed time already reported to the server in this
+  /// session. Both endpoints apply the payload with `$inc`, so every request
+  /// carries the delta since these marks — never a cumulative total.
   double _lastSyncedDistanceKm = 0;
+  int _lastSyncedElapsedSeconds = 0;
   static const double _kSyncThresholdKm = 0.1; // sync every 100 m
+
+  /// An attempt that was built but never acknowledged. Retried byte-for-byte —
+  /// same deltas, same [_pendingSyncId] — so a request that reached the server
+  /// but whose response was lost is recognised as a replay instead of being
+  /// applied twice.
+  String? _pendingSyncId;
+  double _pendingDeltaM = 0;
+  int _pendingDurationSeconds = 0;
+  bool _pendingIsFinal = false;
+  double _pendingTargetDistanceKm = 0;
+  int _pendingTargetElapsedSeconds = 0;
+
+  static const Uuid _uuid = Uuid();
 
   RunningCubit({
     required ApiService apiService,
     required this.assessmentId,
     required this.dayNumber,
     required this.activityId,
+    required this.activityItemId,
     required double goalDistanceKm,
   })  : _apiService = apiService,
         super(RunningState(goalDistanceKm: goalDistanceKm));
@@ -90,6 +114,8 @@ class RunningCubit extends Cubit<RunningState> {
     _lastPos = null;
     _stepBaseline = null;
     _lastSyncedDistanceKm = 0;
+    _lastSyncedElapsedSeconds = 0;
+    _pendingSyncId = null;
     _startTime = DateTime.now();
 
     emit(state.copyWith(
@@ -195,12 +221,38 @@ class RunningCubit extends Cubit<RunningState> {
   }
 
   Future<void> _syncToBackend({bool final_ = false}) async {
+    // The server matches on activityItemId; without it the request would be
+    // rejected, so keep the progress in the session marks and report it once
+    // the details response carries the id.
+    if (activityItemId.isEmpty) return;
+
+    // Flush an outstanding attempt first, unchanged. Its payload cannot be
+    // merged into this one: reusing the syncId with different contents would
+    // be replay-protected server-side and silently dropped.
+    if (_pendingSyncId != null && !await _postPending()) return;
+
     final double delta =
         (state.distanceKm - _lastSyncedDistanceKm).clamp(0.0, state.distanceKm);
-    // A final sync must go out even with no new distance — `isFinal` is the
-    // only thing that completes a running activity server-side.
-    if (delta <= 0 && !final_) return;
+    final int durationDelta = (state.elapsedSeconds - _lastSyncedElapsedSeconds)
+        .clamp(0, state.elapsedSeconds);
 
+    // A final sync must go out even with nothing new — `isFinal` is the only
+    // thing that completes a running activity server-side.
+    if (delta <= 0 && durationDelta <= 0 && !final_) return;
+
+    _pendingSyncId = _uuid.v4();
+    // Server contract is metres, not kilometres.
+    _pendingDeltaM = double.parse((delta * 1000).toStringAsFixed(1));
+    _pendingDurationSeconds = durationDelta;
+    _pendingIsFinal = final_;
+    _pendingTargetDistanceKm = state.distanceKm;
+    _pendingTargetElapsedSeconds = state.elapsedSeconds;
+
+    await _postPending();
+  }
+
+  /// Sends the outstanding attempt. Returns true once it is acknowledged.
+  Future<bool> _postPending() async {
     try {
       final response = await _apiService.post(
         ApiEndpoints.syncRunning,
@@ -208,13 +260,13 @@ class RunningCubit extends Cubit<RunningState> {
           'assessmentId': assessmentId,
           'dayNumber': dayNumber,
           'activityId': activityId,
-          // Server contract is metres, not kilometres.
-          'deltaDistance': double.parse((delta * 1000).toStringAsFixed(1)),
-          // TODO(backend): cumulative session time — pending confirmation that
-          // the server wants a per-sync delta here. Applied with $inc today,
-          // so this over-reports duration. Do not ship before that is settled.
-          'durationSeconds': state.elapsedSeconds,
-          'isFinal': final_,
+          'activityItemId': activityItemId,
+          'deltaDistance': _pendingDeltaM,
+          // Per-sync delta, not the cumulative session time: the server applies
+          // this with `$inc`, so sending the running total would compound.
+          'durationSeconds': _pendingDurationSeconds,
+          'isFinal': _pendingIsFinal,
+          'syncId': _pendingSyncId,
         },
       );
 
@@ -225,9 +277,13 @@ class RunningCubit extends Cubit<RunningState> {
         emit(state.copyWith(caloriesKcal: kcal));
       }
 
-      _lastSyncedDistanceKm = state.distanceKm;
+      _lastSyncedDistanceKm = _pendingTargetDistanceKm;
+      _lastSyncedElapsedSeconds = _pendingTargetElapsedSeconds;
+      _pendingSyncId = null;
+      return true;
     } catch (e) {
       debugPrint('RunningCubit._syncToBackend error: $e');
+      return false;
     }
   }
 
