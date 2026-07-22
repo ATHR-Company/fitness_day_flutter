@@ -82,7 +82,12 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _secureCache.saveToken(data.accessToken);
         await _secureCache.saveRefreshToken(data.refreshToken);
         await _appCache.saveUserType('user');
-        await _appCache.saveIsLoggedIn(true);
+        // Only mark the session as "logged in" (so splash auto-resumes to
+        // home) once the user has actually finished onboarding. Otherwise,
+        // closing the app mid-signup lands back on role selection next time.
+        if (data.isPersonalDataComplete && data.isSurveyComplete) {
+          await _appCache.saveIsLoggedIn(true);
+        }
         // Ensure cached user structure is initialized
         final currentUser = _appCache.getUser();
         await _appCache.saveUser(currentUser);
@@ -110,7 +115,12 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _secureCache.saveToken(data.accessToken);
         await _secureCache.saveRefreshToken(data.refreshToken);
         await _appCache.saveUserType('user');
-        await _appCache.saveIsLoggedIn(true);
+        // Only mark the session as "logged in" (so splash auto-resumes to
+        // home) once the user has actually finished onboarding. Otherwise,
+        // closing the app mid-signup lands back on role selection next time.
+        if (data.isPersonalDataComplete && data.isSurveyComplete) {
+          await _appCache.saveIsLoggedIn(true);
+        }
         // Ensure cached user structure is initialized
         final currentUser = _appCache.getUser();
         await _appCache.saveUser(currentUser);
@@ -136,7 +146,9 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _secureCache.saveToken(data.accessToken);
         await _secureCache.saveRefreshToken(data.refreshToken);
         await _appCache.saveUserType('user');
-        await _appCache.saveIsLoggedIn(true);
+        if (data.isPersonalDataComplete && data.isSurveyComplete) {
+          await _appCache.saveIsLoggedIn(true);
+        }
         // Initialize cached user profile and set/override phone number
         final currentUser = _appCache.getUser();
         await _appCache.saveUser(currentUser.copyWith(phone: request.phone));

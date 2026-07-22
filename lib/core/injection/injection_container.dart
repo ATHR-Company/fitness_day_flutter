@@ -92,6 +92,10 @@ import 'package:fitness_day/features/user/profile/domain/usecases/get_user_profi
 import 'package:fitness_day/features/user/profile/domain/usecases/update_user_profile_usecase.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/toggle_user_notifications_usecase.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/update_user_lang_usecase.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/change_password_usecase.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/request_change_phone_otp_usecase.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/verify_change_phone_otp_usecase.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/user_signout_usecase.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/features/specialist/notifications/presentation/manager/specialist_notifications_cubit.dart';
 
@@ -891,6 +895,18 @@ Future<void> init() async {
   getIt.registerLazySingleton<UpdateUserLangUseCase>(
     () => UpdateUserLangUseCase(getIt<UserProfileRepository>()),
   );
+  getIt.registerLazySingleton<ChangePasswordUseCase>(
+    () => ChangePasswordUseCase(getIt<UserProfileRepository>()),
+  );
+  getIt.registerLazySingleton<RequestChangePhoneOtpUseCase>(
+    () => RequestChangePhoneOtpUseCase(getIt<UserProfileRepository>()),
+  );
+  getIt.registerLazySingleton<VerifyChangePhoneOtpUseCase>(
+    () => VerifyChangePhoneOtpUseCase(getIt<UserProfileRepository>()),
+  );
+  getIt.registerLazySingleton<UserSignoutUseCase>(
+    () => UserSignoutUseCase(getIt<UserProfileRepository>()),
+  );
   // Lazy singleton (not factory): shared across UserProfilePage and
   // PersonalProfilePage so edits on one are reflected on the other without
   // an extra refetch, matching how UserSetupCubit is provided app-wide.
@@ -900,6 +916,10 @@ Future<void> init() async {
       getIt<UpdateUserProfileUseCase>(),
       getIt<ToggleUserNotificationsUseCase>(),
       getIt<UpdateUserLangUseCase>(),
+      getIt<ChangePasswordUseCase>(),
+      getIt<RequestChangePhoneOtpUseCase>(),
+      getIt<VerifyChangePhoneOtpUseCase>(),
+      getIt<UserSignoutUseCase>(),
       getIt<AppCache>(),
     ),
   );

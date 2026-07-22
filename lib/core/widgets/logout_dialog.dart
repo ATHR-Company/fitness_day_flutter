@@ -12,6 +12,7 @@ import 'package:fitness_day/fitness_day.dart';
 import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
+import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 
 class LogoutDialog extends StatelessWidget {
   const LogoutDialog({super.key});
@@ -129,7 +130,12 @@ class LogoutDialog extends StatelessWidget {
                                 if (role == AppRole.specialist) {
                                   await context.read<AuthCubit>().logout();
                                 } else {
-                                  // User logout logic
+                                  // User logout logic — best-effort API call;
+                                  // local session is cleared regardless of
+                                  // whether the network request succeeds.
+                                  try {
+                                    await di.getIt<UserProfileCubit>().signout();
+                                  } catch (_) {}
                                   await di.getIt<SecureCache>().deleteToken();
                                   await di.getIt<SecureCache>().deleteRefreshToken();
                                   await di.getIt<AppCache>().clear();

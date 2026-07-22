@@ -10,9 +10,12 @@ import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/profile/language_dialog.dart';
 import 'package:fitness_day/core/widgets/profile/change_password_dialog.dart';
+import 'package:fitness_day/core/widgets/profile/change_phone_dialog.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
+import 'package:fitness_day/features/user/profile/data/models/user_profile_model.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_state.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
@@ -38,10 +41,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
-      body: Builder(
-        builder: (context) {
-          return Container(
+        endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
+      body: BlocListener<UserProfileCubit, UserProfileState>(
+        listenWhen: (previous, current) => current is UserProfileUpdateFailure,
+        listener: (context, state) {
+          if (state is UserProfileUpdateFailure) {
+            showAppSnackBar(context, text: state.message, isError: true);
+          }
+        },
+        child: Builder(
+          builder: (context) {
+            return Container(
             width: double.infinity,
             height: double.infinity,
             decoration: const BoxDecoration(
@@ -168,12 +178,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   Expanded(
                     child: BlocBuilder<UserProfileCubit, UserProfileState>(
                       builder: (context, state) {
-                        final notificationsEnabled =
-                            state is UserProfileSuccess ? state.data.notificationsEnabled : true;
+                        final data = state is UserProfileSuccess ? state.data : null;
                         return ListView(
                           padding: EdgeInsets.symmetric(horizontal: 24.w),
                           children: _selectedTab == 0
-                              ? _buildSettingsItems(context, notificationsEnabled)
+                              ? _buildSettingsItems(context, data)
                               : _buildFitnessDayItems(context),
                         );
                       },
@@ -183,13 +192,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
             ),
           );
-        },
+          },
+        ),
       ),
     );
   }
 
   // ── Settings Tab ───────────────────────────────────────────────────────────
-  List<Widget> _buildSettingsItems(BuildContext context, bool notificationsEnabled) => [
+  List<Widget> _buildSettingsItems(BuildContext context, UserProfileDataModel? data) => [
         _buildMenuItem(
           title: 'profile.personal_profile'.tr(),
           iconWidget: _buildCircleIcon(iconPath: SvgIcons.profile),
@@ -208,11 +218,23 @@ class _UserProfilePageState extends State<UserProfilePage> {
             );
           },
         ),
+        if (data?.typeOfIdentifier == 'PHONE')
+          _buildMenuItem(
+            title: 'profile.change_phone'.tr(),
+            iconWidget: _buildCircleIcon(iconPath: SvgIcons.profile),
+            onTap: () {
+              showDialog(
+                context: context,
+                barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
+                builder: (context) => ChangePhoneDialog(initialPhone: data?.identifier),
+              );
+            },
+          ),
         _buildMenuItem(
           title: 'drawer.notifications_alerts'.tr(),
           iconWidget: _buildCircleIcon(iconPath: SvgIcons.notifications),
           trailing: Switch(
-            value: notificationsEnabled,
+            value: data?.notificationsEnabled ?? true,
             activeColor: AppColors.primary,
             onChanged: (val) {
               context.read<UserProfileCubit>().toggleNotifications();

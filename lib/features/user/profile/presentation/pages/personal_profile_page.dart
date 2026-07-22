@@ -8,7 +8,9 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/challenge_image_picker.dart';
+import 'package:fitness_day/core/widgets/loader.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_state.dart';
@@ -23,6 +25,8 @@ class PersonalProfilePage extends StatefulWidget {
 }
 
 class _PersonalProfilePageState extends State<PersonalProfilePage> {
+  bool _isAvatarUploading = false;
+
   @override
   void initState() {
     super.initState();
@@ -32,23 +36,24 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     }
   }
 
-  String _identifierLabel(String typeOfIdentifier) {
-    return typeOfIdentifier == 'PHONE'
-        ? 'login.phone_hint'.tr()
-        : 'profile_page.email'.tr();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.profileGradient,
-        ),
-        child: SafeArea(
+      body: BlocListener<UserProfileCubit, UserProfileState>(
+        listenWhen: (previous, current) => current is UserProfileUpdateFailure,
+        listener: (context, state) {
+          if (state is UserProfileUpdateFailure) {
+            showAppSnackBar(context, text: state.message, isError: true);
+          }
+        },
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: AppColors.profileGradient,
+          ),
+          child: SafeArea(
           child: Column(
             children: [
               Padding(
@@ -62,11 +67,8 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                   builder: (context, state) {
                     final cubit = context.read<UserProfileCubit>();
                     final data = state is UserProfileSuccess ? state.data : cubit.profileData;
-                    final isUpdating = state is UserProfileUpdating;
 
                     final name = data?.fullName ?? '';
-                    final identifier = data?.identifier ?? '';
-                    final typeOfIdentifier = data?.typeOfIdentifier ?? '';
                     final weight = cubit.lastKnownWeight;
                     final height = cubit.lastKnownHeight;
                     final goalId = cubit.lastKnownGoalId;
@@ -79,22 +81,34 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                         children: [
                           // Profile Picture
                           Center(
-                            child: ChallengeImagePicker(
-                              initialImageUrl: data?.avatar,
-                              showEditOverlay: true,
-                              size: 100.r,
-                              onImagePicked: (file) {
-                                cubit.updateUserProfile(avatarPath: file.path);
-                              },
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                ChallengeImagePicker(
+                                  initialImageUrl: data?.avatar,
+                                  showEditOverlay: true,
+                                  size: 100.r,
+                                  onImagePicked: (file) async {
+                                    setState(() => _isAvatarUploading = true);
+                                    await cubit.updateUserProfile(avatarPath: file.path);
+                                    if (mounted) setState(() => _isAvatarUploading = false);
+                                  },
+                                ),
+                                if (_isAvatarUploading)
+                                  Container(
+                                    width: 100.r,
+                                    height: 100.r,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.black.withValues(alpha: 0.35),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const ColorLoader(radius: 14, dotRadius: 4),
+                                  ),
+                              ],
                             ),
                           ),
 
                           SizedBox(height: 30.h),
-
-                          if (isUpdating) ...[
-                            const CircularProgressIndicator(),
-                            SizedBox(height: 16.h),
-                          ],
 
                           // Detail Rows
                           _buildProfileRow(
@@ -111,11 +125,6 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                                 ),
                               );
                             },
-                          ),
-                          _buildProfileRow(
-                            label: _identifierLabel(typeOfIdentifier),
-                            value: identifier,
-                            onTap: null,
                           ),
                           _buildProfileRow(
                             label: 'login.weight_hint'.tr(),
@@ -177,6 +186,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

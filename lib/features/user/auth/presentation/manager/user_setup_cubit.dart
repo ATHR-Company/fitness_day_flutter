@@ -163,6 +163,12 @@ class UserSetupCubit extends Cubit<UserSetupState> {
           birthDate: birthDate,
         );
         await _appCache.saveUser(updated);
+        // Mark the session as logged in only once onboarding is fully done —
+        // otherwise closing the app mid-signup should land back on role
+        // selection, not resume straight to home.
+        if (data.isPersonalDataComplete && data.isSurveyComplete) {
+          await _appCache.saveIsLoggedIn(true);
+        }
         emit(CompletePersonalDataSuccess(data.message));
       case FailureResult(:final failure):
         emit(UserSetupFailure(failure.message));
@@ -188,6 +194,9 @@ class UserSetupCubit extends Cubit<UserSetupState> {
       case Success(:final data):
         bodyReport = data.bodyReport;
         isSubscribed = data.isSubscribed;
+        if (data.isPersonalDataComplete && data.isSurveyComplete) {
+          await _appCache.saveIsLoggedIn(true);
+        }
         emit(SubmitHealthAnswersSuccess(
           bodyReport: data.bodyReport,
           isSubscribed: data.isSubscribed,

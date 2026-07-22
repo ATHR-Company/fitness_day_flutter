@@ -60,4 +60,58 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       return FailureResult(ErrorHandler.handle(e));
     }
   }
+
+  @override
+  Future<ApiResult<String>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String newPasswordConfirm,
+  }) async {
+    try {
+      final message = await remoteDataSource.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+        newPasswordConfirm: newPasswordConfirm,
+      );
+      return Success(message);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<ChangePhoneOtpResponse>> requestChangePhoneOtp(String phone) async {
+    try {
+      final response = await remoteDataSource.requestChangePhoneOtp(phone);
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<String>> verifyChangePhoneOtp({
+    required String changePhoneToken,
+    required String otp,
+  }) async {
+    try {
+      final message = await remoteDataSource.verifyChangePhoneOtp(
+        changePhoneToken: changePhoneToken,
+        otp: otp,
+      );
+      return Success(message);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<void>> signout() async {
+    try {
+      await remoteDataSource.signout();
+      return const Success(null);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
 }

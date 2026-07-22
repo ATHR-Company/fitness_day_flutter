@@ -123,25 +123,6 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
                   ),
               ],
             ),
-            if (widget.showBottomText) ...[
-              SizedBox(height: 12.h),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.edit, color: AppColors.primary, size: 14.sp),
-                  SizedBox(width: 4.w),
-                  Text(
-                    _pickedImage != null
-                        ? 'challenges.change_image'.tr()
-                        : 'challenges.create_add_image'.tr(),
-                    style: TextStyleManager.style9Medium.copyWith(
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ],
         ),
       ),

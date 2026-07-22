@@ -1,4 +1,11 @@
 {
+  "errors": {
+    "no_internet_title": "لا يوجد اتصال بالإنترنت",
+    "no_internet_subtitle": "يرجى التحقق من اتصالك بالشبكة والمحاولة مرة أخرى.",
+    "retry": "إعادة المحاولة",
+    "offline_banner": "لا يوجد اتصال بالإنترنت",
+    "back_online": "تم استعادة الاتصال"
+  },
   "login": {
     "welcome_text": "سعداء بعودتك من جديد سجّل الدخول لمتابعة رحلتك نحو نسختك الأقوى",
     "phone_hint": "رقم الجوال",
@@ -81,6 +88,7 @@
     "review_plan": "مراجعة الخطة",
     "see_all": "عرض الكل",
     "see_more": "المزيد",
+    "retry": "إعادة المحاولة",
     "commitment_rate": "نسبة الالتزام: %{}",
     "weekly_follow_up": "متابعة أسبوعية",
     "weekly_follow_up_desc": "متابعة الوزن وتخصيص النظام الغذائي والرياضي له",
@@ -381,7 +389,12 @@
     "new_password": "كلمة المرور الجديدة",
     "confirm_new_password": "كلمة المرور الجديدة",
     "english": "English",
-    "arabic": "العربية"
+    "arabic": "العربية",
+    "change_phone": "تعديل رقم الجوال",
+    "new_phone_hint": "رقم الجوال الجديد",
+    "send_code": "إرسال الرمز",
+    "verify_code": "تحقق من الرمز",
+    "change_phone_otp_subtitle": "أدخل رمز التحقق المرسل إلى رقم جوالك الجديد"
   },
   "profile_page": {
     "change_photo": "تغيير الصورة الشخصية",

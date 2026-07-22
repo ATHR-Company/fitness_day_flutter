@@ -30,6 +30,7 @@ import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/home_shimmer_loading.dart';
 
 import 'package:fitness_day/core/widgets/exit_dialog.dart';
+import 'package:fitness_day/core/widgets/network_error_view.dart';
 import 'user_today_tasks_page.dart';
 import 'articles_list_page.dart';
 
@@ -350,19 +351,8 @@ class _HomePageContent extends StatelessWidget {
         if (state is UserHomeError) {
           return Scaffold(
             backgroundColor: AppColors.white,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(state.message, style: TextStyleManager.heading3.copyWith(color: AppColors.black)),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                    onPressed: () => context.read<UserHomeCubit>().loadHomeData(),
-                    child: Text('Retry', style: TextStyleManager.heading3.copyWith(color: AppColors.white)),
-                  ),
-                ],
-              ),
+            body: NetworkErrorView(
+              onRetry: () => context.read<UserHomeCubit>().loadHomeData(),
             ),
           );
         }

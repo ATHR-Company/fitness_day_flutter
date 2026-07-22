@@ -57,6 +57,10 @@ class ApiEndpoints {
   static const String updateUsersProfile = '/users/update-my-profile';
   static const String usersNotificationsToggle = '/users/notifications/toggle';
   static const String usersLang = '/users/lang';
+  static const String changePassword = '/users/change-password';
+  static const String changePhoneRequestOtp = '/users/change-phone/request-otp';
+  static const String changePhoneVerifyOtp = '/users/change-phone/verify-otp';
+  static const String userSignout = '/auth/signout';
   static const String authRefresh = '/auth/refresh';
   static const String socialAuth = '/auth/social';
   static const String dietPlan = '/diet-plan';
