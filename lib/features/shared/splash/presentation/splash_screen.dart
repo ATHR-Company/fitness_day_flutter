@@ -66,15 +66,10 @@ class _SplashScreenState extends State<SplashScreen> {
           context.go(SpecialistAppRoutes.home);
         } else {
           RoleNotifier.instance.setRole(AppRole.user);
-          // Resume onboarding if the user signed up but didn't finish
-          // completing their personal data / health survey before closing.
-          if (!appCache.isPersonalDataComplete()) {
-            context.go(UserAppRoutes.userInfo);
-          } else if (!appCache.isSurveyComplete()) {
-            context.go(UserAppRoutes.healthProblems);
-          } else {
-            context.go(UserAppRoutes.home);
-          }
+          // `isLoggedIn` is only ever persisted once onboarding (personal
+          // data + health survey) is fully complete, so reaching here always
+          // means it's safe to go straight to home.
+          context.go(UserAppRoutes.home);
         }
       } else if (appCache.hasSeenOnboarding()) {
         context.go(SharedRoutes.roleSelection);

@@ -34,7 +34,10 @@ class _OfflineBannerState extends State<OfflineBanner> {
     _connectivity.isOnline.then((online) {
       if (mounted) setState(() => _isOnline = online);
     });
-    _sub = _connectivity.onStatusChange.listen(_onStatusChange);
+    _sub = _connectivity.onStatusChange.listen(
+      _onStatusChange,
+      onError: (_) {},
+    );
   }
 
   void _onStatusChange(bool online) {

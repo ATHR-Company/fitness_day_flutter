@@ -15,9 +15,19 @@ class ConnectivityService {
       results.any((r) => r != ConnectivityResult.none);
 
   /// Emits `true` when online, `false` when the device has no network.
+  /// Swallows platform errors (e.g. the plugin's channel being unavailable
+  /// before a full rebuild, or on unsupported platforms) so a connectivity
+  /// hiccup can never crash the app — the banner simply stays hidden.
   Stream<bool> get onStatusChange =>
-      _connectivity.onConnectivityChanged.map(_isOnline);
+      _connectivity.onConnectivityChanged.map(_isOnline).handleError((_) {});
 
-  Future<bool> get isOnline async =>
-      _isOnline(await _connectivity.checkConnectivity());
+  Future<bool> get isOnline async {
+    try {
+      return _isOnline(await _connectivity.checkConnectivity());
+    } catch (_) {
+      // If connectivity can't be determined, assume online so we never
+      // block the UI or show a false "offline" banner.
+      return true;
+    }
+  }
 }
