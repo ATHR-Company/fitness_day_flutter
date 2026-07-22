@@ -25,14 +25,23 @@ class VerticalDayTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The bar is the last child of a Row, so it sits on the right in LTR and
+    // on the left in RTL — the curve has to face the content on the opposite
+    // side each time. Resolved here against a physical BorderRadius rather
+    // than handed to BorderRadiusDirectional, which did not render as
+    // expected inside this decoration.
+    final bool isRtl = Directionality.of(context) == TextDirection.rtl;
+    final BorderRadius contentFacingRadius = BorderRadius.horizontal(
+      left: isRtl ? Radius.zero : Radius.circular(20.r),
+      right: isRtl ? Radius.circular(20.r) : Radius.zero,
+    );
+
     return IntrinsicHeight(
       child: Container(
         width: 60.w,
         decoration: BoxDecoration(
           color: AppColors.backgroundTint,
-          borderRadius: BorderRadius.horizontal(
-            right: Radius.circular(20.r),
-          ),
+          borderRadius: contentFacingRadius,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -44,9 +53,7 @@ class VerticalDayTabBar extends StatelessWidget {
                 height: 70.h,
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primary : Colors.transparent,
-                  borderRadius: isSelected
-                      ? BorderRadius.horizontal(right: Radius.circular(20.r))
-                      : null,
+                  borderRadius: isSelected ? contentFacingRadius : null,
                   border: !isSelected && index < days.length - 1
                       ? const Border(
                           bottom:
