@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
@@ -108,7 +110,8 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
             ),
           ),
           SizedBox(width: 4.w),
-          Icon(Icons.keyboard_double_arrow_right,
+          Icon(  Directionality.of(context) == ui.TextDirection.rtl
+                      ?Icons.keyboard_double_arrow_left:Icons.keyboard_double_arrow_right,
               size: 14.sp, color: AppColors.white),
         ],
       ),

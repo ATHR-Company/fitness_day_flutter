@@ -12,6 +12,10 @@ class WalkingState extends Equatable {
   final HealthPermStatus permissionStatus;
   final bool isLoading;
 
+  /// True between the user pressing start and pressing stop. Nothing is read
+  /// from the sensors or sent to the server while this is false.
+  final bool isTracking;
+
   const WalkingState({
     this.steps = 0,
     this.distanceKm = 0,
@@ -21,6 +25,7 @@ class WalkingState extends Equatable {
     required this.goalDistanceKm,
     this.permissionStatus = HealthPermStatus.unknown,
     this.isLoading = true,
+    this.isTracking = false,
   });
 
   double get progressPercent =>
@@ -37,6 +42,7 @@ class WalkingState extends Equatable {
     double? goalDistanceKm,
     HealthPermStatus? permissionStatus,
     bool? isLoading,
+    bool? isTracking,
   }) {
     return WalkingState(
       steps: steps ?? this.steps,
@@ -47,6 +53,7 @@ class WalkingState extends Equatable {
       goalDistanceKm: goalDistanceKm ?? this.goalDistanceKm,
       permissionStatus: permissionStatus ?? this.permissionStatus,
       isLoading: isLoading ?? this.isLoading,
+      isTracking: isTracking ?? this.isTracking,
     );
   }
 
@@ -60,5 +67,6 @@ class WalkingState extends Equatable {
         goalDistanceKm,
         permissionStatus,
         isLoading,
+        isTracking,
       ];
 }

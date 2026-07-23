@@ -40,6 +40,35 @@ class BannerModel {
   }
 }
 
+class HomePlanModel {
+  final String id;
+  final String name;
+  final String coverPhoto;
+  final double price;
+  final double? compareAtPrice;
+  final String? badge;
+
+  HomePlanModel({
+    required this.id,
+    required this.name,
+    required this.coverPhoto,
+    required this.price,
+    this.compareAtPrice,
+    this.badge,
+  });
+
+  factory HomePlanModel.fromJson(Map<String, dynamic> json) {
+    return HomePlanModel(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      coverPhoto: json['coverPhoto'] as String? ?? '',
+      price: (json['price'] as num?)?.toDouble() ?? 0,
+      compareAtPrice: (json['compareAtPrice'] as num?)?.toDouble(),
+      badge: json['badge'] as String?,
+    );
+  }
+}
+
 class UserHomeDataModel {
   final Map<String, dynamic>? user;
   final Map<String, dynamic>? subscription;
@@ -48,6 +77,10 @@ class UserHomeDataModel {
   final DailyTasksModel? dailyTasks;
   final List<BannerModel> banners;
 
+  /// Subscription plans offered on the home screen. Returned by `/user-home`
+  /// for users without an active subscription.
+  final List<HomePlanModel> plans;
+
   UserHomeDataModel({
     this.user,
     this.subscription,
@@ -55,6 +88,7 @@ class UserHomeDataModel {
     this.visits,
     this.dailyTasks,
     this.banners = const [],
+    this.plans = const [],
   });
 
   factory UserHomeDataModel.fromJson(Map<String, dynamic> json) {
@@ -64,8 +98,13 @@ class UserHomeDataModel {
       currentWeight: json['currentWeight'],
       visits: json['visits'],
       dailyTasks: json['dailyTasks'] != null ? DailyTasksModel.fromJson(json['dailyTasks']) : null,
-      banners: json['banners'] != null 
+      banners: json['banners'] != null
           ? (json['banners'] as List).map((i) => BannerModel.fromJson(i)).toList()
+          : [],
+      plans: json['plans'] != null
+          ? (json['plans'] as List)
+              .map((i) => HomePlanModel.fromJson(i as Map<String, dynamic>))
+              .toList()
           : [],
     );
   }

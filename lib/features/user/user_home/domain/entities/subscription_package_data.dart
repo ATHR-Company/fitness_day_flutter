@@ -5,6 +5,7 @@ class SubscriptionPackageData {
   final int currentPrice;
   final int oldPrice;
   final bool isFavorite;
+  final String? badge;
 
   const SubscriptionPackageData({
     this.id = '',
@@ -13,5 +14,6 @@ class SubscriptionPackageData {
     required this.currentPrice,
     required this.oldPrice,
     this.isFavorite = false,
+    this.badge,
   });
 }

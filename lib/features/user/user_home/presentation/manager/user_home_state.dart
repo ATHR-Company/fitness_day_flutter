@@ -16,7 +16,8 @@ abstract class UserHomeState extends Equatable {
 class UserHomeLoading extends UserHomeState {}
 
 class UserHomeLoaded extends UserHomeState {
-  final List<SubscriptionPackageData> packages; // Fallback or loaded separately
+  /// Plans offered to unsubscribed users, mapped from `/user-home`'s `plans`.
+  final List<SubscriptionPackageData> packages;
   final List<TaskData> tasks;
   final List<ArticleData> articles;
   final bool isSubscribed;
@@ -31,7 +32,13 @@ class UserHomeLoaded extends UserHomeState {
   });
 
   @override
-  List<Object?> get props => [packages, tasks, articles, isSubscribed, homeData];
+  List<Object?> get props => [
+        List<SubscriptionPackageData>.from(packages),
+        tasks,
+        articles,
+        isSubscribed,
+        homeData,
+      ];
 }
 
 class UserHomeError extends UserHomeState {

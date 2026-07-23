@@ -9,6 +9,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/widgets/logout_dialog.dart';
+import 'package:fitness_day/core/services/app_share_service.dart';
 
 class UserAppDrawer extends StatelessWidget {
   final bool isSubscribed;
@@ -19,25 +20,25 @@ class UserAppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
 
-    // Determine selected index based on subscription state
-    int selectedIndex = -1;
-    if (isSubscribed) {
-      if (location == UserAppRoutes.home) {
-        selectedIndex = 0;
-      } else if (location == UserAppRoutes.visitLog) selectedIndex = 1;
-      else if (location == UserAppRoutes.dietPlan) selectedIndex = 2;
-      else if (location == UserAppRoutes.workoutPlan) selectedIndex = 3;
-      else if (location == UserAppRoutes.store) selectedIndex = 4;
-      else if (location == UserAppRoutes.notifications) selectedIndex = 5;
-      else if (location == UserAppRoutes.profile) selectedIndex = 6;
-    } else {
-      if (location == UserAppRoutes.home) {
-        selectedIndex = 0;
-      } else if (location == UserAppRoutes.visitLog) selectedIndex = 1;
-      else if (location == UserAppRoutes.store) selectedIndex = 2;
-      else if (location == UserAppRoutes.profile) selectedIndex = 3;
-      else if (location == UserAppRoutes.shareWithFriends) selectedIndex = 4;
-    }
+    // Determine selected index based on subscription state. Menu order differs
+    // between the two, so the route→index maps are kept separate.
+    const Map<String, int> subscribedOrder = {
+      UserAppRoutes.home: 0,
+      UserAppRoutes.visitLog: 1,
+      UserAppRoutes.dietPlan: 2,
+      UserAppRoutes.workoutPlan: 3,
+      UserAppRoutes.store: 4,
+      UserAppRoutes.notifications: 5,
+      UserAppRoutes.profile: 6,
+    };
+    const Map<String, int> unsubscribedOrder = {
+      UserAppRoutes.home: 0,
+      UserAppRoutes.visitLog: 1,
+      UserAppRoutes.store: 2,
+      UserAppRoutes.profile: 3,
+    };
+    final int selectedIndex =
+        (isSubscribed ? subscribedOrder : unsubscribedOrder)[location] ?? -1;
 
     return Drawer(
       backgroundColor: AppColors.white,
@@ -204,10 +205,13 @@ class UserAppDrawer extends StatelessWidget {
         _buildMenuItem(
           svgPath: SvgIcons.share,
           title: 'drawer.share_with_friends'.tr(),
-          isSelected: selected == 4,
+          // Never "selected": this opens the system share sheet rather than
+          // navigating, so there is no route for it to be current on.
+          isSelected: false,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.shareWithFriends);
+            // Same sheet as the home screen's share tile.
+            AppShareService.shareApp(context);
           },
         ),
         _logoutItem(context),

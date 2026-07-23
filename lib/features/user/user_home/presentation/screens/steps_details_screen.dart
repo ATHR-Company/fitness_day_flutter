@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:fitness_day/features/user/visits/data/models/activity_details_model.dart';
@@ -23,6 +24,16 @@ const double _kRunningGoalMetresThreshold = 100;
 
 double _runningGoalKm(double rawGoal) =>
     rawGoal >= _kRunningGoalMetresThreshold ? rawGoal / 1000 : rawGoal;
+
+/// Running progress and distance are always reported in metres, while the whole
+/// screen — goal, live GPS distance, summary — works in kilometres. Converting
+/// here keeps the circle from comparing metres against a kilometre goal.
+double _runningProgressKm(double rawMetres) => rawMetres / 1000;
+
+/// Diameter of the disc inside the progress ring. Fixed so the ring's centre
+/// never resizes with the value; comfortably inside the 115 r ring minus its
+/// 16 w stroke.
+final double _kInnerDiscSize = 165.w;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Entry point — loads activity details from API, then injects goals into cubit
@@ -97,10 +108,33 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
         activityItemId: data.activityItemId,
         goalDistanceKm: _runningGoalKm(data.goal),
       );
-      // Don't call requestPermissions() automatically — user triggers it
+      // Read the existing grants silently so a returning user isn't shown the
+      // permission banner again. This never prompts — requestPermissions() is
+      // still only triggered by the user.
+      _runningCubit!.refreshPermissionStatus();
+    } else {
+      // Created up front like the running cubit, but idle: it reads nothing and
+      // asks for no permission until the user presses start.
+      _walkingCubit = WalkingCubit(
+        healthService: getIt(),
+        apiService: getIt(),
+        assessmentId: widget.assessmentId,
+        dayNumber: widget.dayNumber,
+        activityId: widget.activityId,
+        activityItemId: data.activityItemId,
+        goalSteps: data.goal,
+        // The API goal for walking is a step count; there is no distance
+        // target, so don't pass the step goal as one.
+        goalDistanceKm: 0,
+      );
     }
-    // WalkingCubit is NOT created here — it's only created when user
-    // explicitly taps the "enable live tracking" banner
+  }
+
+  /// Returns true if a walking or running session is currently active.
+  bool _isSessionActive() {
+    if (_walkingCubit != null) return _walkingCubit!.state.isTracking;
+    if (_runningCubit != null) return _runningCubit!.state.isRunning;
+    return false;
   }
 
   @override
@@ -109,11 +143,23 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
       listener: (context, state) {
         if (state is ActivityDetailsSuccess) {
           _initActivityCubits(state.data);
-          setState(() => _cachedData = state.data);
+          // Don't trigger a parent rebuild mid-session — the child screens
+          // manage their own frozen baseline and will pick up the data via
+          // their own listeners once the session ends.
+          if (!_isSessionActive()) {
+            setState(() => _cachedData = state.data);
+          } else {
+            // Still update cachedData in-place without setState so the
+            // data is ready for the child screens' listeners.
+            _cachedData = state.data;
+          }
         }
       },
-      // Only rebuild on the very first load or failure — not on subsequent loading
       buildWhen: (prev, curr) {
+        // Never rebuild the parent (and re-pass props to child screens)
+        // while a session is active — doing so would push new apiProgress
+        // into didUpdateWidget, which could clobber the frozen baseline.
+        if (_isSessionActive()) return false;
         if (curr is ActivityDetailsLoading && _initialized) return false;
         return true;
       },
@@ -149,7 +195,7 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.white,
                     ),
-                    child: const Text('رجوع'),
+                    child: Text('activity_tracking.back'.tr()),
                   ),
                 ],
               ),
@@ -167,30 +213,7 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
         final activityCubit = context.read<ActivityDetailsCubit>();
 
         if (widget.type == ActivityType.walking) {
-          // Walking screen uses API data by default.
-          // WalkingCubit is created lazily only if user taps "enable live tracking"
-          if (_walkingCubit == null) {
-            return _WalkingScreen(
-              apiProgress: currentProgress,
-              apiProgressPercent: progressPercent,
-              activityCubit: activityCubit,
-              onEnableLiveTracking: () {
-                setState(() {
-                  _walkingCubit = WalkingCubit(
-                    healthService: getIt(),
-                    apiService: getIt(),
-                    storage: getIt(),
-                    assessmentId: widget.assessmentId,
-                    dayNumber: widget.dayNumber,
-                    activityId: widget.activityId,
-                    activityItemId: data.activityItemId,
-                    goalSteps: data.goal,
-                    goalDistanceKm: data.goal,
-                  )..init();
-                });
-              },
-            );
-          }
+          if (_walkingCubit == null) return const SizedBox.shrink();
           return BlocProvider.value(
             value: _walkingCubit!,
             child: _WalkingScreen(
@@ -233,13 +256,11 @@ class _WalkingScreen extends StatefulWidget {
   final double apiProgress;
   final int apiProgressPercent;
   final ActivityDetailsCubit activityCubit;
-  final VoidCallback? onEnableLiveTracking;
 
   const _WalkingScreen({
     this.apiProgress = 0,
     this.apiProgressPercent = 0,
     required this.activityCubit,
-    this.onEnableLiveTracking,
   });
 
   @override
@@ -249,24 +270,83 @@ class _WalkingScreen extends StatefulWidget {
 class _WalkingScreenState extends State<_WalkingScreen>
     with WidgetsBindingObserver {
   int _selectedTab = 0;
-  final List<String> _tabs = ['يومي', 'أسبوعي'];
 
-  void _onTabChanged(int index, BuildContext context) {
-    setState(() => _selectedTab = index);
-    final period = index == 0 ? 'daily' : 'weekly';
-    widget.activityCubit.getActivityDetails(
-      widget.activityCubit.assessmentId,
-      widget.activityCubit.dayNumber,
-      widget.activityCubit.activityId,
-      period: period,
-    );
-  }
+  /// API snapshot frozen at the moment the screen first loads (or after a
+  /// session ends). These are NOT updated mid-session so live sensor deltas
+  /// accumulate on top of a stable baseline and never jump back.
+  late double _frozenApiProgress;
+  late double _frozenApiGoal;
+  late String _frozenApiUnit;
+  late String _frozenActivityName;
+  late double _frozenApiDistance;
+  late int _frozenApiDurationMinutes;
+  late int _frozenApiCalories;
+
+  // A getter, not a field: resolving at build time keeps the labels correct
+  // when the user switches language without leaving the screen.
+  List<String> get _tabs => [
+        'activity_tracking.tab_daily'.tr(),
+        'activity_tracking.tab_weekly'.tr(),
+      ];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _freezeFromWidget();
   }
+
+  @override
+  void didUpdateWidget(_WalkingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Only accept fresh API data when no session is running — mid-session
+    // updates would reset the live step display back to the server snapshot.
+    final walkingCubit = context.read<WalkingCubit>();
+    if (!walkingCubit.state.isTracking) {
+      _freezeFromWidget();
+    }
+  }
+
+  void _freezeFromWidget() {
+    _frozenApiProgress = widget.apiProgress;
+    _frozenApiGoal = 0; // resolved from cubit/activityCubit in build
+    _frozenApiUnit = 'activity_tracking.steps_unit'.tr();
+    _frozenActivityName = 'activity_tracking.walking_title'.tr();
+    _frozenApiDistance = 0;
+    _frozenApiDurationMinutes = 0;
+    _frozenApiCalories = 0;
+  }
+
+  /// Called once after the first successful API load and again after each
+  /// stop-and-refresh cycle, but never mid-session.
+  void _applyApiData(ActivityDetailsData data) {
+    _frozenApiProgress = data.currentProgress;
+    _frozenApiGoal = data.goal;
+    _frozenApiUnit = data.unit.isNotEmpty ? data.unit : 'activity_tracking.steps_unit'.tr();
+    _frozenActivityName = data.name.isNotEmpty ? data.name : 'activity_tracking.walking_title'.tr();
+    _frozenApiDistance = data.distance ?? 0;
+    _frozenApiDurationMinutes = data.durationMinutes?.toInt() ?? 0;
+    _frozenApiCalories = data.caloriesBurned?.round() ?? 0;
+  }
+
+  void _onTabChanged(int index, BuildContext context) {
+    setState(() => _selectedTab = index);
+    _refreshDetails();
+  }
+
+  Future<void> _refreshDetails() {
+    return widget.activityCubit.getActivityDetails(
+      widget.activityCubit.assessmentId,
+      widget.activityCubit.dayNumber,
+      widget.activityCubit.activityId,
+      period: _selectedTab == 0 ? 'daily' : 'weekly',
+    );
+  }
+
+  /// The frozen baseline only protects the daily tab, where the running session
+  /// is layered on top of it. Weekly figures come straight from the API.
+  bool _isFrozenForSession(BuildContext context) =>
+      _selectedTab == 0 && context.read<WalkingCubit>().state.isTracking;
 
   @override
   void dispose() {
@@ -276,96 +356,80 @@ class _WalkingScreenState extends State<_WalkingScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Only interact with WalkingCubit if it's available in context
-    try {
-      final cubit = context.read<WalkingCubit>();
-      if (state == AppLifecycleState.resumed) {
-        cubit.resumeTracking();
-      } else if (state == AppLifecycleState.paused) {
-        cubit.pauseTracking();
-      }
-    } catch (_) {
-      // WalkingCubit not in context yet — live tracking not enabled
+    final cubit = context.read<WalkingCubit>();
+    if (state == AppLifecycleState.resumed) {
+      cubit.resumeTracking();
+    } else if (state == AppLifecycleState.paused) {
+      cubit.pauseTracking();
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Check if WalkingCubit is available (live tracking enabled)
-    WalkingCubit? walkingCubit;
-    try {
-      walkingCubit = context.read<WalkingCubit>();
-    } catch (_) {}
+  Future<void> _onToggleTracking(BuildContext context, bool isTracking) async {
+    final cubit = context.read<WalkingCubit>();
 
-    if (walkingCubit == null) {
-      // API-only mode — listen to ActivityDetailsCubit for live updates
-      return BlocBuilder<ActivityDetailsCubit, ActivityDetailsState>(
-        bloc: widget.activityCubit,
-        builder: (context, actState) {
-          final data = actState is ActivityDetailsSuccess ? actState.data : null;
-          final double progress = data?.currentProgress ?? widget.apiProgress;
-          final int progressPct = data?.progressPercentage.toInt() ?? widget.apiProgressPercent;
-          final double goal = data?.goal ?? 0;
-          final String unit = data?.unit ?? 'خطوة';
+    if (isTracking) {
+      // Await the final sync so isTracking is already false when the GET
+      // response arrives — the listener will then correctly apply the new
+      // server data to the frozen baseline.
+      await cubit.stopTracking();
+      if (!mounted) return;
 
-          return Scaffold(
-            body: ScreenBackground(
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    _buildAppBar(context, data?.name ?? 'تتبع الخطوات'),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
-                      child: _PeriodTabBar(
-                        tabs: _tabs,
-                        selectedIndex: _selectedTab,
-                        onTabChanged: (i) => _onTabChanged(i, context),
-                      ),
-                    ),
-                    SizedBox(height: 40.h),
-                    _ActivityCircle(
-                      percent: (progressPct / 100.0).clamp(0.0, 1.0),
-                      currentVal: progress,
-                      goalVal: goal,
-                      unit: unit,
-                      goalPercent: progressPct,
-                      isRunning: false,
-                    ),
-                    SizedBox(height: 32.h),
-                    if (widget.onEnableLiveTracking != null)
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24.w),
-                        child: _PermissionBanner(
-                          message: 'اضغط لتفعيل تتبع الخطوات الحي',
-                          onTap: widget.onEnableLiveTracking!,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      );
+      // Fold the session into the baseline right away. The display is
+      // `baseline + session steps`, and stopping drops the session term to
+      // zero — without this the total visibly falls back to its pre-session
+      // value until the refresh lands, and stays there if the refresh fails.
+      // Those steps are already synced, so counting them here is correct; the
+      // refresh then overwrites this with the server's authoritative total.
+      setState(() => _frozenApiProgress += cubit.state.steps.toDouble());
+      _refreshDetails();
+      return;
     }
 
-    return BlocBuilder<ActivityDetailsCubit, ActivityDetailsState>(
-      bloc: widget.activityCubit,
-      builder: (context, actState) {
-        final actData = actState is ActivityDetailsSuccess ? actState.data : null;
-        final double apiProgress = actData?.currentProgress ?? widget.apiProgress;
-        final int apiProgressPct = actData?.progressPercentage.toInt() ?? widget.apiProgressPercent;
-        final double apiGoal = actData?.goal ?? 0;
-        final String apiUnit = actData?.unit ?? 'خطوة';
+    // Refresh *before* starting: the new session restarts its step count at
+    // zero, so a stale baseline would show a total lower than the server's.
+    await _refreshDetails();
+    if (!mounted) return;
+    cubit.startTracking();
+  }
 
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<ActivityDetailsCubit, ActivityDetailsState>(
+      bloc: widget.activityCubit,
+      // Mid-session API updates would jump the displayed step count back to the
+      // server snapshot and erase the live sensor delta — but only on the daily
+      // tab, which is the one the session contributes to. The weekly tab shows
+      // pure API figures, so it must keep refreshing even while tracking.
+      listenWhen: (_, curr) => curr is ActivityDetailsSuccess,
+      listener: (context, actState) {
+        if (actState is ActivityDetailsSuccess) {
+          if (!_isFrozenForSession(context)) {
+            setState(() => _applyApiData(actState.data));
+          }
+        }
+      },
+      buildWhen: (prev, curr) {
+        if (_isFrozenForSession(context)) return false;
+        return curr is ActivityDetailsSuccess || curr is ActivityDetailsFailure;
+      },
+      builder: (context, actState) {
         return BlocBuilder<WalkingCubit, WalkingState>(
           builder: (context, state) {
+            final bool showLive = _selectedTab == 0 && state.isTracking;
+            final double currentSteps =
+                _frozenApiProgress + (showLive ? state.steps.toDouble() : 0);
+            final double goal = showLive ? state.goalSteps : _frozenApiGoal;
+            final double currentPercent =
+                goal > 0 ? (currentSteps / goal).clamp(0.0, 1.0) : 0.0;
+            final int currentPercentInt = (currentPercent * 100).round();
+
             return Scaffold(
               body: ScreenBackground(
                 child: SafeArea(
                   child: Column(
                     children: [
-                      _buildAppBar(context, actData?.name ?? 'تتبع الخطوات'),
+                      _buildAppBar(context, _frozenActivityName),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.h),
                         child: _PeriodTabBar(
@@ -376,43 +440,45 @@ class _WalkingScreenState extends State<_WalkingScreen>
                       ),
                       SizedBox(height: 40.h),
                       _ActivityCircle(
-                        percent: state.steps > 0
-                            ? state.progressPercent
-                            : (apiProgressPct / 100.0).clamp(0.0, 1.0),
-                        currentVal: state.steps > 0
-                            ? state.steps.toDouble()
-                            : apiProgress,
-                        goalVal: state.steps > 0 ? state.goalSteps : apiGoal,
-                        unit: apiUnit,
-                        goalPercent: state.steps > 0
-                            ? state.progressPercentInt
-                            : apiProgressPct,
-                        isRunning: false,
+                        percent: currentPercent,
+                        currentVal: currentSteps,
+                        goalVal: goal,
+                        unit: _frozenApiUnit,
+                        goalPercent: currentPercentInt,
                       ),
                       SizedBox(height: 32.h),
+
                       if (state.permissionStatus == HealthPermStatus.needsInstall)
                         _PermissionBanner(
-                          message: 'لتفعيل التتبع الحي — ثبّت Health Connect من Play Store',
-                          onTap: () => context.read<WalkingCubit>().init(),
+                          message: 'activity_tracking.install_health_connect'.tr(),
+                          onTap: () =>
+                              context.read<WalkingCubit>().startTracking(),
                         )
                       else if (state.permissionStatus == HealthPermStatus.denied)
                         _PermissionBanner(
-                          message: 'لتفعيل التتبع الحي — اسمح بالوصول لبيانات الصحة',
-                          onTap: () => context.read<WalkingCubit>().init(),
+                          message: 'activity_tracking.grant_health_access'.tr(),
+                          onTap: () =>
+                              context.read<WalkingCubit>().startTracking(),
                         )
-                      else if (state.permissionStatus == HealthPermStatus.granted &&
-                          !state.isLoading)
+                      else if (state.isTracking && !state.isLoading)
                         Expanded(
                           child: _DailySummaryCard(
-                            distanceKm: state.distanceKm,
-                            unit: 'كم',
-                            minutes: state.activeMinutes,
-                            calories: state.caloriesKcal.round(),
+                            distanceKm: _frozenApiDistance + state.distanceKm,
+                            unit: 'activity_tracking.km_unit'.tr(),
+                            minutes: _frozenApiDurationMinutes + state.activeMinutes,
+                            calories: _frozenApiCalories + state.caloriesKcal.round(),
                             isWalking: true,
                           ),
                         )
                       else
-                        const SizedBox.shrink(),
+                        const Spacer(),
+
+                      _StartStopButton(
+                        isRunning: state.isTracking,
+                        onTap: () =>
+                            _onToggleTracking(context, state.isTracking),
+                      ),
+                      SizedBox(height: 24.h),
                     ],
                   ),
                 ),
@@ -450,42 +516,116 @@ class _RunningScreen extends StatefulWidget {
 
 class _RunningScreenState extends State<_RunningScreen> {
   int _selectedTab = 0;
-  final List<String> _tabs = ['يومي', 'أسبوعي'];
+
+  /// API snapshot frozen at screen open (or after a session ends).
+  /// Never updated mid-session so the live GPS distance doesn't jump back.
+  late double _frozenApiProgress;
+  late int _frozenApiProgressPct;
+  late double _frozenApiGoal;
+  late String _frozenApiUnit;
+  late String _frozenActivityName;
+  late int _frozenApiDuration;
+  late double _frozenApiCalories;
+
+  List<String> get _tabs => [
+        'activity_tracking.tab_daily'.tr(),
+        'activity_tracking.tab_weekly'.tr(),
+      ];
+
+  @override
+  void initState() {
+    super.initState();
+    _frozenApiProgress = _runningProgressKm(widget.apiProgress);
+    _frozenApiProgressPct = widget.apiProgressPercent;
+    _frozenApiGoal = 0;
+    _frozenApiUnit = 'activity_tracking.km_unit'.tr();
+    _frozenActivityName = 'activity_tracking.running_title'.tr();
+    _frozenApiDuration = widget.apiDurationMinutes;
+    _frozenApiCalories = widget.apiCalories;
+  }
+
+  void _applyApiData(ActivityDetailsData data) {
+    _frozenApiProgress = _runningProgressKm(data.currentProgress);
+    _frozenApiProgressPct = data.progressPercentage.toInt();
+    _frozenApiGoal = _runningGoalKm(data.goal);
+    _frozenApiUnit = data.unit.isNotEmpty ? data.unit : 'activity_tracking.km_unit'.tr();
+    _frozenActivityName = data.name.isNotEmpty ? data.name : 'activity_tracking.running_title'.tr();
+    _frozenApiDuration = data.durationMinutes?.toInt() ?? 0;
+    _frozenApiCalories = data.caloriesBurned ?? 0;
+  }
 
   void _onTabChanged(int index) {
     setState(() => _selectedTab = index);
-    final period = index == 0 ? 'daily' : 'weekly';
+    _refreshDetails();
+  }
+
+  void _refreshDetails() {
     widget.activityCubit.getActivityDetails(
       widget.activityCubit.assessmentId,
       widget.activityCubit.dayNumber,
       widget.activityCubit.activityId,
-      period: period,
+      period: _selectedTab == 0 ? 'daily' : 'weekly',
     );
+  }
+
+  /// The frozen baseline only protects the daily tab, where the run is layered
+  /// on top of it. Weekly figures come straight from the API.
+  bool _isFrozenForSession(BuildContext context) =>
+      _selectedTab == 0 && context.read<RunningCubit>().state.isRunning;
+
+  /// Stop triggers a refresh so the summary card reflects the finished run.
+  /// Start does NOT refresh — the screen already loaded the data when it
+  /// opened, and refreshing here would reset live GPS figures mid-session.
+  Future<void> _onToggleSession(BuildContext context, bool isRunning) async {
+    final cubit = context.read<RunningCubit>();
+    if (isRunning) {
+      await cubit.stopSession();
+      _refreshDetails();
+      return;
+    }
+    await cubit.startSession();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ActivityDetailsCubit, ActivityDetailsState>(
+    return BlocConsumer<ActivityDetailsCubit, ActivityDetailsState>(
       bloc: widget.activityCubit,
+      // Freeze only the daily tab, which the run is layered onto. The weekly
+      // tab shows pure API figures and must keep refreshing mid-run.
+      listenWhen: (_, curr) => curr is ActivityDetailsSuccess,
+      listener: (context, actState) {
+        if (actState is ActivityDetailsSuccess) {
+          if (!_isFrozenForSession(context)) {
+            setState(() => _applyApiData(actState.data));
+          }
+        }
+      },
+      buildWhen: (prev, curr) {
+        if (_isFrozenForSession(context)) return false;
+        return curr is ActivityDetailsSuccess || curr is ActivityDetailsFailure;
+      },
       builder: (context, actState) {
-        final actData = actState is ActivityDetailsSuccess ? actState.data : null;
-        final double apiProgress = actData?.currentProgress ?? widget.apiProgress;
-        final int apiProgressPct = actData?.progressPercentage.toInt() ?? widget.apiProgressPercent;
-        final double apiGoal = actData != null
-            ? _runningGoalKm(actData.goal)
-            : widget.apiProgress;
-        final String apiUnit = actData?.unit ?? 'كم';
-        final int apiDuration = actData?.durationMinutes?.toInt() ?? widget.apiDurationMinutes;
-        final double apiCalories = actData?.caloriesBurned ?? widget.apiCalories;
-
         return BlocBuilder<RunningCubit, RunningState>(
           builder: (context, state) {
+            // Session figures belong to today only — on the weekly tab always
+            // show what the API returned.
+            final bool showLive = _selectedTab == 0 && state.distanceKm > 0;
+
+            // The run adds to the day's total rather than replacing it: the
+            // circle showed only the current session's distance, so a user who
+            // had already covered ground saw the number collapse on start.
+            final double totalKm =
+                _frozenApiProgress + (showLive ? state.distanceKm : 0);
+            final double totalPercent = _frozenApiGoal > 0
+                ? (totalKm / _frozenApiGoal).clamp(0.0, 1.0)
+                : (_frozenApiProgressPct / 100.0).clamp(0.0, 1.0);
+
             return Scaffold(
               body: ScreenBackground(
                 child: SafeArea(
                   child: Column(
                     children: [
-                      _buildAppBar(context, actData?.name ?? 'تتبع الجري'),
+                      _buildAppBar(context, _frozenActivityName),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.h),
                         child: _PeriodTabBar(
@@ -498,26 +638,18 @@ class _RunningScreenState extends State<_RunningScreen> {
 
                       if (!state.permissionGranted)
                         _PermissionBanner(
-                          message: 'يحتاج إذن الموقع والحركة',
+                          message: 'activity_tracking.needs_location_motion'.tr(),
                           onTap: () =>
                               context.read<RunningCubit>().requestPermissions(),
                         )
                       else ...[
                         _ActivityCircle(
-                          percent: state.distanceKm > 0
-                              ? state.progressPercent
-                              : (apiProgressPct / 100.0).clamp(0.0, 1.0),
-                          currentVal: state.distanceKm > 0
-                              ? state.distanceKm
-                              : apiProgress,
-                          goalVal: state.distanceKm > 0
-                              ? state.goalDistanceKm
-                              : apiGoal,
-                          unit: apiUnit,
-                          goalPercent: state.distanceKm > 0
-                              ? state.progressPercentInt
-                              : apiProgressPct,
-                          isRunning: true,
+                          percent: totalPercent,
+                          currentVal: totalKm,
+                          goalVal: _frozenApiGoal,
+                          unit: _frozenApiUnit,
+                          goalPercent: (totalPercent * 100).round(),
+                          decimals: 2,
                         ),
                         SizedBox(height: 16.h),
 
@@ -529,39 +661,36 @@ class _RunningScreenState extends State<_RunningScreen> {
                           ),
                         ),
                         Text(
-                          'الوقت المستغرق',
+                          'activity_tracking.elapsed_time'.tr(),
                           style: TextStyleManager.style11Medium
                               .copyWith(color: AppColors.textSecondary),
                         ),
                         SizedBox(height: 24.h),
 
+                        // Server totals with the running session layered on, so
+                        // the card moves during a run instead of sitting on the
+                        // snapshot taken when it started. Calories are the one
+                        // exception: the sync response already returns the
+                        // activity's cumulative total, so it replaces rather
+                        // than adds.
                         Expanded(
                           child: _DailySummaryCard(
-                            distanceKm: state.isRunning || state.distanceKm > 0
-                                ? state.distanceKm
-                                : apiProgress,
-                            unit: apiUnit,
-                            minutes: state.isRunning || state.elapsedSeconds > 0
-                                ? state.elapsedSeconds ~/ 60
-                                : apiDuration,
-                            calories: state.isRunning || state.caloriesKcal > 0
+                            distanceKm: totalKm,
+                            unit: _frozenApiUnit,
+                            minutes: _frozenApiDuration +
+                                (showLive ? state.elapsedSeconds ~/ 60 : 0),
+                            calories: state.caloriesKcal > 0
                                 ? state.caloriesKcal.round()
-                                : apiCalories.round(),
+                                : _frozenApiCalories.round(),
                             isWalking: false,
-                            pace: state.pace,
                           ),
                         ),
                         SizedBox(height: 16.h),
 
                         _StartStopButton(
                           isRunning: state.isRunning,
-                          onTap: () {
-                            if (state.isRunning) {
-                              context.read<RunningCubit>().stopSession();
-                            } else {
-                              context.read<RunningCubit>().startSession();
-                            }
-                          },
+                          onTap: () =>
+                              _onToggleSession(context, state.isRunning),
                         ),
                         SizedBox(height: 24.h),
                       ],
@@ -680,7 +809,9 @@ class _ActivityCircle extends StatelessWidget {
   final double goalVal;
   final String unit;
   final int goalPercent;
-  final bool isRunning;
+
+  /// Decimal places for the values — distances read as 1.25, steps as 1250.
+  final int decimals;
 
   const _ActivityCircle({
     required this.percent,
@@ -688,7 +819,7 @@ class _ActivityCircle extends StatelessWidget {
     required this.goalVal,
     required this.unit,
     required this.goalPercent,
-    required this.isRunning,
+    this.decimals = 0,
   });
 
   @override
@@ -707,10 +838,13 @@ class _ActivityCircle extends StatelessWidget {
               backgroundColor: AppColors.backgroundTint,
               progressColor: AppColors.greenLightAccent,
               circularStrokeCap: CircularStrokeCap.round,
+              // Fixed size, not padding-driven: sizing the inner disc from its
+              // text made the whole circle swell and shrink as the step count
+              // gained or lost digits. The values scale down to fit instead.
               center: Container(
-                padding: isRunning
-                    ? EdgeInsets.all(55.w)
-                    : EdgeInsets.all(45.w),
+                width: _kInnerDiscSize,
+                height: _kInnerDiscSize,
+                padding: EdgeInsets.symmetric(horizontal: 14.w),
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.backgroundTint,
@@ -718,34 +852,28 @@ class _ActivityCircle extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      isRunning
-                          ? currentVal.toStringAsFixed(2)
-                          : currentVal.toStringAsFixed(0),
-                      style: TextStyleManager.style28Bold
-                          .copyWith(color: AppColors.black),
-                    ),
-                    SizedBox(height: 6.h),
-                    Container(
-                      width: 32.w,
-                      height: 32.w,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        isRunning
-                            ? Icons.pause
-                            : Icons.play_arrow_rounded,
-                        color: AppColors.white,
-                        size: 18.sp,
+                    // A play/pause badge used to sit between these two, but it
+                    // was driven by the activity type rather than the session
+                    // and had no tap handler — a control that could never do
+                    // anything. Running has a real start/stop button below.
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        currentVal.toStringAsFixed(decimals),
+                        maxLines: 1,
+                        style: TextStyleManager.style28Bold
+                            .copyWith(color: AppColors.black),
                       ),
                     ),
                     SizedBox(height: 8.h),
-                    Text(
-                      '/ ${isRunning ? goalVal.toStringAsFixed(2) : goalVal.toStringAsFixed(0)} $unit',
-                      style: TextStyleManager.style11Medium.copyWith(
-                        color: AppColors.textSecondary,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '/ ${goalVal.toStringAsFixed(decimals)} $unit',
+                        maxLines: 1,
+                        style: TextStyleManager.style11Medium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ],
@@ -768,7 +896,8 @@ class _ActivityCircle extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Text(
-                    '$goalPercent% من هدفك',
+                    'activity_tracking.goal_percent'
+                        .tr(args: ['$goalPercent']),
                     style: TextStyleManager.style11Medium.copyWith(
                       color: AppColors.greenDarkAccent,
                       fontWeight: FontWeight.bold,
@@ -794,7 +923,6 @@ class _DailySummaryCard extends StatelessWidget {
   final int minutes;
   final int calories;
   final bool isWalking;
-  final String? pace;
 
   const _DailySummaryCard({
     required this.distanceKm,
@@ -802,7 +930,6 @@ class _DailySummaryCard extends StatelessWidget {
     required this.minutes,
     required this.calories,
     this.isWalking = false,
-    this.pace,
   });
 
   @override
@@ -813,7 +940,7 @@ class _DailySummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'ملخص اليوم',
+            'activity_tracking.day_summary'.tr(),
             style: TextStyleManager.heading3.copyWith(
               color: AppColors.black,
               fontWeight: FontWeight.bold,
@@ -841,24 +968,22 @@ class _DailySummaryCard extends StatelessWidget {
                 _SummaryItem(
                   icon: const Icon(Icons.local_fire_department_rounded,
                       color: Colors.deepOrangeAccent, size: 26),
-                  label: 'عدد السعرات',
+                  label: 'activity_tracking.calories_label'.tr(),
                   value: '$calories',
-                  unit: 'كالوري',
+                  unit: 'activity_tracking.calorie_unit'.tr(),
                 ),
                 _SummaryItem(
                   icon: Icon(Icons.access_time_filled_rounded,
                       color: AppColors.surfaceGray, size: 26),
-                  label: pace != null ? 'البيس' : 'الوقت المستغرق',
-                  value: pace ?? '$minutes',
-                  unit: pace != null ? 'دق/كم' : 'دقيقة',
+                  label: 'activity_tracking.elapsed_time'.tr(),
+                  value: '$minutes',
+                  unit: 'activity_tracking.minute_unit'.tr(),
                 ),
                 _SummaryItem(
                   icon: const Icon(Icons.location_on_rounded,
                       color: Colors.pinkAccent, size: 26),
-                  label: 'المسافة',
-                  value: isWalking
-                      ? distanceKm.toStringAsFixed(2)
-                      : distanceKm.toStringAsFixed(2),
+                  label: 'activity_tracking.distance_label'.tr(),
+                  value: distanceKm.toStringAsFixed(2),
                   unit: unit,
                 ),
               ],
@@ -942,7 +1067,7 @@ class _PermissionBanner extends StatelessWidget {
             ),
             TextButton(
               onPressed: onTap,
-              child: Text('السماح',
+              child: Text('activity_tracking.allow'.tr(),
                   style: TextStyleManager.style11Medium
                       .copyWith(color: AppColors.primary)),
             ),

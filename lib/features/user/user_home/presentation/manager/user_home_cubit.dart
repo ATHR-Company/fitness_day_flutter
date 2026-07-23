@@ -5,6 +5,7 @@ import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_home_state.dart';
 import 'package:fitness_day/features/user/user_home/domain/entities/article_data.dart';
+import 'package:fitness_day/features/user/user_home/domain/entities/subscription_package_data.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
@@ -21,14 +22,9 @@ class UserHomeCubit extends Cubit<UserHomeState> {
   Future<void> loadHomeData() async {
     emit(UserHomeLoading());
 
-    // Fetch both in parallel
-    final results = await Future.wait([
-      getUserHomeDataUseCase(),
-      getArticlesUseCase(),
-    ]);
-
-    final homeResult = results[0];
-    final articlesResult = results[1];
+    // Fetch both in parallel with typed results
+    final homeResult = await getUserHomeDataUseCase();
+    final articlesResult = await getArticlesUseCase();
 
     if (homeResult is FailureResult) {
       emit(UserHomeError((homeResult as FailureResult).failure.message));
@@ -105,11 +101,25 @@ class UserHomeCubit extends Cubit<UserHomeState> {
           .toList();
     }
 
+    // Plans come down with the home payload for unsubscribed users; without
+    // this mapping the "choose a package" grid renders an empty block.
+    final List<SubscriptionPackageData> packages = (homeData?.plans ?? [])
+        .map<SubscriptionPackageData>((p) => SubscriptionPackageData(
+              id: p.id,
+              imageUrl: p.coverPhoto,
+              name: p.name,
+              currentPrice: p.price.round(),
+              oldPrice: p.compareAtPrice?.round() ?? 0,
+              badge: p.badge,
+            ))
+        .toList();
+
     emit(UserHomeLoaded(
       tasks: tasks,
       articles: articles,
       isSubscribed: isSubscribed,
       homeData: homeData,
+      packages: packages,
     ));
   }
 

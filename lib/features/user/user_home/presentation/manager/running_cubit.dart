@@ -54,6 +54,13 @@ class RunningCubit extends Cubit<RunningState> {
   int _lastSyncedElapsedSeconds = 0;
   static const double _kSyncThresholdKm = 0.1; // sync every 100 m
 
+  /// Fixes worse than this are treated as noise rather than movement.
+  static const double _kMaxAcceptableAccuracyMeters = 25;
+
+  /// Below a slow walk (~1.8 km/h) the user is standing still and the reading
+  /// is drift, not progress.
+  static const double _kMinMovingSpeedMps = 0.5;
+
   /// An attempt that was built but never acknowledged. Retried byte-for-byte —
   /// same deltas, same [_pendingSyncId] — so a request that reached the server
   /// but whose response was lost is recognised as a replay instead of being
@@ -64,6 +71,9 @@ class RunningCubit extends Cubit<RunningState> {
   bool _pendingIsFinal = false;
   double _pendingTargetDistanceKm = 0;
   int _pendingTargetElapsedSeconds = 0;
+
+  /// Tail of the in-flight sync chain — see [_syncToBackend].
+  Future<void>? _syncQueue;
 
   static const Uuid _uuid = Uuid();
 
@@ -78,6 +88,30 @@ class RunningCubit extends Cubit<RunningState> {
         super(RunningState(goalDistanceKm: goalDistanceKm));
 
   // ─── Public API ───────────────────────────────────────────────────────────
+
+  /// Reads the existing grants **without prompting**.
+  ///
+  /// `permissionGranted` starts false on every freshly built cubit, so without
+  /// this the permission banner reappears each time the screen opens even
+  /// though the user granted everything long ago.
+  Future<void> refreshPermissionStatus() async {
+    try {
+      final Permission motion = defaultTargetPlatform == TargetPlatform.iOS
+          ? Permission.sensors
+          : Permission.activityRecognition;
+
+      final bool motionGranted = await motion.isGranted;
+      final LocationPermission locPerm = await Geolocator.checkPermission();
+      final bool locationGranted = locPerm == LocationPermission.always ||
+          locPerm == LocationPermission.whileInUse;
+
+      if (!isClosed && motionGranted && locationGranted) {
+        emit(state.copyWith(permissionGranted: true));
+      }
+    } catch (e) {
+      debugPrint('RunningCubit.refreshPermissionStatus error: $e');
+    }
+  }
 
   Future<bool> requestPermissions() async {
     // Motion / activity recognition
@@ -149,10 +183,18 @@ class RunningCubit extends Cubit<RunningState> {
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
     _gpsSub?.cancel();
     _stepSub?.cancel();
     _clockTimer?.cancel();
+
+    // Navigating away mid-run used to drop the session outright: the unsynced
+    // tail (under the 100 m threshold) was lost and `isFinal` never reached the
+    // server, so the activity stayed open forever. Close it out first — the
+    // subscriptions are already cancelled, so nothing can mutate state under us.
+    if (state.isRunning) {
+      await _syncToBackend(final_: true);
+    }
     return super.close();
   }
 
@@ -166,8 +208,28 @@ class RunningCubit extends Cubit<RunningState> {
       ),
     ).listen(
       (Position pos) {
+        // Drop low-confidence fixes outright. Without this, a stationary phone
+        // still drifts past the 5 m filter and silently accumulates distance
+        // over a long session.
+        if (pos.accuracy > _kMaxAcceptableAccuracyMeters) {
+          _lastPos = pos;
+          return;
+        }
         if (_lastPos != null) {
           final double delta = _haversineKm(_lastPos!, pos);
+
+          // Standing still still wanders past the 5 m filter, so require
+          // evidence of actual movement: either a reported speed in the
+          // walking-or-faster range, or a displacement larger than the fix's
+          // own error circle. The second test covers devices that never report
+          // a usable speed — without it their distance would never accumulate.
+          final bool movingBySpeed = pos.speed >= _kMinMovingSpeedMps;
+          final bool movingByDisplacement = delta * 1000 > pos.accuracy;
+          if (!movingBySpeed && !movingByDisplacement) {
+            _lastPos = pos;
+            return;
+          }
+
           // Ignore GPS noise (> 150 m in one tick = bad fix)
           if (delta < 0.15) {
             final double newDist = state.distanceKm + delta;
@@ -220,7 +282,18 @@ class RunningCubit extends Cubit<RunningState> {
     }
   }
 
-  Future<void> _syncToBackend({bool final_ = false}) async {
+  /// Serialises syncs. GPS ticks fire these without awaiting, so two could
+  /// otherwise both see no pending attempt, both build one, and the second
+  /// would overwrite the first's payload — acknowledging the first would then
+  /// advance the marks past distance that was never actually sent.
+  Future<void> _syncToBackend({bool final_ = false}) {
+    final Future<void> previous = _syncQueue ?? Future<void>.value();
+    final Future<void> next = previous.then((_) => _runSync(final_: final_));
+    _syncQueue = next.catchError((_) {});
+    return next;
+  }
+
+  Future<void> _runSync({bool final_ = false}) async {
     // The server matches on activityItemId; without it the request would be
     // rejected, so keep the progress in the session marks and report it once
     // the details response carries the id.
