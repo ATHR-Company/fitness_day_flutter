@@ -32,4 +32,7 @@ abstract class UserProfileRepository {
   });
 
   Future<ApiResult<void>> signout();
+
+  /// Returns the API's own success message.
+  Future<ApiResult<String>> deleteAccount();
 }

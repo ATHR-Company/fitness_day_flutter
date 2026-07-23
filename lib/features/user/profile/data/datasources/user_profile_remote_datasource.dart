@@ -34,6 +34,9 @@ abstract class UserProfileRemoteDataSource {
   });
 
   Future<void> signout();
+
+  /// Returns the API's own success message.
+  Future<String> deleteAccount();
 }
 
 class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
@@ -140,5 +143,11 @@ class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
   @override
   Future<void> signout() async {
     await _apiService.post(ApiEndpoints.userSignout);
+  }
+
+  @override
+  Future<String> deleteAccount() async {
+    final response = await _apiService.delete(ApiEndpoints.deleteAccount);
+    return (response.data as Map<String, dynamic>)['message'] as String? ?? '';
   }
 }

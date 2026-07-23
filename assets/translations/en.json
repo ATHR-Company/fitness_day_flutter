@@ -1,4 +1,5 @@
 {
+  "profile_not_set": "Not set",
   "errors": {
     "no_internet_title": "No internet connection",
     "no_internet_subtitle": "Please check your network connection and try again.",
@@ -402,7 +403,8 @@
     "achievements": "Achievements",
     "awards": "Awards",
     "delete_account": "Delete Account",
-    "delete_account_confirm": "Are you sure you want to delete your account permanently?",
+    "delete_account_confirm": "Are you sure you want to delete your account in Fitness Day?",
+    "delete_account_button": "Delete",
     "rate_app": "Rate App"
   },
   "drawer": {
@@ -565,6 +567,9 @@
   "shared_exit_title": "Do you want to exit the app?",
   "shared_exit_yes": "Yes",
   "shared_exit_no": "No",
+  "shared_exit_confirm_title": "Confirm Exit",
+  "shared_exit_confirm_subtitle": "Are you sure you want to exit the app?",
+  "shared_exit_button": "Exit",
   "shared_logout_title": "Do you want to log out?",
   "shared_logout_yes": "Log Out",
   "shared_logout_cancel": "Cancel",

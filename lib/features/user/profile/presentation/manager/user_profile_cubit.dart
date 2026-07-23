@@ -3,6 +3,7 @@ import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/user/profile/data/models/user_profile_model.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/change_password_usecase.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/delete_account_usecase.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/get_user_profile_usecase.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/request_change_phone_otp_usecase.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/toggle_user_notifications_usecase.dart';
@@ -25,6 +26,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
   final RequestChangePhoneOtpUseCase _requestChangePhoneOtpUseCase;
   final VerifyChangePhoneOtpUseCase _verifyChangePhoneOtpUseCase;
   final UserSignoutUseCase _userSignoutUseCase;
+  final DeleteAccountUseCase _deleteAccountUseCase;
   final AppCache _appCache;
 
   UserProfileDataModel? profileData;
@@ -41,6 +43,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     this._requestChangePhoneOtpUseCase,
     this._verifyChangePhoneOtpUseCase,
     this._userSignoutUseCase,
+    this._deleteAccountUseCase,
     this._appCache,
   ) : super(const UserProfileInitial()) {
     final cachedUser = _appCache.getUser();
@@ -171,6 +174,11 @@ class UserProfileCubit extends Cubit<UserProfileState> {
 
   Future<ApiResult<void>> signout() {
     return _userSignoutUseCase();
+  }
+
+  /// Result carries the API's own success message.
+  Future<ApiResult<String>> deleteAccount() {
+    return _deleteAccountUseCase();
   }
 
   UserProfileDataModel _placeholderData() {

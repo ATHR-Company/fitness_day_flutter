@@ -114,4 +114,14 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       return FailureResult(ErrorHandler.handle(e));
     }
   }
+
+  @override
+  Future<ApiResult<String>> deleteAccount() async {
+    try {
+      final message = await remoteDataSource.deleteAccount();
+      return Success(message);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
 }

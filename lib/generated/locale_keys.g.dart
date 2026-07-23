@@ -3,6 +3,12 @@
 // ignore_for_file: constant_identifier_names
 
 abstract class  LocaleKeys {
+  static const errors_no_internet_title = 'errors.no_internet_title';
+  static const errors_no_internet_subtitle = 'errors.no_internet_subtitle';
+  static const errors_retry = 'errors.retry';
+  static const errors_offline_banner = 'errors.offline_banner';
+  static const errors_back_online = 'errors.back_online';
+  static const errors = 'errors';
   static const login_welcome_text = 'login.welcome_text';
   static const login_phone_hint = 'login.phone_hint';
   static const login_phone_error = 'login.phone_error';
@@ -81,6 +87,7 @@ abstract class  LocaleKeys {
   static const home_review_plan = 'home.review_plan';
   static const home_see_all = 'home.see_all';
   static const home_see_more = 'home.see_more';
+  static const home_retry = 'home.retry';
   static const home_commitment_rate = 'home.commitment_rate';
   static const home_weekly_follow_up = 'home.weekly_follow_up';
   static const home_weekly_follow_up_desc = 'home.weekly_follow_up_desc';
@@ -385,6 +392,7 @@ abstract class  LocaleKeys {
   static const profile_page_awards = 'profile_page.awards';
   static const profile_page_delete_account = 'profile_page.delete_account';
   static const profile_page_delete_account_confirm = 'profile_page.delete_account_confirm';
+  static const profile_page_delete_account_button = 'profile_page.delete_account_button';
   static const profile_page_rate_app = 'profile_page.rate_app';
   static const profile_page = 'profile_page';
   static const drawer_home = 'drawer.home';
@@ -562,6 +570,9 @@ abstract class  LocaleKeys {
   static const shared_exit_title = 'shared_exit_title';
   static const shared_exit_yes = 'shared_exit_yes';
   static const shared_exit_no = 'shared_exit_no';
+  static const shared_exit_confirm_title = 'shared_exit_confirm_title';
+  static const shared_exit_confirm_subtitle = 'shared_exit_confirm_subtitle';
+  static const shared_exit_button = 'shared_exit_button';
   static const shared_logout_title = 'shared_logout_title';
   static const shared_logout_yes = 'shared_logout_yes';
   static const shared_logout_cancel = 'shared_logout_cancel';
@@ -904,6 +915,8 @@ abstract class  LocaleKeys {
   static const market_offer_2 = 'market.offer_2';
   static const market_offer_3 = 'market.offer_3';
   static const market_market_title = 'market.market_title';
+  static const market_favorites_title = 'market.favorites_title';
+  static const market_favorites_empty = 'market.favorites_empty';
   static const market_category_all = 'market.category_all';
   static const market_category_slimming = 'market.category_slimming';
   static const market_category_supplements = 'market.category_supplements';
@@ -919,9 +932,25 @@ abstract class  LocaleKeys {
   static const market_mock_product_diet_coffee = 'market.mock_product_diet_coffee';
   static const market_mock_discount_tag = 'market.mock_discount_tag';
   static const market_mock_offer_tag = 'market.mock_offer_tag';
+  static const market_orders_title = 'market.orders_title';
+  static const market_no_orders_title = 'market.no_orders_title';
+  static const market_no_orders_message = 'market.no_orders_message';
+  static const market_order_id = 'market.order_id';
+  static const market_order_date = 'market.order_date';
+  static const market_order_total = 'market.order_total';
+  static const market_order_status_pending_payment = 'market.order_status_pending_payment';
+  static const market_order_status_completed = 'market.order_status_completed';
+  static const market_order_status_cancelled = 'market.order_status_cancelled';
+  static const market_order_status_pending = 'market.order_status_pending';
+  static const market_items_count_single = 'market.items_count_single';
+  static const market_items_count_multi = 'market.items_count_multi';
   static const market = 'market';
+  static const share_app_subject = 'share.app_subject';
+  static const share_app_message = 'share.app_message';
+  static const share = 'share';
   static const hydration_title = 'hydration.title';
   static const hydration_manual = 'hydration.manual';
+  static const hydration_decrease = 'hydration.decrease';
   static const hydration_reminder_time_label = 'hydration.reminder_time_label';
   static const hydration_enter_manually = 'hydration.enter_manually';
   static const hydration_save = 'hydration.save';

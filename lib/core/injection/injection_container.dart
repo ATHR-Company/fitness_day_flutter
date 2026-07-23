@@ -96,6 +96,7 @@ import 'package:fitness_day/features/user/profile/domain/usecases/change_passwor
 import 'package:fitness_day/features/user/profile/domain/usecases/request_change_phone_otp_usecase.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/verify_change_phone_otp_usecase.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/user_signout_usecase.dart';
+import 'package:fitness_day/features/user/profile/domain/usecases/delete_account_usecase.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/features/specialist/notifications/presentation/manager/specialist_notifications_cubit.dart';
 
@@ -907,6 +908,9 @@ Future<void> init() async {
   getIt.registerLazySingleton<UserSignoutUseCase>(
     () => UserSignoutUseCase(getIt<UserProfileRepository>()),
   );
+  getIt.registerLazySingleton<DeleteAccountUseCase>(
+    () => DeleteAccountUseCase(getIt<UserProfileRepository>()),
+  );
   // Lazy singleton (not factory): shared across UserProfilePage and
   // PersonalProfilePage so edits on one are reflected on the other without
   // an extra refetch, matching how UserSetupCubit is provided app-wide.
@@ -920,6 +924,7 @@ Future<void> init() async {
       getIt<RequestChangePhoneOtpUseCase>(),
       getIt<VerifyChangePhoneOtpUseCase>(),
       getIt<UserSignoutUseCase>(),
+      getIt<DeleteAccountUseCase>(),
       getIt<AppCache>(),
     ),
   );

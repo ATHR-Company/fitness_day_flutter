@@ -1,4 +1,5 @@
 {
+  "profile_not_set": "غير محدد",
   "errors": {
     "no_internet_title": "لا يوجد اتصال بالإنترنت",
     "no_internet_subtitle": "يرجى التحقق من اتصالك بالشبكة والمحاولة مرة أخرى.",
@@ -402,7 +403,8 @@
     "achievements": "الانجازات",
     "awards": "الجوائز",
     "delete_account": "حذف الحساب",
-    "delete_account_confirm": "هل أنت متأكد من رغبتك في حذف الحساب نهائياً؟",
+    "delete_account_confirm": "هل أنت متأكد أنك تريد حذف حسابك في يوم الرشاقة؟",
+    "delete_account_button": "حذف",
     "rate_app": "قيم التطبيق"
   },
   "drawer": {
@@ -584,6 +586,9 @@
   "shared_exit_title": "هل تريد الخروج من التطبيق؟",
   "shared_exit_yes": "نعم",
   "shared_exit_no": "لا",
+  "shared_exit_confirm_title": "تأكيد الخروج",
+  "shared_exit_confirm_subtitle": "هل أنت متأكد أنك تريد الخروج من التطبيق؟",
+  "shared_exit_button": "خروج",
   "shared_logout_title": "هل تريد تسجيل الخروج؟",
   "shared_logout_yes": "تسجيل الخروج",
   "shared_logout_cancel": "إلغاء",

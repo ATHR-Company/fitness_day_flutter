@@ -15,6 +15,13 @@ class CodegenLoader extends AssetLoader{
   }
 
   static const Map<String,dynamic> _ar = {
+  "errors": {
+    "no_internet_title": "لا يوجد اتصال بالإنترنت",
+    "no_internet_subtitle": "يرجى التحقق من اتصالك بالشبكة والمحاولة مرة أخرى.",
+    "retry": "إعادة المحاولة",
+    "offline_banner": "لا يوجد اتصال بالإنترنت",
+    "back_online": "تم استعادة الاتصال"
+  },
   "login": {
     "welcome_text": "سعداء بعودتك من جديد سجّل الدخول لمتابعة رحلتك نحو نسختك الأقوى",
     "phone_hint": "رقم الجوال",
@@ -97,6 +104,7 @@ class CodegenLoader extends AssetLoader{
     "review_plan": "مراجعة الخطة",
     "see_all": "عرض الكل",
     "see_more": "المزيد",
+    "retry": "إعادة المحاولة",
     "commitment_rate": "نسبة الالتزام: %{}",
     "weekly_follow_up": "متابعة أسبوعية",
     "weekly_follow_up_desc": "متابعة الوزن وتخصيص النظام الغذائي والرياضي له",
@@ -410,7 +418,8 @@ class CodegenLoader extends AssetLoader{
     "achievements": "الانجازات",
     "awards": "الجوائز",
     "delete_account": "حذف الحساب",
-    "delete_account_confirm": "هل أنت متأكد من رغبتك في حذف الحساب نهائياً؟",
+    "delete_account_confirm": "هل أنت متأكد أنك تريد حذف حسابك في يوم الرشاقة؟",
+    "delete_account_button": "حذف",
     "rate_app": "قيم التطبيق"
   },
   "drawer": {
@@ -592,6 +601,9 @@ class CodegenLoader extends AssetLoader{
   "shared_exit_title": "هل تريد الخروج من التطبيق؟",
   "shared_exit_yes": "نعم",
   "shared_exit_no": "لا",
+  "shared_exit_confirm_title": "تأكيد الخروج",
+  "shared_exit_confirm_subtitle": "هل أنت متأكد أنك تريد الخروج من التطبيق؟",
+  "shared_exit_button": "خروج",
   "shared_logout_title": "هل تريد تسجيل الخروج؟",
   "shared_logout_yes": "تسجيل الخروج",
   "shared_logout_cancel": "إلغاء",
@@ -943,6 +955,8 @@ class CodegenLoader extends AssetLoader{
     "offer_2": "عرض حبتين بسعر 299 ريال بدلاً من 500 ريال.",
     "offer_3": "اختر العرض المناسب لك من خانة الخيارات قبل إضافة المنتج إلى السلة",
     "market_title": "المتجر",
+    "favorites_title": "المفضلة",
+    "favorites_empty": "لم تُضف أي شيء إلى المفضلة بعد",
     "category_all": "الكل",
     "category_slimming": "منتجات التنحيف",
     "category_supplements": "مكملات غذائية",
@@ -957,11 +971,28 @@ class CodegenLoader extends AssetLoader{
     "details_button": "تفاصيل",
     "mock_product_diet_coffee": "قهوة تنحيف دايت سبريم الاقتصادي، نكهة القهوة 2 كيلو 50 سكوب",
     "mock_discount_tag": "50% لفترة محدودة",
-    "mock_offer_tag": "حبة + حبة مجاناً"
+    "mock_offer_tag": "حبة + حبة مجاناً",
+    "orders_title": "طلباتي",
+    "no_orders_title": "لا توجد طلبات حتى الآن",
+    "no_orders_message": "لم تقم بإنشاء أي طلبات بعد.\nتسوّق في المتجر وأضف منتجاتك المفضلة!",
+    "order_id": "رقم الطلب: #{}",
+    "order_date": "تاريخ الطلب: {}",
+    "order_total": "الإجمالي: {} {}",
+    "order_status_pending_payment": "في انتظار الدفع",
+    "order_status_completed": "مكتمل",
+    "order_status_cancelled": "ملغي",
+    "order_status_pending": "قيد المراجعة",
+    "items_count_single": "منتج واحد",
+    "items_count_multi": "{} منتجات"
+  },
+  "share": {
+    "app_subject": "يوم الرشاقة",
+    "app_message": "حمّل تطبيق يوم الرشاقة وابدأ رحلتك نحو نسختك الأقوى 💪"
   },
   "hydration": {
     "title": "اشرب الماء",
     "manual": "يدوي",
+    "decrease": "إنقاص",
     "reminder_time_label": "التذكير القادم",
     "enter_manually": "أدخل الكمية يدوياً",
     "save": "حفظ",
@@ -983,6 +1014,13 @@ class CodegenLoader extends AssetLoader{
   }
 };
 static const Map<String,dynamic> _en = {
+  "errors": {
+    "no_internet_title": "No internet connection",
+    "no_internet_subtitle": "Please check your network connection and try again.",
+    "retry": "Retry",
+    "offline_banner": "No internet connection",
+    "back_online": "Back online"
+  },
   "login": {
     "welcome_text": "Happy to see you again. Log in to continue your journey towards your strongest version",
     "phone_hint": "Phone Number",
@@ -1066,6 +1104,7 @@ static const Map<String,dynamic> _en = {
     "review_plan": "Review Plan",
     "see_all": "See All",
     "see_more": "See More",
+    "retry": "Retry",
     "commitment_rate": "Commitment Rate: {}%",
     "weekly_follow_up": "Weekly Follow-up",
     "weekly_follow_up_desc": "Weight tracking and diet plan\ncustomization",
@@ -1378,7 +1417,8 @@ static const Map<String,dynamic> _en = {
     "achievements": "Achievements",
     "awards": "Awards",
     "delete_account": "Delete Account",
-    "delete_account_confirm": "Are you sure you want to delete your account permanently?",
+    "delete_account_confirm": "Are you sure you want to delete your account in Fitness Day?",
+    "delete_account_button": "Delete",
     "rate_app": "Rate App"
   },
   "drawer": {
@@ -1541,6 +1581,9 @@ static const Map<String,dynamic> _en = {
   "shared_exit_title": "Do you want to exit the app?",
   "shared_exit_yes": "Yes",
   "shared_exit_no": "No",
+  "shared_exit_confirm_title": "Confirm Exit",
+  "shared_exit_confirm_subtitle": "Are you sure you want to exit the app?",
+  "shared_exit_button": "Exit",
   "shared_logout_title": "Do you want to log out?",
   "shared_logout_yes": "Log Out",
   "shared_logout_cancel": "Cancel",
@@ -1891,6 +1934,8 @@ static const Map<String,dynamic> _en = {
     "offer_2": "Two boxes for 299 SAR instead of 500 SAR.",
     "offer_3": "Choose the suitable offer from the options before adding the product to cart",
     "market_title": "Store",
+    "favorites_title": "Favourites",
+    "favorites_empty": "You haven't added anything to your favourites yet",
     "category_all": "All",
     "category_slimming": "Slimming Products",
     "category_supplements": "Nutritional Supplements",
@@ -1905,7 +1950,19 @@ static const Map<String,dynamic> _en = {
     "details_button": "Details",
     "mock_product_diet_coffee": "Diet Slim Premium Coffee, Coffee Flavor 2 kg 50 scoops",
     "mock_discount_tag": "50% for limited time",
-    "mock_offer_tag": "Buy 1 Get 1 Free"
+    "mock_offer_tag": "Buy 1 Get 1 Free",
+    "orders_title": "My Orders",
+    "no_orders_title": "No orders yet",
+    "no_orders_message": "You haven't placed any orders yet.\nShop in the store and add your favorite products!",
+    "order_id": "Order ID: #{}",
+    "order_date": "Order Date: {}",
+    "order_total": "Total: {} {}",
+    "order_status_pending_payment": "Pending Payment",
+    "order_status_completed": "Completed",
+    "order_status_cancelled": "Cancelled",
+    "order_status_pending": "Pending",
+    "items_count_single": "1 product",
+    "items_count_multi": "{} products"
   },
   "common": {
     "weekdays": {
@@ -1927,9 +1984,14 @@ static const Map<String,dynamic> _en = {
       "fri": "Friday"
     }
   },
+  "share": {
+    "app_subject": "Fitness Day",
+    "app_message": "Download Fitness Day and start your journey to a stronger you 💪"
+  },
   "hydration": {
     "title": "Drink Water",
     "manual": "Manual",
+    "decrease": "Remove",
     "reminder_time_label": "Next reminder",
     "enter_manually": "Enter the amount manually",
     "save": "Save",

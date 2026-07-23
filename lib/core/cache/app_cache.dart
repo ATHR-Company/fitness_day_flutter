@@ -75,16 +75,14 @@ class AppCacheImpl implements AppCache {
         // Fallback to default user
       }
     }
-    // Return default user with initial mock data fields
+    // No cached profile yet — return a genuinely empty user rather than
+    // fabricated placeholder data (a prior "mock" default here previously
+    // caused screens to display fake weight/height/goal as if real, e.g. for
+    // accounts whose profile was set outside this app's own update flow).
     return const UserModel(
-      name: 'رنا محمد',
-      email: 'rana mohamed@gmail.com',
-      phone: '99567890211',
-      weight: 57.8,
-      height: 167.0,
-      goal: 'login.goal_gain',
-      gender: 'female',
-      birthDate: '2000-01-01',
+      name: '',
+      email: '',
+      phone: '',
     );
   }
 

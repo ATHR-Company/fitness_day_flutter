@@ -45,6 +45,11 @@ class FitnessDay extends StatelessWidget {
               create: (context) => di.getIt<UserAuthCubit>(),
             ),
             BlocProvider(
+              // Not lazy: lookups (goals, etc.) must start fetching at app
+              // startup for every user, not just those going through
+              // onboarding — otherwise a returning user who jumps straight
+              // to Profile sees a blank goal until lookups happen to load.
+              lazy: false,
               create: (context) => di.getIt<UserSetupCubit>()..fetchLookups(),
             ),
             BlocProvider(
