@@ -19,7 +19,12 @@ import 'package:fitness_day/features/user/profile/data/models/user_profile_model
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_state.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/routes/shared/shared_routes.dart';
+import 'package:fitness_day/core/widgets/confirm_dialog.dart';
+import 'package:fitness_day/fitness_day.dart';
 import '../../../user_home/presentation/widgets/user_app_drawer.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -36,6 +41,26 @@ class _UserProfilePageState extends State<UserProfilePage> {
   void initState() {
     super.initState();
     context.read<UserProfileCubit>().getUserProfile();
+  }
+
+  Future<void> _deleteAccount(BuildContext context) async {
+    final cubit = context.read<UserProfileCubit>();
+    final result = await cubit.deleteAccount();
+    if (!context.mounted) return;
+
+    switch (result) {
+      case Success(:final data):
+        await getIt<SecureCache>().deleteToken();
+        await getIt<SecureCache>().deleteRefreshToken();
+        await getIt<AppCache>().clear();
+        RoleNotifier.instance.setRole(AppRole.none);
+        if (context.mounted) {
+          context.go(SharedRoutes.roleSelection);
+          showAppSnackBar(context, text: data, isSuccess: true);
+        }
+      case FailureResult(:final failure):
+        showAppSnackBar(context, text: failure.message, isError: true);
+    }
   }
 
   @override
@@ -278,23 +303,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
             iconColor: AppColors.red,
           ),
           onTap: () {
-            // Delete account confirmation dialog
             showDialog(
               context: context,
-              builder: (context) => AlertDialog(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-                title: Text('profile_page.delete_account'.tr(), textAlign: TextAlign.right),
-                content: Text('profile_page.delete_account_confirm'.tr(), textAlign: TextAlign.right),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('profile.cancel'.tr(), style: const TextStyle(color: Colors.grey)),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('visit_details.delete'.tr(), style: TextStyle(color: AppColors.red)),
-                  ),
-                ],
+              builder: (dialogContext) => ConfirmDialog(
+                svgIcon: SvgIcons.deleteAccount,
+                title: 'profile_page.delete_account'.tr(),
+                subtitle: 'profile_page.delete_account_confirm'.tr(),
+                confirmText: 'profile_page.delete_account_button'.tr(),
+                cancelText: 'profile.cancel'.tr(),
+                accentColor: AppColors.error,
+                onConfirm: () => _deleteAccount(context),
               ),
             );
           },

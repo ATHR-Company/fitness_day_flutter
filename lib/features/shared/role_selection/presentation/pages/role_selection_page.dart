@@ -9,6 +9,7 @@ import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/fitness_day.dart';
 
 class RoleSelectionPage extends StatelessWidget {
   const RoleSelectionPage({super.key});
@@ -47,7 +48,10 @@ class RoleSelectionPage extends StatelessWidget {
                   icon: Icon(Icons.person, color: AppColors.white, size: 24.w),
                   color: AppColors.primary,
                   textColor: AppColors.white,
-                  onTap: () => context.push(UserAppRoutes.login),
+                  onTap: () {
+                    RoleNotifier.instance.setRole(AppRole.user);
+                    context.push(UserAppRoutes.login);
+                  },
                 ),
 
                 SizedBox(height: 24.h),
@@ -58,7 +62,10 @@ class RoleSelectionPage extends StatelessWidget {
                   icon: AppImage(SvgIcons.specialist, height: 24.h),
                   color: AppColors.borderGrey,
                   textColor: AppColors.black,
-                  onTap: () => context.push(SpecialistAppRoutes.login),
+                  onTap: () {
+                    RoleNotifier.instance.setRole(AppRole.specialist);
+                    context.push(SpecialistAppRoutes.login);
+                  },
                 ),
 
                 const Spacer(),

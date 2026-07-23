@@ -34,6 +34,14 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     if (cubit.profileData == null) {
       cubit.getUserProfile();
     }
+    // Defensive fallback: lookups are normally already loading by app
+    // startup (see fitness_day.dart), but if this is somehow the first
+    // thing to need them (e.g. a slow connection), kick off the fetch
+    // rather than leaving the goal row blank for the rest of the session.
+    final setupCubit = context.read<UserSetupCubit>();
+    if (setupCubit.goals.isEmpty) {
+      setupCubit.fetchLookups();
+    }
   }
 
   @override
@@ -130,7 +138,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                             label: 'login.weight_hint'.tr(),
                             value: weight != null
                                 ? '$weight ${'visit_details.kg'.tr()}'
-                                : '',
+                                : 'profile_not_set'.tr(),
                             onTap: () {
                               showDialog(
                                 context: context,
@@ -148,7 +156,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                             label: 'login.height_hint'.tr(),
                             value: height != null
                                 ? '$height ${'visit_details.cm'.tr()}'
-                                : '',
+                                : 'profile_not_set'.tr(),
                             onTap: () {
                               showDialog(
                                 context: context,
@@ -164,7 +172,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                           ),
                           _buildProfileRow(
                             label: 'login.goal_hint'.tr(),
-                            value: goalName ?? '',
+                            value: goalName ?? 'profile_not_set'.tr(),
                             onTap: () {
                               showDialog(
                                 context: context,

@@ -33,11 +33,16 @@ class _LanguageDialogState extends State<LanguageDialog> {
       title: 'profile.edit_language'.tr(),
       onSave: () async {
         AppLocale.set(_selectedLang);   // ← update interceptor immediately
-        await context.setLocale(Locale(_selectedLang));
+        // Persist the language change server-side BEFORE switching the app
+        // locale — switching locale triggers screens (e.g. home) to
+        // immediately refetch, and that refetch must go out after the
+        // backend actually knows the new language, not before.
         if (RoleNotifier.instance.value == AppRole.user) {
           // ignore: use_build_context_synchronously
-          context.read<UserProfileCubit>().updateLang(_selectedLang);
+          await context.read<UserProfileCubit>().updateLang(_selectedLang);
         }
+        if (!context.mounted) return;
+        await context.setLocale(Locale(_selectedLang));
       },
       child: Row(
         children: [
