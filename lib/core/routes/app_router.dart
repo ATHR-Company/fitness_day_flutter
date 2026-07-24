@@ -50,6 +50,8 @@ import 'package:fitness_day/features/user/workout/presentation/screens/workout_r
 import 'package:fitness_day/features/user/visits/presentation/pages/diet_plan_page.dart';
 import 'package:fitness_day/features/user/workout/presentation/pages/workout_plan_page.dart';
 import 'package:fitness_day/features/user/progress/presentation/pages/user_progress_page.dart';
+import 'package:fitness_day/features/user/challenges/presentation/screens/challenges_screen.dart';
+import 'package:fitness_day/features/user/user_home/presentation/screens/scan_meal_screen.dart';
 
 /// Single combined router — keeps ALL user + specialist routes so that
 /// swapping routerConfig is never needed and "Page Not Found" never occurs.
@@ -184,6 +186,14 @@ class AppRouter {
       GoRoute(
         path: UserAppRoutes.progress,
         builder: (context, state) => const UserProgressPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.challenges,
+        builder: (context, state) => const ChallengesScreen(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.scanMeal,
+        builder: (context, state) => const ScanMealScreen(),
       ),
       GoRoute(
         path: UserAppRoutes.store,

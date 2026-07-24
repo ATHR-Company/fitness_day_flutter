@@ -48,6 +48,14 @@ class OpenRouterMealService {
   /// Compresses [imageFile], sends it to OpenRouter along with the analysis
   /// prompt, and parses the JSON response into a [MealAnalysisResult].
   Future<MealAnalysisResult> analyzeMeal(File imageFile) async {
+    // An empty key is a setup problem, not a server one — say so plainly
+    // instead of surfacing OpenRouter's generic 401.
+    if (apiKey.trim().isEmpty) {
+      throw MealAnalysisException(
+        'مفتاح خدمة الذكاء الاصطناعي غير مُعدّ. تأكد من وجود OPENROUTER_API_KEY في ملف .env.',
+      );
+    }
+
     final Uint8List compressedBytes = await _compressImage(imageFile);
     final String base64Image = base64Encode(compressedBytes);
 

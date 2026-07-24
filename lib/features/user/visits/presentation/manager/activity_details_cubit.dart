@@ -15,6 +15,11 @@ class ActivityDetailsCubit extends Cubit<ActivityDetailsState> {
   int _dayNumber = 1;
   String _activityId = '';
 
+  /// Monotonic request counter. Rapid daily/weekly toggling fires overlapping
+  /// GETs; without this the slower (older) response could land last and clobber
+  /// the newer one, leaving the page showing data for the tab the user left.
+  int _requestSeq = 0;
+
   ActivityDetailsCubit({
     required GetActivityDetailsUseCase getActivityDetailsUseCase,
   })  : _getActivityDetailsUseCase = getActivityDetailsUseCase,
@@ -28,6 +33,7 @@ class ActivityDetailsCubit extends Cubit<ActivityDetailsState> {
   Future<void> getActivityDetails(
       String assessmentId, int dayNumber, String activityId,
       {String period = 'daily'}) async {
+    final int seq = ++_requestSeq;
     _assessmentId = assessmentId;
     _dayNumber = dayNumber;
     _activityId = activityId;
@@ -35,6 +41,10 @@ class ActivityDetailsCubit extends Cubit<ActivityDetailsState> {
     final result = await _getActivityDetailsUseCase(
         assessmentId, dayNumber, activityId,
         period: period);
+    // A newer toggle superseded this request while it was in flight — its
+    // response is the authoritative one, so drop this stale result instead of
+    // letting it overwrite the newer data.
+    if (seq != _requestSeq) return;
     switch (result) {
       case Success(:final data):
         emit(ActivityDetailsSuccess(data.data));

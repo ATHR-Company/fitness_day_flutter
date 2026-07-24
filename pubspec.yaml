@@ -64,6 +64,7 @@ dependencies:
   shared_preferences: ^2.5.5
   share_plus: ^12.0.1
   uuid: ^4.5.1
+  flutter_dotenv: ^5.1.0
 
   # Health & Activity tracking
   health: ^12.2.0
@@ -71,6 +72,9 @@ dependencies:
 
   # Connectivity / network status
   connectivity_plus: ^6.1.0
+  file_picker: ^11.0.2
+  record: ^6.2.1
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:
@@ -93,6 +97,11 @@ flutter:
     - assets/translations/
     - assets/audio/
     - assets/video/
+    # Bundled so the app can read secrets at runtime on any machine that has
+    # the file — no --dart-define needed. .env is gitignored, so each dev
+    # supplies their own. NOTE: bundling embeds the key in the build; keep this
+    # for dev only and move secrets behind a backend before a real release.
+    - .env
 
   fonts:
     - family: Bukra

@@ -271,6 +271,11 @@ class _WalkingScreenState extends State<_WalkingScreen>
     with WidgetsBindingObserver {
   int _selectedTab = 0;
 
+  /// Weekly is a read-only aggregate kept in its own field. Keeping it separate
+  /// from the frozen daily baseline is what stops the weekly figures from
+  /// leaking into the daily session total when the user switches tabs mid-walk.
+  ActivityDetailsData? _weeklyData;
+
   /// API snapshot frozen at the moment the screen first loads (or after a
   /// session ends). These are NOT updated mid-session so live sensor deltas
   /// accumulate on top of a stable baseline and never jump back.
@@ -294,16 +299,36 @@ class _WalkingScreenState extends State<_WalkingScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _freezeFromWidget();
+    // The parent consumed the first ActivityDetailsSuccess before this screen
+    // subscribed, so the BlocConsumer listener never replays it. Seed the frozen
+    // baseline from the cubit's current state so goal/unit aren't left at their
+    // zero defaults — that's what showed "/ 0 steps" and "0%" on the idle daily
+    // view.
+    final actState = widget.activityCubit.state;
+    if (actState is ActivityDetailsSuccess) {
+      _applyApiData(actState.data);
+    }
   }
 
   @override
   void didUpdateWidget(_WalkingScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // Weekly keeps its own data; only the daily baseline is prop-driven.
+    if (_selectedTab != 0) return;
     // Only accept fresh API data when no session is running — mid-session
     // updates would reset the live step display back to the server snapshot.
     final walkingCubit = context.read<WalkingCubit>();
     if (!walkingCubit.state.isTracking) {
-      _freezeFromWidget();
+      // Re-freeze from the cubit's current API data, NOT _freezeFromWidget():
+      // the parent re-runs this build right after its own listener's setState,
+      // and _freezeFromWidget() zeroes the goal — which is exactly what made the
+      // circle fall back to "/ 0 steps" and "0%" after the first frame.
+      final actState = widget.activityCubit.state;
+      if (actState is ActivityDetailsSuccess) {
+        _applyApiData(actState.data);
+      } else {
+        _freezeFromWidget();
+      }
     }
   }
 
@@ -393,6 +418,67 @@ class _WalkingScreenState extends State<_WalkingScreen>
   }
 
 
+  /// Read-only weekly aggregate — steps + summary straight from the API, with
+  /// no live tracking and no start/stop button (you can't run a session "for
+  /// the week").
+  Widget _buildWeeklyView() {
+    final data = _weeklyData;
+    final double steps = data?.currentProgress ?? 0;
+    final double goal = data?.goal ?? 0;
+    final String unit = (data?.unit.isNotEmpty ?? false)
+        ? data!.unit
+        : 'activity_tracking.steps_unit'.tr();
+    final double percent = goal > 0 ? (steps / goal).clamp(0.0, 1.0) : 0.0;
+
+    return Scaffold(
+      body: ScreenBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildAppBar(context, _frozenActivityName),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                child: _PeriodTabBar(
+                  tabs: _tabs,
+                  selectedIndex: _selectedTab,
+                  onTabChanged: (i) => _onTabChanged(i, context),
+                ),
+              ),
+              SizedBox(height: 40.h),
+              if (data == null)
+                const Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                )
+              else ...[
+                _ActivityCircle(
+                  percent: percent,
+                  currentVal: steps,
+                  goalVal: goal,
+                  unit: unit,
+                  goalPercent: (percent * 100).round(),
+                ),
+                SizedBox(height: 32.h),
+                Expanded(
+                  child: _DailySummaryCard(
+                    title: 'activity_tracking.week_summary'.tr(),
+                    distanceKm: data.distance ?? 0,
+                    unit: 'activity_tracking.km_unit'.tr(),
+                    minutes: data.durationMinutes?.toInt() ?? 0,
+                    calories: data.caloriesBurned?.round() ?? 0,
+                    isWalking: true,
+                  ),
+                ),
+              ],
+              SizedBox(height: 24.h),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ActivityDetailsCubit, ActivityDetailsState>(
@@ -404,7 +490,10 @@ class _WalkingScreenState extends State<_WalkingScreen>
       listenWhen: (_, curr) => curr is ActivityDetailsSuccess,
       listener: (context, actState) {
         if (actState is ActivityDetailsSuccess) {
-          if (!_isFrozenForSession(context)) {
+          if (_selectedTab == 1) {
+            // Weekly view — store separately, never touch the daily baseline.
+            setState(() => _weeklyData = actState.data);
+          } else if (!_isFrozenForSession(context)) {
             setState(() => _applyApiData(actState.data));
           }
         }
@@ -414,6 +503,8 @@ class _WalkingScreenState extends State<_WalkingScreen>
         return curr is ActivityDetailsSuccess || curr is ActivityDetailsFailure;
       },
       builder: (context, actState) {
+        // Weekly is a pure aggregate: no live session, no start/stop button.
+        if (_selectedTab == 1) return _buildWeeklyView();
         return BlocBuilder<WalkingCubit, WalkingState>(
           builder: (context, state) {
             final bool showLive = _selectedTab == 0 && state.isTracking;
@@ -448,19 +539,25 @@ class _WalkingScreenState extends State<_WalkingScreen>
                       ),
                       SizedBox(height: 32.h),
 
+                      // Permission banner sits directly under the circle when
+                      // needed — kept separate from the space/summary choice
+                      // below so it never pushes the start button up.
                       if (state.permissionStatus == HealthPermStatus.needsInstall)
                         _PermissionBanner(
                           message: 'activity_tracking.install_health_connect'.tr(),
                           onTap: () =>
-                              context.read<WalkingCubit>().startTracking(),
+                              context.read<WalkingCubit>().installHealthConnect(),
                         )
                       else if (state.permissionStatus == HealthPermStatus.denied)
                         _PermissionBanner(
                           message: 'activity_tracking.grant_health_access'.tr(),
                           onTap: () =>
                               context.read<WalkingCubit>().startTracking(),
-                        )
-                      else if (state.isTracking && !state.isLoading)
+                        ),
+
+                      // Summary while tracking, otherwise flexible space — either
+                      // way the start/stop button stays pinned to the bottom.
+                      if (state.isTracking && !state.isLoading)
                         Expanded(
                           child: _DailySummaryCard(
                             distanceKm: _frozenApiDistance + state.distanceKm,
@@ -517,6 +614,10 @@ class _RunningScreen extends StatefulWidget {
 class _RunningScreenState extends State<_RunningScreen> {
   int _selectedTab = 0;
 
+  /// Weekly aggregate, read-only and kept apart from the daily session baseline
+  /// so switching tabs mid-run can't corrupt the daily distance.
+  ActivityDetailsData? _weeklyData;
+
   /// API snapshot frozen at screen open (or after a session ends).
   /// Never updated mid-session so the live GPS distance doesn't jump back.
   late double _frozenApiProgress;
@@ -542,6 +643,13 @@ class _RunningScreenState extends State<_RunningScreen> {
     _frozenActivityName = 'activity_tracking.running_title'.tr();
     _frozenApiDuration = widget.apiDurationMinutes;
     _frozenApiCalories = widget.apiCalories;
+    // Same first-load gap as the walking screen: the initial success was already
+    // emitted before this screen subscribed, so seed the goal/unit from the
+    // cubit's current state instead of leaving the goal at 0.
+    final actState = widget.activityCubit.state;
+    if (actState is ActivityDetailsSuccess) {
+      _applyApiData(actState.data);
+    }
   }
 
   void _applyApiData(ActivityDetailsData data) {
@@ -586,6 +694,69 @@ class _RunningScreenState extends State<_RunningScreen> {
     await cubit.startSession();
   }
 
+  /// Read-only weekly aggregate — distance + summary straight from the API,
+  /// with no live run and no start/stop button.
+  Widget _buildWeeklyView() {
+    final data = _weeklyData;
+    final double km = data != null ? _runningProgressKm(data.currentProgress) : 0;
+    final double goal = data != null ? _runningGoalKm(data.goal) : 0;
+    final String unit = (data?.unit.isNotEmpty ?? false)
+        ? data!.unit
+        : 'activity_tracking.km_unit'.tr();
+    final double percent = goal > 0
+        ? (km / goal).clamp(0.0, 1.0)
+        : (data != null ? (data.progressPercentage / 100).clamp(0.0, 1.0) : 0.0);
+
+    return Scaffold(
+      body: ScreenBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildAppBar(context, _frozenActivityName),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                child: _PeriodTabBar(
+                  tabs: _tabs,
+                  selectedIndex: _selectedTab,
+                  onTabChanged: _onTabChanged,
+                ),
+              ),
+              SizedBox(height: 40.h),
+              if (data == null)
+                const Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                )
+              else ...[
+                _ActivityCircle(
+                  percent: percent,
+                  currentVal: km,
+                  goalVal: goal,
+                  unit: unit,
+                  goalPercent: (percent * 100).round(),
+                  decimals: 2,
+                ),
+                SizedBox(height: 32.h),
+                Expanded(
+                  child: _DailySummaryCard(
+                    title: 'activity_tracking.week_summary'.tr(),
+                    distanceKm: km,
+                    unit: unit,
+                    minutes: data.durationMinutes?.toInt() ?? 0,
+                    calories: data.caloriesBurned?.round() ?? 0,
+                    isWalking: false,
+                  ),
+                ),
+              ],
+              SizedBox(height: 24.h),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ActivityDetailsCubit, ActivityDetailsState>(
@@ -595,7 +766,10 @@ class _RunningScreenState extends State<_RunningScreen> {
       listenWhen: (_, curr) => curr is ActivityDetailsSuccess,
       listener: (context, actState) {
         if (actState is ActivityDetailsSuccess) {
-          if (!_isFrozenForSession(context)) {
+          if (_selectedTab == 1) {
+            // Weekly view — store separately, never touch the daily baseline.
+            setState(() => _weeklyData = actState.data);
+          } else if (!_isFrozenForSession(context)) {
             setState(() => _applyApiData(actState.data));
           }
         }
@@ -605,6 +779,8 @@ class _RunningScreenState extends State<_RunningScreen> {
         return curr is ActivityDetailsSuccess || curr is ActivityDetailsFailure;
       },
       builder: (context, actState) {
+        // Weekly is a pure aggregate: no live run, no start/stop button.
+        if (_selectedTab == 1) return _buildWeeklyView();
         return BlocBuilder<RunningCubit, RunningState>(
           builder: (context, state) {
             // Session figures belong to today only — on the weekly tab always
@@ -924,12 +1100,17 @@ class _DailySummaryCard extends StatelessWidget {
   final int calories;
   final bool isWalking;
 
+  /// Heading above the card. Defaults to the daily label; the weekly view
+  /// passes its own so the same card serves both periods.
+  final String? title;
+
   const _DailySummaryCard({
     required this.distanceKm,
     required this.unit,
     required this.minutes,
     required this.calories,
     this.isWalking = false,
+    this.title,
   });
 
   @override
@@ -940,7 +1121,7 @@ class _DailySummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'activity_tracking.day_summary'.tr(),
+            title ?? 'activity_tracking.day_summary'.tr(),
             style: TextStyleManager.heading3.copyWith(
               color: AppColors.black,
               fontWeight: FontWeight.bold,

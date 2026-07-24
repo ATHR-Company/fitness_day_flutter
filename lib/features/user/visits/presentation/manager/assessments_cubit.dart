@@ -16,19 +16,28 @@ class AssessmentsCubit extends Cubit<AssessmentsState> {
   DateTime? _firstWeekStart;
   DateTime? _lastWeekStart;
 
+  /// Normalises any date to the Sunday that starts its week, dropping the time
+  /// and timezone. Both bounds and [_currentWeekStart] must be compared as
+  /// aligned week-starts — the API returns `lastDateOfWeekStart` as a raw date
+  /// that can fall mid-week (e.g. 2026-07-23 inside the 2026-07-19 week), so
+  /// comparing the week-start against it directly let "next" stay enabled even
+  /// though the last week with data is the one already on screen.
+  DateTime _weekStartOf(DateTime date) {
+    final DateTime local = date.toLocal();
+    final DateTime dayOnly = DateTime(local.year, local.month, local.day);
+    return dayOnly.subtract(Duration(days: dayOnly.weekday % 7));
+  }
+
   bool get canGoPrevious =>
-      _firstWeekStart != null && _currentWeekStart.isAfter(_firstWeekStart!);
+      _firstWeekStart != null &&
+      _currentWeekStart.isAfter(_weekStartOf(_firstWeekStart!));
 
   bool get canGoNext =>
-      _lastWeekStart != null && _currentWeekStart.isBefore(_lastWeekStart!);
+      _lastWeekStart != null &&
+      _currentWeekStart.isBefore(_weekStartOf(_lastWeekStart!));
 
   void fetchAssessmentsForCurrentWeek() {
-    // Find the start of the current week (Sunday)
-    DateTime now = DateTime.now();
-    int weekday = now.weekday; // Monday is 1, Sunday is 7
-    DateTime weekStart = now.subtract(Duration(days: weekday % 7));
-    _currentWeekStart = DateTime(weekStart.year, weekStart.month, weekStart.day);
-
+    _currentWeekStart = _weekStartOf(DateTime.now());
     _fetchAssessments(_currentWeekStart);
   }
 

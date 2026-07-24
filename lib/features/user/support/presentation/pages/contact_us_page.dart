@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -15,98 +14,95 @@ class ContactUsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: ui.TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Header ──────────────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Icon(Icons.arrow_back_ios,
-                          color: AppColors.black, size: 20.sp),
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Header ──────────────────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Icon(Icons.arrow_back_ios,
+                        color: AppColors.black, size: 20.sp),
+                  ),
+                  Expanded(
+                    child: Text(
+                      LocaleKeys.contact_us_contact_us_title.tr(),
+                      textAlign: TextAlign.center,
+                      style: TextStyleManager.heading2
+                          .copyWith(color: AppColors.black),
                     ),
-                    Expanded(
-                      child: Text(
-                        LocaleKeys.contact_us_contact_us_title.tr(),
-                        textAlign: TextAlign.center,
-                        style: TextStyleManager.heading2
-                            .copyWith(color: AppColors.black),
-                      ),
-                    ),
-                    SizedBox(width: 20.w),
-                  ],
+                  ),
+                  SizedBox(width: 20.w),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 8.h),
+
+            // ── Subtitle ─────────────────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Text(
+                LocaleKeys.contact_us_contact_us_subtitle.tr(),
+                textAlign: TextAlign.start,
+                style: TextStyleManager.style11Medium.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.6,
                 ),
               ),
+            ),
 
-              SizedBox(height: 8.h),
+            SizedBox(height: 32.h),
 
-              // ── Subtitle ─────────────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Text(
-                  LocaleKeys.contact_us_contact_us_subtitle.tr(),
-                  textAlign: TextAlign.start,
-                  style: TextStyleManager.style11Medium.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.6,
+            // ── AI Coach Card ─────────────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: _ContactCard(
+                title: LocaleKeys.contact_us_contact_us_ai_coach.tr(),
+                subtitle: LocaleKeys.contact_us_contact_us_ai_desc.tr(),
+                rawImage: true,
+                image: AppImage(
+                  AppImages.ai,
+                  width: 70.r,
+                  height: 70.r,
+                  fit: BoxFit.contain,
+                ),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AiCoachChatScreen(),
                   ),
                 ),
               ),
+            ),
 
-              SizedBox(height: 32.h),
+            SizedBox(height: 16.h),
 
-              // ── AI Coach Card ─────────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: _ContactCard(
-                  title: LocaleKeys.contact_us_contact_us_ai_coach.tr(),
-                  subtitle: LocaleKeys.contact_us_contact_us_ai_desc.tr(),
-                  rawImage: true,
-                  image: AppImage(
-                    AppImages.ai,
-                    width: 70.r,
-                    height: 70.r,
-                    fit: BoxFit.contain,
-                  ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AiCoachChatScreen(),
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 16.h),
-
-              // ── Specialist Card ───────────────────────────────────────────────
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: _ContactCard(
-                  title: LocaleKeys.contact_us_contact_us_specialist.tr(),
-                  subtitle: LocaleKeys.contact_us_contact_us_ai_desc.tr(),
-                  image: AppImage(SvgIcons.logo, width: 70.r, height: 70.r),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ChatDetailsPage(
-                        title: LocaleKeys.contact_us_contact_us_specialist_title.tr(),
-                        isSpecialist: true,
-                      ),
+            // ── Specialist Card ───────────────────────────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: _ContactCard(
+                title: LocaleKeys.contact_us_contact_us_specialist.tr(),
+                subtitle: LocaleKeys.contact_us_contact_us_ai_desc.tr(),
+                image: AppImage(SvgIcons.logo, width: 70.r, height: 70.r),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ChatDetailsPage(
+                      title: LocaleKeys.contact_us_contact_us_specialist_title.tr(),
+                      isSpecialist: true,
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

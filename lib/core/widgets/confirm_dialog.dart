@@ -63,14 +63,24 @@ class ConfirmDialog extends StatelessWidget {
             ),
           ),
 
-          // Icon in the middle
+          // Icon in the middle — accent-colored badge
           SizedBox(height: 32.h),
-          svgIcon!=null? SvgPicture.asset(svgIcon!, width: 100.w, height: 100.h,):
-          Icon(
-            icon,
-            size: 40.sp,
-            color: AppColors.white,
-          ),
+          svgIcon != null
+              ? SvgPicture.asset(svgIcon!, width: 100.w, height: 100.h)
+              : Container(
+                  width: 100.r,
+                  height: 100.r,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: accentColor, width: 2),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 40.sp,
+                    color: accentColor,
+                  ),
+                ),
           SizedBox(height: 24.h),
 
           // Title

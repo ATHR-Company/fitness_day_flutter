@@ -298,7 +298,11 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
           return _RelatedArticleCard(
             article: widget.relatedArticles[index],
             onTap: () {
-              Navigator.pushReplacement(
+              // push, not pushReplacement: replacing the page left no back
+              // stack, so returning from any related article jumped straight
+              // to whatever was below the first one (the home) instead of the
+              // previous article.
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => ArticleDetailPage(

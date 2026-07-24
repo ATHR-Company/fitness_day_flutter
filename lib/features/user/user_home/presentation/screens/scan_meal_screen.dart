@@ -31,11 +31,10 @@ class _ScanMealScreenState extends State<ScanMealScreen>
   bool _isAnalyzing = false;
   String? _errorMessage;
 
-  // Key is loaded from --dart-define=OPENROUTER_API_KEY at build time.
+  // Resolved at runtime from .env (falls back to --dart-define).
   // Never hardcode secrets in source files — see lib/core/constant/app_env.dart
-  static const String _openRouterApiKey = AppEnv.openRouterApiKey;
   late final OpenRouterMealService _mealService =
-      OpenRouterMealService(apiKey: _openRouterApiKey);
+      OpenRouterMealService(apiKey: AppEnv.openRouterApiKey);
 
   @override
   void initState() {

@@ -372,7 +372,18 @@
     "dummy_message_1": "Hello 👋 Is a light snack before workout useful?",
     "dummy_message_2": "Yes, a light snack before a workout can be useful, especially if it has been several hours since your last meal. It is preferred to have a source of carbohydrates with a light amount of protein",
     "dummy_welcome": "Welcome! 🥳 Fitness Day app welcomes you 🍃\nWe wish you a wonderful experience and a successful journey towards your health goals.",
-    "dummy_reply": "Hello 🫶\nThanks for the welcome. Is having a light snack before workout useful?"
+    "dummy_reply": "Hello 🫶\nThanks for the welcome. Is having a light snack before workout useful?",
+    "attach_camera": "Camera",
+    "attach_gallery": "Gallery",
+    "attach_video": "Video",
+    "attach_document": "Document",
+    "attachment_title": "Attach",
+    "recording": "Recording...",
+    "cancel_recording": "Cancel",
+    "voice_message": "Voice message",
+    "photo_message": "Photo",
+    "video_message": "Video",
+    "mic_permission_denied": "Can't record without microphone permission"
   },
   "profile": {
     "title": "My Profile",
@@ -661,6 +672,12 @@
   "auth_save": "Save",
   "auth_next_button": "Next",
   "auth_val_err_full_name": "Please enter your full name",
+  "ai_chat": {
+    "coach_name": "Smart Coach",
+    "online_now": "Online now",
+    "welcome": "🤖 Welcome! Fitness Day app welcomes you 🎉\nWe wish you a great experience and a successful journey towards your health goals.",
+    "input_hint": "Type your question here ..."
+  },
   "contact_us": {
     "contact_us_title": "Contact Us",
     "contact_us_subtitle": "We accompany you on your journey towards a healthy body with a well-studied plan and expert support.",
@@ -990,6 +1007,7 @@
     "elapsed_time": "Elapsed Time",
     "goal_percent": "{}% of your goal",
     "day_summary": "Today's Summary",
+    "week_summary": "This Week's Summary",
     "calories_label": "Calories",
     "calorie_unit": "cal",
     "pace_label": "Pace",

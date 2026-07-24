@@ -12,7 +12,7 @@ class ExitDialog extends StatelessWidget {
     return ConfirmDialog(
       icon: Icons.exit_to_app_rounded,
       title: 'shared_exit_confirm_title'.tr(),
-      subtitle: 'shpared_exit_confirm_subtitle'.tr(),
+      subtitle: 'shared_exit_confirm_subtitle'.tr(),
       confirmText: 'shared_exit_button'.tr(),
       cancelText: 'shared_btn_cancel'.tr(),
       accentColor: AppColors.error,

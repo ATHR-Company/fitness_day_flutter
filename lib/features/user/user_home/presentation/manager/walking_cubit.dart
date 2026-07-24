@@ -188,6 +188,15 @@ class WalkingCubit extends Cubit<WalkingState> {
     return granted;
   }
 
+  /// Opens the Play Store listing so the user can install Health Connect.
+  ///
+  /// The needsInstall banner button used to just re-run [startTracking], which
+  /// re-checked availability and did nothing — permissions are meaningless for
+  /// a component that isn't installed. This actually launches the install flow.
+  Future<void> installHealthConnect() async {
+    await _healthService.promptInstall();
+  }
+
   /// Begins a tracking session: first poll immediately, then every 30 s.
   Future<void> startTracking() async {
     if (state.isTracking) return;
@@ -264,9 +273,16 @@ class WalkingCubit extends Cubit<WalkingState> {
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
     _pollTimer?.cancel();
     _stopSensors();
+    // Leaving the screen mid-walk used to drop the steps taken since the last
+    // 30 s poll — close cancelled everything without a final read/sync. Mirror
+    // stopTracking's final poll so that tail is synced, the way RunningCubit's
+    // close already does for runs.
+    if (state.isTracking) {
+      await _poll();
+    }
     return super.close();
   }
 

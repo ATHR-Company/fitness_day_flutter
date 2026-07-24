@@ -1,40 +1,40 @@
-/// Reads compile-time environment variables injected via --dart-define.
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+/// Runtime / build-time secrets.
 ///
-/// HOW TO RUN:
-///   flutter run \
-///     --dart-define=OPENROUTER_API_KEY=sk-or-v1-xxx \
-///     --dart-define=FIREBASE_WEB_API_KEY=AIza... \
-///     --dart-define=FIREBASE_ANDROID_API_KEY=AIza... \
-///     --dart-define=FIREBASE_IOS_API_KEY=AIza...
+/// `.env` is gitignored — each developer supplies their own copy.
 ///
-/// Or create a launch.json in .vscode with "toolArgs" containing the defines,
-/// or pass them via a dart_defines file:
-///   flutter run --dart-define-from-file=.env
-///
-/// IMPORTANT: Never hardcode secrets in Dart source files.
-/// The .env file is listed in .gitignore and must never be committed.
+/// IMPORTANT (security): every path here embeds the key in the build. Anyone
+/// can decompile the app and extract it. Keep this for development; move these
+/// secrets behind your own backend before releasing to real users.
 class AppEnv {
   AppEnv._();
 
-  // ─── OpenRouter ──────────────────────────────────────────────────────────
-  static const String openRouterApiKey = String.fromEnvironment(
-    'OPENROUTER_API_KEY',
-    defaultValue: '',
-  );
+  // ─── OpenRouter (used by AI chat + meal scan) ────────────────────────────
+  //
+  // Resolved at runtime from the bundled `.env` first, falling back to a
+  // compile-time --dart-define. Reading `.env` at runtime is what lets a plain
+  // `flutter run` / IDE debug work without --dart-define-from-file.
+  static String get openRouterApiKey {
+    final fromFile =
+        dotenv.isInitialized ? (dotenv.env['OPENROUTER_API_KEY'] ?? '') : '';
+    if (fromFile.isNotEmpty) return fromFile;
+    return const String.fromEnvironment('OPENROUTER_API_KEY');
+  }
 
   // ─── Firebase ────────────────────────────────────────────────────────────
-  static const String firebaseWebApiKey = String.fromEnvironment(
-    'FIREBASE_WEB_API_KEY',
-    defaultValue: '',
-  );
+  //
+  // These feed `const FirebaseOptions(...)` in firebase_options.dart, which
+  // must be compile-time constants, so they stay on --dart-define and cannot
+  // be read from `.env` at runtime. Pass them with
+  // `--dart-define-from-file=.env` (see .vscode/launch.json) or omit them and
+  // rely on the native google-services.json / GoogleService-Info.plist.
+  static const String firebaseWebApiKey =
+      String.fromEnvironment('FIREBASE_WEB_API_KEY');
 
-  static const String firebaseAndroidApiKey = String.fromEnvironment(
-    'FIREBASE_ANDROID_API_KEY',
-    defaultValue: '',
-  );
+  static const String firebaseAndroidApiKey =
+      String.fromEnvironment('FIREBASE_ANDROID_API_KEY');
 
-  static const String firebaseIosApiKey = String.fromEnvironment(
-    'FIREBASE_IOS_API_KEY',
-    defaultValue: '',
-  );
+  static const String firebaseIosApiKey =
+      String.fromEnvironment('FIREBASE_IOS_API_KEY');
 }

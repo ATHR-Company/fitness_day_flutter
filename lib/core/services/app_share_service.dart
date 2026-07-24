@@ -10,7 +10,14 @@ import 'package:fitness_day/core/constant/app_share_links.dart';
 class AppShareService {
   const AppShareService._();
 
+  /// Guards against opening the share sheet multiple times when the user taps
+  /// the share button rapidly before the previous sheet has been dismissed.
+  static bool _isSharing = false;
+
   static Future<void> shareApp(BuildContext context) async {
+    if (_isSharing) return;
+    _isSharing = true;
+
     final storeLink =
         Platform.isIOS ? AppShareLinks.iosStore : AppShareLinks.androidStore;
 
@@ -18,13 +25,17 @@ class AppShareService {
     // otherwise it throws. Anchor it to the widget that triggered the share.
     final box = context.findRenderObject() as RenderBox?;
 
-    await SharePlus.instance.share(
-      ShareParams(
-        text: '${'share.app_message'.tr()}\n$storeLink',
-        subject: 'share.app_subject'.tr(),
-        sharePositionOrigin: _anchorFor(box),
-      ),
-    );
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text: '${'share.app_message'.tr()}\n$storeLink',
+          subject: 'share.app_subject'.tr(),
+          sharePositionOrigin: _anchorFor(box),
+        ),
+      );
+    } finally {
+      _isSharing = false;
+    }
   }
 
   /// Shares a link to a single product.
@@ -33,15 +44,22 @@ class AppShareService {
     required String productId,
     required String productName,
   }) async {
+    if (_isSharing) return;
+    _isSharing = true;
+
     final box = context.findRenderObject() as RenderBox?;
 
-    await SharePlus.instance.share(
-      ShareParams(
-        text: '$productName\n${AppShareLinks.product(productId)}',
-        subject: productName,
-        sharePositionOrigin: _anchorFor(box),
-      ),
-    );
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text: '$productName\n${AppShareLinks.product(productId)}',
+          subject: productName,
+          sharePositionOrigin: _anchorFor(box),
+        ),
+      );
+    } finally {
+      _isSharing = false;
+    }
   }
 
   static Rect? _anchorFor(RenderBox? box) =>

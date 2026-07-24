@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/constant/app_env.dart';
@@ -9,7 +7,6 @@ import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/features/user/ai_chat/presentation/services/fitness_ai_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 
 // ── Message model ────────────────────────────────────────────────────────────
 
@@ -51,9 +48,9 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
   @override
   void initState() {
     super.initState();
-    // Welcome message
+    // Welcome message — localized to the app language
     _messages.add(_ChatMessage(
-      content: '🤖 أهلاً بك! تطبيق يوم الرشاقة يرحب بك 🎉\nنتمنى لك تجربة مميزة ورحلة ناجحة نحو أهدافك الصحية.',
+      content: 'ai_chat.welcome'.tr(),
       isMe: false,
       time: DateTime.now(),
     ));
@@ -220,13 +217,13 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'مدربك الذكي',
+                'ai_chat.coach_name'.tr(),
                 style: TextStyleManager.style14Bold.copyWith(
                   color: AppColors.black,
                 ),
               ),
               Text(
-                'متصل الآن',
+                'ai_chat.online_now'.tr(),
                 style: TextStyleManager.style10Medium.copyWith(
                   color: AppColors.primary,
                 ),
@@ -345,66 +342,61 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
 
   Widget _buildInputArea() {
     return Container(
-      padding: EdgeInsets.only(
-        left: 16.w,
-        right: 16.w,
-        top: 10.h,
-        bottom: MediaQuery.of(context).padding.bottom + 10.h,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border(top: BorderSide(color: AppColors.divider, width: 0.5)),
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+      color: AppColors.backgroundTint,
       child: Row(
         children: [
-          // Send button
-          GestureDetector(
-            onTap: _isSending ? null : _sendMessage,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 48.w,
-              height: 48.w,
-              decoration: BoxDecoration(
-                color: _isSending
-                    ? AppColors.divider
-                    : AppColors.primary,
-                borderRadius: BorderRadius.circular(24.r),
-              ),
-              child: Icon(
-                Icons.send_rounded,
-                color: AppColors.white,
-                size: 20.sp,
-              ),
-            ),
-          ),
-          SizedBox(width: 10.w),
-          // Text field
+          // Text Input
           Expanded(
             child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
               decoration: BoxDecoration(
-                color: AppColors.scaffoldBackground,
+                color: AppColors.white, // White background for the text field
                 borderRadius: BorderRadius.circular(24.r),
-                border: Border.all(color: AppColors.divider, width: 0.5),
               ),
-              child: TextField(
-                controller: _controller,
-                textDirection: ui.TextDirection.rtl,
-                maxLines: 4,
-                minLines: 1,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
-                style: TextStyleManager.style11Medium.copyWith(
-                  color: AppColors.black,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'اكتب هنا سؤالك ...',
-                  hintStyle: TextStyleManager.style11Medium.copyWith(
-                    color: AppColors.textSecondary,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      maxLines: 4,
+                      minLines: 1,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _sendMessage(),
+                      decoration: InputDecoration(
+                        hintText: 'ai_chat.input_hint'.tr(),
+                        hintStyle: TextStyleManager.style10Medium.copyWith(
+                          color: AppColors.textSecondary.withValues(alpha: 0.5),
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
+                    ),
                   ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-                  border: InputBorder.none,
-                ),
+                  SizedBox(width: 12.w),
+                  // Send Button
+                  GestureDetector(
+                    onTap: _isSending ? null : _sendMessage,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 15.w,
+                        vertical: 7.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _isSending
+                            ? AppColors.divider
+                            : AppColors.primary,
+                        borderRadius: BorderRadius.circular(24.r),
+                      ),
+                      child: Text(
+                        'conversations.send'.tr(),
+                        style: TextStyleManager.style11Medium.copyWith(
+                          color: AppColors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
