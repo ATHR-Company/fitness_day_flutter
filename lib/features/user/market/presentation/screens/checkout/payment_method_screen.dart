@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,8 +15,16 @@ class PaymentMethodScreen extends StatelessWidget {
   const PaymentMethodScreen({super.key});
 
   static const List<_PaymentOption> _options = [
-    _PaymentOption(CheckoutPaymentMethod.cash, 'market.payment_cash', Icons.payments_outlined),
-    _PaymentOption(CheckoutPaymentMethod.paypal, 'market.payment_paypal', Icons.account_balance_wallet_outlined),
+    _PaymentOption(
+      CheckoutPaymentMethod.cash,
+      'market.payment_cash',
+      Icons.payments_outlined,
+    ),
+    _PaymentOption(
+      CheckoutPaymentMethod.paypal,
+      'market.payment_paypal',
+      Icons.account_balance_wallet_outlined,
+    ),
   ];
 
   Future<void> _confirm(BuildContext context) async {
@@ -44,8 +54,9 @@ class PaymentMethodScreen extends StatelessWidget {
     } else {
       final msg = cubit.state.errorMessage;
       if (msg != null && msg.isNotEmpty) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(msg)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
       }
     }
   }
@@ -115,11 +126,17 @@ class PaymentMethodScreen extends StatelessWidget {
             alignment: AlignmentDirectional.centerStart,
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
-              child: Icon(
-                Icons.arrow_back_ios_rounded,
-                size: 20.sp,
-                color: AppColors.black,
-              ),
+              child: Directionality.of(context) == ui.TextDirection.rtl
+                  ? Icon(
+                      Icons.arrow_back_ios_rounded,
+                      size: 20.sp,
+                      color: AppColors.black,
+                    )
+                  : Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 20.sp,
+                      color: AppColors.black,
+                    ),
             ),
           ),
         ],
@@ -128,7 +145,10 @@ class PaymentMethodScreen extends StatelessWidget {
   }
 
   Widget _buildOptionCard(
-      BuildContext context, _PaymentOption opt, bool isSelected) {
+    BuildContext context,
+    _PaymentOption opt,
+    bool isSelected,
+  ) {
     return GestureDetector(
       onTap: () => context.read<CheckoutCubit>().setPaymentMethod(opt.method),
       child: Container(
@@ -220,8 +240,9 @@ class PaymentMethodScreen extends StatelessWidget {
                       onPressed: submitting ? null : () => _confirm(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        disabledBackgroundColor:
-                            AppColors.primary.withValues(alpha: 0.5),
+                        disabledBackgroundColor: AppColors.primary.withValues(
+                          alpha: 0.5,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25.r),
                         ),

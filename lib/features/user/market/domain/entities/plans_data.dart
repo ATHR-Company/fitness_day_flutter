@@ -41,6 +41,12 @@ class PlanDetails {
   final List<String> descriptions;
   final bool isFavorite;
 
+  /// Set when the logged-in user is currently subscribed to this plan —
+  /// carries the subscription's end date.
+  final CurrentSubscription? subscription;
+
+  bool get isSubscribed => subscription != null;
+
   const PlanDetails({
     required this.id,
     required this.name,
@@ -51,6 +57,7 @@ class PlanDetails {
     this.badge,
     required this.descriptions,
     this.isFavorite = false,
+    this.subscription,
   });
 }
 

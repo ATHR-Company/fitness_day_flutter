@@ -13,7 +13,10 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/features/user/auth/domain/entities/profile_validation_key.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
+import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
+import 'package:fitness_day/features/user/auth/presentation/widgets/profile_validation_errors.dart';
 
 class DietSystemPage extends StatefulWidget {
   const DietSystemPage({super.key});
@@ -21,7 +24,11 @@ class DietSystemPage extends StatefulWidget {
   State<DietSystemPage> createState() => _DietSystemPageState();
 }
 
-class _DietSystemPageState extends State<DietSystemPage> {
+class _DietSystemPageState extends State<DietSystemPage>
+    with ProfileValidationErrors<DietSystemPage> {
+  @override
+  ProfileSetupStep get validationStep => ProfileSetupStep.diet;
+
   int _selectedDietType = 0; // 0 for Varied, 1 for Vegetarian
   final _dailyMealsController = TextEditingController();
   final _preferredFoodsController = TextEditingController();
@@ -31,6 +38,15 @@ class _DietSystemPageState extends State<DietSystemPage> {
   @override
   void initState() {
     super.initState();
+    for (final c in [
+      _dailyMealsController,
+      _preferredFoodsController,
+      _dislikedFoodsController,
+      _foodAllergiesController,
+    ]) {
+      c.addListener(clearServerError);
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = context.read<UserSetupCubit>();
       if (cubit.dietType != null) {
@@ -80,7 +96,13 @@ class _DietSystemPageState extends State<DietSystemPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    // The request is fired from the fitness screen, so a rejected diet field
+    // arrives while this screen sits underneath it in the stack.
+    return BlocListener<UserSetupCubit, UserSetupState>(
+      listener: (context, state) {
+        if (state is UserSetupFailure) handleValidationFailure(state);
+      },
+      child: Scaffold(
       body: LoaderHud(
         isCall: false,
         child: Container(
@@ -245,6 +267,19 @@ class _DietSystemPageState extends State<DietSystemPage> {
                             ),
                           ],
                         ),
+                        // Server-side error for the diet type choice — there
+                        // is no input to hang it on, so it goes under the cards.
+                        if (errorFor(ProfileValidationKey.dietType) != null)
+                          Padding(
+                            key: fieldKey(ProfileValidationKey.dietType),
+                            padding: EdgeInsets.only(top: 12.h),
+                            child: Text(
+                              errorFor(ProfileValidationKey.dietType)!,
+                              textAlign: TextAlign.center,
+                              style: TextStyleManager.style10Medium
+                                  .copyWith(color: AppColors.error),
+                            ),
+                          ),
                         SizedBox(height: 36.h),
                         // Section 2 Title
                         Padding(
@@ -261,6 +296,8 @@ class _DietSystemPageState extends State<DietSystemPage> {
                         SizedBox(height: 24.h),
                         // 1. Daily Meals
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.dailyMeals),
+                          errorText: errorFor(ProfileValidationKey.dailyMeals),
                           hint: 'login.daily_meals_hint'.tr(),
                           controller: _dailyMealsController,
                           keyboardType: TextInputType.number,
@@ -274,6 +311,8 @@ class _DietSystemPageState extends State<DietSystemPage> {
                         SizedBox(height: 20.h),
                         // 2. Preferred Foods
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.preferredFoods),
+                          errorText: errorFor(ProfileValidationKey.preferredFoods),
                           hint: 'login.preferred_foods_hint'.tr(),
                           controller: _preferredFoodsController,
                           validator: (value) {
@@ -286,6 +325,8 @@ class _DietSystemPageState extends State<DietSystemPage> {
                         SizedBox(height: 20.h),
                         // 3. Disliked Foods
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.dislikedFoods),
+                          errorText: errorFor(ProfileValidationKey.dislikedFoods),
                           hint: 'login.disliked_foods_hint'.tr(),
                           controller: _dislikedFoodsController,
                           validator: (value) {
@@ -298,6 +339,8 @@ class _DietSystemPageState extends State<DietSystemPage> {
                         SizedBox(height: 20.h),
                         // 4. Food Allergies
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.foodAllergies),
+                          errorText: errorFor(ProfileValidationKey.foodAllergies),
                           hint: 'login.food_allergies_hint'.tr(),
                           controller: _foodAllergiesController,
                           validator: (value) {
@@ -324,6 +367,7 @@ class _DietSystemPageState extends State<DietSystemPage> {
           ),
           ),
         ),
+      ),
       ),
     );
   }

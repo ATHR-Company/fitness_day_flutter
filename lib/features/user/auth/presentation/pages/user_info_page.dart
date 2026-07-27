@@ -13,8 +13,10 @@ import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
 import 'package:fitness_day/core/widgets/selection_dialog.dart';
+import 'package:fitness_day/features/user/auth/domain/entities/profile_validation_key.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
+import 'package:fitness_day/features/user/auth/presentation/widgets/profile_validation_errors.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_lookups_model.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -24,7 +26,11 @@ class UserInfoPage extends StatefulWidget {
   State<UserInfoPage> createState() => _UserInfoPageState();
 }
 
-class _UserInfoPageState extends State<UserInfoPage> {
+class _UserInfoPageState extends State<UserInfoPage>
+    with ProfileValidationErrors<UserInfoPage> {
+  @override
+  ProfileSetupStep get validationStep => ProfileSetupStep.personalInfo;
+
   final _fullNameController = TextEditingController();
   final _genderController = TextEditingController();
   final _birthDateController = TextEditingController();
@@ -38,6 +44,20 @@ class _UserInfoPageState extends State<UserInfoPage> {
   @override
   void initState() {
     super.initState();
+    // Any edit clears the server-side message pinned under a field.
+    for (final c in [
+      _fullNameController,
+      _genderController,
+      _birthDateController,
+      _heightController,
+      _weightController,
+      _activityController,
+      _goalController,
+      _branchController,
+    ]) {
+      c.addListener(clearServerError);
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = context.read<UserSetupCubit>();
       if (cubit.goals.isEmpty || cubit.activityLevels.isEmpty || cubit.branches.isEmpty) {
@@ -257,7 +277,12 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UserSetupCubit, UserSetupState>(
+    return BlocConsumer<UserSetupCubit, UserSetupState>(
+      listener: (context, state) {
+        // The submit happens on the last onboarding screen, but a rejected
+        // field of *this* screen has to light up here.
+        if (state is UserSetupFailure) handleValidationFailure(state);
+      },
       builder: (context, state) {
         final isLoading = state is UserSetupLoading;
         return Scaffold(
@@ -304,6 +329,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                         // 1. Full Name
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.fullName),
+                          errorText: errorFor(ProfileValidationKey.fullName),
                           hint: 'login.full_name_hint'.tr(),
                           iconPath: SvgIcons.person,
                           controller: _fullNameController,
@@ -318,6 +345,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                         // 2. Gender
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.gender),
+                          errorText: errorFor(ProfileValidationKey.gender),
                           hint: 'login.gender_hint'.tr(),
                           iconPath: SvgIcons.gender,
                           controller: _genderController,
@@ -338,6 +367,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                         // 3. Birth Date
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.birthDate),
+                          errorText: errorFor(ProfileValidationKey.birthDate),
                           hint: 'login.birth_date_hint'.tr(),
                           iconPath: SvgIcons.birthDate,
                           controller: _birthDateController,
@@ -353,6 +384,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                         // 4. Height
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.height),
+                          errorText: errorFor(ProfileValidationKey.height),
                           hint: 'login.height_hint'.tr(),
                           iconPath: SvgIcons.height,
                           controller: _heightController,
@@ -373,6 +406,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                         // 5. Weight
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.weight),
+                          errorText: errorFor(ProfileValidationKey.weight),
                           hint: 'login.weight_hint'.tr(),
                           iconPath: SvgIcons.weight,
                           controller: _weightController,
@@ -393,6 +428,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                         // 6. Activity level
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.activityLevel),
+                          errorText: errorFor(ProfileValidationKey.activityLevel),
                           hint: 'login.activity_hint'.tr(),
                           iconPath: SvgIcons.activity,
                           controller: _activityController,
@@ -413,6 +450,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                         // 7. Goal
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.goal),
+                          errorText: errorFor(ProfileValidationKey.goal),
                           hint: 'login.goal_hint'.tr(),
                           iconPath: SvgIcons.goal,
                           controller: _goalController,
@@ -433,6 +472,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                         // 8. Nearest branch
                         AppInfoField(
+                          key: fieldKey(ProfileValidationKey.branch),
+                          errorText: errorFor(ProfileValidationKey.branch),
                           hint: 'login.branch_hint'.tr(),
                           iconPath: SvgIcons.location,
                           controller: _branchController,

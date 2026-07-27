@@ -6,6 +6,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/core/network/fcm_helper.dart';
 import 'package:fitness_day/core/notification_helper/local_notification.dart';
+import 'package:fitness_day/core/cache/secure_cache.dart';
+import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/core/routes/app_router.dart';
 import 'package:fitness_day/core/constant/app_locale.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,6 +35,9 @@ void main() async {
   AppLocale.set(initialLang);
   await di.init();
 
+  // Connect Socket.IO on startup if user token exists
+  _initSocketIfLoggedIn();
+
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('ar'), Locale('en')],
@@ -43,4 +48,15 @@ void main() async {
       child: const FitnessDay(),
     ),
   );
+}
+
+/// Connects Socket.IO at app launch if an access token is stored.
+Future<void> _initSocketIfLoggedIn() async {
+  try {
+    final secureCache = di.getIt<SecureCache>();
+    final token = await secureCache.getToken();
+    if (token != null && token.isNotEmpty) {
+      di.getIt<SocketService>().connect(token);
+    }
+  } catch (_) {}
 }

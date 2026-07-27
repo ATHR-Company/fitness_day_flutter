@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "308069649363-17tit0odiiflg46f1n1fk7trj5jmdmgp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fitness_day",
+            "certificate_hash": "bb9ce21f8b748943b2373364f2c0f10c02e9884c"
+          }
+        },
+        {
           "client_id": "308069649363-a5vl1o80atve9adtbamk1r06g1qs18bf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -50,5 +58,5 @@
       }
     }
   ],
-  "0": "1"
+  "configuration_version": "1"
 }

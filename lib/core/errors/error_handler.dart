@@ -20,6 +20,12 @@ class ErrorHandler {
         final response = error.response;
         if (response != null && response.data is Map) {
           final message = response.data['message'] ?? response.data['error'] ?? 'حدث خطأ ما';
+          // Field-level validation errors carry the offending field in `key`
+          // so the UI can show the message under that specific input.
+          final key = response.data['key'];
+          if (key is String && key.isNotEmpty) {
+            return ValidationFailure(message.toString(), key);
+          }
           return ServerFailure(message.toString());
         }
         return ServerFailure('حدث خطأ في الخادم (رمز الحالة: ${response?.statusCode})');

@@ -108,6 +108,11 @@ class _AddressesView extends StatelessWidget {
       ),
       bottomNavigationBar: BlocBuilder<AddressesCubit, AddressesState>(
         builder: (context, state) {
+          // Nothing to deliver to yet — there is no order to summarise, so the
+          // bottom bar only offers "add an address".
+          if (state is AddressesSuccess && state.addresses.isEmpty) {
+            return _buildAddAddressBottomBar(context);
+          }
           final String? selectedId =
               state is AddressesSuccess ? state.selectedAddressId : null;
           final bool isMutating =
@@ -354,11 +359,8 @@ class _AddressesView extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomButton(
-    BuildContext context,
-    String? selectedAddressId,
-    bool isMutating,
-  ) {
+  /// Rounded white sheet the bottom bar always sits in.
+  Widget _buildBottomSheetShell(List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
@@ -389,49 +391,89 @@ class _AddressesView extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16.h),
-              const OrderSummaryPanel(),
-              SizedBox(height: 16.h),
-              SizedBox(
-                width: double.infinity,
-                height: 50.h,
-                child: ElevatedButton(
-                  onPressed: selectedAddressId == null || isMutating
-                      ? null
-                      : () {
-                          final checkoutCubit = context.read<CheckoutCubit>();
-                          checkoutCubit.setAddress(selectedAddressId);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BlocProvider.value(
-                                value: checkoutCubit,
-                                child: const PaymentMethodScreen(),
-                              ),
-                            ),
-                          );
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    disabledBackgroundColor:
-                        AppColors.textSecondary.withValues(alpha: 0.3),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.r),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    'market.confirm_button'.tr(),
-                    style: TextStyleManager.style15Medium.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+              ...children,
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// Bottom bar for the empty state: a single "add address" call to action
+  /// instead of the order summary and the confirm button.
+  Widget _buildAddAddressBottomBar(BuildContext context) {
+    return _buildBottomSheetShell([
+      SizedBox(
+        width: double.infinity,
+        height: 50.h,
+        child: ElevatedButton.icon(
+          onPressed: () => _openEdit(context),
+          icon: Icon(Icons.add_location_alt_outlined,
+              size: 20.sp, color: AppColors.white),
+          label: Text(
+            'market.add_new_address'.tr(),
+            style: TextStyleManager.style15Medium.copyWith(
+              color: AppColors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25.r),
+            ),
+            elevation: 0,
+          ),
+        ),
+      ),
+    ]);
+  }
+
+  Widget _buildBottomButton(
+    BuildContext context,
+    String? selectedAddressId,
+    bool isMutating,
+  ) {
+    return _buildBottomSheetShell([
+      const OrderSummaryPanel(),
+      SizedBox(height: 16.h),
+      SizedBox(
+        width: double.infinity,
+        height: 50.h,
+        child: ElevatedButton(
+          onPressed: selectedAddressId == null || isMutating
+              ? null
+              : () {
+                  final checkoutCubit = context.read<CheckoutCubit>();
+                  checkoutCubit.setAddress(selectedAddressId);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: checkoutCubit,
+                        child: const PaymentMethodScreen(),
+                      ),
+                    ),
+                  );
+                },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            disabledBackgroundColor:
+                AppColors.textSecondary.withValues(alpha: 0.3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25.r),
+            ),
+            elevation: 0,
+          ),
+          child: Text(
+            'market.confirm_button'.tr(),
+            style: TextStyleManager.style15Medium.copyWith(
+              color: AppColors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    ]);
   }
 }

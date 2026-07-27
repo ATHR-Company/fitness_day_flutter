@@ -57,6 +57,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   }
 
   void _onVerifyPressed() {
+    // Dismiss keyboard first so it doesn't push the layout
+    FocusScope.of(context).unfocus();
     if (_formKey.currentState?.validate() ?? false) {
       if (widget.isForgotPassword) {
         context.read<UserAuthCubit>().verifyForgotPasswordOtp(
@@ -215,6 +217,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       builder: (context, state) {
         final isLoading = state is UserAuthLoading;
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           body: LoaderHud(
             isCall: isLoading,
             child: Container(
@@ -256,11 +259,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                 SizedBox(height: 48.h),
                                 // OTP Pinput Fields (6 digits)
                                 Directionality(
-                                  textDirection: ui.TextDirection.ltr, // Keep pin numbers LTR ordered
+                                  textDirection: ui.TextDirection.ltr,
                                   child: Pinput(
                                     length: 6,
                                     controller: _pinController,
                                     keyboardType: TextInputType.number,
+                                    scrollPadding: EdgeInsets.zero,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly,
                                     ],
@@ -277,14 +281,14 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                     ),
                                     validator: (value) {
                                       if (value == null || value.length < 6) {
-                                        return ''; // simple invisible invalid state or standard text
+                                        return '';
                                       }
                                       return null;
                                     },
                                   ),
                                 ),
                                 SizedBox(height: 48.h),
-                                // Send Button
+                                // Send Button — back in its original place
                                 CustomButton(
                                   text: 'login.send'.tr(),
                                   onPressed: _onVerifyPressed,

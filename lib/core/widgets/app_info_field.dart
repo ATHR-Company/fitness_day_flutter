@@ -15,6 +15,10 @@ class AppInfoField extends StatelessWidget {
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
 
+  /// Error shown under the field regardless of [validator] — used for
+  /// server-side validation messages (`key` in the API error body).
+  final String? errorText;
+
   const AppInfoField({
     super.key,
     required this.hint,
@@ -25,6 +29,7 @@ class AppInfoField extends StatelessWidget {
     this.validator,
     this.keyboardType,
     this.inputFormatters,
+    this.errorText,
   });
 
   @override
@@ -45,6 +50,11 @@ class AppInfoField extends StatelessWidget {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: hint,
+        errorText: errorText,
+        errorStyle: TextStyleManager.style10Medium.copyWith(
+          color: AppColors.error,
+        ),
+        errorMaxLines: 3,
         hintStyle: TextStyleManager.heading3.copyWith(
           color: AppColors.textSecondary,
         ),

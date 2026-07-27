@@ -196,6 +196,23 @@ import 'package:fitness_day/features/user/user_home/presentation/manager/user_ho
 import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/articles_list_cubit.dart';
 import 'package:fitness_day/core/services/health_service.dart';
+import 'package:fitness_day/core/services/socket_service.dart';
+
+// Chat (shared/conversations)
+import 'package:fitness_day/features/shared/conversations/data/datasources/chat_remote_datasource.dart';
+import 'package:fitness_day/features/shared/conversations/data/repositories/chat_repository_impl.dart';
+import 'package:fitness_day/features/shared/conversations/domain/repositories/chat_repository.dart';
+import 'package:fitness_day/features/shared/conversations/domain/usecases/open_chat_usecase.dart';
+import 'package:fitness_day/features/shared/conversations/domain/usecases/get_messages_usecase.dart';
+import 'package:fitness_day/features/shared/conversations/domain/usecases/get_user_chat_usecase.dart';
+import 'package:fitness_day/features/shared/conversations/domain/usecases/send_media_usecase.dart';
+import 'package:fitness_day/features/shared/conversations/domain/usecases/get_specialist_chats_usecase.dart';
+import 'package:fitness_day/features/shared/conversations/domain/usecases/open_specialist_chat_usecase.dart';
+import 'package:fitness_day/features/shared/conversations/domain/usecases/get_specialist_messages_usecase.dart';
+import 'package:fitness_day/features/shared/conversations/domain/usecases/send_specialist_media_usecase.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_cubit.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/manager/conversations_cubit.dart';
+import 'package:fitness_day/features/user/support/presentation/manager/contact_us_cubit.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -926,6 +943,82 @@ Future<void> init() async {
       getIt<UserSignoutUseCase>(),
       getIt<DeleteAccountUseCase>(),
       getIt<AppCache>(),
+    ),
+  );
+
+  // ═════════════════════════════════════════════════
+  //               CHAT (Socket.IO + REST)
+  // ═════════════════════════════════════════════════
+
+  // Socket service is a singleton — one connection for the entire app.
+  // Connecting/disconnecting is managed by ChatCubit.
+  getIt.registerLazySingleton<SocketService>(() => SocketService());
+
+  getIt.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+
+  getIt.registerLazySingleton<ChatRepository>(
+    () => ChatRepositoryImpl(getIt<ChatRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<OpenChatUseCase>(
+    () => OpenChatUseCase(getIt<ChatRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetMessagesUseCase>(
+    () => GetMessagesUseCase(getIt<ChatRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetUserChatUseCase>(
+    () => GetUserChatUseCase(getIt<ChatRepository>()),
+  );
+
+  getIt.registerLazySingleton<SendMediaUseCase>(
+    () => SendMediaUseCase(getIt<ChatRepository>()),
+  );
+
+  // ChatCubit is a factory: each chat screen gets its own instance,
+  // but they all share the singleton SocketService underneath.
+  getIt.registerFactory<ChatCubit>(
+    () => ChatCubit(
+      openChatUseCase: getIt<OpenChatUseCase>(),
+      getMessagesUseCase: getIt<GetMessagesUseCase>(),
+      sendMediaUseCase: getIt<SendMediaUseCase>(),
+      openSpecialistChatUseCase: getIt<OpenSpecialistChatUseCase>(),
+      getSpecialistMessagesUseCase: getIt<GetSpecialistMessagesUseCase>(),
+      sendSpecialistMediaUseCase: getIt<SendSpecialistMediaUseCase>(),
+      socketService: getIt<SocketService>(),
+      secureCache: getIt<SecureCache>(),
+    ),
+  );
+
+  getIt.registerFactory<ContactUsCubit>(
+    () => ContactUsCubit(
+      getUserChatUseCase: getIt<GetUserChatUseCase>(),
+    ),
+  );
+
+  // Specialist Chat — Use Cases & Cubit
+  getIt.registerLazySingleton<GetSpecialistChatsUseCase>(
+    () => GetSpecialistChatsUseCase(getIt<ChatRepository>()),
+  );
+
+  getIt.registerLazySingleton<OpenSpecialistChatUseCase>(
+    () => OpenSpecialistChatUseCase(getIt<ChatRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetSpecialistMessagesUseCase>(
+    () => GetSpecialistMessagesUseCase(getIt<ChatRepository>()),
+  );
+
+  getIt.registerLazySingleton<SendSpecialistMediaUseCase>(
+    () => SendSpecialistMediaUseCase(getIt<ChatRepository>()),
+  );
+
+  getIt.registerFactory<ConversationsCubit>(
+    () => ConversationsCubit(
+      getSpecialistChatsUseCase: getIt<GetSpecialistChatsUseCase>(),
     ),
   );
 }

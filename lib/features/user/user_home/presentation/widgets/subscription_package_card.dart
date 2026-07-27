@@ -32,6 +32,12 @@ class SubscriptionPackageCard extends StatefulWidget {
   final bool isInCart;
   final bool isAdding;
 
+  /// What this card actually renders — decides the `itemType` sent to
+  /// `POST /favorites`. Defaults to [CartItemType.plan] because the card was
+  /// written for subscription packages; product screens must pass
+  /// [CartItemType.product] (ProductCartCard already forwards its own type).
+  final CartItemType favoriteItemType;
+
   const SubscriptionPackageCard({
     super.key,
     required this.package,
@@ -43,6 +49,7 @@ class SubscriptionPackageCard extends StatefulWidget {
     this.onAddToCart,
     this.isInCart = false,
     this.isAdding = false,
+    this.favoriteItemType = CartItemType.plan,
   });
 
   @override
@@ -67,9 +74,10 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
       _isFavorite = !_isFavorite;
       _isTogglingFavorite = true;
     });
-    // A package is a PLAN, not a product — the server keys favourites by both.
+    // The server keys favourites by type: PLAN for a subscription package,
+    // PRODUCT for a store product — send whichever this card is showing.
     final result = await getIt<ToggleFavoriteUseCase>()(
-      itemType: CartItemType.plan,
+      itemType: widget.favoriteItemType,
       itemIdentity: widget.package.id,
     );
     if (!mounted) return;

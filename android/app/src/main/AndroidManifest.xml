@@ -94,5 +94,13 @@
             <action android:name="android.intent.action.SEND" />
             <data android:mimeType="text/plain" />
         </intent>
+        <!-- open_filex: required on Android 11+ so the app can see which
+             installed apps can VIEW a downloaded chat attachment (PDF, doc…).
+             Without this the intent resolves to nothing and we fall back to
+             the in-app WebView. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" />
+        </intent>
     </queries>
 </manifest>

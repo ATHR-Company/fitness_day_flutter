@@ -125,6 +125,10 @@ class _PlanDetailsDialogContentState extends State<_PlanDetailsDialogContent> {
             ? details.photos
             : [details.coverPhoto];
 
+        // `GET /plans/:id` returns a `subscription` object when the user is
+        // subscribed to this plan, so the dialog knows on its own — the
+        // caller no longer has to say so (only the store's "current
+        // subscription" card used to pass it).
         return _StaticDialogContent(
           name: details.name,
           imageUrl: details.coverPhoto,
@@ -135,8 +139,8 @@ class _PlanDetailsDialogContentState extends State<_PlanDetailsDialogContent> {
               context.read<PlanDetailsCubit>().selectPhoto(i),
           price: details.price,
           descriptions: details.descriptions,
-          isSubscribed: widget.isSubscribed,
-          expiryDate: widget.expiryDate,
+          isSubscribed: details.isSubscribed || widget.isSubscribed,
+          expiryDate: details.subscription?.endDate ?? widget.expiryDate,
           cartItemId: details.id,
           cartItemType: CartItemType.plan,
         );
@@ -176,6 +180,15 @@ class _StaticDialogContent extends StatelessWidget {
     this.cartItemId,
     this.cartItemType = CartItemType.plan,
   });
+
+  /// The API sends the end date as an ISO timestamp
+  /// (`2026-08-25T18:45:08.902Z`); show it as a plain local date.
+  String _formatExpiry(String? raw) {
+    if (raw == null || raw.isEmpty) return '';
+    final parsed = DateTime.tryParse(raw);
+    if (parsed == null) return raw;
+    return DateFormat('dd/MM/yyyy').format(parsed.toLocal());
+  }
 
   Future<void> _addToCart(BuildContext context, CartCubit cart) async {
     final id = cartItemId;
@@ -429,7 +442,7 @@ class _StaticDialogContent extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      expiryDate ?? '',
+                      _formatExpiry(expiryDate),
                       style: TextStyleManager.style11Medium.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,

@@ -236,9 +236,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                         );
                                       }
                                     }
-                                  } catch (e) {
+                                  } on GoogleSignInFailure catch (e) {
                                     if (mounted) {
-                                      showAppSnackBar(context, text: 'خطأ أثناء تسجيل الدخول بجوجل: $e', isError: true);
+                                      showAppSnackBar(context,
+                                          text: e.message, isError: true);
                                     }
                                   }
                                 },
@@ -271,7 +272,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ),
                                 ),
                               ),
-                              const TextSpan(text: ' !'),
+                              // const TextSpan(text: ' !'),
                             ],
                           ),
                         ),

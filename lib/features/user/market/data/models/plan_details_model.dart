@@ -10,6 +10,7 @@ class PlanDetailsModel {
   final String? badge;
   final List<String> descriptions;
   final bool isFavorite;
+  final CurrentSubscription? subscription;
 
   PlanDetailsModel({
     required this.id,
@@ -21,6 +22,7 @@ class PlanDetailsModel {
     this.badge,
     required this.descriptions,
     this.isFavorite = false,
+    this.subscription,
   });
 
   factory PlanDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,16 @@ class PlanDetailsModel {
 
     final rawPhotos = data['photos'] as List? ?? [];
     final rawDescriptions = data['descriptions'] as List? ?? [];
+
+    // `subscription` is only present when the user is subscribed to this plan.
+    final rawSub = data['subscription'];
+    final CurrentSubscription? subscription = rawSub is Map
+        ? CurrentSubscription(
+            id: rawSub['id']?.toString() ?? '',
+            name: rawSub['name']?.toString() ?? '',
+            endDate: rawSub['endDate']?.toString() ?? '',
+          )
+        : null;
 
     return PlanDetailsModel(
       id: data['id'] ?? '',
@@ -39,6 +51,7 @@ class PlanDetailsModel {
       badge: data['badge'] as String?,
       descriptions: rawDescriptions.map((e) => e.toString()).toList(),
       isFavorite: data['isFavorite'] ?? false,
+      subscription: subscription,
     );
   }
 
@@ -53,6 +66,7 @@ class PlanDetailsModel {
       badge: badge,
       descriptions: descriptions,
       isFavorite: isFavorite,
+      subscription: subscription,
     );
   }
 }

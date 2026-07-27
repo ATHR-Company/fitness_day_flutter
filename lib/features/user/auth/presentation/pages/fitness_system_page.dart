@@ -12,8 +12,10 @@ import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/features/user/auth/domain/entities/profile_validation_key.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
+import 'package:fitness_day/features/user/auth/presentation/widgets/profile_validation_errors.dart';
 
 class FitnessSystemPage extends StatefulWidget {
   const FitnessSystemPage({super.key});
@@ -21,7 +23,11 @@ class FitnessSystemPage extends StatefulWidget {
   State<FitnessSystemPage> createState() => _FitnessSystemPageState();
 }
 
-class _FitnessSystemPageState extends State<FitnessSystemPage> {
+class _FitnessSystemPageState extends State<FitnessSystemPage>
+    with ProfileValidationErrors<FitnessSystemPage> {
+  @override
+  ProfileSetupStep get validationStep => ProfileSetupStep.fitness;
+
   final _weeklyExercisesController = TextEditingController();
   final _dailyStepsController = TextEditingController();
   final _preferredExercisesController = TextEditingController();
@@ -30,6 +36,15 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
   @override
   void initState() {
     super.initState();
+    for (final c in [
+      _weeklyExercisesController,
+      _dailyStepsController,
+      _preferredExercisesController,
+      _dailyExerciseHoursController,
+    ]) {
+      c.addListener(clearServerError);
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cubit = context.read<UserSetupCubit>();
       if (cubit.weeklyWorkouts != null) {
@@ -81,6 +96,21 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
           showAppSnackBar(context, text: state.message, isSuccess: true);
           context.push(UserAppRoutes.healthProblems);
         } else if (state is UserSetupFailure) {
+          // Field-level error on this screen → pin it under the input.
+          if (handleValidationFailure(state)) return;
+
+          // Field-level error from an earlier screen → walk back to it; that
+          // screen picks the same failure up and shows it under its own field.
+          final step = state.fieldKey?.step;
+          if (step != null && step != ProfileSetupStep.fitness) {
+            final int steps = step == ProfileSetupStep.diet ? 1 : 2;
+            for (int i = 0; i < steps && context.canPop(); i++) {
+              context.pop();
+            }
+            return;
+          }
+
+          // Anything else (network, server, unknown key) stays a snack bar.
           showAppSnackBar(context, text: state.message, isError: true);
         }
       },
@@ -128,6 +158,9 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                             SizedBox(height: 48.h),
                             // 1. Weekly Exercises
                             AppInfoField(
+                              key: fieldKey(ProfileValidationKey.weeklyWorkouts),
+                              errorText:
+                                  errorFor(ProfileValidationKey.weeklyWorkouts),
                               hint: 'login.weekly_exercises_hint'.tr(),
                               controller: _weeklyExercisesController,
                               keyboardType: TextInputType.number,
@@ -141,6 +174,9 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                             SizedBox(height: 20.h),
                             // 2. Daily Steps
                             AppInfoField(
+                              key: fieldKey(ProfileValidationKey.dailySteps),
+                              errorText:
+                                  errorFor(ProfileValidationKey.dailySteps),
                               hint: 'login.daily_steps_hint'.tr(),
                               controller: _dailyStepsController,
                               keyboardType: TextInputType.number,
@@ -154,6 +190,10 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                             SizedBox(height: 20.h),
                             // 3. Preferred Exercises
                             AppInfoField(
+                              key: fieldKey(
+                                  ProfileValidationKey.preferredExercises),
+                              errorText: errorFor(
+                                  ProfileValidationKey.preferredExercises),
                               hint: 'login.preferred_exercises_hint'.tr(),
                               controller: _preferredExercisesController,
                               validator: (value) {
@@ -166,6 +206,10 @@ class _FitnessSystemPageState extends State<FitnessSystemPage> {
                             SizedBox(height: 20.h),
                             // 4. Daily Exercise Hours
                             AppInfoField(
+                              key: fieldKey(
+                                  ProfileValidationKey.dailyWorkoutHours),
+                              errorText: errorFor(
+                                  ProfileValidationKey.dailyWorkoutHours),
                               hint: 'login.daily_exercise_hours_hint'.tr(),
                               controller: _dailyExerciseHoursController,
                               keyboardType: TextInputType.number,

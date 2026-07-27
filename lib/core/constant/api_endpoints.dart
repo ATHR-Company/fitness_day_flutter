@@ -1,6 +1,22 @@
 class ApiEndpoints {
   static const String baseUrl = 'https://fitnessday.tech/api';
-  
+
+  /// Socket.IO connects to the root — no /api prefix.
+  static const String socketUrl = 'https://fitnessday.tech';
+
+  // ── User Chat ─────────────────────────────────────────────────────────────
+  static const String openChat = '/chat/open';
+  static const String getChats = '/chat';
+  static String getChatMessages(String conversationId) => '/chat/$conversationId/messages';
+  /// `POST /chat/:conversationId/media` — multipart/form-data, field: `chat-media`
+  static String sendChatMedia(String conversationId) => '/chat/$conversationId/media';
+
+  // ── Specialist Chat ───────────────────────────────────────────────────────
+  static const String specialistChats = '/specialist/chat';
+  static String openSpecialistChat(String userId) => '/specialist/chat/$userId/open';
+  static String getSpecialistChatMessages(String conversationId) => '/specialist/chat/$conversationId/messages';
+  static String sendSpecialistChatMedia(String conversationId) => '/specialist/chat/$conversationId/media';
+
   static const String userSignup = '/auth/user/signup';
   static const String userVerifyOtp = '/auth/user/verify-otp';
   static const String userSignin = '/auth/user/signin';

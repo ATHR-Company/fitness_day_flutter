@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/errors/failures.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/features/user/auth/domain/entities/profile_validation_key.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_lookups_model.dart';
 import 'package:fitness_day/features/user/auth/data/models/complete_personal_data_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/submit_health_answers_models.dart';
@@ -171,7 +173,14 @@ class UserSetupCubit extends Cubit<UserSetupState> {
         }
         emit(CompletePersonalDataSuccess(data.message));
       case FailureResult(:final failure):
-        emit(UserSetupFailure(failure.message));
+        // A rejected field comes back as `{message, key}`; forward the key so
+        // the screen owning that input can show the message under it.
+        emit(UserSetupFailure(
+          failure.message,
+          fieldKey: failure is ValidationFailure
+              ? ProfileValidationKey.fromApi(failure.key)
+              : null,
+        ));
     }
   }
 

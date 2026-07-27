@@ -38,6 +38,9 @@ class ProductCartCard extends StatelessWidget {
           badge: badge,
           detailsLabelKey: detailsLabelKey,
           onTap: onTap,
+          // Same type the cart uses, so the heart posts PRODUCT for products
+          // and PLAN for plans instead of always PLAN.
+          favoriteItemType: itemType,
           isInCart: state.isInCart(package.id),
           isAdding: state.isAdding(package.id),
           onAddToCart: () => _add(context, cart),
