@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_package_card.dart';
@@ -18,6 +19,10 @@ class ProductCartCard extends StatelessWidget {
   /// Tapping the card body (not the button) — typically opens details.
   final VoidCallback? onTap;
 
+  /// When provided, tapping the heart calls this instead of the internal
+  /// ToggleFavoriteUseCase — used by FavoritesScreen to remove from list.
+  final VoidCallback? onFavoriteTap;
+
   const ProductCartCard({
     super.key,
     required this.package,
@@ -25,6 +30,7 @@ class ProductCartCard extends StatelessWidget {
     this.badge,
     this.detailsLabelKey = 'market.add_to_cart',
     this.onTap,
+    this.onFavoriteTap,
   });
 
   @override
@@ -38,12 +44,11 @@ class ProductCartCard extends StatelessWidget {
           badge: badge,
           detailsLabelKey: detailsLabelKey,
           onTap: onTap,
-          // Same type the cart uses, so the heart posts PRODUCT for products
-          // and PLAN for plans instead of always PLAN.
           favoriteItemType: itemType,
           isInCart: state.isInCart(package.id),
           isAdding: state.isAdding(package.id),
           onAddToCart: () => _add(context, cart),
+          onFavoriteTap: onFavoriteTap,
         );
       },
     );
@@ -57,9 +62,7 @@ class ProductCartCard extends StatelessWidget {
     if (!ok && context.mounted) {
       final msg = cart.state.errorMessage;
       if (msg != null && msg.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
+        showAppSnackBar(context, text: msg, isError: true);
       }
     }
   }

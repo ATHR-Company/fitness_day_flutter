@@ -42,8 +42,13 @@ class ActivityDetailsData {
   final String? time;
   final String? completedAt;
   final String? addedAt;
-  final int? durationMinutes;
+  /// Fractional — a walk under a minute comes back as e.g. `0.9`. Parsing it as
+  /// an int truncated every short session to a flat zero.
+  final double? durationMinutes;
   final double? caloriesBurned;
+
+  /// Kilometres. The backend names this `distanceinKm`; `distance` is only
+  /// accepted as a fallback for responses still using the older key.
   final double? distance;
 
   const ActivityDetailsData({
@@ -86,9 +91,10 @@ class ActivityDetailsData {
       time: json['time'] as String?,
       completedAt: json['completedAt'] as String?,
       addedAt: json['addedAt'] as String?,
-      durationMinutes: (json['durationMinutes'] as num?)?.toInt(),
+      durationMinutes: (json['durationMinutes'] as num?)?.toDouble(),
       caloriesBurned: (json['caloriesBurned'] as num?)?.toDouble(),
-      distance: (json['distance'] as num?)?.toDouble(),
+      distance: (json['distanceinKm'] as num?)?.toDouble() ??
+          (json['distance'] as num?)?.toDouble(),
     );
   }
 }

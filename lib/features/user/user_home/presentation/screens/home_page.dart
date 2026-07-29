@@ -240,7 +240,7 @@ class _HomePageContent extends StatelessWidget {
                               extraUnit: '/ ${currentActivity['goal'] ?? 0} ${currentActivity['unit'] ?? ''}',
                               extraIcon: _activityIcon(currentActivity['activityType'] as String? ?? ''),
                               done: currentActivity['isCompleted'] ?? false,
-                              onDetailsPressed: () {
+                              onDetailsPressed: () async {
                                 final String activityType =
                                     currentActivity['activityType'] as String? ?? '';
                                 final String activityId =
@@ -253,7 +253,7 @@ class _HomePageContent extends StatelessWidget {
                                 final int dayNumber =
                                     homeData?.dailyTasks?.dayNumber ?? 1;
                                 if (activityType == 'hydration') {
-                                  Navigator.push(
+                                  await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => HydrationDetailsScreen(
@@ -265,7 +265,7 @@ class _HomePageContent extends StatelessWidget {
                                   );
                                 } else if (activityType == 'walking' ||
                                     activityType == 'running') {
-                                  Navigator.push(
+                                  await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => StepsDetailsScreen(
@@ -278,7 +278,14 @@ class _HomePageContent extends StatelessWidget {
                                       ),
                                     ),
                                   );
+                                } else {
+                                  return;
                                 }
+                                // The activity screens sync progress while they
+                                // are open, so the card behind them is stale by
+                                // the time the user comes back.
+                                if (!context.mounted) return;
+                                context.read<UserHomeCubit>().loadHomeData();
                               },
                             ),
                           ),

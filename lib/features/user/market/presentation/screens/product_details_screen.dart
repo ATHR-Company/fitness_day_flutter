@@ -13,6 +13,7 @@ import 'package:fitness_day/features/user/market/presentation/screens/cart_scree
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
   /// Pass only [product.id] — full details are fetched from the API.
@@ -498,8 +499,7 @@ class _BottomAddToCart extends StatelessWidget {
     if (!ok && context.mounted) {
       final msg = cart.state.errorMessage;
       if (msg != null && msg.isNotEmpty) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(msg)));
+        showAppSnackBar(context, text: msg, isError: true);
       }
     }
   }

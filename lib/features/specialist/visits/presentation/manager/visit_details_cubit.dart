@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/errors/failures.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/assessment_current_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,9 +36,9 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
 
   final UpdateCustomPlanUseCase _updateCustomPlanUseCase;
 
-  Future<void> loadVisitData(String assessmentId) async {
+  Future<void> loadVisitData(String assessmentId, {bool forceRefresh = false}) async {
     final currentState = state;
-    if (currentState is VisitDetailsSuccess && currentState.visitData != null) {
+    if (!forceRefresh && currentState is VisitDetailsSuccess && currentState.visitData != null) {
       // Already cached
       return;
     }
@@ -233,7 +234,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
     return (false, '');
   }
 
-  Future<(bool, String)> updateHealthReport({
+  Future<(bool, String, String?)> updateHealthReport({
     required String assessmentId,
     required double weight,
     required double height,
@@ -268,13 +269,14 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
             isStarting: false,
             healthReport: data.data?.healthReport,
           ));
-          return (true, data.message);
+          return (true, data.message, null);
         case FailureResult(:final failure):
           emit(currentState.copyWith(isStarting: false));
-          return (false, failure.message);
+          final key = failure is ValidationFailure ? failure.key : null;
+          return (false, failure.message, key);
       }
     }
-    return (false, '');
+    return (false, '', null);
   }
 
   Future<(bool, String)> updateCustomPlan({
@@ -473,11 +475,20 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
         if (data.data != null) {
           newCache[dayNumber] = data.data!;
         }
+
+        final planState = data.data?.currentState;
+        final canFinish = data.data?.canFinishAssessment ?? currentState.canFinishAssessment;
+
+        final updatedVisitData = currentState.visitData?.copyWith(
+          currentState: planState ?? (canFinish ? AssessmentCurrentState.readyToFinish : currentState.visitData?.currentState),
+        );
+
         emit(currentState.copyWith(
           isStarting: false,
           customPlan: data.data,
           customPlanCache: newCache,
-          canFinishAssessment: data.data?.canFinishAssessment ?? currentState.canFinishAssessment,
+          visitData: updatedVisitData,
+          canFinishAssessment: canFinish,
         ));
         return (true, data.message);
       case FailureResult(:final failure):

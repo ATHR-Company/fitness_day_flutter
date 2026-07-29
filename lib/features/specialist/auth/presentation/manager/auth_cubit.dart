@@ -3,6 +3,7 @@ import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/network/device_type_helper.dart';
 import 'package:fitness_day/core/network/fcm_helper.dart';
+import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/features/specialist/auth/domain/usecases/login_usecase.dart';
 import 'package:fitness_day/features/specialist/auth/domain/usecases/logout_usecase.dart';
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
@@ -13,12 +14,14 @@ class AuthCubit extends Cubit<AuthState> {
   final LogoutUseCase logoutUseCase;
   final SecureCache secureCache;
   final AppCache appCache;
+  final SocketService socketService;
 
   AuthCubit({
     required this.loginUseCase,
     required this.logoutUseCase,
     required this.secureCache,
     required this.appCache,
+    required this.socketService,
   }) : super(AuthInitial());
 
   Future<void> login(String phone, String password) async {
@@ -39,6 +42,7 @@ class AuthCubit extends Cubit<AuthState> {
         await secureCache.saveRefreshToken(user.refreshToken);
         await appCache.saveUserType('specialist');
         await appCache.saveIsLoggedIn(true);
+        await socketService.connectWithStoredToken();
         emit(AuthSuccess(user));
       },
     );
@@ -47,6 +51,9 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logout() async {
     emit(AuthLoading());
     await logoutUseCase.call();
+    // Before the token is dropped: the socket was left open on the previous
+    // user's session, so it kept receiving their chat events after sign-out.
+    socketService.disconnect();
     await secureCache.deleteToken();
     await secureCache.deleteRefreshToken();
     await appCache.clear();

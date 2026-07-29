@@ -12,6 +12,7 @@ import 'package:fitness_day/features/user/market/presentation/widgets/cancel_sub
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class PackageDetailsDialog extends StatelessWidget {
   /// Provide either [planId] (preferred — fetches real data) or the legacy
@@ -197,8 +198,7 @@ class _StaticDialogContent extends StatelessWidget {
     if (!ok && context.mounted) {
       final msg = cart.state.errorMessage;
       if (msg != null && msg.isNotEmpty) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(msg)));
+        showAppSnackBar(context, text: msg, isError: true);
       }
     }
   }

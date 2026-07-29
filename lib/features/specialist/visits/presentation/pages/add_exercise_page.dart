@@ -8,6 +8,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/selection_bottom_sheet.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/app_text_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/time_picker_bottom_sheet.dart';
@@ -99,7 +100,8 @@ class _AddExercisePageState extends State<AddExercisePage> {
           if (workoutDetails.time.isNotEmpty) {
             final parsed = DateTime.tryParse(workoutDetails.time);
             if (parsed != null) {
-              _selectedTime = TimeOfDay.fromDateTime(parsed.toLocal());
+              final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
+              _selectedTime = TimeOfDay.fromDateTime(localDate);
             }
           }
         }
@@ -173,7 +175,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
                           suffixIcon: Icon(
                             Directionality.of(context) == ui.TextDirection.rtl
                                 ? Icons.chevron_right
-                                : Icons.chevron_left,
+                                : Icons.chevron_right,
                             color: AppColors.textSecondary.withValues(alpha: 0.5),
                             size: 24.sp,
                           ),
@@ -279,11 +281,10 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
   Future<void> _onSave() async {
     if (_selectedExercise == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى اختيار اسم التمرين أولاً'),
-          backgroundColor: AppColors.error,
-        ),
+      showAppSnackBar(
+        context,
+        text: 'يرجى اختيار اسم التمرين أولاً',
+        isError: true,
       );
       return;
     }
@@ -300,7 +301,6 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
     setState(() => _isLoading = true);
     final cubit = context.read<VisitDetailsCubit>();
-    final messenger = ScaffoldMessenger.of(context);
 
     final bool success;
     final String message;
@@ -336,14 +336,11 @@ class _AddExercisePageState extends State<AddExercisePage> {
 
     setState(() => _isLoading = false);
 
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: success ? AppColors.primary : AppColors.error,
-      ),
-    );
+    if (mounted) {
+      showAppSnackBar(context, text: message, isSuccess: success, isError: !success);
+    }
 
-    if (success) {
+    if (success && mounted) {
       Navigator.pop(context);
     }
   }

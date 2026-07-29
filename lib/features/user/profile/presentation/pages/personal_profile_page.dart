@@ -81,7 +81,11 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                     final height = cubit.lastKnownHeight;
                     final goalId = cubit.lastKnownGoalId;
                     final goals = context.watch<UserSetupCubit>().goals;
-                    final goalName = goals.where((g) => g.id == goalId).firstOrNull?.name;
+                    // GET /users/my-profile returns goal as a display name, not an ID.
+                    // We try matching by ID first (set after a successful update),
+                    // then fall back to the raw name string from the server.
+                    final goalName = goals.where((g) => g.id == goalId).firstOrNull?.name
+                        ?? cubit.lastKnownGoalName;
 
                     return SingleChildScrollView(
                       padding: EdgeInsets.symmetric(horizontal: 24.w),

@@ -1,3 +1,5 @@
+import 'package:fitness_day/features/specialist/visits/data/models/assessment_current_state.dart';
+
 class SpecialistAssessmentCustomPlanResponseModel {
   final bool success;
   final int statusCode;
@@ -28,6 +30,7 @@ class SpecialistAssessmentCustomPlanModel {
   final List<SpecialistMealModel> meals;
   final List<SpecialistWorkoutModel> workoutPlan;
   final List<SpecialistActivityModel> activities;
+  final AssessmentCurrentState? currentState;
   final bool canFinishAssessment;
 
   SpecialistAssessmentCustomPlanModel({
@@ -35,10 +38,12 @@ class SpecialistAssessmentCustomPlanModel {
     required this.meals,
     required this.workoutPlan,
     required this.activities,
+    this.currentState,
     this.canFinishAssessment = false,
   });
 
   factory SpecialistAssessmentCustomPlanModel.fromJson(Map<String, dynamic> json) {
+    final stateStr = json['currentState'] as String?;
     return SpecialistAssessmentCustomPlanModel(
       dayNumber: json['dayNumber'] as int? ?? 1,
       meals: (json['meals'] as List<dynamic>?)
@@ -53,7 +58,10 @@ class SpecialistAssessmentCustomPlanModel {
               ?.map((e) => SpecialistActivityModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      canFinishAssessment: json['canFinishAssessment'] as bool? ?? false,
+      currentState: AssessmentCurrentState.fromJson(stateStr),
+      canFinishAssessment: (json['canFinishAssessment'] as bool? ?? false) ||
+          stateStr == 'READY_TO_FINISH' ||
+          stateStr == 'COMPLETED',
     );
   }
 }

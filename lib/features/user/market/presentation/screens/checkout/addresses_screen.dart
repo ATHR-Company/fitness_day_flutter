@@ -12,6 +12,7 @@ import 'package:fitness_day/features/user/market/presentation/manager/checkout_c
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/edit_address_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/payment_method_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/order_summary_panel.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class AddressesScreen extends StatelessWidget {
   const AddressesScreen({super.key});
@@ -68,13 +69,7 @@ class _AddressesView extends StatelessWidget {
     final bool ok = await cubit.deleteAddress(address.id);
     if (!context.mounted) return;
     if (!ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('market.address_delete_error'.tr()),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      showAppSnackBar(context, text: 'market.address_delete_error'.tr(), isError: true);
     }
   }
 

@@ -8,6 +8,7 @@ import 'package:fitness_day/core/constant/api_endpoints.dart';
 import 'package:fitness_day/core/constant/app_locale.dart';
 import 'package:fitness_day/core/routes/app_router.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
+import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/fitness_day.dart';
 
 class TokenInterceptor extends Interceptor {
@@ -37,6 +38,11 @@ class TokenInterceptor extends Interceptor {
   /// backend rejected it) — clear all local session state and send the user
   /// back to role selection so they can log in again.
   Future<void> _handleSessionExpired() async {
+    // The socket authenticates with the same token, so an expired session must
+    // close it too — otherwise it keeps retrying against a dead session.
+    try {
+      GetIt.instance<SocketService>().disconnect();
+    } catch (_) {}
     await _secureCache.deleteToken();
     await _secureCache.deleteRefreshToken();
     try {

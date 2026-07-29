@@ -11,10 +11,9 @@ import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/core/widgets/visit_goal_card.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
-import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
-import 'package:fitness_day/core/widgets/reschedule_visit_dialog.dart';
 import 'package:fitness_day/core/widgets/add_goal_dialog.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/plan_item_card.dart';
 import 'package:fitness_day/core/widgets/vertical_day_tab_bar.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
@@ -78,7 +77,6 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
   final TextEditingController _fatWeightController = TextEditingController();
   final TextEditingController _muscleWeightController = TextEditingController();
   final TextEditingController _bmrController = TextEditingController();
-  final TextEditingController _leanMassController = TextEditingController();
   final TextEditingController _musclePercentageController = TextEditingController();
   final TextEditingController _proteinController = TextEditingController();
 
@@ -91,7 +89,6 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     _fatWeightController.dispose();
     _muscleWeightController.dispose();
     _bmrController.dispose();
-    _leanMassController.dispose();
     _musclePercentageController.dispose();
     _proteinController.dispose();
     super.dispose();
@@ -178,59 +175,24 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
         bottomAction: BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
           builder: (context, state) {
             final isStarting = state is VisitDetailsSuccess && state.isStarting;
-            return Row(
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    text: 'visit_details.start_visit'.tr(),
-                    isLoading: isStarting,
-                    onPressed: isStarting
-                        ? null
-                        : () async {
-                            final cubit = context.read<VisitDetailsCubit>();
-                            final messenger = ScaffoldMessenger.of(context);
-                            final success = await cubit.startVisit(widget.assessmentId);
-                            if (success && context.mounted) {
-                              messenger.showSnackBar(
-                                SnackBar(
-                                  content: Text('visit_details.start_success'.tr()),
-                                  backgroundColor: AppColors.primary,
-                                ),
-                              );
-                              cubit.loadVisitData(widget.assessmentId);
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BlocProvider.value(
-                                    value: cubit,
-                                    child: _VisitDetailsPageContent(
-                                      assessmentId: widget.assessmentId,
-                                      isUpcoming: false,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            } else if (!success && context.mounted) {
-                              messenger.showSnackBar(
-                                SnackBar(
-                                  content: Text('shared_val_err_required'.tr()),
-                                  backgroundColor: AppColors.error,
-                                ),
-                              );
-                            }
-                          },
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: CustomOutlinedButton(
-                    text: 'visit_details.reschedule'.tr(),
-                    onPressed: () {
-                      showRescheduleDialog(context, widget.assessmentId);
-                    },
-                  ),
-                ),
-              ],
+            return SizedBox(
+              width: double.infinity,
+              child: CustomButton(
+                text: 'visit_details.start_visit'.tr(),
+                isLoading: isStarting,
+                onPressed: isStarting
+                    ? null
+                    : () async {
+                        final cubit = context.read<VisitDetailsCubit>();
+                        final success = await cubit.startVisit(widget.assessmentId);
+                        if (success && context.mounted) {
+                          showAppSnackBar(context, text: 'visit_details.start_success'.tr(), isSuccess: true);
+                          await cubit.loadVisitData(widget.assessmentId, forceRefresh: true);
+                        } else if (!success && context.mounted) {
+                          showAppSnackBar(context, text: 'shared_val_err_required'.tr(), isError: true);
+                        }
+                      },
+              ),
             );
           },
         ),
@@ -330,20 +292,16 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                       child: canFinish
                           ? CustomButton(
                               text: 'visit_details.end_visit'.tr(),
-                              color: AppColors.greenMint,
+                              color: AppColors.primary,
                               isLoading: isFinishing,
                               onPressed: isFinishing
                                   ? null
                                   : () async {
                                       final cubit = context.read<VisitDetailsCubit>();
-                                      final messenger = ScaffoldMessenger.of(context);
                                       final (success, message) = await cubit.finishVisit(widget.assessmentId);
-                                      messenger.showSnackBar(
-                                        SnackBar(
-                                          content: Text(message),
-                                          backgroundColor: success ? AppColors.primary : AppColors.error,
-                                        ),
-                                      );
+                                      if (mounted) {
+                                        showAppSnackBar(context, text: message, isSuccess: success, isError: !success);
+                                      }
                                       if (success && mounted) {
                                         Navigator.pop(context);
                                       }
@@ -439,15 +397,10 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   initialGoal: visitData.goal ?? '',
                   onSave: (goal) async {
                     final cubit = context.read<VisitDetailsCubit>();
-                    final messenger = ScaffoldMessenger.of(context);
                     final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(message),
-                        backgroundColor: success ? AppColors.primary : AppColors.error,
-                      ),
-                    );
-
+                    if (mounted) {
+                      showAppSnackBar(context, text: message, isSuccess: success, isError: !success);
+                    }
                     if (success && mounted) {
                       _onTabChanged(1);
                     }
@@ -460,14 +413,10 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   initialGoal: visitData.goal ?? '',
                   onSave: (goal) async {
                     final cubit = context.read<VisitDetailsCubit>();
-                    final messenger = ScaffoldMessenger.of(context);
                     final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(message),
-                        backgroundColor: success ? AppColors.primary : AppColors.error,
-                      ),
-                    );
+                    if (mounted) {
+                      showAppSnackBar(context, text: message, isSuccess: success, isError: !success);
+                    }
                   },
                 );
               },
@@ -512,6 +461,20 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     }
   }
 
+  final Map<String, String> _reportErrors = {};
+
+  final Map<String, GlobalKey> _fieldKeys = {
+    'WEIGHT': GlobalKey(),
+    'HEIGHT': GlobalKey(),
+    'BMI': GlobalKey(),
+    'FAT_PERCENTAGE': GlobalKey(),
+    'FAT_WEIGHT': GlobalKey(),
+    'MUSCLE_WEIGHT': GlobalKey(),
+    'BMR': GlobalKey(),
+    'MUSCLE_PERCENTAGE': GlobalKey(),
+    'PROTEIN': GlobalKey(),
+  };
+
   Widget _buildReportTab(SpecialistAssessmentHealthReportModel? healthReport) {
     if (healthReport == null) {
       return const Center(child: CircularProgressIndicator());
@@ -527,76 +490,94 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
       child: Column(
         children: [
           ReportTextField(
+            fieldKey: _fieldKeys['WEIGHT'],
             label: '${'visit_details.weight'.tr()} :',
             hintText: 'visit_details.write_weight'.tr(),
             suffixText: healthReport.weight?.unit ?? 'visit_details.kg'.tr(),
             controller: _weightController,
+            errorText: _reportErrors['WEIGHT'],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
+            fieldKey: _fieldKeys['HEIGHT'],
             label: '${'visit_details.height'.tr()} :',
             hintText: 'visit_details.write_height'.tr(),
             suffixText: healthReport.height?.unit ?? 'visit_details.cm'.tr(),
             controller: _heightController,
+            errorText: _reportErrors['HEIGHT'],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
+            fieldKey: _fieldKeys['BMI'],
             label: 'visit_details.bmi'.tr(),
             hintText: 'visit_details.bmi'.tr(),
             controller: _bmiController,
+            errorText: _reportErrors['BMI'],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
+            fieldKey: _fieldKeys['FAT_PERCENTAGE'],
             label: 'visit_details.body_fat_percentage'.tr(),
             hintText: 'visit_details.write_body_fat_percentage'.tr(),
             suffixText: healthReport.fatPercentage?.unit ?? '%',
             controller: _fatPercentageController,
+            errorText: _reportErrors['FAT_PERCENTAGE'],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
+            fieldKey: _fieldKeys['FAT_WEIGHT'],
             label: 'visit_details.fat_mass'.tr(),
             hintText: 'visit_details.fat_mass'.tr(),
             suffixText: healthReport.fatWeight?.unit ?? 'visit_details.kg'.tr(),
             controller: _fatWeightController,
+            errorText: _reportErrors['FAT_WEIGHT'],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
+            fieldKey: _fieldKeys['MUSCLE_WEIGHT'],
             label: 'visit_details.muscle_weight'.tr(),
             hintText: 'visit_details.muscle_weight'.tr(),
             suffixText: healthReport.muscleWeight?.unit ?? 'visit_details.kg'.tr(),
             controller: _muscleWeightController,
+            errorText: _reportErrors['MUSCLE_WEIGHT'],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
+            fieldKey: _fieldKeys['BMR'],
             label: '${'visit_details.metabolic_rate'.tr()} :',
             hintText: 'visit_details.write_total_metabolic_rate'.tr(),
             suffixText: healthReport.bmr?.unit ?? '',
             controller: _bmrController,
+            errorText: _reportErrors['BMR'],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
-            label: 'visit_details.lean_mass'.tr(),
-            hintText: 'visit_details.write_lean_mass'.tr(),
-            controller: _leanMassController,
-          ),
-          SizedBox(height: 16.h),
-          ReportTextField(
+            fieldKey: _fieldKeys['MUSCLE_PERCENTAGE'],
             label: '${'visit_details.muscle_percentage'.tr()} :',
             hintText: 'visit_details.write_muscle_percentage'.tr(),
             suffixText: healthReport.musclePercentage?.unit ?? '%',
             controller: _musclePercentageController,
+            errorText: _reportErrors['MUSCLE_PERCENTAGE'],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
-            label: 'visit_details.protein_percentage'.tr(),
-            hintText: 'visit_details.write_protein_percentage'.tr(),
+            fieldKey: _fieldKeys['PROTEIN'],
+            label: 'visit_details.protein'.tr(),
+            hintText: 'visit_details.write_protein'.tr(),
             suffixText: healthReport.protein?.unit ?? '',
             controller: _proteinController,
+            errorText: _reportErrors['PROTEIN'],
           ),
           SizedBox(height: 24.h),
           CustomButton(
             text: 'visit_details.save'.tr(),
             onPressed: () async {
+              FocusScope.of(context).unfocus();
+
+              setState(() {
+                _reportErrors.clear();
+              });
+
               final weight = double.tryParse(_weightController.text) ?? 0.0;
               final height = double.tryParse(_heightController.text) ?? 0.0;
 
@@ -619,9 +600,8 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
               final protein = double.tryParse(_proteinController.text) ?? 0.0;
 
               final cubit = context.read<VisitDetailsCubit>();
-              final messenger = ScaffoldMessenger.of(context);
 
-              final (success, message) = await cubit.updateHealthReport(
+              final (success, message, errorKey) = await cubit.updateHealthReport(
                 assessmentId: widget.assessmentId,
                 weight: weight,
                 height: height,
@@ -634,14 +614,25 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 protein: protein,
               );
 
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                  backgroundColor: success ? AppColors.primary : AppColors.error,
-                ),
-              );
+              if (!success && errorKey != null && mounted) {
+                setState(() {
+                  _reportErrors[errorKey] = message;
+                });
+
+                final targetKey = _fieldKeys[errorKey];
+                if (targetKey?.currentContext != null) {
+                  Scrollable.ensureVisible(
+                    targetKey!.currentContext!,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: 0.3,
+                  );
+                }
+              } else if (!success && mounted) {
+                showAppSnackBar(context, text: message, isError: true);
+              }
 
               if (success && mounted) {
+                showAppSnackBar(context, text: message, isSuccess: true);
                 _onTabChanged(2);
               }
             },
@@ -912,7 +903,8 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     if (meal.time.isNotEmpty) {
       final parsed = DateTime.tryParse(meal.time);
       if (parsed != null) {
-        formattedTime = DateFormat('hh:mm a', context.locale.languageCode).format(parsed.toLocal());
+        final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
+        formattedTime = DateFormat('hh:mm a', context.locale.languageCode).format(localDate);
       }
     }
     if (formattedTime.isEmpty) {
@@ -986,7 +978,8 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     if (workout.time.isNotEmpty) {
       final parsed = DateTime.tryParse(workout.time);
       if (parsed != null) {
-        formattedTime = DateFormat('hh:mm a', context.locale.languageCode).format(parsed.toLocal());
+        final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
+        formattedTime = DateFormat('hh:mm a', context.locale.languageCode).format(localDate);
       }
     }
     if (formattedTime.isEmpty) {

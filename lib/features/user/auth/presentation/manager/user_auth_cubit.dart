@@ -4,6 +4,7 @@ import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/core/network/device_type_helper.dart';
 import 'package:fitness_day/core/network/fcm_helper.dart';
+import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_signup_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_verify_otp_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/social_auth_models.dart';
@@ -30,6 +31,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
   final ForgotPasswordResendOtpUseCase _forgotPasswordResendOtpUseCase;
   final SecureCache _secureCache;
   final AppCache _appCache;
+  final SocketService _socketService;
 
   UserAuthCubit({
     required UserSignupUseCase signupUseCase,
@@ -42,6 +44,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
     required ForgotPasswordResendOtpUseCase forgotPasswordResendOtpUseCase,
     required SecureCache secureCache,
     required AppCache appCache,
+    required SocketService socketService,
   })  : _signupUseCase = signupUseCase,
         _verifyOtpUseCase = verifyOtpUseCase,
         _socialAuthUseCase = socialAuthUseCase,
@@ -52,6 +55,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         _forgotPasswordResendOtpUseCase = forgotPasswordResendOtpUseCase,
         _secureCache = secureCache,
         _appCache = appCache,
+        _socketService = socketService,
         super(const UserAuthInitial());
 
   Future<void> signup(UserSignupRequest request) async {
@@ -91,6 +95,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         // Ensure cached user structure is initialized
         final currentUser = _appCache.getUser();
         await _appCache.saveUser(currentUser);
+        await _socketService.connectWithStoredToken();
         emit(UserVerifyOtpSuccess(data));
       case FailureResult(:final failure):
         emit(UserAuthFailure(failure.message));
@@ -124,6 +129,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         // Ensure cached user structure is initialized
         final currentUser = _appCache.getUser();
         await _appCache.saveUser(currentUser);
+        await _socketService.connectWithStoredToken();
         emit(UserVerifyOtpSuccess(data));
       case FailureResult(:final failure):
         emit(UserAuthFailure(failure.message));
@@ -152,6 +158,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         // Initialize cached user profile and set/override phone number
         final currentUser = _appCache.getUser();
         await _appCache.saveUser(currentUser.copyWith(phone: request.phone));
+        await _socketService.connectWithStoredToken();
         emit(UserSigninSuccess(data));
       case FailureResult(:final failure):
         emit(UserAuthFailure(failure.message));

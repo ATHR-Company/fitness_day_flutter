@@ -8,6 +8,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/in_app_web_view_page.dart';
 
 /// Opens a chat attachment (PDF, doc, sheet, …).
@@ -108,8 +109,6 @@ class AttachmentOpener {
   }
 
   static void _showCantOpen(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('conversations.cant_open_file'.tr())),
-    );
+    showAppSnackBar(context, text: 'conversations.cant_open_file'.tr(), isError: true);
   }
 }

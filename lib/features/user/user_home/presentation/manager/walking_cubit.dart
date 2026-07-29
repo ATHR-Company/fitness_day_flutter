@@ -42,6 +42,14 @@ class WalkingCubit extends Cubit<WalkingState> {
   Timer? _pollTimer;
   static const Duration _kPollInterval = Duration(seconds: 30);
 
+  // ─── Clock ────────────────────────────────────────────────────────────────
+  //
+  // A real stopwatch, mirroring RunningCubit: the elapsed value is always
+  // derived from [_sessionStartedAt], never accumulated tick by tick, so time
+  // spent with the app backgrounded still counts and a missed tick can't drift.
+  Timer? _clockTimer;
+  DateTime? _sessionStartedAt;
+
   /// Session steps/distance already reported to the server.
   ///
   /// These are **session-relative**, matching what [_poll] produces: both reset
@@ -50,6 +58,7 @@ class WalkingCubit extends Cubit<WalkingState> {
   /// steps that were already sent can never be sent again.
   int _lastSentSteps = 0;
   double _lastSentDistanceKm = 0;
+  int _lastSentElapsedSeconds = 0;
 
   /// An attempt that was built but never acknowledged. It is retried byte-for
   /// byte — same deltas, same [_pendingSyncId] — so that if the request
@@ -58,8 +67,10 @@ class WalkingCubit extends Cubit<WalkingState> {
   String? _pendingSyncId;
   int _pendingDeltaSteps = 0;
   double _pendingDeltaDistanceM = 0;
+  int _pendingDurationSeconds = 0;
   int _pendingTargetSteps = 0;
   double _pendingTargetDistanceKm = 0;
+  int _pendingTargetElapsedSeconds = 0;
 
   /// Tail of the in-flight sync chain — see [_syncToBackend].
   Future<void>? _syncQueue;
@@ -96,6 +107,28 @@ class WalkingCubit extends Cubit<WalkingState> {
   static const double _kMaxStepBurst = 10;
 
   int get _sessionSteps => math.max(_healthSessionSteps, _pedometerSessionSteps);
+
+  // ─── Distance ─────────────────────────────────────────────────────────────
+  //
+  // The health store is the preferred source, but plenty of devices never write
+  // a distance record at all — the ones where `DISTANCE_DELTA` comes back empty
+  // report a walk's distance as a flat 0 no matter how far the user went, and
+  // `deltaDistance` was being synced as 0.0 alongside a real step count.
+  // Falling back to a stride estimate keeps distance moving whenever steps are
+  // being counted, and taking the larger of the two means the health store
+  // still wins the moment it does report.
+
+  /// Distance (km) the health store has attributed to this session.
+  double _healthSessionDistanceKm = 0;
+
+  /// Average walking stride. Real strides vary with height and pace, so this is
+  /// an estimate — used only when the health store offers nothing better.
+  static const double _kStrideMetres = 0.75;
+
+  double get _sessionDistanceKm => math.max(
+        _healthSessionDistanceKm,
+        _sessionSteps * _kStrideMetres / 1000,
+      );
 
   // ─── GPS corroboration ────────────────────────────────────────────────────
   //
@@ -213,22 +246,44 @@ class WalkingCubit extends Cubit<WalkingState> {
     _pedometerSessionSteps = 0;
     _stepAllowance = 0;
     _healthSessionSteps = 0;
+    _healthSessionDistanceKm = 0;
     _lastUsableFixAt = null;
     _lastMovementAt = null;
-    emit(state.copyWith(steps: 0, distanceKm: 0, caloriesKcal: 0));
+    _sessionStartedAt = DateTime.now();
+    emit(state.copyWith(
+      steps: 0,
+      distanceKm: 0,
+      caloriesKcal: 0,
+      elapsedSeconds: 0,
+    ));
 
     // The sent markers are session-relative like the readings they are compared
     // against, so they restart at zero too. Any attempt left pending from the
     // previous session was measured against a baseline that no longer exists.
     _lastSentSteps = 0;
     _lastSentDistanceKm = 0;
+    _lastSentElapsedSeconds = 0;
     _pendingSyncId = null;
 
     await _startPedometerIfPermitted();
     await _startGpsIfPermitted();
+    _startClock();
     await _poll();
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(_kPollInterval, (_) => _poll());
+  }
+
+  void _startClock() {
+    _clockTimer?.cancel();
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+  }
+
+  void _tick() {
+    final DateTime? startedAt = _sessionStartedAt;
+    if (startedAt == null || isClosed) return;
+    emit(state.copyWith(
+      elapsedSeconds: DateTime.now().difference(startedAt).inSeconds,
+    ));
   }
 
   /// Ends the session. Reads once more before stopping so the steps taken
@@ -238,16 +293,26 @@ class WalkingCubit extends Cubit<WalkingState> {
 
     _pollTimer?.cancel();
     _pollTimer = null;
+    _clockTimer?.cancel();
+    _clockTimer = null;
     _stopSensors();
 
-    await _poll();
+    // Settle the clock on its true final value before the poll syncs, so the
+    // last seconds of the walk reach the server instead of being rounded off at
+    // whatever the previous tick happened to be.
+    _tick();
+    await _poll(isFinal: true);
     if (!isClosed) emit(state.copyWith(isTracking: false));
   }
 
-  /// Backgrounding: stop reading, but the session stays open.
+  /// Backgrounding: stop reading, but the session stays open. The clock ticks
+  /// stop with it — the elapsed value is recomputed from the session start on
+  /// resume, so backgrounded time is still counted.
   void pauseTracking() {
     if (!state.isTracking) return;
     _pollTimer?.cancel();
+    _clockTimer?.cancel();
+    _clockTimer = null;
     _stopSensors();
   }
 
@@ -258,6 +323,8 @@ class WalkingCubit extends Cubit<WalkingState> {
         state.permissionStatus != HealthPermStatus.granted) {
       return;
     }
+    _tick();
+    _startClock();
     await _poll();
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(_kPollInterval, (_) => _poll());
@@ -275,13 +342,15 @@ class WalkingCubit extends Cubit<WalkingState> {
   @override
   Future<void> close() async {
     _pollTimer?.cancel();
+    _clockTimer?.cancel();
     _stopSensors();
     // Leaving the screen mid-walk used to drop the steps taken since the last
     // 30 s poll — close cancelled everything without a final read/sync. Mirror
     // stopTracking's final poll so that tail is synced, the way RunningCubit's
     // close already does for runs.
     if (state.isTracking) {
-      await _poll();
+      _tick();
+      await _poll(isFinal: true);
     }
     return super.close();
   }
@@ -293,7 +362,7 @@ class WalkingCubit extends Cubit<WalkingState> {
   double? _initialHealthDistanceKm;
   double? _initialHealthCaloriesKcal;
 
-  Future<void> _poll() async {
+  Future<void> _poll({bool isFinal = false}) async {
     if (isClosed) return;
     try {
       final int totalHealthSteps = await _healthService.getTodaySteps();
@@ -310,20 +379,17 @@ class WalkingCubit extends Cubit<WalkingState> {
           (totalHealthSteps - _initialHealthSteps!).clamp(0, totalHealthSteps);
 
       final int sessionSteps = _sessionSteps;
-      final double sessionDistanceKm = (metrics.distanceKm - _initialHealthDistanceKm!)
+      _healthSessionDistanceKm = (metrics.distanceKm - _initialHealthDistanceKm!)
           .clamp(0.0, metrics.distanceKm);
+      final double sessionDistanceKm = _sessionDistanceKm;
       final double sessionCaloriesKcal = (metrics.caloriesKcal - _initialHealthCaloriesKcal!)
           .clamp(0.0, metrics.caloriesKcal);
-
-      // Estimated active minutes for session steps
-      final int minutes = sessionSteps > 0 ? (sessionSteps / 100).round() : 0;
 
       if (!isClosed) {
         emit(state.copyWith(
           steps: sessionSteps,
           distanceKm: sessionDistanceKm,
           caloriesKcal: sessionCaloriesKcal,
-          activeMinutes: minutes,
           isLoading: false,
         ));
       }
@@ -331,6 +397,8 @@ class WalkingCubit extends Cubit<WalkingState> {
       await _syncToBackend(
         steps: sessionSteps,
         distanceKm: sessionDistanceKm,
+        elapsedSeconds: state.elapsedSeconds,
+        isFinal: isFinal,
       );
     } catch (e) {
       debugPrint('WalkingCubit._poll error: $e');
@@ -445,8 +513,9 @@ class WalkingCubit extends Cubit<WalkingState> {
     final int liveSteps = _sessionSteps;
     // Forward-only: never publish a lower count than what is already on screen.
     if (liveSteps <= state.steps) return;
-    final int minutes = liveSteps > 0 ? (liveSteps / 100).round() : 0;
-    emit(state.copyWith(steps: liveSteps, activeMinutes: minutes));
+    // Distance follows the steps between polls too, otherwise the summary card
+    // sat frozen for up to 30 s on devices where the estimate is the only source.
+    emit(state.copyWith(steps: liveSteps, distanceKm: _sessionDistanceKm));
   }
 
   // ─── Backend sync ─────────────────────────────────────────────────────────
@@ -460,10 +529,16 @@ class WalkingCubit extends Cubit<WalkingState> {
   Future<void> _syncToBackend({
     required int steps,
     required double distanceKm,
+    required int elapsedSeconds,
+    bool isFinal = false,
   }) {
     final Future<void> previous = _syncQueue ?? Future<void>.value();
-    final Future<void> next = previous
-        .then((_) => _runSync(steps: steps, distanceKm: distanceKm));
+    final Future<void> next = previous.then((_) => _runSync(
+          steps: steps,
+          distanceKm: distanceKm,
+          elapsedSeconds: elapsedSeconds,
+          isFinal: isFinal,
+        ));
     _syncQueue = next.catchError((_) {});
     return next;
   }
@@ -471,6 +546,8 @@ class WalkingCubit extends Cubit<WalkingState> {
   Future<void> _runSync({
     required int steps,
     required double distanceKm,
+    required int elapsedSeconds,
+    bool isFinal = false,
   }) async {
     // The server matches on activityItemId; without it the request would be
     // rejected, so hold the progress in the session markers and retry once the
@@ -483,16 +560,26 @@ class WalkingCubit extends Cubit<WalkingState> {
       final int stepDelta = (steps - _lastSentSteps).clamp(0, steps);
       final double distDelta =
           (distanceKm - _lastSentDistanceKm).clamp(0.0, distanceKm);
+      final int durationDelta =
+          (elapsedSeconds - _lastSentElapsedSeconds).clamp(0, elapsedSeconds);
 
-      if (stepDelta == 0 && distDelta == 0) return;
+      // Elapsed time is reported on its own merit: every 30 s poll and the stop
+      // press both send, so the walk's duration is credited even when the step
+      // sensor contributed nothing that interval. Only a poll with genuinely
+      // nothing new — no steps, no distance, no new seconds — is skipped.
+      if (stepDelta == 0 && distDelta == 0 && durationDelta == 0 && !isFinal) {
+        return;
+      }
 
       _pendingSyncId = _uuid.v4();
       _pendingDeltaSteps = stepDelta;
       // Server contract is metres, not kilometres.
       _pendingDeltaDistanceM =
           double.parse((distDelta * 1000).toStringAsFixed(1));
+      _pendingDurationSeconds = durationDelta;
       _pendingTargetSteps = steps;
       _pendingTargetDistanceKm = distanceKm;
+      _pendingTargetElapsedSeconds = elapsedSeconds;
     }
 
     try {
@@ -505,11 +592,15 @@ class WalkingCubit extends Cubit<WalkingState> {
           'activityItemId': activityItemId,
           'deltaSteps': _pendingDeltaSteps,
           'deltaDistance': _pendingDeltaDistanceM,
+          // Per-sync delta, not the cumulative session time: the server applies
+          // this with `$inc`, so sending the running total would compound.
+          'durationSeconds': _pendingDurationSeconds,
           'syncId': _pendingSyncId,
         },
       );
       _lastSentSteps = _pendingTargetSteps;
       _lastSentDistanceKm = _pendingTargetDistanceKm;
+      _lastSentElapsedSeconds = _pendingTargetElapsedSeconds;
       _pendingSyncId = null;
     } catch (e) {
       debugPrint('WalkingCubit._syncToBackend error: $e');

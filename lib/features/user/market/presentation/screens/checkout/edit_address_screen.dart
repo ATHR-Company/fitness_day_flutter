@@ -9,6 +9,7 @@ import 'package:fitness_day/features/user/market/domain/entities/address_data.da
 import 'package:fitness_day/features/user/market/presentation/manager/addresses_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/map_picker_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/static_map_preview.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class EditAddressScreen extends StatefulWidget {
   /// Pass [address] to pre-fill fields (edit mode).
@@ -79,16 +80,10 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     if (_pickedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'market.select_location_prompt'.tr(),
-            style: TextStyleManager.style11Medium
-                .copyWith(color: AppColors.white),
-          ),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      showAppSnackBar(
+        context,
+        text: 'market.select_location_prompt'.tr(),
+        isError: true,
       );
       return;
     }
@@ -115,16 +110,10 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     if (ok) {
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'market.address_save_error'.tr(),
-            style: TextStyleManager.style11Medium
-                .copyWith(color: AppColors.white),
-          ),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      showAppSnackBar(
+        context,
+        text: 'market.address_save_error'.tr(),
+        isError: true,
       );
     }
   }

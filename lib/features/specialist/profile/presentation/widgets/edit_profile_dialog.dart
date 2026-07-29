@@ -8,6 +8,7 @@ import 'package:fitness_day/core/widgets/challenge_image_picker.dart';
 import 'package:fitness_day/core/widgets/profile/profile_dialog_base.dart';
 import 'package:fitness_day/core/widgets/profile/profile_text_field.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_cubit.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_state.dart';
 
 class EditProfileDialog extends StatefulWidget {
@@ -44,9 +45,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       onSave: () async {
         final name = _nameController.text.trim();
         if (name.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('profile.name_cannot_be_empty'.tr())),
-          );
+          showAppSnackBar(context, text: 'profile.name_cannot_be_empty'.tr(), isError: true);
           throw Exception("Name is empty");
         }
 
@@ -58,9 +57,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
         if (cubit.state is SpecialistProfileUpdateFailure) {
           final errMsg = (cubit.state as SpecialistProfileUpdateFailure).message;
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(errMsg)),
-            );
+            showAppSnackBar(context, text: errMsg, isError: true);
           }
           throw Exception("Update failed: $errMsg");
         }

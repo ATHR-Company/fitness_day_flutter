@@ -13,6 +13,7 @@ import 'package:fitness_day/core/widgets/profile/change_password_dialog.dart';
 import 'package:fitness_day/core/widgets/profile/change_phone_dialog.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/features/user/profile/data/models/user_profile_model.dart';
@@ -50,6 +51,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
     switch (result) {
       case Success(:final data):
+        getIt<SocketService>().disconnect();
         await getIt<SecureCache>().deleteToken();
         await getIt<SecureCache>().deleteRefreshToken();
         await getIt<AppCache>().clear();

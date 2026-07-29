@@ -14,6 +14,7 @@ import 'package:fitness_day/features/user/user_home/presentation/manager/article
 import 'package:fitness_day/features/user/user_home/presentation/widgets/articles_section.dart';
 import 'saved_articles_page.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class ArticlesListPage extends StatelessWidget {
   /// الـ articles دي بتتجاهل — الـ page دلوقتي بتجيب data من API مباشرة.
@@ -73,12 +74,7 @@ class _ArticlesListContentState extends State<_ArticlesListContent> {
           listener: (context, state) {
             if (state.status == ArticlesListStatus.loaded &&
                 state.errorMessage != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage!),
-                  backgroundColor: Colors.red.shade400,
-                ),
-              );
+              showAppSnackBar(context, text: state.errorMessage!, isError: true);
             }
           },
           builder: (context, state) {

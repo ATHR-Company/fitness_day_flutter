@@ -32,6 +32,11 @@ class SubscriptionPackageCard extends StatefulWidget {
   final bool isInCart;
   final bool isAdding;
 
+  /// Optional override for the heart-button tap. When provided, the card
+  /// still does its optimistic local toggle but also calls this callback
+  /// so the parent (e.g. FavoritesScreen) can update its own list.
+  final VoidCallback? onFavoriteTap;
+
   /// What this card actually renders — decides the `itemType` sent to
   /// `POST /favorites`. Defaults to [CartItemType.plan] because the card was
   /// written for subscription packages; product screens must pass
@@ -49,6 +54,7 @@ class SubscriptionPackageCard extends StatefulWidget {
     this.onAddToCart,
     this.isInCart = false,
     this.isAdding = false,
+    this.onFavoriteTap,
     this.favoriteItemType = CartItemType.plan,
   });
 
@@ -74,6 +80,16 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
       _isFavorite = !_isFavorite;
       _isTogglingFavorite = true;
     });
+
+    // If a parent override is provided (e.g. FavoritesScreen wants to remove
+    // the item from its list), call it and let it own the API call.
+    if (widget.onFavoriteTap != null) {
+      widget.onFavoriteTap!();
+      if (!mounted) return;
+      setState(() => _isTogglingFavorite = false);
+      return;
+    }
+
     // The server keys favourites by type: PLAN for a subscription package,
     // PRODUCT for a store product — send whichever this card is showing.
     final result = await getIt<ToggleFavoriteUseCase>()(

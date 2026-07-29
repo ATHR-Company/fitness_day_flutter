@@ -59,11 +59,8 @@ String buildPlanItemTime({
     }
   }
 
-  final y = year.toString().padLeft(4, '0');
-  final m = month.toString().padLeft(2, '0');
-  final d = day.toString().padLeft(2, '0');
-  final hh = time.hour.toString().padLeft(2, '0');
-  final mm = time.minute.toString().padLeft(2, '0');
+  final localDt = DateTime(year, month, day, time.hour, time.minute);
+  final utcDt = localDt.toUtc();
 
-  return '$y-$m-${d}T$hh:$mm:00.000Z';
+  return utcDt.toIso8601String();
 }

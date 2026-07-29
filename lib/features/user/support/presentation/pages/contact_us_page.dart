@@ -237,7 +237,7 @@ class _ContactCard extends StatelessWidget {
                 child: Container(
                   width: 70.r,
                   height: 70.r,
-                  padding: EdgeInsets.all(7.r),
+                  padding: EdgeInsets.all(4.r),
                   decoration: BoxDecoration(
                     gradient: AppColors.cardGradient,
                     shape: BoxShape.circle,

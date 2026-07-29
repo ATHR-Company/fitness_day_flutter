@@ -6,7 +6,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/core/network/fcm_helper.dart';
 import 'package:fitness_day/core/notification_helper/local_notification.dart';
-import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/core/routes/app_router.dart';
 import 'package:fitness_day/core/constant/app_locale.dart';
@@ -50,13 +49,10 @@ void main() async {
   );
 }
 
-/// Connects Socket.IO at app launch if an access token is stored.
+/// Connects Socket.IO at app launch if an access token is stored. Sign-in and
+/// sign-out handle the connection from then on.
 Future<void> _initSocketIfLoggedIn() async {
   try {
-    final secureCache = di.getIt<SecureCache>();
-    final token = await secureCache.getToken();
-    if (token != null && token.isNotEmpty) {
-      di.getIt<SocketService>().connect(token);
-    }
+    await di.getIt<SocketService>().connectWithStoredToken();
   } catch (_) {}
 }

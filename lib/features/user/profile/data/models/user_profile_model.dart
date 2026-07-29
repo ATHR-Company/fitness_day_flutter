@@ -30,6 +30,9 @@ class UserProfileDataModel {
   final bool notificationsEnabled;
   final String identifier;
   final String typeOfIdentifier;
+  final double? weight;
+  final double? height;
+  final String? goal;
 
   UserProfileDataModel({
     required this.fullName,
@@ -38,6 +41,9 @@ class UserProfileDataModel {
     required this.notificationsEnabled,
     required this.identifier,
     required this.typeOfIdentifier,
+    this.weight,
+    this.height,
+    this.goal,
   });
 
   factory UserProfileDataModel.fromJson(Map<String, dynamic> json) {
@@ -48,6 +54,9 @@ class UserProfileDataModel {
       notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
       identifier: json['identifier'] as String? ?? '',
       typeOfIdentifier: json['typeOfIdentifier'] as String? ?? '',
+      weight: (json['weight'] as num?)?.toDouble(),
+      height: (json['height'] as num?)?.toDouble(),
+      goal: json['goal'] as String?,
     );
   }
 
@@ -56,6 +65,9 @@ class UserProfileDataModel {
     String? avatar,
     String? lang,
     bool? notificationsEnabled,
+    double? weight,
+    double? height,
+    String? goal,
   }) {
     return UserProfileDataModel(
       fullName: fullName ?? this.fullName,
@@ -64,6 +76,9 @@ class UserProfileDataModel {
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       identifier: identifier,
       typeOfIdentifier: typeOfIdentifier,
+      weight: weight ?? this.weight,
+      height: height ?? this.height,
+      goal: goal ?? this.goal,
     );
   }
 }

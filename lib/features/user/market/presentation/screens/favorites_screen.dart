@@ -3,6 +3,7 @@ import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
+import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/plans_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/store_home_data.dart';
@@ -92,7 +93,14 @@ class _FavoritesList extends StatelessWidget {
           _sectionHeader('market.tab_products'.tr()),
           // The store's own grid — same card, metrics and tap behaviour, so
           // favourites can never drift out of sync with the store visually.
-          MarketProductsGrid(products: products.map(_toProductData).toList()),
+          MarketProductsGrid(
+            products: products.map(_toProductData).toList(),
+            onFavoriteTap: (product) =>
+                context.read<FavoritesCubit>().removeFavorite(
+                      itemType: CartItemType.product,
+                      itemIdentity: product.id,
+                    ),
+          ),
         ],
         if (plans.isNotEmpty) ...[
           _sectionHeader('market.tab_packages'.tr()),
@@ -121,6 +129,12 @@ class _FavoritesList extends StatelessWidget {
                     detailsLabelKey: 'market.details_button',
                     onTap: () => _showPlanDetails(context, plan.id),
                     onDetailsTap: () => _showPlanDetails(context, plan.id),
+                    favoriteItemType: CartItemType.plan,
+                    onFavoriteTap: () =>
+                        context.read<FavoritesCubit>().removeFavorite(
+                              itemType: CartItemType.plan,
+                              itemIdentity: plan.id,
+                            ),
                   );
                 },
                 childCount: plans.length,

@@ -26,6 +26,7 @@ import 'package:fitness_day/features/shared/conversations/domain/entities/chat_m
 import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_cubit.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_state.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/conversations_shimmer_loading.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 /// Kinds of message a bubble can render. Everything here is local/in-memory —
 /// no backend wiring yet; picked media and recordings are shown straight from
@@ -416,9 +417,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     try {
       if (!await _recorder.hasPermission()) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('conversations.mic_permission_denied'.tr())),
-          );
+          showAppSnackBar(context, text: 'conversations.mic_permission_denied'.tr(), isError: true);
         }
         return;
       }
@@ -685,8 +684,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
     return Align(
       alignment: msg.isMine
-          ? AlignmentDirectional.centerEnd
-          : AlignmentDirectional.centerStart,
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
       child: Container(
         constraints: BoxConstraints(maxWidth: 0.76.sw),
         margin: EdgeInsets.symmetric(vertical: 2.h),

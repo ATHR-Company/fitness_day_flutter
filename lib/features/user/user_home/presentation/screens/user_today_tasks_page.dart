@@ -206,44 +206,43 @@ class _UserTodayTasksPageContentState
     final String activityType = extra?['activityType'] as String? ?? '';
 
     if (activityType == 'hydration') {
-      return () => Navigator.push(
+      return () => _openActivity(
             context,
-            MaterialPageRoute(
-              builder: (_) => HydrationDetailsScreen(
-                assessmentId: assessmentId,
-                dayNumber: dayNumber,
-                activityId: activityId,
-              ),
+            HydrationDetailsScreen(
+              assessmentId: assessmentId,
+              dayNumber: dayNumber,
+              activityId: activityId,
             ),
           );
     }
-    if (activityType == 'walking') {
-      return () => Navigator.push(
+    if (activityType == 'walking' || activityType == 'running') {
+      return () => _openActivity(
             context,
-            MaterialPageRoute(
-              builder: (_) => StepsDetailsScreen(
-                type: ActivityType.walking,
-                assessmentId: assessmentId,
-                dayNumber: dayNumber,
-                activityId: activityId,
-              ),
-            ),
-          );
-    }
-    if (activityType == 'running') {
-      return () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => StepsDetailsScreen(
-                type: ActivityType.running,
-                assessmentId: assessmentId,
-                dayNumber: dayNumber,
-                activityId: activityId,
-              ),
+            StepsDetailsScreen(
+              type: activityType == 'running'
+                  ? ActivityType.running
+                  : ActivityType.walking,
+              assessmentId: assessmentId,
+              dayNumber: dayNumber,
+              activityId: activityId,
             ),
           );
     }
     return null;
+  }
+
+  /// Opens an activity screen and reloads the list once it closes — those
+  /// screens sync progress while they are open, so the task card behind them is
+  /// stale by the time the user comes back.
+  Future<void> _openActivity(BuildContext context, Widget screen) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => screen),
+    );
+    if (!context.mounted) return;
+    context
+        .read<UserTodayTasksCubit>()
+        .loadTasks(dayNumber: _selectedDayIndex + 1);
   }
 }
 

@@ -15,20 +15,22 @@ import '../../../../../core/theme/app_text_styles.dart';
 
 enum ActivityType { walking, running }
 
-/// Running goals used to be stored in kilometres while progress was reported in
-/// metres; the backend now normalises the goal to metres in the response layer.
-/// Accept both so the app is correct on either side of that deploy: a running
-/// goal below this threshold can only be the old kilometre form (nobody sets a
-/// 100 km target), anything above it is already metres.
-const double _kRunningGoalMetresThreshold = 100;
+/// The screen shows `goal` and `currentProgress` exactly as the API sends them,
+/// with no rescaling.
+///
+/// For running those are now **kilometres** (`goal: 2`, `currentProgress: 0.14`,
+/// `unit: "km"`) — the backend used to report metres, and the screen converted
+/// the running cubit's live kilometres up by 1000 to match. Against km figures
+/// that conversion turned a 130 m run into "130.14 / 2", which is what made the
+/// display jump the moment a session started contributing. The live distance is
+/// already in kilometres, so it is layered on as-is.
+///
+/// Note the sync endpoints are unchanged: `deltaDistance` is still posted in
+/// metres. Only the read side moved to kilometres.
 
-double _runningGoalKm(double rawGoal) =>
-    rawGoal >= _kRunningGoalMetresThreshold ? rawGoal / 1000 : rawGoal;
-
-/// Running progress and distance are always reported in metres, while the whole
-/// screen — goal, live GPS distance, summary — works in kilometres. Converting
-/// here keeps the circle from comparing metres against a kilometre goal.
-double _runningProgressKm(double rawMetres) => rawMetres / 1000;
+/// The API reports duration in **fractional** minutes (`0.9` for a 54-second
+/// walk). The screen counts in seconds so short sessions aren't floored to zero.
+int _apiDurationSeconds(double? minutes) => ((minutes ?? 0) * 60).round();
 
 /// Diameter of the disc inside the progress ring. Fixed so the ring's centre
 /// never resizes with the value; comfortably inside the 115 r ring minus its
@@ -106,7 +108,8 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
         dayNumber: widget.dayNumber,
         activityId: widget.activityId,
         activityItemId: data.activityItemId,
-        goalDistanceKm: _runningGoalKm(data.goal),
+        // Already kilometres on both sides — no conversion.
+        goalDistanceKm: data.goal,
       );
       // Read the existing grants silently so a returning user isn't shown the
       // permission banner again. This never prompts — requestPermissions() is
@@ -137,8 +140,44 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
     return false;
   }
 
+  /// Closes an in-flight session before the screen goes away.
+  ///
+  /// Leaving mid-session used to rely on `close()` (via [dispose]) to fire the
+  /// final sync, and `dispose` cannot await — so the POST was still in flight
+  /// while the screen underneath refetched, and that refetch read pre-sync
+  /// figures. Stopping here means the sync has landed by the time we pop.
+  Future<void> _finishSessionBeforeLeaving() async {
+    if (_walkingCubit != null && _walkingCubit!.state.isTracking) {
+      await _walkingCubit!.stopTracking();
+    }
+    if (_runningCubit != null && _runningCubit!.state.isRunning) {
+      await _runningCubit!.stopSession();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    return PopScope(
+      // Always false rather than `!_isSessionActive()`: this widget
+      // deliberately does not rebuild while a session runs (see buildWhen
+      // below), so a session-dependent value here would be read stale and the
+      // pop would slip past the guard. The handler fast-paths when there is no
+      // session, so the cost is a single frame.
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        // Resolved before the await so the pop doesn't reach for a context that
+        // may have gone away while the final sync was in flight.
+        final NavigatorState navigator = Navigator.of(context);
+        if (_isSessionActive()) await _finishSessionBeforeLeaving();
+        if (!mounted) return;
+        navigator.pop();
+      },
+      child: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
     return BlocConsumer<ActivityDetailsCubit, ActivityDetailsState>(
       listener: (context, state) {
         if (state is ActivityDetailsSuccess) {
@@ -229,7 +268,7 @@ class _StepsDetailsLoaderState extends State<_StepsDetailsLoader> {
             child: _RunningScreen(
               apiProgress: currentProgress,
               apiProgressPercent: progressPercent,
-              apiDurationMinutes: data.durationMinutes?.toInt() ?? 0,
+              apiDurationSeconds: _apiDurationSeconds(data.durationMinutes),
               apiCalories: data.caloriesBurned ?? 0,
               activityCubit: activityCubit,
             ),
@@ -284,7 +323,7 @@ class _WalkingScreenState extends State<_WalkingScreen>
   late String _frozenApiUnit;
   late String _frozenActivityName;
   late double _frozenApiDistance;
-  late int _frozenApiDurationMinutes;
+  late int _frozenApiDurationSeconds;
   late int _frozenApiCalories;
 
   // A getter, not a field: resolving at build time keeps the labels correct
@@ -338,7 +377,7 @@ class _WalkingScreenState extends State<_WalkingScreen>
     _frozenApiUnit = 'activity_tracking.steps_unit'.tr();
     _frozenActivityName = 'activity_tracking.walking_title'.tr();
     _frozenApiDistance = 0;
-    _frozenApiDurationMinutes = 0;
+    _frozenApiDurationSeconds = 0;
     _frozenApiCalories = 0;
   }
 
@@ -350,7 +389,7 @@ class _WalkingScreenState extends State<_WalkingScreen>
     _frozenApiUnit = data.unit.isNotEmpty ? data.unit : 'activity_tracking.steps_unit'.tr();
     _frozenActivityName = data.name.isNotEmpty ? data.name : 'activity_tracking.walking_title'.tr();
     _frozenApiDistance = data.distance ?? 0;
-    _frozenApiDurationMinutes = data.durationMinutes?.toInt() ?? 0;
+    _frozenApiDurationSeconds = _apiDurationSeconds(data.durationMinutes);
     _frozenApiCalories = data.caloriesBurned?.round() ?? 0;
   }
 
@@ -463,9 +502,9 @@ class _WalkingScreenState extends State<_WalkingScreen>
                 Expanded(
                   child: _DailySummaryCard(
                     title: 'activity_tracking.week_summary'.tr(),
-                    distanceKm: data.distance ?? 0,
+                    distance: data.distance ?? 0,
                     unit: 'activity_tracking.km_unit'.tr(),
-                    minutes: data.durationMinutes?.toInt() ?? 0,
+                    durationSeconds: _apiDurationSeconds(data.durationMinutes),
                     calories: data.caloriesBurned?.round() ?? 0,
                     isWalking: true,
                   ),
@@ -537,9 +576,25 @@ class _WalkingScreenState extends State<_WalkingScreen>
                         unit: _frozenApiUnit,
                         goalPercent: currentPercentInt,
                       ),
-                      SizedBox(height: 32.h),
+                      SizedBox(height: 16.h),
 
-                      // Permission banner sits directly under the circle when
+                      // Same stopwatch the running screen shows, driven by the
+                      // walking cubit's clock.
+                      Text(
+                        state.formattedTime,
+                        style: TextStyleManager.style28Bold.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'activity_tracking.elapsed_time'.tr(),
+                        style: TextStyleManager.style11Medium
+                            .copyWith(color: AppColors.textSecondary),
+                      ),
+                      SizedBox(height: 24.h),
+
+                      // Permission banner sits directly under the clock when
                       // needed — kept separate from the space/summary choice
                       // below so it never pushes the start button up.
                       if (state.permissionStatus == HealthPermStatus.needsInstall)
@@ -560,9 +615,10 @@ class _WalkingScreenState extends State<_WalkingScreen>
                       if (state.isTracking && !state.isLoading)
                         Expanded(
                           child: _DailySummaryCard(
-                            distanceKm: _frozenApiDistance + state.distanceKm,
+                            distance: _frozenApiDistance + state.distanceKm,
                             unit: 'activity_tracking.km_unit'.tr(),
-                            minutes: _frozenApiDurationMinutes + state.activeMinutes,
+                            durationSeconds: _frozenApiDurationSeconds +
+                                state.elapsedSeconds,
                             calories: _frozenApiCalories + state.caloriesKcal.round(),
                             isWalking: true,
                           ),
@@ -595,14 +651,14 @@ class _WalkingScreenState extends State<_WalkingScreen>
 class _RunningScreen extends StatefulWidget {
   final double apiProgress;
   final int apiProgressPercent;
-  final int apiDurationMinutes;
+  final int apiDurationSeconds;
   final double apiCalories;
   final ActivityDetailsCubit activityCubit;
 
   const _RunningScreen({
     this.apiProgress = 0,
     this.apiProgressPercent = 0,
-    this.apiDurationMinutes = 0,
+    this.apiDurationSeconds = 0,
     this.apiCalories = 0,
     required this.activityCubit,
   });
@@ -636,12 +692,12 @@ class _RunningScreenState extends State<_RunningScreen> {
   @override
   void initState() {
     super.initState();
-    _frozenApiProgress = _runningProgressKm(widget.apiProgress);
+    _frozenApiProgress = widget.apiProgress;
     _frozenApiProgressPct = widget.apiProgressPercent;
     _frozenApiGoal = 0;
     _frozenApiUnit = 'activity_tracking.km_unit'.tr();
     _frozenActivityName = 'activity_tracking.running_title'.tr();
-    _frozenApiDuration = widget.apiDurationMinutes;
+    _frozenApiDuration = widget.apiDurationSeconds;
     _frozenApiCalories = widget.apiCalories;
     // Same first-load gap as the walking screen: the initial success was already
     // emitted before this screen subscribed, so seed the goal/unit from the
@@ -653,12 +709,12 @@ class _RunningScreenState extends State<_RunningScreen> {
   }
 
   void _applyApiData(ActivityDetailsData data) {
-    _frozenApiProgress = _runningProgressKm(data.currentProgress);
+    _frozenApiProgress = data.currentProgress;
     _frozenApiProgressPct = data.progressPercentage.toInt();
-    _frozenApiGoal = _runningGoalKm(data.goal);
+    _frozenApiGoal = data.goal;
     _frozenApiUnit = data.unit.isNotEmpty ? data.unit : 'activity_tracking.km_unit'.tr();
     _frozenActivityName = data.name.isNotEmpty ? data.name : 'activity_tracking.running_title'.tr();
-    _frozenApiDuration = data.durationMinutes?.toInt() ?? 0;
+    _frozenApiDuration = _apiDurationSeconds(data.durationMinutes);
     _frozenApiCalories = data.caloriesBurned ?? 0;
   }
 
@@ -688,6 +744,18 @@ class _RunningScreenState extends State<_RunningScreen> {
     final cubit = context.read<RunningCubit>();
     if (isRunning) {
       await cubit.stopSession();
+      if (!mounted) return;
+
+      // Fold the finished session into the baseline. The display is
+      // `baseline + session`, and stopping drops the session term to zero —
+      // without this the number visibly falls back to its pre-run value until
+      // the refresh lands. Those metres are already synced, so counting them
+      // here is correct; the refresh then replaces this with the server's
+      // authoritative total. Mirrors what the walking screen does on stop.
+      setState(() {
+        _frozenApiProgress += cubit.state.distanceKm;
+        _frozenApiDuration += cubit.state.elapsedSeconds;
+      });
       _refreshDetails();
       return;
     }
@@ -698,13 +766,13 @@ class _RunningScreenState extends State<_RunningScreen> {
   /// with no live run and no start/stop button.
   Widget _buildWeeklyView() {
     final data = _weeklyData;
-    final double km = data != null ? _runningProgressKm(data.currentProgress) : 0;
-    final double goal = data != null ? _runningGoalKm(data.goal) : 0;
+    final double progress = data?.currentProgress ?? 0;
+    final double goal = data?.goal ?? 0;
     final String unit = (data?.unit.isNotEmpty ?? false)
         ? data!.unit
         : 'activity_tracking.km_unit'.tr();
     final double percent = goal > 0
-        ? (km / goal).clamp(0.0, 1.0)
+        ? (progress / goal).clamp(0.0, 1.0)
         : (data != null ? (data.progressPercentage / 100).clamp(0.0, 1.0) : 0.0);
 
     return Scaffold(
@@ -731,7 +799,7 @@ class _RunningScreenState extends State<_RunningScreen> {
               else ...[
                 _ActivityCircle(
                   percent: percent,
-                  currentVal: km,
+                  currentVal: progress,
                   goalVal: goal,
                   unit: unit,
                   goalPercent: (percent * 100).round(),
@@ -741,9 +809,9 @@ class _RunningScreenState extends State<_RunningScreen> {
                 Expanded(
                   child: _DailySummaryCard(
                     title: 'activity_tracking.week_summary'.tr(),
-                    distanceKm: km,
+                    distance: progress,
                     unit: unit,
-                    minutes: data.durationMinutes?.toInt() ?? 0,
+                    durationSeconds: _apiDurationSeconds(data.durationMinutes),
                     calories: data.caloriesBurned?.round() ?? 0,
                     isWalking: false,
                   ),
@@ -785,15 +853,22 @@ class _RunningScreenState extends State<_RunningScreen> {
           builder: (context, state) {
             // Session figures belong to today only — on the weekly tab always
             // show what the API returned.
-            final bool showLive = _selectedTab == 0 && state.distanceKm > 0;
+            //
+            // Tied to `isRunning`, not to `distanceKm > 0`: the cubit keeps the
+            // finished session's distance in state after stop, so the old test
+            // stayed true and kept adding it on top of a refreshed baseline that
+            // already included it — a 0.26 km run displayed as 0.28.
+            final bool showLive =
+                _selectedTab == 0 && state.isRunning && state.distanceKm > 0;
 
             // The run adds to the day's total rather than replacing it: the
             // circle showed only the current session's distance, so a user who
             // had already covered ground saw the number collapse on start.
-            final double totalKm =
+            // Both terms are kilometres, so they add directly.
+            final double total =
                 _frozenApiProgress + (showLive ? state.distanceKm : 0);
             final double totalPercent = _frozenApiGoal > 0
-                ? (totalKm / _frozenApiGoal).clamp(0.0, 1.0)
+                ? (total / _frozenApiGoal).clamp(0.0, 1.0)
                 : (_frozenApiProgressPct / 100.0).clamp(0.0, 1.0);
 
             return Scaffold(
@@ -821,7 +896,7 @@ class _RunningScreenState extends State<_RunningScreen> {
                       else ...[
                         _ActivityCircle(
                           percent: totalPercent,
-                          currentVal: totalKm,
+                          currentVal: total,
                           goalVal: _frozenApiGoal,
                           unit: _frozenApiUnit,
                           goalPercent: (totalPercent * 100).round(),
@@ -851,10 +926,10 @@ class _RunningScreenState extends State<_RunningScreen> {
                         // than adds.
                         Expanded(
                           child: _DailySummaryCard(
-                            distanceKm: totalKm,
+                            distance: total,
                             unit: _frozenApiUnit,
-                            minutes: _frozenApiDuration +
-                                (showLive ? state.elapsedSeconds ~/ 60 : 0),
+                            durationSeconds: _frozenApiDuration +
+                                (showLive ? state.elapsedSeconds : 0),
                             calories: state.caloriesKcal > 0
                                 ? state.caloriesKcal.round()
                                 : _frozenApiCalories.round(),
@@ -892,7 +967,10 @@ Widget _buildAppBar(BuildContext context, String title) {
     child: Row(
       children: [
         GestureDetector(
-          onTap: () => Navigator.pop(context),
+          // maybePop, not pop: `Navigator.pop` bypasses PopScope outright, so
+          // this button would have skipped the "finish the session first" guard
+          // that the system back button goes through.
+          onTap: () => Navigator.maybePop(context),
           child: Icon(Icons.arrow_back_ios_new,
               size: 20.sp, color: AppColors.black),
         ),
@@ -986,7 +1064,8 @@ class _ActivityCircle extends StatelessWidget {
   final String unit;
   final int goalPercent;
 
-  /// Decimal places for the values — distances read as 1.25, steps as 1250.
+  /// Decimal places for both values. Distances carry two; step counts are whole
+  /// numbers, so walking passes zero.
   final int decimals;
 
   const _ActivityCircle({
@@ -1094,9 +1173,15 @@ class _ActivityCircle extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _DailySummaryCard extends StatelessWidget {
-  final double distanceKm;
+  /// Carries whatever unit [unit] names — kilometres for walking, the raw API
+  /// figure for running — so it is never assumed to be kilometres here.
+  final double distance;
   final String unit;
-  final int minutes;
+
+  /// Taken in seconds and displayed in minutes. The API reports fractional
+  /// minutes (`0.9` for a 54-second walk), so keeping the precision this far and
+  /// rounding once here is what stopped short sessions reading "0 دقيقة".
+  final int durationSeconds;
   final int calories;
   final bool isWalking;
 
@@ -1105,13 +1190,22 @@ class _DailySummaryCard extends StatelessWidget {
   final String? title;
 
   const _DailySummaryCard({
-    required this.distanceKm,
+    required this.distance,
     required this.unit,
-    required this.minutes,
+    required this.durationSeconds,
     required this.calories,
     this.isWalking = false,
     this.title,
   });
+
+  /// Whole minutes, rounded — and never rounded down to zero while time is
+  /// actually being counted, since "0 دقيقة" next to a running clock reads as
+  /// nothing being recorded.
+  int get _durationMinutes {
+    if (durationSeconds <= 0) return 0;
+    final int rounded = (durationSeconds / 60).round();
+    return rounded > 0 ? rounded : 1;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1157,14 +1251,14 @@ class _DailySummaryCard extends StatelessWidget {
                   icon: Icon(Icons.access_time_filled_rounded,
                       color: AppColors.surfaceGray, size: 26),
                   label: 'activity_tracking.elapsed_time'.tr(),
-                  value: '$minutes',
+                  value: '$_durationMinutes',
                   unit: 'activity_tracking.minute_unit'.tr(),
                 ),
                 _SummaryItem(
                   icon: const Icon(Icons.location_on_rounded,
                       color: Colors.pinkAccent, size: 26),
                   label: 'activity_tracking.distance_label'.tr(),
-                  value: distanceKm.toStringAsFixed(2),
+                  value: distance.toStringAsFixed(2),
                   unit: unit,
                 ),
               ],

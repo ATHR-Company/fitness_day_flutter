@@ -12,6 +12,7 @@ import 'openrouter_meal_service.dart';
 import 'meal_exceptions.dart';
 import 'meal_result_sheet.dart';
 import 'package:fitness_day/core/constant/app_env.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class ScanMealScreen extends StatefulWidget {
   const ScanMealScreen({super.key});
@@ -120,9 +121,7 @@ class _ScanMealScreenState extends State<ScanMealScreen>
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red.shade400),
-    );
+    showAppSnackBar(context, text: message, isError: true);
   }
 
   @override

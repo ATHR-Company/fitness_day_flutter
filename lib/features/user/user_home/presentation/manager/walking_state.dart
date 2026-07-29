@@ -6,7 +6,11 @@ class WalkingState extends Equatable {
   final int steps;
   final double distanceKm;
   final double caloriesKcal;
-  final int activeMinutes;
+
+  /// Real stopwatch seconds since the session started, the same measure running
+  /// uses. It replaced a steps ÷ 100 estimate, which drifted from the clock and
+  /// gave the server nothing to credit the walk's duration with.
+  final int elapsedSeconds;
   final double goalSteps;
   final double goalDistanceKm;
   final HealthPermStatus permissionStatus;
@@ -20,7 +24,7 @@ class WalkingState extends Equatable {
     this.steps = 0,
     this.distanceKm = 0,
     this.caloriesKcal = 0,
-    this.activeMinutes = 0,
+    this.elapsedSeconds = 0,
     required this.goalSteps,
     required this.goalDistanceKm,
     this.permissionStatus = HealthPermStatus.unknown,
@@ -33,11 +37,22 @@ class WalkingState extends Equatable {
 
   int get progressPercentInt => (progressPercent * 100).round();
 
+  /// Formatted elapsed time: mm:ss or hh:mm:ss
+  String get formattedTime {
+    final int h = elapsedSeconds ~/ 3600;
+    final int m = (elapsedSeconds % 3600) ~/ 60;
+    final int s = elapsedSeconds % 60;
+    final String mm = m.toString().padLeft(2, '0');
+    final String ss = s.toString().padLeft(2, '0');
+    if (h > 0) return '$h:$mm:$ss';
+    return '$mm:$ss';
+  }
+
   WalkingState copyWith({
     int? steps,
     double? distanceKm,
     double? caloriesKcal,
-    int? activeMinutes,
+    int? elapsedSeconds,
     double? goalSteps,
     double? goalDistanceKm,
     HealthPermStatus? permissionStatus,
@@ -48,7 +63,7 @@ class WalkingState extends Equatable {
       steps: steps ?? this.steps,
       distanceKm: distanceKm ?? this.distanceKm,
       caloriesKcal: caloriesKcal ?? this.caloriesKcal,
-      activeMinutes: activeMinutes ?? this.activeMinutes,
+      elapsedSeconds: elapsedSeconds ?? this.elapsedSeconds,
       goalSteps: goalSteps ?? this.goalSteps,
       goalDistanceKm: goalDistanceKm ?? this.goalDistanceKm,
       permissionStatus: permissionStatus ?? this.permissionStatus,
@@ -62,7 +77,7 @@ class WalkingState extends Equatable {
         steps,
         distanceKm,
         caloriesKcal,
-        activeMinutes,
+        elapsedSeconds,
         goalSteps,
         goalDistanceKm,
         permissionStatus,

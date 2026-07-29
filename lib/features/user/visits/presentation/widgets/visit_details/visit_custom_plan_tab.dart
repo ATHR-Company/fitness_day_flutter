@@ -188,33 +188,32 @@ class _TasksFromData extends StatelessWidget {
           extraUnit: '/ $goal $unit',
           extraIcon: icon,
           done: task['isCompleted'] ?? false,
-          onDetailsPressed: () {
-            if (activityType == 'hydration') {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => HydrationDetailsScreen(
-                    assessmentId: resolvedAssessmentId,
-                    dayNumber: dayNum,
-                    activityId: activityId,
-                  ),
-                ),
-              );
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => StepsDetailsScreen(
-                    type: activityType == 'running'
-                        ? ActivityType.running
-                        : ActivityType.walking,
-                    assessmentId: resolvedAssessmentId,
-                    dayNumber: dayNum,
-                    activityId: activityId,
-                  ),
-                ),
-              );
-            }
+          onDetailsPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => activityType == 'hydration'
+                    ? HydrationDetailsScreen(
+                        assessmentId: resolvedAssessmentId,
+                        dayNumber: dayNum,
+                        activityId: activityId,
+                      )
+                    : StepsDetailsScreen(
+                        type: activityType == 'running'
+                            ? ActivityType.running
+                            : ActivityType.walking,
+                        assessmentId: resolvedAssessmentId,
+                        dayNumber: dayNum,
+                        activityId: activityId,
+                      ),
+              ),
+            );
+            // Those screens sync progress while open, so this day's figures are
+            // stale by the time the user comes back.
+            if (!context.mounted) return;
+            context
+                .read<AssessmentDetailsCubit>()
+                .getDayDetails(resolvedAssessmentId, dayNum);
           },
         ));
       }

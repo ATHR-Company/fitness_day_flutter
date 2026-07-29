@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -84,10 +85,55 @@ class PlanItemCard extends StatelessWidget {
           SizedBox(height: 16.h),
 
           // Bottom Buttons
-          if (showActions)
+          // الحالة 1: showActions = false → زرار "تفاصيل"
+          if (!showActions)
             Row(
               children: [
-                // Edit Button (Green) - Right side in RTL
+                const Spacer(),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      elevation: 0,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'visit_details.details'
+                              .tr()
+                              .replaceAll('»', '')
+                              .replaceAll('«', '')
+                              .trim(),
+                          style: TextStyleManager.smallButtons.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(width: 2.w),
+                        Icon(
+                          Directionality.of(context) == ui.TextDirection.rtl
+                              ? Icons.keyboard_double_arrow_left
+                              : Icons.keyboard_double_arrow_right,
+                          size: 16.sp,
+                          color: AppColors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
+          // الحالة 2: showActions = true و isCompleted = false → زرار "تعديل"
+          else if (!isCompleted)
+            Row(
+              children: [
                 SizedBox(width: 0.w),
                 const Spacer(),
                 Expanded(
@@ -128,48 +174,8 @@ class PlanItemCard extends StatelessWidget {
                   ),
                 ),
               ],
-            )
-          else
-            // A button on the left (as in screenshot) if no actions? Wait. Image 2 has a single green button "تفاصيل" (Details) with arrows on the left!
-            Row(
-              children: [
-                const Spacer(),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
-                      elevation: 0,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'تفاصيل',
-                          style: TextStyleManager.smallButtons.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(width: 2.w),
-                        Icon(
-                          Directionality.of(context) == ui.TextDirection.rtl
-                              ? Icons.keyboard_double_arrow_left
-                              : Icons.keyboard_double_arrow_right,
-                          size: 16.sp,
-                          color: AppColors.white,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
             ),
+          // الحالة 3: showActions = true و isCompleted = true → لا شيء (مخفي)
         ],
       ),
     );

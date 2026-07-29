@@ -11,6 +11,7 @@ import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_s
 import 'package:fitness_day/fitness_day.dart';
 import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 
@@ -136,6 +137,7 @@ class LogoutDialog extends StatelessWidget {
                                   try {
                                     await di.getIt<UserProfileCubit>().signout();
                                   } catch (_) {}
+                                  di.getIt<SocketService>().disconnect();
                                   await di.getIt<SecureCache>().deleteToken();
                                   await di.getIt<SecureCache>().deleteRefreshToken();
                                   await di.getIt<AppCache>().clear();

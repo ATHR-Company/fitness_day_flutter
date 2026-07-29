@@ -10,6 +10,8 @@ class ReportTextField extends StatelessWidget {
   final String? suffixText;
   final TextEditingController? controller;
   final TextInputType keyboardType;
+  final String? errorText;
+  final GlobalKey? fieldKey;
 
   const ReportTextField({
     super.key,
@@ -18,11 +20,16 @@ class ReportTextField extends StatelessWidget {
     this.suffixText,
     this.controller,
     this.keyboardType = TextInputType.number,
+    this.errorText,
+    this.fieldKey,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasError = errorText != null && errorText!.isNotEmpty;
+
     return Column(
+      key: fieldKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -41,7 +48,6 @@ class ReportTextField extends StatelessWidget {
           child: TextFormField(
             controller: controller,
             keyboardType: keyboardType,
-            //textAlign: TextAlign.right,
             style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
             decoration: InputDecoration(
               hintText: hintText,
@@ -54,22 +60,22 @@ class ReportTextField extends StatelessWidget {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.r),
-                borderSide: const BorderSide(
-                  color: AppColors.divider,
+                borderSide: BorderSide(
+                  color: hasError ? AppColors.error : AppColors.divider,
                   width: 1.0,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.r),
-                borderSide: const BorderSide(
-                  color: AppColors.divider,
+                borderSide: BorderSide(
+                  color: hasError ? AppColors.error : AppColors.divider,
                   width: 1.0,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.r),
-                borderSide: const BorderSide(
-                  color: AppColors.primary,
+                borderSide: BorderSide(
+                  color: hasError ? AppColors.error : AppColors.primary,
                   width: 1.0,
                 ),
               ),
@@ -104,6 +110,18 @@ class ReportTextField extends StatelessWidget {
             ),
           ),
         ),
+        if (hasError) ...[
+          SizedBox(height: 4.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Text(
+              errorText!,
+              style: TextStyleManager.style9Medium.copyWith(
+                color: AppColors.error,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

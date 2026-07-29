@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -94,7 +95,8 @@ class _AddActivityPageState extends State<AddActivityPage> {
         if (activityDetails.time != null && activityDetails.time!.isNotEmpty) {
           final parsed = DateTime.tryParse(activityDetails.time!);
           if (parsed != null) {
-            _selectedTime = TimeOfDay.fromDateTime(parsed.toLocal());
+            final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
+            _selectedTime = TimeOfDay.fromDateTime(localDate);
           }
         }
       } catch (_) {}
@@ -169,7 +171,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                             suffixIcon: Icon(
                               Directionality.of(context) == ui.TextDirection.rtl
                                   ? Icons.chevron_right
-                                  : Icons.chevron_left,
+                                  : Icons.chevron_right,
                               color: AppColors.textSecondary.withValues(alpha: 0.5),
                               size: 24.sp,
                             ),
@@ -312,7 +314,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
     setState(() => _isLoading = true);
     final cubit = context.read<VisitDetailsCubit>();
-    final messenger = ScaffoldMessenger.of(context);
 
     final bool success;
     final String message;
@@ -344,14 +345,11 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
     setState(() => _isLoading = false);
 
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: success ? AppColors.primary : AppColors.error,
-      ),
-    );
+    if (mounted) {
+      showAppSnackBar(context, text: message, isSuccess: success, isError: !success);
+    }
 
-    if (success) {
+    if (success && mounted) {
       Navigator.pop(context);
     }
   }

@@ -13,11 +13,17 @@ class MarketProductsGrid extends StatelessWidget {
   final String detailsLabelKey;
   final void Function(ProductData product)? onItemTap;
 
+  /// When provided, tapping the heart calls this instead of the direct
+  /// ToggleFavoriteUseCase — useful in the Favorites screen so the cubit
+  /// can remove the item from the list immediately.
+  final void Function(ProductData product)? onFavoriteTap;
+
   const MarketProductsGrid({
     super.key,
     required this.products,
     this.detailsLabelKey = 'market.add_to_cart',
     this.onItemTap,
+    this.onFavoriteTap,
   });
 
   @override
@@ -55,6 +61,7 @@ class MarketProductsGrid extends StatelessWidget {
                         builder: (_) => ProductDetailsScreen(product: p),
                       ),
                     ),
+            onFavoriteTap: onFavoriteTap != null ? () => onFavoriteTap!(p) : null,
           );
         }, childCount: products.length),
       ),

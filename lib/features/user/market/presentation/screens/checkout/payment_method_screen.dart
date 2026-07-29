@@ -10,6 +10,7 @@ import 'package:fitness_day/features/user/market/domain/entities/order_data.dart
 import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/order_review_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/order_summary_panel.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class PaymentMethodScreen extends StatelessWidget {
   const PaymentMethodScreen({super.key});
@@ -31,9 +32,7 @@ class PaymentMethodScreen extends StatelessWidget {
     final cubit = context.read<CheckoutCubit>();
     // PayPal's webview handoff is not wired yet — only CASH can place an order.
     if (cubit.state.paymentMethod == CheckoutPaymentMethod.paypal) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('market.paypal_not_available'.tr())),
-      );
+      showAppSnackBar(context, text: 'market.paypal_not_available'.tr(), isError: true);
       return;
     }
 
@@ -54,9 +53,7 @@ class PaymentMethodScreen extends StatelessWidget {
     } else {
       final msg = cubit.state.errorMessage;
       if (msg != null && msg.isNotEmpty) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(msg)));
+        showAppSnackBar(context, text: msg, isError: true);
       }
     }
   }
@@ -133,7 +130,7 @@ class PaymentMethodScreen extends StatelessWidget {
                       color: AppColors.black,
                     )
                   : Icon(
-                      Icons.arrow_forward_ios_rounded,
+                      Icons.arrow_back_ios_rounded,
                       size: 20.sp,
                       color: AppColors.black,
                     ),

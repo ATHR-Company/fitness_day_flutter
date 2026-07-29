@@ -38,6 +38,24 @@ class RunningCubit extends Cubit<RunningState> {
   StreamSubscription<Position>? _gpsSub;
   Position? _lastPos;
 
+  /// Distance accumulated from GPS alone, kept apart from the published total
+  /// so the pedometer fallback can be compared against it.
+  double _gpsDistanceKm = 0;
+
+  // ─── Distance fallback ────────────────────────────────────────────────────
+  //
+  // GPS is the accurate source, but it produces nothing at all when location is
+  // switched off, indoors, or on a treadmill — and the session then synced
+  // `deltaDistance: 0.0` however far the user actually ran. Estimating from the
+  // pedometer keeps a run credited; taking the larger of the two means GPS wins
+  // outright whenever it is working, which is almost always outdoors.
+
+  /// Average running stride. An estimate — only consulted when GPS gives less.
+  static const double _kStrideMetres = 1.0;
+
+  double _distanceFor(int steps) =>
+      math.max(_gpsDistanceKm, steps * _kStrideMetres / 1000);
+
   // ─── Pedometer ────────────────────────────────────────────────────────────
   StreamSubscription<StepCount>? _stepSub;
   int? _stepBaseline; // sensor value at session start
@@ -52,7 +70,9 @@ class RunningCubit extends Cubit<RunningState> {
   /// carries the delta since these marks — never a cumulative total.
   double _lastSyncedDistanceKm = 0;
   int _lastSyncedElapsedSeconds = 0;
-  static const double _kSyncThresholdKm = 0.1; // sync every 100 m
+  /// Sync every 5 m — the same distance as the GPS stream's own
+  /// `distanceFilter`, so effectively every fix that counts as movement sends.
+  static const double _kSyncThresholdKm = 0.005;
 
   /// Fixes worse than this are treated as noise rather than movement.
   static const double _kMaxAcceptableAccuracyMeters = 25;
@@ -147,6 +167,7 @@ class RunningCubit extends Cubit<RunningState> {
 
     _lastPos = null;
     _stepBaseline = null;
+    _gpsDistanceKm = 0;
     _lastSyncedDistanceKm = 0;
     _lastSyncedElapsedSeconds = 0;
     _pendingSyncId = null;
@@ -210,32 +231,40 @@ class RunningCubit extends Cubit<RunningState> {
       (Position pos) {
         // Drop low-confidence fixes outright. Without this, a stationary phone
         // still drifts past the 5 m filter and silently accumulates distance
-        // over a long session.
-        if (pos.accuracy > _kMaxAcceptableAccuracyMeters) {
+        // over a long session. The anchor is deliberately left alone — making a
+        // fix we don't trust the reference point for the next measurement would
+        // fold its own error straight into the distance.
+        if (pos.accuracy > _kMaxAcceptableAccuracyMeters) return;
+
+        if (_lastPos == null) {
           _lastPos = pos;
           return;
         }
-        if (_lastPos != null) {
-          final double delta = _haversineKm(_lastPos!, pos);
 
-          // Standing still still wanders past the 5 m filter, so require
-          // evidence of actual movement: either a reported speed in the
-          // walking-or-faster range, or a displacement larger than the fix's
-          // own error circle. The second test covers devices that never report
-          // a usable speed — without it their distance would never accumulate.
-          final bool movingBySpeed = pos.speed >= _kMinMovingSpeedMps;
-          final bool movingByDisplacement = delta * 1000 > pos.accuracy;
-          if (!movingBySpeed && !movingByDisplacement) {
-            _lastPos = pos;
-            return;
-          }
+        final double delta = _haversineKm(_lastPos!, pos);
 
-          // Ignore GPS noise (> 150 m in one tick = bad fix)
-          if (delta < 0.15) {
-            final double newDist = state.distanceKm + delta;
-            emit(state.copyWith(distanceKm: newDist));
-            _maybeSyncToBackend(newDist);
-          }
+        // Standing still still wanders past the 5 m filter, so require evidence
+        // of actual movement: either a reported speed in the walking-or-faster
+        // range, or a displacement larger than the fix's own error circle. The
+        // second test covers devices that never report a usable speed.
+        final bool movingBySpeed = pos.speed >= _kMinMovingSpeedMps;
+        final bool movingByDisplacement = delta * 1000 > pos.accuracy;
+        if (!movingBySpeed && !movingByDisplacement) {
+          // Hold the anchor. Advancing it here was why devices that report no
+          // speed accumulated nothing at all: each fix arrives ~5 m after the
+          // last, so a single hop can never exceed a 10–25 m accuracy circle,
+          // and re-anchoring every time meant the displacement test restarted
+          // from scratch forever. Keeping the anchor lets successive hops add
+          // up until they clear the circle, and then they are credited.
+          return;
+        }
+
+        // Ignore GPS noise (> 150 m in one tick = bad fix)
+        if (delta < 0.15) {
+          _gpsDistanceKm += delta;
+          final double newDist = _distanceFor(state.steps);
+          emit(state.copyWith(distanceKm: newDist));
+          _maybeSyncToBackend(newDist);
         }
         _lastPos = pos;
       },
@@ -256,7 +285,11 @@ class RunningCubit extends Cubit<RunningState> {
           _stepBaseline = total;
         }
         final int sessionSteps = (total - _stepBaseline!).clamp(0, total);
-        emit(state.copyWith(steps: sessionSteps));
+        // Steps feed the distance fallback, so a run with no usable GPS still
+        // reports progress instead of syncing 0.0 forever.
+        final double newDist = _distanceFor(sessionSteps);
+        emit(state.copyWith(steps: sessionSteps, distanceKm: newDist));
+        _maybeSyncToBackend(newDist);
       },
       onError: (e) => debugPrint('RunningCubit pedometer error: $e'),
       cancelOnError: false,

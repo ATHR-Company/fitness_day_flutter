@@ -43,6 +43,12 @@ class AppInfoField extends StatelessWidget {
       readOnly: onTap != null,
       onTap: onTap,
       validator: validator,
+      // Not `decoration.errorText`: TextFormField rebuilds the decoration as
+      // `decoration.copyWith(errorText: field.errorText)`, so a passing local
+      // validator (null) silently wiped the server message and the field looked
+      // fine after the server had rejected it. forceErrorText sits outside the
+      // validator's result and is exactly what this is for.
+      forceErrorText: errorText,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       keyboardType: keyboardType ?? TextInputType.text,
       inputFormatters: effectiveFormatters,
@@ -50,7 +56,6 @@ class AppInfoField extends StatelessWidget {
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: hint,
-        errorText: errorText,
         errorStyle: TextStyleManager.style10Medium.copyWith(
           color: AppColors.error,
         ),

@@ -59,6 +59,16 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   void _onVerifyPressed() {
     // Dismiss keyboard first so it doesn't push the layout
     FocusScope.of(context).unfocus();
+    if (_pinController.text.trim().length < 6) {
+      // The pin field shows nothing for this, so say it here — otherwise the
+      // button just appears not to work.
+      showAppSnackBar(
+        context,
+        text: 'login.verify_incomplete'.tr(),
+        isError: true,
+      );
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       if (widget.isForgotPassword) {
         context.read<UserAuthCubit>().verifyForgotPasswordOtp(
@@ -285,6 +295,15 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                       }
                                       return null;
                                     },
+                                    // Pinput reserves a line under the boxes for
+                                    // the validator's message, and an empty
+                                    // string still occupies one — pressing send
+                                    // on an incomplete code grew the column and
+                                    // slid the button down. The message is a
+                                    // snack bar instead, so the layout is
+                                    // identical in every state.
+                                    errorBuilder: (_, _) =>
+                                        const SizedBox.shrink(),
                                   ),
                                 ),
                                 SizedBox(height: 48.h),

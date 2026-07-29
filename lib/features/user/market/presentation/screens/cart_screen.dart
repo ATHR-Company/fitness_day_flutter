@@ -11,6 +11,7 @@ import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/checkout_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/orders_screen.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -40,9 +41,7 @@ class _CartScreenState extends State<CartScreen> {
               curr.errorMessage != null &&
               curr.errorMessage != prev.errorMessage,
           listener: (context, state) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage!)),
-            );
+            showAppSnackBar(context, text: state.errorMessage!, isError: true);
             _cart.clearError();
           },
           builder: (context, state) {

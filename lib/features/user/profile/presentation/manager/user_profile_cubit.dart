@@ -31,6 +31,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
 
   UserProfileDataModel? profileData;
   String? lastKnownGoalId;
+  String? lastKnownGoalName;
   double? lastKnownWeight;
   double? lastKnownHeight;
 
@@ -59,6 +60,13 @@ class UserProfileCubit extends Cubit<UserProfileState> {
       case Success(:final data):
         if (data.data != null) {
           profileData = data.data;
+          // GET /users/my-profile returns weight, height, and goal.
+          // `goal` here is a display name (e.g. "زيادة الوزن"), not an ID,
+          // so we store it separately for display while keeping the ID
+          // (from cache / last update) for submitting edits.
+          lastKnownWeight = profileData!.weight ?? lastKnownWeight;
+          lastKnownHeight = profileData!.height ?? lastKnownHeight;
+          lastKnownGoalName = profileData!.goal ?? lastKnownGoalName;
           emit(UserProfileSuccess(profileData!));
         } else {
           emit(const UserProfileFailure('بيانات فارغة'));
@@ -87,6 +95,8 @@ class UserProfileCubit extends Cubit<UserProfileState> {
       case Success(:final data):
         final updated = data.data;
         if (updated != null) {
+          // The update response returns the goal as an ID — store it so
+          // subsequent edits can submit the correct ID to the server.
           lastKnownGoalId = updated.goal ?? lastKnownGoalId;
           lastKnownWeight = updated.weight ?? lastKnownWeight;
           lastKnownHeight = updated.height ?? lastKnownHeight;

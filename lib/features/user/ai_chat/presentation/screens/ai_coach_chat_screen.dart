@@ -258,7 +258,7 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
       return Padding(
         padding: EdgeInsets.only(bottom: 12.h),
         child: Align(
-          alignment: AlignmentDirectional.centerStart,
+          alignment: Alignment.centerLeft,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
             decoration: BoxDecoration(
@@ -278,8 +278,8 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
       padding: EdgeInsets.only(bottom: 12.h),
       child: Align(
         alignment: msg.isMe
-            ? AlignmentDirectional.centerEnd
-            : AlignmentDirectional.centerStart,
+            ? Alignment.centerRight
+            : Alignment.centerLeft,
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 0.75.sw),
           child: Column(

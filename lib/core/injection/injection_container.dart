@@ -441,6 +441,7 @@ Future<void> init() async {
       logoutUseCase: getIt<LogoutUseCase>(),
       secureCache: getIt<SecureCache>(),
       appCache: getIt<AppCache>(),
+      socketService: getIt<SocketService>(),
     ),
   );
 
@@ -456,6 +457,7 @@ Future<void> init() async {
       forgotPasswordResendOtpUseCase: getIt<ForgotPasswordResendOtpUseCase>(),
       secureCache: getIt<SecureCache>(),
       appCache: getIt<AppCache>(),
+      socketService: getIt<SocketService>(),
     ),
   );
 
@@ -952,7 +954,9 @@ Future<void> init() async {
 
   // Socket service is a singleton — one connection for the entire app.
   // Connecting/disconnecting is managed by ChatCubit.
-  getIt.registerLazySingleton<SocketService>(() => SocketService());
+  getIt.registerLazySingleton<SocketService>(
+    () => SocketService(secureCache: getIt<SecureCache>()),
+  );
 
   getIt.registerLazySingleton<ChatRemoteDataSource>(
     () => ChatRemoteDataSourceImpl(getIt<ApiService>()),
