@@ -39,6 +39,11 @@ class ActivityDetailsData {
   final double currentProgress;
   final double progressPercentage;
   final bool isCompleted;
+
+  /// True once today's target is met. Walking and running hide their start
+  /// button on it — there is nothing left to track today.
+  final bool goalReached;
+
   final String? time;
   final String? completedAt;
   final String? addedAt;
@@ -64,6 +69,7 @@ class ActivityDetailsData {
     required this.currentProgress,
     required this.progressPercentage,
     required this.isCompleted,
+    this.goalReached = false,
     this.time,
     this.completedAt,
     this.addedAt,
@@ -88,6 +94,10 @@ class ActivityDetailsData {
       progressPercentage:
           (json['progressPercentage'] as num?)?.toDouble() ?? 0.0,
       isCompleted: json['isCompleted'] as bool? ?? false,
+      // Falls back to `isCompleted` on responses that predate the flag, so an
+      // already-finished activity still hides its start button.
+      goalReached:
+          json['goalReached'] as bool? ?? json['isCompleted'] as bool? ?? false,
       time: json['time'] as String?,
       completedAt: json['completedAt'] as String?,
       addedAt: json['addedAt'] as String?,

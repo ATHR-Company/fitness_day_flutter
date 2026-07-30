@@ -58,6 +58,11 @@ class _RunningScreenState extends State<RunningScreen> {
   late int _frozenApiDuration;
   late double _frozenApiCalories;
 
+  /// Today's target is already met — the start button is hidden, since there is
+  /// nothing left to track. Server-owned: the app never decides this by
+  /// comparing progress against the goal itself.
+  bool _goalReached = false;
+
   List<String> get _tabs => [
         'activity_tracking.tab_daily'.tr(),
         'activity_tracking.tab_weekly'.tr(),
@@ -90,6 +95,7 @@ class _RunningScreenState extends State<RunningScreen> {
     _frozenActivityName = data.name.isNotEmpty ? data.name : 'activity_tracking.running_title'.tr();
     _frozenApiDuration = apiDurationSeconds(data.durationMinutes);
     _frozenApiCalories = data.caloriesBurned ?? 0;
+    _goalReached = data.goalReached;
   }
 
   void _onTabChanged(int index) {
@@ -312,11 +318,16 @@ class _RunningScreenState extends State<RunningScreen> {
                         ),
                         SizedBox(height: 16.h),
 
-                        StartStopButton(
-                          isRunning: state.isRunning,
-                          onTap: () =>
-                              _onToggleSession(context, state.isRunning),
-                        ),
+                        // Target met → nothing left to track today, so the
+                        // start button goes away. A run already in progress
+                        // keeps its stop button, otherwise the user could not
+                        // end it.
+                        if (!_goalReached || state.isRunning)
+                          StartStopButton(
+                            isRunning: state.isRunning,
+                            onTap: () =>
+                                _onToggleSession(context, state.isRunning),
+                          ),
                         SizedBox(height: 24.h),
                       ],
                     ],

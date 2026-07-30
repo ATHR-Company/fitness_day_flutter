@@ -3,6 +3,8 @@ import 'dart:io' show Platform;
 import 'dart:math' as math;
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+// Prefixed: this package and geolocator both export an `ActivityType`.
+import 'package:flutter_activity_recognition/flutter_activity_recognition.dart' as ar;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pedometer/pedometer.dart';
@@ -15,10 +17,10 @@ import 'package:fitness_day/features/user/user_home/domain/usecases/sync_walking
 
 part 'walking_state.dart';
 
-/// Polls the OS health store every 30 s (ground truth for distance/calories
+/// Polls the OS health store every 15 s (ground truth for distance/calories
 /// and backend sync) AND listens to the live hardware pedometer so the step
 /// count on screen updates instantly as the user walks, instead of waiting
-/// up to 30 s for the next poll.
+/// up to 15 s for the next poll.
 ///
 /// Walking uses the Health Platform (HealthKit on iOS, Health Connect on
 /// Android) as the source of truth; the pedometer stream only fills the gap
@@ -41,7 +43,10 @@ class WalkingCubit extends Cubit<WalkingState> {
   final String activityItemId;
 
   Timer? _pollTimer;
-  static const Duration _kPollInterval = Duration(seconds: 30);
+
+  /// Read the health store and sync this often. Each poll is also what pushes
+  /// progress to the server, so this is the reporting cadence too.
+  static const Duration _kPollInterval = Duration(seconds: 15);
 
   // ─── Clock ────────────────────────────────────────────────────────────────
   //
@@ -100,9 +105,22 @@ class WalkingCubit extends Cubit<WalkingState> {
   /// Unspent step budget, in steps — see the token bucket in [_startPedometer].
   double _stepAllowance = 0;
 
-  /// A brisk walk runs about 2 steps/s and a hard run about 3.5. Sustained
-  /// rates above this are not locomotion, so they are not credited.
-  static const double _kMaxStepsPerSecond = 3.5;
+  /// Steps the sensor reported that the allowance could not pay for yet.
+  ///
+  /// Android batches step events for power, so one event can carry twenty-odd
+  /// steps at once. Discarding the surplus lost real steps on every batch;
+  /// queueing it here lets the next allowance tick pay it off instead.
+  int _pendingRawSteps = 0;
+
+  /// Ceiling on that queue. Long enough to absorb any plausible sensor batch,
+  /// short enough that a backlog can never be cashed in as one implausible
+  /// burst.
+  static const int _kMaxPendingSteps = 60;
+
+  /// A brisk walk is about 2 steps/s. Anything sustained above this is not
+  /// walking — and a shaken hand sits at 2–4 Hz, which is exactly why the old
+  /// 3.5 ceiling let it through untouched.
+  static const double _kMaxStepsPerSecond = 2.5;
 
   /// Ceiling on unspent allowance, so idle time cannot bank a burst.
   static const double _kMaxStepBurst = 10;
@@ -121,6 +139,18 @@ class WalkingCubit extends Cubit<WalkingState> {
 
   /// Distance (km) the health store has attributed to this session.
   double _healthSessionDistanceKm = 0;
+
+  /// Health-store steps recorded while GPS said the user was standing still.
+  ///
+  /// The platform counter reads the same hardware sensor, so a shaken phone
+  /// lands in it too — and since the session total takes the larger of the two
+  /// sources, filtering only the pedometer would have let those steps back in
+  /// on the next poll. They are subtracted out instead.
+  int _ignoredHealthSteps = 0;
+
+  /// Health-store total at the previous poll, so each poll can tell how many of
+  /// its steps are new and decide whether *those* count.
+  int? _lastPolledHealthSteps;
 
   /// Average walking stride. Real strides vary with height and pace, so this is
   /// an estimate — used only when the health store offers nothing better.
@@ -143,8 +173,18 @@ class WalkingCubit extends Cubit<WalkingState> {
   /// Last time a fix arrived that was accurate enough to be worth believing.
   DateTime? _lastUsableFixAt;
 
+  /// First such fix of the session — the gate needs to have been watching for a
+  /// while before "never moved" means anything.
+  DateTime? _firstUsableFixAt;
+
   /// Last time such a fix showed the user actually displacing.
   DateTime? _lastMovementAt;
+
+  /// Fix the displacement test measures from. Deliberately *not* advanced while
+  /// the user appears still: each fix lands a few metres from the last, so
+  /// re-anchoring every time would restart the measurement forever and no walk
+  /// would ever clear the accuracy circle.
+  Position? _movementAnchor;
 
   /// Fixes worse than this say nothing useful about displacement.
   static const double _kUsableAccuracyMeters = 30;
@@ -153,6 +193,10 @@ class WalkingCubit extends Cubit<WalkingState> {
   /// small non-zero speeds.
   static const double _kMinWalkingSpeedMps = 0.4;
 
+  /// Displacement that counts as real movement regardless of the fix's own
+  /// error circle — a floor for devices that report an optimistic accuracy.
+  static const double _kMinDisplacementMeters = 8;
+
   /// A usable fix older than this is treated as gone — the user has probably
   /// walked indoors, so the gate must stop relying on it.
   static const Duration _kFixFreshness = Duration(seconds: 20);
@@ -160,6 +204,64 @@ class WalkingCubit extends Cubit<WalkingState> {
   /// Walking is not perfectly steady and fixes arrive irregularly, so movement
   /// keeps the gate open for a short grace period rather than instantaneously.
   static const Duration _kMovementGrace = Duration(seconds: 12);
+
+  /// How long usable fixes must show no displacement at all before the gate
+  /// treats "never moved" as evidence of standing still. Without this the first
+  /// seconds of a walk — before the user has cleared the accuracy circle —
+  /// would be vetoed.
+  static const Duration _kStillnessSettle = Duration(seconds: 25);
+
+  // ─── Activity recognition ─────────────────────────────────────────────────
+  //
+  // The OS's own classifier, and the only signal that separates walking from a
+  // phone being shaken on the spot: the step sensor counts vibration, GPS says
+  // nothing indoors, but this reads the accelerometer pattern and answers
+  // STILL / WALKING / RUNNING directly.
+  //
+  // It is treated as an override, not another vote — when it says the user is
+  // on foot, steps count even if GPS disagrees; when it says STILL, nothing
+  // counts. Only when it has no opinion (no Play Services, permission refused,
+  // UNKNOWN) does the GPS gate decide, exactly as before.
+  StreamSubscription<ar.Activity>? _activitySub;
+  ar.Activity? _lastActivity;
+
+  /// When the classifier first said STILL in the current run of STILL
+  /// readings. Cleared the moment anything else arrives.
+  DateTime? _stillSince;
+
+  /// How long STILL must hold before it blocks steps. The classifier lags a few
+  /// seconds behind a walk starting, so vetoing on the first STILL reading
+  /// would eat the opening steps of every walk.
+  static const Duration _kStillSettle = Duration(seconds: 8);
+
+  bool _isOnFoot(ar.Activity activity) =>
+      activity.type == ar.ActivityType.WALKING ||
+      activity.type == ar.ActivityType.RUNNING;
+
+  /// Whether the OS says the user is not walking right now.
+  ///
+  /// Deliberately conservative: a LOW-confidence reading is not evidence, and
+  /// UNKNOWN means "I don't know", not "no".
+  bool? get _activityVerdict {
+    final ar.Activity? activity = _lastActivity;
+    if (activity == null) return null;
+    if (_isOnFoot(activity)) return false;
+
+    final bool notMoving = activity.type == ar.ActivityType.STILL ||
+        activity.type == ar.ActivityType.IN_VEHICLE;
+    if (!notMoving || activity.confidence == ar.ActivityConfidence.LOW) {
+      return null;
+    }
+
+    final DateTime? since = _stillSince;
+    if (since == null) return null;
+    return DateTime.now().difference(since) > _kStillSettle
+        ? true
+        : null;
+  }
+
+  /// The single gate every step passes through, from either source.
+  bool get _shouldRejectSteps => _activityVerdict ?? _gpsContradictsMovement;
 
   /// Whether GPS is actively contradicting the step sensor.
   ///
@@ -175,7 +277,14 @@ class WalkingCubit extends Cubit<WalkingState> {
     if (now.difference(fixAt) > _kFixFreshness) return false;
 
     final DateTime? movedAt = _lastMovementAt;
-    if (movedAt == null) return true;
+    if (movedAt == null) {
+      // Never displaced since the fixes started arriving. That used to veto
+      // immediately, which silently killed every live step on any device whose
+      // `speed` field reads 0 — now it only counts once the gate has watched
+      // long enough for a real walk to have shown itself.
+      final DateTime? since = _firstUsableFixAt;
+      return since != null && now.difference(since) > _kStillnessSettle;
+    }
     return now.difference(movedAt) > _kMovementGrace;
   }
 
@@ -231,7 +340,7 @@ class WalkingCubit extends Cubit<WalkingState> {
     await _healthService.promptInstall();
   }
 
-  /// Begins a tracking session: first poll immediately, then every 30 s.
+  /// Begins a tracking session: first poll immediately, then every 15 s.
   Future<void> startTracking() async {
     if (state.isTracking) return;
     if (!await _ensurePermissions()) return;
@@ -246,10 +355,17 @@ class WalkingCubit extends Cubit<WalkingState> {
     _lastPedometerEventAt = null;
     _pedometerSessionSteps = 0;
     _stepAllowance = 0;
+    _pendingRawSteps = 0;
     _healthSessionSteps = 0;
     _healthSessionDistanceKm = 0;
+    _ignoredHealthSteps = 0;
+    _lastPolledHealthSteps = null;
     _lastUsableFixAt = null;
+    _firstUsableFixAt = null;
     _lastMovementAt = null;
+    _movementAnchor = null;
+    _lastActivity = null;
+    _stillSince = null;
     _sessionStartedAt = DateTime.now();
     emit(state.copyWith(
       steps: 0,
@@ -268,6 +384,7 @@ class WalkingCubit extends Cubit<WalkingState> {
 
     await _startPedometerIfPermitted();
     await _startGpsIfPermitted();
+    await _startActivityRecognitionIfPermitted();
     _startClock();
     await _poll();
     _pollTimer?.cancel();
@@ -288,7 +405,7 @@ class WalkingCubit extends Cubit<WalkingState> {
   }
 
   /// Ends the session. Reads once more before stopping so the steps taken
-  /// since the last 30 s poll are still reported instead of being dropped.
+  /// since the last 15 s poll are still reported instead of being dropped.
   Future<void> stopTracking() async {
     if (!state.isTracking) return;
 
@@ -331,6 +448,7 @@ class WalkingCubit extends Cubit<WalkingState> {
     _pollTimer = Timer.periodic(_kPollInterval, (_) => _poll());
     await _startPedometerIfPermitted();
     await _startGpsIfPermitted();
+    await _startActivityRecognitionIfPermitted();
   }
 
   void _stopSensors() {
@@ -338,6 +456,12 @@ class WalkingCubit extends Cubit<WalkingState> {
     _pedometerSub = null;
     _gpsSub?.cancel();
     _gpsSub = null;
+    _activitySub?.cancel();
+    _activitySub = null;
+    // The classifier's last word is only meaningful while it is listening;
+    // keeping it would let a stale STILL block the first steps after a resume.
+    _lastActivity = null;
+    _stillSince = null;
   }
 
   @override
@@ -346,7 +470,7 @@ class WalkingCubit extends Cubit<WalkingState> {
     _clockTimer?.cancel();
     _stopSensors();
     // Leaving the screen mid-walk used to drop the steps taken since the last
-    // 30 s poll — close cancelled everything without a final read/sync. Mirror
+    // 15 s poll — close cancelled everything without a final read/sync. Mirror
     // stopTracking's final poll so that tail is synced, the way RunningCubit's
     // close already does for runs.
     if (state.isTracking) {
@@ -376,8 +500,21 @@ class WalkingCubit extends Cubit<WalkingState> {
         _initialHealthCaloriesKcal = metrics.caloriesKcal;
       }
 
+      // Steps the platform recorded since the previous poll. When GPS says the
+      // user did not move during that window they are shakes, not walking, and
+      // are subtracted out for good — the session total takes the larger of the
+      // two sources, so leaving them in would undo the pedometer's own filter.
+      final int? previousHealthSteps = _lastPolledHealthSteps;
+      if (previousHealthSteps != null &&
+          totalHealthSteps > previousHealthSteps &&
+          _shouldRejectSteps) {
+        _ignoredHealthSteps += totalHealthSteps - previousHealthSteps;
+      }
+      _lastPolledHealthSteps = totalHealthSteps;
+
       _healthSessionSteps =
-          (totalHealthSteps - _initialHealthSteps!).clamp(0, totalHealthSteps);
+          (totalHealthSteps - _initialHealthSteps! - _ignoredHealthSteps)
+              .clamp(0, totalHealthSteps);
 
       final int sessionSteps = _sessionSteps;
       _healthSessionDistanceKm = (metrics.distanceKm - _initialHealthDistanceKm!)
@@ -420,6 +557,43 @@ class WalkingCubit extends Cubit<WalkingState> {
     }
   }
 
+  /// Subscribes to the OS activity classifier.
+  ///
+  /// Silently does nothing when the permission is refused or the device has no
+  /// Play Services — the gate then falls back to GPS, which is the behaviour
+  /// that existed before this signal was added.
+  Future<void> _startActivityRecognitionIfPermitted() async {
+    try {
+      final recognition = ar.FlutterActivityRecognition.instance;
+      ar.PermissionRequestResult result = await recognition.checkPermission();
+      if (result == ar.PermissionRequestResult.DENIED) {
+        result = await recognition.requestPermission();
+      }
+      if (result != ar.PermissionRequestResult.GRANTED || isClosed) return;
+
+      _activitySub?.cancel();
+      _activitySub = recognition.activityStream.listen(
+        (ar.Activity activity) {
+          _lastActivity = activity;
+          // Track how long STILL has held. Any other verdict — including
+          // UNKNOWN — ends the run, so a momentary blip cannot start the
+          // veto clock over from a walk that never stopped.
+          final bool isStill = activity.type == ar.ActivityType.STILL ||
+              activity.type == ar.ActivityType.IN_VEHICLE;
+          if (isStill && activity.confidence != ar.ActivityConfidence.LOW) {
+            _stillSince ??= DateTime.now();
+          } else {
+            _stillSince = null;
+          }
+        },
+        onError: (e) => debugPrint('WalkingCubit activity error: $e'),
+        cancelOnError: false,
+      );
+    } catch (e) {
+      debugPrint('WalkingCubit activity recognition error: $e');
+    }
+  }
+
   /// Starts location updates purely as a corroboration signal — no distance is
   /// derived from them. Silently does nothing without permission, in which case
   /// the cadence filter remains the only check.
@@ -439,16 +613,51 @@ class WalkingCubit extends Cubit<WalkingState> {
       _gpsSub = Geolocator.getPositionStream(
         // Medium accuracy is enough to answer "is this person moving at all?"
         // and costs far less battery than the navigation-grade modes.
+        //
+        // distanceFilter is 0, not 3: with a filter the stream goes quiet while
+        // the user stands still, the last fix ages past _kFixFreshness, and the
+        // gate falls open again — which is precisely the case it exists to
+        // catch. Standing still has to keep producing fixes to be provable.
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.medium,
-          distanceFilter: 3,
+          distanceFilter: 0,
         ),
       ).listen(
         (Position pos) {
           if (pos.accuracy > _kUsableAccuracyMeters) return;
           final DateTime now = DateTime.now();
           _lastUsableFixAt = now;
-          if (pos.speed >= _kMinWalkingSpeedMps) _lastMovementAt = now;
+          _firstUsableFixAt ??= now;
+
+          final Position? anchor = _movementAnchor;
+          if (anchor == null) {
+            _movementAnchor = pos;
+            return;
+          }
+
+          // Two independent tests, because neither works everywhere:
+          //
+          //  - speed is the cheap one, but Android's fused provider reports a
+          //    flat 0.0 and iOS reports -1 when it has no valid value, so a
+          //    speed-only test declared every walk stationary.
+          //  - displacement always works, measured against the anchor's own
+          //    error circle so GPS jitter cannot fake it.
+          final bool movingBySpeed = pos.speed >= _kMinWalkingSpeedMps;
+          final double metres = Geolocator.distanceBetween(
+            anchor.latitude,
+            anchor.longitude,
+            pos.latitude,
+            pos.longitude,
+          );
+          final bool movingByDisplacement = metres >
+              math.max(_kMinDisplacementMeters, anchor.accuracy);
+
+          if (movingBySpeed || movingByDisplacement) {
+            _lastMovementAt = now;
+            _movementAnchor = pos;
+          }
+          // Anchor deliberately left alone otherwise — successive small hops
+          // need to add up before they can clear the circle.
         },
         onError: (e) => debugPrint('WalkingCubit GPS error: $e'),
         cancelOnError: false,
@@ -494,11 +703,22 @@ class WalkingCubit extends Cubit<WalkingState> {
         // GPS veto: a fresh, accurate fix showing no displacement means these
         // "steps" are the phone being moved, not the user walking. Indoors the
         // gate fails open and the cadence filter stands alone.
-        final int credited = _gpsContradictsMovement
-            ? 0
-            : rawDelta.clamp(0, _stepAllowance.floor());
-        _pedometerSessionSteps += credited;
-        _stepAllowance -= credited;
+        if (_shouldRejectSteps) {
+          // Drop them outright rather than queueing: they are shakes, and a
+          // queue would just pay them out the moment the user takes a step.
+          _pendingRawSteps = 0;
+        } else {
+          // Queue first, credit what the allowance can afford. The surplus
+          // stays queued instead of being thrown away, so a batched sensor
+          // event no longer loses the steps it could not pay for immediately.
+          _pendingRawSteps =
+              math.min(_pendingRawSteps + rawDelta, _kMaxPendingSteps);
+          final int credited =
+              math.min(_pendingRawSteps, _stepAllowance.floor());
+          _pendingRawSteps -= credited;
+          _pedometerSessionSteps += credited;
+          _stepAllowance -= credited;
+        }
 
         _lastPedometerReading = event.steps;
         _lastPedometerEventAt = now;
@@ -515,7 +735,7 @@ class WalkingCubit extends Cubit<WalkingState> {
     // Forward-only: never publish a lower count than what is already on screen.
     if (liveSteps <= state.steps) return;
     // Distance follows the steps between polls too, otherwise the summary card
-    // sat frozen for up to 30 s on devices where the estimate is the only source.
+    // sat frozen for up to 15 s on devices where the estimate is the only source.
     emit(state.copyWith(steps: liveSteps, distanceKm: _sessionDistanceKm));
   }
 
@@ -564,7 +784,7 @@ class WalkingCubit extends Cubit<WalkingState> {
       final int durationDelta =
           (elapsedSeconds - _lastSentElapsedSeconds).clamp(0, elapsedSeconds);
 
-      // Elapsed time is reported on its own merit: every 30 s poll and the stop
+      // Elapsed time is reported on its own merit: every 15 s poll and the stop
       // press both send, so the walk's duration is credited even when the step
       // sensor contributed nothing that interval. Only a poll with genuinely
       // nothing new — no steps, no distance, no new seconds — is skipped.

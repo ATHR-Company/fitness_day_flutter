@@ -8,6 +8,15 @@
     <!-- Location permissions for map picker -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!--
+        Activity recognition — the OS's STILL / WALKING classifier. The step
+        sensor is a vibration counter and credits a shaken phone as walking;
+        this is what tells the two apart, and unlike GPS it works indoors.
+        The plugin does not declare it, so it has to be declared here.
+        The gms variant covers devices below Android 10.
+    -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <!-- Internet for map tiles -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Network status for connectivity monitoring -->

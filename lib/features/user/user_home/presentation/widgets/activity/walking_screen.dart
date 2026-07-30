@@ -57,6 +57,11 @@ class _WalkingScreenState extends State<WalkingScreen>
   late int _frozenApiDurationSeconds;
   late int _frozenApiCalories;
 
+  /// Today's target is already met — the start button is hidden, since there is
+  /// nothing left to track. Server-owned: the app never decides this by
+  /// comparing progress against the goal itself.
+  late bool _goalReached;
+
   // A getter, not a field: resolving at build time keeps the labels correct
   // when the user switches language without leaving the screen.
   List<String> get _tabs => [
@@ -110,6 +115,7 @@ class _WalkingScreenState extends State<WalkingScreen>
     _frozenApiDistance = 0;
     _frozenApiDurationSeconds = 0;
     _frozenApiCalories = 0;
+    _goalReached = false;
   }
 
   /// Called once after the first successful API load and again after each
@@ -122,6 +128,7 @@ class _WalkingScreenState extends State<WalkingScreen>
     _frozenApiDistance = data.distance ?? 0;
     _frozenApiDurationSeconds = apiDurationSeconds(data.durationMinutes);
     _frozenApiCalories = data.caloriesBurned?.round() ?? 0;
+    _goalReached = data.goalReached;
   }
 
   void _onTabChanged(int index, BuildContext context) {
@@ -341,28 +348,35 @@ class _WalkingScreenState extends State<WalkingScreen>
                               context.read<WalkingCubit>().startTracking(),
                         ),
 
-                      // Summary while tracking, otherwise flexible space — either
-                      // way the start/stop button stays pinned to the bottom.
-                      if (state.isTracking && !state.isLoading)
-                        Expanded(
-                          child: DailySummaryCard(
-                            distance: _frozenApiDistance + state.distanceKm,
-                            unit: 'activity_tracking.km_unit'.tr(),
-                            durationSeconds: _frozenApiDurationSeconds +
-                                state.elapsedSeconds,
-                            calories: _frozenApiCalories + state.caloriesKcal.round(),
-                            isWalking: true,
-                          ),
-                        )
-                      else
-                        const Spacer(),
-
-                      StartStopButton(
-                        isRunning: state.isTracking,
-                        onTap: () =>
-                            _onToggleTracking(context, state.isTracking),
+                      // Always on screen, like the running view: the day's
+                      // figures come from the server, so there is something to
+                      // show before a session ever starts. The live session is
+                      // layered on top only while tracking.
+                      Expanded(
+                        child: DailySummaryCard(
+                          distance: _frozenApiDistance +
+                              (showLive ? state.distanceKm : 0),
+                          unit: 'activity_tracking.km_unit'.tr(),
+                          durationSeconds: _frozenApiDurationSeconds +
+                              (showLive ? state.elapsedSeconds : 0),
+                          calories: _frozenApiCalories +
+                              (showLive ? state.caloriesKcal.round() : 0),
+                          isWalking: true,
+                        ),
                       ),
-                      SizedBox(height: 24.h),
+
+                      // Target met → nothing left to track today, so the start
+                      // button goes away. A session already running keeps its
+                      // stop button, otherwise the user could not end it.
+                      if (!_goalReached || state.isTracking) ...[
+                        StartStopButton(
+                          isRunning: state.isTracking,
+                          onTap: () =>
+                              _onToggleTracking(context, state.isTracking),
+                        ),
+                        SizedBox(height: 24.h),
+                      ] else
+                        SizedBox(height: 24.h),
                     ],
                   ),
                 ),

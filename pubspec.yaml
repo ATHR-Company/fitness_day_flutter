@@ -72,6 +72,10 @@ dependencies:
   # Health & Activity tracking
   health: ^12.2.0
   pedometer: ^4.0.1
+  # The OS's own STILL / WALKING classifier. The step sensor is a vibration
+  # counter and cannot tell walking from a shaken phone; this can, and it works
+  # indoors where GPS gives nothing.
+  flutter_activity_recognition: ^3.0.0
 
   # Connectivity / network status
   connectivity_plus: ^6.1.0
