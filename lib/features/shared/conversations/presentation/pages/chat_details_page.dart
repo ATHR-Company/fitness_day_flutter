@@ -72,7 +72,8 @@ class ChatDetailsPage extends StatefulWidget {
   State<ChatDetailsPage> createState() => _ChatDetailsPageState();
 }
 
-class _ChatDetailsPageState extends State<ChatDetailsPage> {
+class _ChatDetailsPageState extends State<ChatDetailsPage>
+    with WidgetsBindingObserver {
   /// How long the composer stays quiet before we tell the other side that the
   /// user stopped typing.
   static const Duration _typingIdleDelay = Duration(milliseconds: 1500);
@@ -104,8 +105,12 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     _chatCubit = GetIt.instance<ChatCubit>();
     _messageController.addListener(_onComposerChanged);
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addObserver(this);
 
     if (_isServerBacked) {
+      // openChat sends `chat:enter` itself once the conversation id is known —
+      // it can only be resolved after the API call when the screen was opened
+      // with a specialistId instead of a conversationId.
       _chatCubit.openChat(
         existingConversationId: widget.conversationId,
         specialistId: widget.specialistId,
@@ -116,12 +121,30 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     }
   }
 
+  /// Notifications hinge on this. The server holds back a push only while it
+  /// believes this conversation is on screen, and on Android the socket often
+  /// stays alive well after the user leaves the app — so backgrounding without
+  /// a `chat:leave` means the user silently stops getting notified while the
+  /// phone is in their pocket.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_isServerBacked) return;
+    if (state == AppLifecycleState.resumed) {
+      _chatCubit.enterChat();
+    } else {
+      // paused / inactive / detached / hidden — the user is not looking.
+      _chatCubit.leaveChat();
+    }
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _typingTimer?.cancel();
     _messageController.dispose();
     _scrollController.dispose();
     _recorder.dispose();
+    // close() sends `chat:leave`, so popping the screen resumes pushes.
     _chatCubit.close();
     super.dispose();
   }

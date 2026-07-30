@@ -80,6 +80,9 @@ class SocketService {
     _socket!.onConnect((_) {
       _connectedAt = DateTime.now();
       debugPrint('[Socket] ✅ Connected — id=${_socket?.id}');
+      // chat:enter lives on the connection and does not survive a reconnect,
+      // so it has to be sent again whenever one comes back up.
+      _reannounceOpenChat();
     });
 
     _socket!.onDisconnect((reason) {
@@ -119,6 +122,10 @@ class SocketService {
 
   void disconnect() {
     debugPrint('[Socket] 🔌 Disconnecting...');
+    // Logout / teardown: stop claiming a chat is on screen. The server clears
+    // it on disconnect anyway, but this also stops a later reconnect from
+    // re-announcing a screen nobody is looking at.
+    leaveChat();
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
     _kickCount = 0;
@@ -229,6 +236,58 @@ class SocketService {
     }
     debugPrint('[Socket] 👁  chat:read  conversationId=$conversationId');
     _socket!.emit('chat:read', {'conversationId': conversationId});
+  }
+
+  // ── Attention (chat:enter / chat:leave) ───────────────────────────────────
+  //
+  // The backend decides whether to push on *attention*, not on connection: a
+  // live socket says nothing about whether the user can see the message. These
+  // two events tell it which conversation is actually on screen, and the one
+  // that is on screen is the only one that gets no push.
+  //
+  // Holding the id here is what makes reconnects safe — the server keeps this
+  // state on the connection, so it is gone after every reconnect and has to be
+  // announced again.
+
+  /// Conversation currently on screen, or null when none is.
+  String? _openConversationId;
+
+  /// "This conversation is on screen — hold the push."
+  ///
+  /// Replaces any previous one, so moving from chat A to chat B needs only
+  /// `enterChat(B)`; no leave in between.
+  void enterChat(String conversationId) {
+    _openConversationId = conversationId;
+    _ensureConnected();
+    if (_socket == null || !_socket!.connected) {
+      // Not fatal: the id is remembered and re-announced on connect.
+      debugPrint('[Socket] ⚠️  chat:enter — not connected, will retry on connect');
+      return;
+    }
+    debugPrint('[Socket] 🚪 chat:enter  conversationId=$conversationId');
+    _socket!.emit('chat:enter', {'conversationId': conversationId});
+  }
+
+  /// "No conversation on screen — resume pushes."
+  ///
+  /// Must be sent when the app goes to the background as well as when the
+  /// screen closes: on Android the socket often outlives the app going to the
+  /// background, and a server that still believes the chat is open sends no
+  /// notification at all.
+  void leaveChat() {
+    _openConversationId = null;
+    if (_socket == null || !_socket!.connected) return;
+    debugPrint('[Socket] 🚪 chat:leave');
+    _socket!.emit('chat:leave', <String, dynamic>{});
+  }
+
+  /// Re-announces the open conversation after a (re)connect.
+  void _reannounceOpenChat() {
+    final String? conversationId = _openConversationId;
+    if (conversationId == null) return;
+    if (_socket == null || !_socket!.connected) return;
+    debugPrint('[Socket] 🔁 re-emitting chat:enter after connect — $conversationId');
+    _socket!.emit('chat:enter', {'conversationId': conversationId});
   }
 
   // ── Listening ─────────────────────────────────────────────────────────────

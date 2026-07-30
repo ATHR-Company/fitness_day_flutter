@@ -124,9 +124,24 @@ class ChatCubit extends Cubit<ChatState> {
     _socketService.onChatRead(_onChatRead);
     _socketService.onChatDelivered(_onChatDelivered);
 
-    // Inform the server we've read everything.
+    // Two separate announcements on purpose: `chat:enter` decides whether the
+    // server pushes a notification for this conversation, `chat:read` clears
+    // the unread badge and sends the read receipt. Opening a chat is both.
+    _socketService.enterChat(conversationId);
     _socketService.emitRead(conversationId: conversationId);
   }
+
+  /// Re-announces the open conversation — used when the app returns to the
+  /// foreground with the chat still on top.
+  void enterChat() {
+    final currentState = state;
+    if (currentState is! ChatLoaded) return;
+    _socketService.enterChat(currentState.conversationId);
+    _socketService.emitRead(conversationId: currentState.conversationId);
+  }
+
+  /// "No chat on screen" — the app went to the background or the screen closed.
+  void leaveChat() => _socketService.leaveChat();
 
   /// Sends [isTyping] status to the server.
   void sendTyping(bool isTyping) {
@@ -383,6 +398,9 @@ class ChatCubit extends Cubit<ChatState> {
   @override
   Future<void> close() {
     debugPrint('[ChatCubit] 🛑 close — removing socket listeners');
+    // The screen is going away, so the server must stop holding back pushes
+    // for this conversation.
+    _socketService.leaveChat();
     _socketService.offMessageReceived();
     return super.close();
   }
