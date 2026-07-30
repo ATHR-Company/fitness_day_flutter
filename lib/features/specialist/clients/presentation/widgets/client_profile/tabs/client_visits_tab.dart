@@ -7,6 +7,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/widgets/network_error_view.dart';
 import 'package:fitness_day/features/specialist/clients/data/models/client_assessment_model.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_state.dart';
@@ -37,23 +38,8 @@ class _ClientVisitsTabState extends State<ClientVisitsTab> {
           }
 
           if (state is ClientAssessmentsFailure) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    state.message,
-                    style: TextStyleManager.style13Medium.copyWith(color: AppColors.error),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
-                    onPressed: () => context.read<ClientAssessmentsCubit>().loadAssessments(userId: widget.userId),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                    child: Text('common.retry'.tr(), style: const TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
+            return NetworkErrorView(
+              onRetry: () => context.read<ClientAssessmentsCubit>().loadAssessments(userId: widget.userId),
             );
           }
 

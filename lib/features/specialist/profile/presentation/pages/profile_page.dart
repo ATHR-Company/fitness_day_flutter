@@ -9,6 +9,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
+import 'package:fitness_day/core/widgets/network_error_view.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/widgets/edit_profile_dialog.dart';
 import 'package:fitness_day/core/widgets/profile/language_dialog.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
@@ -56,27 +57,8 @@ class ProfilePage extends StatelessWidget {
                             ),
                           );
                         } else if (state is SpecialistProfileFailure && cubit.profileData == null) {
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  state.message,
-                                  style: TextStyleManager.style14Medium.copyWith(color: AppColors.error),
-                                ),
-                                SizedBox(height: 16.h),
-                                ElevatedButton(
-                                  onPressed: () => context.read<SpecialistProfileCubit>().getSpecialistProfile(),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                  ),
-                                  child: Text(
-                                    "common.retry".tr(),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          return NetworkErrorView(
+                            onRetry: () => context.read<SpecialistProfileCubit>().getSpecialistProfile(),
                           );
                         } else if (cubit.profileData != null) {
                           final data = cubit.profileData!;

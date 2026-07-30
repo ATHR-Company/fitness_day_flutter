@@ -5,6 +5,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/chat_time_format.dart';
 import 'package:fitness_day/features/user/ai_chat/presentation/models/ai_chat_message.dart';
+import 'package:fitness_day/core/widgets/typing_dots_indicator.dart';
 
 /// A single AI-coach bubble, with the timestamp underneath.
 class AiChatBubble extends StatelessWidget {
@@ -91,8 +92,7 @@ class AiChatTypingBubble extends StatelessWidget {
             color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16.r),
           ),
-          child:
-              Icon(Icons.more_horiz, color: AppColors.primary, size: 20.sp),
+          child: TypingDotsIndicator(color: AppColors.primary),
         ),
       ),
     );
