@@ -8,7 +8,6 @@ import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart'
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/plan_details_cubit.dart';
-import 'package:fitness_day/features/user/market/presentation/widgets/cancel_subscription_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

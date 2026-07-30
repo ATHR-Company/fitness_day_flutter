@@ -7,6 +7,7 @@ class ChatMediaAttachmentModel extends ChatMediaAttachment {
     required super.url,
     required super.type,
     required super.mimeType,
+    super.title,
   });
 
   factory ChatMediaAttachmentModel.fromJson(Map<String, dynamic> json) {
@@ -15,6 +16,10 @@ class ChatMediaAttachmentModel extends ChatMediaAttachment {
       url: (json['url'] as String?) ?? '',
       type: (json['type'] as String?) ?? 'file',
       mimeType: (json['mimeType'] as String?) ?? '',
+      // The document's readable name. Comes through both the REST response and
+      // the `chat:message` socket event, so the recipient gets it too — the
+      // URL is a UUID and carries nothing usable.
+      title: json['title'] as String?,
     );
   }
 }

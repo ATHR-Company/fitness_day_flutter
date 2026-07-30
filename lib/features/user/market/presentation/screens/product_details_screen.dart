@@ -1,23 +1,26 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/services/app_share_service.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/core/widgets/app_image.dart';
-import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
-import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/product_details_cubit.dart';
-import 'package:fitness_day/features/user/market/presentation/screens/cart_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_add_to_cart_bar.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_details_app_bar.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_details_section.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_photo_carousel.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_price_label.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/product_title_quantity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
+/// Fetches full product details and presents them with a photo carousel,
+/// quantity selector, and sticky add-to-cart bar.
+///
+/// Only [product.id] is used for the API call; [product] itself is shown as
+/// a loading fallback so the screen never appears blank.
 class ProductDetailsScreen extends StatelessWidget {
-  /// Pass only [product.id] — full details are fetched from the API.
-  /// The [product] is used as a fallback for name/price while loading.
   final ProductData product;
 
   const ProductDetailsScreen({super.key, required this.product});
@@ -31,9 +34,8 @@ class ProductDetailsScreen extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// View
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── View ─────────────────────────────────────────────────────────────────────
+
 class _ProductDetailsView extends StatefulWidget {
   final ProductData fallback;
 
@@ -57,545 +59,142 @@ class _ProductDetailsViewState extends State<_ProductDetailsView> {
   Widget build(BuildContext context) {
     return BlocBuilder<ProductDetailsCubit, ProductDetailsState>(
       builder: (context, state) {
-        final isLoading = state is ProductDetailsLoading || state is ProductDetailsInitial;
-        final product = state is ProductDetailsSuccess ? state.product : widget.fallback;
-        final selectedPhoto = state is ProductDetailsSuccess ? state.selectedPhotoIndex : 0;
+        final bool isLoading =
+            state is ProductDetailsLoading || state is ProductDetailsInitial;
+
+        final ProductData product =
+            state is ProductDetailsSuccess ? state.product : widget.fallback;
+
+        final int selectedPhoto =
+            state is ProductDetailsSuccess ? state.selectedPhotoIndex : 0;
 
         return Scaffold(
           backgroundColor: AppColors.dialogBackground,
           body: SafeArea(
             child: Column(
               children: [
-                _AppBar(title: 'market.product_details_title'.tr()),
-                if (isLoading)
-                  const Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
-                    ),
-                  )
-                else if (state is ProductDetailsFailure)
-                  Expanded(
-                    child: Center(
-                      child: Text(state.message, style: TextStyleManager.style14Medium),
-                    ),
-                  )
-                else
-                  Expanded(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Photo carousel
-                          _PhotoCarousel(
-                            photos: product.photos.isNotEmpty
-                                ? product.photos
-                                : [product.imageUrl],
-                            selectedIndex: selectedPhoto,
-                            onPageChanged: (i) =>
-                                context.read<ProductDetailsCubit>().selectPhoto(i),
-                            pageController: _pageController,
-                            isFavorite: product.isFavorite,
-                            onFavoriteTap: () =>
-                                context.read<ProductDetailsCubit>().toggleFavorite(),
-                            onShareTap: () => AppShareService.shareProduct(
-                              context,
-                              productId: product.id,
-                              productName: product.name,
-                            ),
-                          ),
-                          SizedBox(height: 16.h),
+                // ── App bar ────────────────────────────────────────────
+                ProductDetailsAppBar(
+                  title: 'market.product_details_title'.tr(),
+                ),
 
-                          // Title + quantity
-                          _TitleAndQuantity(
-                            name: product.name,
-                            quantity: _quantity,
-                            onIncrement: () => setState(() => _quantity++),
-                            onDecrement: () {
-                              if (_quantity > 1) setState(() => _quantity--);
-                            },
+                // ── Body ───────────────────────────────────────────────
+                Expanded(
+                  child: isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
                           ),
-                          SizedBox(height: 8.h),
-
-                          // Price
-                          _Price(
-                            price: product.currentPrice,
-                            oldPrice: product.oldPrice,
-                          ),
-                          SizedBox(height: 16.h),
-
-                          // Details sections from API
-                          if (product.details.isNotEmpty)
-                            ...product.details.map(
-                              (d) => _DetailsSection(
-                                title: d.title,
-                                body: d.description,
+                        )
+                      : state is ProductDetailsFailure
+                          ? Center(
+                              child: Text(
+                                state.message,
+                                style: TextStyleManager.style14Medium,
                               ),
                             )
-                          else ...[
-                            // Fallback static sections (shown while details not loaded)
-                            _DetailsSection(
-                              title: 'market.product_description_label'.tr(),
-                              body: '',
+                          : _ProductBody(
+                              product: product,
+                              selectedPhoto: selectedPhoto,
+                              quantity: _quantity,
+                              pageController: _pageController,
+                              onQuantityChanged: (q) =>
+                                  setState(() => _quantity = q),
                             ),
-                          ],
-
-                          SizedBox(height: 40.h),
-                        ],
-                      ),
-                    ),
-                  ),
+                ),
               ],
             ),
           ),
-          bottomNavigationBar:
-              _BottomAddToCart(productId: product.id, quantity: _quantity),
+          bottomNavigationBar: ProductAddToCartBar(
+            productId: product.id,
+            quantity: _quantity,
+          ),
         );
       },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Photo Carousel
-// ─────────────────────────────────────────────────────────────────────────────
-class _PhotoCarousel extends StatelessWidget {
-  final List<String> photos;
-  final int selectedIndex;
-  final ValueChanged<int> onPageChanged;
+// ─── Scrollable product body ──────────────────────────────────────────────────
+
+class _ProductBody extends StatelessWidget {
+  final ProductData product;
+  final int selectedPhoto;
+  final int quantity;
   final PageController pageController;
-  final bool isFavorite;
-  final VoidCallback onFavoriteTap;
-  final VoidCallback onShareTap;
+  final ValueChanged<int> onQuantityChanged;
 
-  const _PhotoCarousel({
-    required this.photos,
-    required this.selectedIndex,
-    required this.onPageChanged,
-    required this.pageController,
-    required this.isFavorite,
-    required this.onFavoriteTap,
-    required this.onShareTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16.r),
-            child: Stack(
-              children: [
-                SizedBox(
-                  height: 250.h,
-                  child: PageView.builder(
-                    controller: pageController,
-                    itemCount: photos.length,
-                    onPageChanged: onPageChanged,
-                    itemBuilder: (_, i) => AppImage(
-                      photos[i],
-                      height: 250.h,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                PositionedDirectional(
-                  top: 12.h,
-                  start: 12.w,
-                  child: Row(
-                    children: [
-                      _IconBtn(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        AppColors.primary,
-                        onTap: onFavoriteTap,
-                      ),
-                      SizedBox(width: 8.w),
-                      _IconBtn(Icons.share, AppColors.primary, onTap: onShareTap),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (photos.length > 1) ...[
-            SizedBox(height: 10.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(photos.length, (i) {
-                final isActive = i == selectedIndex;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: EdgeInsets.symmetric(horizontal: 3.w),
-                  width: isActive ? 20.w : 8.w,
-                  height: 8.w,
-                  decoration: BoxDecoration(
-                    color: isActive ? AppColors.primary : AppColors.divider,
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                );
-              }),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _IconBtn extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onTap;
-
-  const _IconBtn(this.icon, this.color, {this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(8.r),
-        decoration: BoxDecoration(
-          color: AppColors.black.withValues(alpha: 0.4),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, color: color, size: 20.sp),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Title + Quantity
-// ─────────────────────────────────────────────────────────────────────────────
-class _TitleAndQuantity extends StatelessWidget {
-  final String name;
-  final int quantity;
-  final VoidCallback onIncrement;
-  final VoidCallback onDecrement;
-
-  const _TitleAndQuantity({
-    required this.name,
+  const _ProductBody({
+    required this.product,
+    required this.selectedPhoto,
     required this.quantity,
-    required this.onIncrement,
-    required this.onDecrement,
+    required this.pageController,
+    required this.onQuantityChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(
-              name,
-              style: TextStyleManager.heading3.copyWith(
-                fontWeight: FontWeight.bold,
-                height: 1.3,
-              ),
-            ),
-          ),
-          SizedBox(width: 16.w),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: onIncrement,
-                child: Icon(Icons.add_circle_outline,
-                    color: AppColors.primary, size: 28.sp),
-              ),
-              SizedBox(width: 12.w),
-              Text(
-                '$quantity',
-                style: TextStyleManager.heading3.copyWith(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(width: 12.w),
-              GestureDetector(
-                onTap: onDecrement,
-                child: Icon(Icons.remove_circle_outline,
-                    color: AppColors.primary, size: 28.sp),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
+    final photos = product.photos.isNotEmpty
+        ? product.photos
+        : [product.imageUrl];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Price
-// ─────────────────────────────────────────────────────────────────────────────
-class _Price extends StatelessWidget {
-  final double price;
-  final double? oldPrice;
-
-  const _Price({required this.price, this.oldPrice});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Text(
-            '${price.toInt()}',
-            style: TextStyleManager.heading1.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(width: 4.w),
-          Text(
-            'home.sar'.tr(),
-            style: TextStyleManager.style13Medium.copyWith(color: AppColors.black),
-          ),
-          if (oldPrice != null) ...[
-            SizedBox(width: 12.w),
-            Text(
-              '${oldPrice!.toInt()} ${'home.sar'.tr()}',
-              style: TextStyleManager.style11Medium.copyWith(
-                color: AppColors.error,
-                decoration: TextDecoration.lineThrough,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Details Section (from API `details` array)
-// ─────────────────────────────────────────────────────────────────────────────
-class _DetailsSection extends StatelessWidget {
-  final String title;
-  final String body;
-
-  const _DetailsSection({required this.title, required this.body});
-
-  @override
-  Widget build(BuildContext context) {
-    if (body.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 16.h),
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            title,
-            style: TextStyleManager.style13Medium.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.bold,
+          // Photo carousel
+          ProductPhotoCarousel(
+            photos: photos,
+            selectedIndex: selectedPhoto,
+            pageController: pageController,
+            onPageChanged: (i) =>
+                context.read<ProductDetailsCubit>().selectPhoto(i),
+            isFavorite: product.isFavorite,
+            onFavoriteTap: () =>
+                context.read<ProductDetailsCubit>().toggleFavorite(),
+            onShareTap: () => AppShareService.shareProduct(
+              context,
+              productId: product.id,
+              productName: product.name,
             ),
           ),
+
+          SizedBox(height: 16.h),
+
+          // Title + quantity stepper
+          ProductTitleQuantity(
+            name: product.name,
+            quantity: quantity,
+            onIncrement: () => onQuantityChanged(quantity + 1),
+            onDecrement: () {
+              if (quantity > 1) onQuantityChanged(quantity - 1);
+            },
+          ),
+
           SizedBox(height: 8.h),
-          Text(
-            body,
-            style: TextStyleManager.style11Medium.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.6,
+
+          // Price
+          ProductPriceLabel(
+            price: product.currentPrice,
+            oldPrice: product.oldPrice,
+          ),
+
+          SizedBox(height: 16.h),
+
+          // Details sections from API
+          if (product.details.isNotEmpty)
+            ...product.details.map(
+              (d) => ProductDetailsSection(title: d.title, body: d.description),
+            )
+          else
+            ProductDetailsSection(
+              title: 'market.product_description_label'.tr(),
+              body: '',
             ),
-          ),
+
+          SizedBox(height: 40.h),
         ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// App Bar
-// ─────────────────────────────────────────────────────────────────────────────
-class _AppBar extends StatelessWidget {
-  final String title;
-
-  const _AppBar({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyleManager.heading3.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 44.w,
-                  height: 44.w,
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.textSecondary.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Icon(Icons.arrow_back_ios_rounded,
-                      size: 20.sp, color: AppColors.black),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CartScreen()),
-                ),
-                child: Container(
-                  width: 44.w,
-                  height: 44.w,
-                  padding: EdgeInsets.all(12.r),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.textSecondary.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: AppImage(SvgIcons.market_icon, color: AppColors.textSecondary),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Bottom Add to Cart
-// ─────────────────────────────────────────────────────────────────────────────
-class _BottomAddToCart extends StatelessWidget {
-  final String productId;
-  final int quantity;
-
-  const _BottomAddToCart({required this.productId, required this.quantity});
-
-  Future<void> _add(BuildContext context, CartCubit cart) async {
-    final ok = await cart.addToCart(
-      itemType: CartItemType.product,
-      itemIdentity: productId,
-      quantity: quantity,
-    );
-    if (!ok && context.mounted) {
-      final msg = cart.state.errorMessage;
-      if (msg != null && msg.isNotEmpty) {
-        showAppSnackBar(context, text: msg, isError: true);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cart = getIt<CartCubit>();
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(32.r),
-          topRight: Radius.circular(32.r),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: AppColors.divider,
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
-              SizedBox(height: 16.h),
-              SizedBox(
-                width: double.infinity,
-                height: 50.h,
-                child: BlocBuilder<CartCubit, CartState>(
-                  bloc: cart,
-                  builder: (context, state) {
-                    final bool added = state.isInCart(productId);
-                    final bool adding = state.isAdding(productId);
-                    return ElevatedButton(
-                      onPressed:
-                          (added || adding) ? null : () => _add(context, cart),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            added ? AppColors.marketGreen : AppColors.primary,
-                        disabledBackgroundColor:
-                            added ? AppColors.marketGreen : AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25.r),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: adding
-                          ? SizedBox(
-                              width: 22.w,
-                              height: 22.w,
-                              child: const CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.white,
-                              ),
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (added)
-                                  Icon(Icons.check_circle_rounded,
-                                      color: AppColors.white, size: 22.sp)
-                                else
-                                  AppImage(SvgIcons.market_icon,
-                                      color: AppColors.white,
-                                      width: 20.w,
-                                      height: 20.h),
-                                SizedBox(width: 8.w),
-                                Text(
-                                  (added ? 'market.added' : 'market.add_to_cart')
-                                      .tr(),
-                                  style: TextStyleManager.style15Medium.copyWith(
-                                    color: AppColors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

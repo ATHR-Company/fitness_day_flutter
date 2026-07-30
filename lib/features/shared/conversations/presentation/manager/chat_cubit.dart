@@ -188,7 +188,12 @@ class ChatCubit extends Cubit<ChatState> {
       isMine: true,
       status: MessageStatus.sent,
       createdAt: DateTime.now(),
-      media: files.map((f) => ChatMediaAttachment.local(f.path)).toList(),
+      // The name is passed explicitly rather than derived from the path: for a
+      // document it is what the server stores as the title, so the sender's
+      // own bubble shows exactly what the recipient will see.
+      media: files
+          .map((f) => ChatMediaAttachment.local(f.path, title: f.name))
+          .toList(),
     );
     emit(currentState.copyWithNewMessage(optimistic));
 

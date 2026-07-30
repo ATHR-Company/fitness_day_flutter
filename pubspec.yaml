@@ -24,6 +24,9 @@ dependencies:
   get_it: ^8.2.0
   easy_localization: ^3.0.8
   dio: ^5.9.0
+  # Direct dependency because chat uploads set MultipartFile.contentType by
+  # hand — without an explicit MIME the server's upload filter rejects PDFs.
+  http_parser: ^4.1.2
   pretty_dio_logger: ^1.4.0
   get_storage: ^2.1.1
   flutter_secure_storage: ^10.0.0-beta.4

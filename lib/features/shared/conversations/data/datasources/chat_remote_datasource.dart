@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:image_picker/image_picker.dart';
 import 'package:fitness_day/core/network/api_service.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
@@ -179,11 +180,26 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
     final formData = FormData();
     for (final f in files) {
+      final MediaType? contentType = _contentTypeFor(f.name);
       final multipart = await MultipartFile.fromFile(
         f.path,
         filename: f.name,
+        // Explicit on purpose: the picker often reports a PDF as
+        // `application/octet-stream` on Android, and the upload filter drops
+        // an unrecognised type before the server's own code runs — the reply
+        // is a bare `LIMIT_UNEXPECTED_FILE` that says nothing about the MIME.
+        contentType: contentType,
       );
       formData.files.add(MapEntry('chat-media', multipart));
+
+      // The stored file is renamed to a UUID, so this is the only thing that
+      // gives the document a readable name on the recipient's side. Titles are
+      // matched to files **by position**, and it is all-or-nothing across the
+      // batch — hence an empty placeholder for non-documents rather than
+      // skipping the entry, which would shift every later title onto the
+      // wrong file.
+      final bool isDocument = contentType?.subtype == 'pdf';
+      formData.fields.add(MapEntry('titles', isDocument ? f.name : ''));
     }
 
     final response = await _api.post(endpoint, data: formData);
@@ -193,4 +209,39 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         '[REST] uploadMedia → msgId=${model.id}, media count=${model.media.length}');
     return model;
   }
+
+  /// MIME type for [fileName], derived from its extension.
+  ///
+  /// Only the types the server accepts are listed; anything else returns null
+  /// and lets Dio decide, so an unsupported file fails on the server's own
+  /// validation with a message we can show, rather than being mislabelled here.
+  static MediaType? _contentTypeFor(String fileName) {
+    final int dot = fileName.lastIndexOf('.');
+    if (dot == -1) return null;
+    final String ext = fileName.substring(dot + 1).toLowerCase();
+
+    return _mediaTypeByExtension[ext];
+  }
+
+  /// MediaType has no const constructor, so this is built once and reused.
+  static final Map<String, MediaType> _mediaTypeByExtension = {
+    // Documents — pdf is the only accepted one.
+    'pdf': MediaType('application', 'pdf'),
+    // Images
+    'jpg': MediaType('image', 'jpeg'),
+    'jpeg': MediaType('image', 'jpeg'),
+    'png': MediaType('image', 'png'),
+    'gif': MediaType('image', 'gif'),
+    'webp': MediaType('image', 'webp'),
+    // Video
+    'mp4': MediaType('video', 'mp4'),
+    'mov': MediaType('video', 'quicktime'),
+    'avi': MediaType('video', 'x-msvideo'),
+    'webm': MediaType('video', 'webm'),
+    // Audio
+    'mp3': MediaType('audio', 'mpeg'),
+    'm4a': MediaType('audio', 'mp4'),
+    'wav': MediaType('audio', 'wav'),
+    'ogg': MediaType('audio', 'ogg'),
+  };
 }

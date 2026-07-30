@@ -312,11 +312,11 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
   Future<void> _pickDocument() async {
     try {
+      // PDF only — the server accepts no other document type, so offering Word
+      // or Excel here just produced an upload that always failed.
       final result = await FilePicker.pickFiles(
         type: FileType.custom,
-        allowedExtensions: const [
-          'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'zip',
-        ],
+        allowedExtensions: const ['pdf'],
       );
       final picked = result?.files.single;
       if (picked?.path != null) {

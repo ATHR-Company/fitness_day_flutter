@@ -5,29 +5,37 @@
 /// {
 ///   "id":       "6a66140e525c6480272941c6",
 ///   "url":      "https://fitnessday.tech/uploads/chat-messages-media/...",
-///   "type":     "image",
-///   "mimeType": "image/png"
+///   "type":     "document",
+///   "mimeType": "application/pdf",
+///   "title":    "خطة التغذية - الأسبوع الثالث"
 /// }
 /// ```
 class ChatMediaAttachment {
   final String id;
   final String url;
 
-  /// Server type: "image" | "video" | "audio" | "file".
+  /// Server type: "image" | "video" | "audio" | "document" ("file" on older
+  /// messages).
   final String type;
   final String mimeType;
+
+  /// Readable name of a **document**, and the only place it exists: the stored
+  /// file is renamed to a UUID, so [url] carries no usable label. `null` for
+  /// every other type — the server never sets it for images/video/audio.
+  final String? title;
 
   const ChatMediaAttachment({
     required this.id,
     required this.url,
     required this.type,
     required this.mimeType,
+    this.title,
   });
 
   /// Attachment that still lives on this device — used for the optimistic
   /// bubble shown while the upload is in flight. [url] holds the file path
   /// and the type is inferred from the extension.
-  factory ChatMediaAttachment.local(String path) {
+  factory ChatMediaAttachment.local(String path, {String? title}) {
     final String name = path.split(RegExp(r'[/\\]')).last;
     final int dot = name.lastIndexOf('.');
     final String ext = dot == -1 ? '' : name.substring(dot + 1).toLowerCase();
@@ -42,14 +50,37 @@ class ChatMediaAttachment {
             ? 'video'
             : audioExt.contains(ext)
                 ? 'audio'
-                : 'file';
+                : 'document';
 
-    return ChatMediaAttachment(id: '', url: path, type: type, mimeType: '');
+    return ChatMediaAttachment(
+      id: '',
+      url: path,
+      type: type,
+      mimeType: '',
+      // So the sender's own bubble shows the same name the recipient will get.
+      title: type == 'document' ? (title ?? name) : null,
+    );
   }
 
   bool get isImage => type == 'image' || type == 'photo';
   bool get isVideo => type == 'video';
   bool get isAudio => type == 'audio';
+
+  /// `file` is what older messages carry; the server sends `document` now.
+  bool get isDocument => type == 'document' || type == 'file';
+
+  /// What the document row shows. [title] first — falling back to the URL's
+  /// last segment only for legacy messages stored before titles existed, where
+  /// it is the UUID the file was renamed to.
+  String get displayName {
+    final String? name = title?.trim();
+    if (name != null && name.isNotEmpty) return name;
+    final Uri? uri = Uri.tryParse(url);
+    final String fromUrl = (uri != null && uri.pathSegments.isNotEmpty)
+        ? uri.pathSegments.last
+        : url.split(RegExp(r'[/\\]')).last;
+    return Uri.decodeComponent(fromUrl);
+  }
 
   /// True while [url] still points at a device file path instead of a
   /// server URL — the UI renders those with `Image.file` / a local player.

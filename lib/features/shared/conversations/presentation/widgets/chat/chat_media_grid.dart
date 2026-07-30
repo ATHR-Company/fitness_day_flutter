@@ -92,6 +92,8 @@ class _SingleAttachment extends StatelessWidget {
           ? _ImagePreview(attachment: attachment)
           : attachment.isVideo
               ? const _VideoPreview()
+              // Anything that isn't image/video/audio is drawn as a document
+              // row — that covers `document` and the legacy `file` type.
               : _DocumentRow(attachment: attachment),
     );
   }
@@ -160,9 +162,12 @@ class _DocumentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String fileName = Uri.tryParse(attachment.url)?.pathSegments.last ??
-        attachment.url.split('/').last;
-    final bool isPdf = fileName.toLowerCase().endsWith('.pdf');
+    // The server's title, not the URL: the stored file is renamed to a UUID, so
+    // reading the name off the URL showed the recipient `f3c2a1b4-....pdf`
+    // while the sender's own optimistic bubble still had the real name.
+    final String fileName = attachment.displayName;
+    final bool isPdf = fileName.toLowerCase().endsWith('.pdf') ||
+        attachment.mimeType == 'application/pdf';
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
