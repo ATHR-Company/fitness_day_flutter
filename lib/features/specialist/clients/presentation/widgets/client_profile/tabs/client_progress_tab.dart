@@ -31,6 +31,7 @@ class ClientProgressTab extends StatelessWidget {
 
           if (state is ClientProgressFailure) {
             return NetworkErrorView(
+              subtitle: state.message,
               onRetry: () => context.read<ClientProgressCubit>().loadProgress(userId: userId),
             );
           }

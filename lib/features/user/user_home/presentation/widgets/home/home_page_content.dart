@@ -339,6 +339,7 @@ class HomePageContent extends StatelessWidget {
           return Scaffold(
             backgroundColor: AppColors.white,
             body: NetworkErrorView(
+              subtitle: state.message,
               onRetry: () => context.read<UserHomeCubit>().loadHomeData(),
             ),
           );

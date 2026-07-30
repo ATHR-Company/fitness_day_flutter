@@ -62,6 +62,7 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
                 ),
               ),
               body: NetworkErrorView(
+                subtitle: state.message,
                 onRetry: () => context.read<SpecialistClientProfileCubit>().getSpecialistClientProfile(
                       userId: widget.userId,
                     ),

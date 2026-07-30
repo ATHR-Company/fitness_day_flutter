@@ -131,6 +131,7 @@ class _ProductsListViewState extends State<_ProductsListView> {
 
                     if (state is ProductsListFailure) {
                       return NetworkErrorView(
+                        subtitle: state.message,
                         onRetry: () => context.read<ProductsListCubit>().loadFirst(),
                       );
                     }

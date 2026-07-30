@@ -61,6 +61,7 @@ class HomePage extends StatelessWidget {
                   );
                 } else if (state is SpecialistHomeFailure) {
                   return NetworkErrorView(
+                    subtitle: state.message,
                     onRetry: () => context.read<SpecialistHomeCubit>().getSpecialistHomeData(),
                   );
                 } else if (state is SpecialistHomeSuccess) {

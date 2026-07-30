@@ -131,6 +131,7 @@ class _ClientsPageState extends State<ClientsPage> {
                                 );
                               } else if (state is SpecialistClientsFailure) {
                                 return NetworkErrorView(
+                                  subtitle: state.message,
                                   onRetry: () => context.read<SpecialistClientsCubit>().getSpecialistClients(
                                         status: _getStatusString(_selectedTabIndex),
                                         search: _searchController.text,
