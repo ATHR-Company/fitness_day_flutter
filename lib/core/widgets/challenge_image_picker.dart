@@ -6,13 +6,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/utils/media_permissions.dart';
 import 'package:fitness_day/core/widgets/image_source_sheet.dart';
-import 'package:fitness_day/core/widgets/image_full_screen_viewer.dart';
+import 'package:fitness_day/core/widgets/full_screen_image_view.dart';
 
 /// Circular image picker used in create-challenge and edit-profile screens.
 ///
+/// When [showEditOverlay] is true (profile pickers):
+/// - **Tap on the edit badge** → opens [ImageSourceSheet] to pick from
+///   camera or gallery.
+/// - **Tap on the image** → opens [FullScreenImageView] for the currently
+///   displayed image (falls back to the source sheet if there's no image).
+///
+/// Otherwise (e.g. create-challenge):
 /// - **Tap** → opens [ImageSourceSheet] to pick from camera or gallery.
-/// - **Long-press** (or tap when an image is already set) → opens
-///   [ImageFullScreenViewer] for the currently displayed image.
+/// - **Long-press** (when an image is already set) → opens
+///   [FullScreenImageView] for the currently displayed image.
 class ChallengeImagePicker extends StatefulWidget {
   final String? initialImageUrl;
   final ValueChanged<File>? onImagePicked;
@@ -80,13 +87,23 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
 
   void _openFullScreen() {
     if (!_hasImage) return;
-    if (_pickedImage != null) {
-      ImageFullScreenViewer.show(context, file: _pickedImage);
+    FullScreenImageView.show(
+      context,
+      imageFile: _pickedImage,
+      imageUrl: _pickedImage == null ? widget.initialImageUrl : null,
+      heroTag: 'challenge_image_picker_${widget.hashCode}',
+    );
+  }
+
+  void _onImageTap() {
+    if (widget.showEditOverlay) {
+      if (_hasImage) {
+        _openFullScreen();
+      } else {
+        _showSourceSheet();
+      }
     } else {
-      ImageFullScreenViewer.show(
-        context,
-        networkUrl: widget.initialImageUrl,
-      );
+      _showSourceSheet();
     }
   }
 
@@ -103,10 +120,11 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
         mainAxisSize: MainAxisSize.min,
         children: [
           GestureDetector(
-            // Tap → pick a new image
-            onTap: _showSourceSheet,
-            // Long-press → view current image full-screen
-            onLongPress: hasImage ? _openFullScreen : null,
+            // Tap → view full-screen (profile) or pick a new image (challenge)
+            onTap: _onImageTap,
+            // Long-press → view current image full-screen (challenge picker
+            // only; the profile picker already opens it on tap)
+            onLongPress: (!widget.showEditOverlay && hasImage) ? _openFullScreen : null,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -152,22 +170,25 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
                   Positioned(
                     bottom: 0,
                     left: 0,
-                    child: Container(
-                      padding: EdgeInsets.all(4.r),
-                      decoration: const BoxDecoration(
-                        color: AppColors.white,
-                        shape: BoxShape.circle,
-                      ),
+                    child: GestureDetector(
+                      onTap: _showSourceSheet,
                       child: Container(
-                        padding: EdgeInsets.all(6.r),
+                        padding: EdgeInsets.all(4.r),
                         decoration: const BoxDecoration(
-                          color: AppColors.primary,
+                          color: AppColors.white,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          Icons.edit,
-                          color: AppColors.white,
-                          size: 14.sp,
+                        child: Container(
+                          padding: EdgeInsets.all(6.r),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.edit,
+                            color: AppColors.white,
+                            size: 14.sp,
+                          ),
                         ),
                       ),
                     ),

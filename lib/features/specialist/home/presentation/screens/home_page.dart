@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
-import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/widgets/network_error_view.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/features/specialist/home/presentation/widgets/home_header.dart';
 import 'package:fitness_day/features/specialist/home/presentation/widgets/performance_summary_section.dart';
@@ -60,27 +60,8 @@ class HomePage extends StatelessWidget {
                     ),
                   );
                 } else if (state is SpecialistHomeFailure) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          state.message,
-                          style: TextStyleManager.style14Medium.copyWith(color: AppColors.error),
-                        ),
-                        SizedBox(height: 16.h),
-                        ElevatedButton(
-                          onPressed: () => context.read<SpecialistHomeCubit>().getSpecialistHomeData(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                          ),
-                          child: Text(
-                            "common.retry".tr(),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
+                  return NetworkErrorView(
+                    onRetry: () => context.read<SpecialistHomeCubit>().getSpecialistHomeData(),
                   );
                 } else if (state is SpecialistHomeSuccess) {
                   final data = state.data;

@@ -209,50 +209,51 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     required String value,
     required VoidCallback? onTap,
   }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: AppColors.dividerLight,
-          width: 0.5.w,
-        ),
-        boxShadow: AppShadows.profileItemShadow,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Right visual side: label
-          Text(
-            label,
-            style: TextStyleManager.style11Medium,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: AppColors.dividerLight,
+            width: 0.5.w,
           ),
-          // Left visual side: value + edit button (RTL layout)
-          Row(
-            children: [
-              Text(
-                value,
-                style: TextStyleManager.style11Medium.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
+          boxShadow: AppShadows.profileItemShadow,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Right visual side: label
+            Text(
+              label,
+              style: TextStyleManager.style11Medium,
+            ),
+            // Left visual side: value + edit button (RTL layout)
+            Row(
+              children: [
+                Text(
+                  value,
+                  style: TextStyleManager.style11Medium.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              if (onTap != null) ...[
-                SizedBox(width: 12.w),
-                GestureDetector(
-                  onTap: onTap,
-                  child: AppImage(
+                if (onTap != null) ...[
+                  SizedBox(width: 12.w),
+                  AppImage(
                     SvgIcons.editInfo,
                     width: 11.r,
                     height: 11.r,
                   ),
-                ),
+                ],
               ],
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

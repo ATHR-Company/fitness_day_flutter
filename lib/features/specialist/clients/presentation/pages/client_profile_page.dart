@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
+import 'package:fitness_day/core/widgets/network_error_view.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/open_client_chat.dart';
@@ -60,29 +61,10 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      state.message,
-                      style: TextStyleManager.style14Medium.copyWith(color: AppColors.error),
+              body: NetworkErrorView(
+                onRetry: () => context.read<SpecialistClientProfileCubit>().getSpecialistClientProfile(
+                      userId: widget.userId,
                     ),
-                    SizedBox(height: 16.h),
-                    ElevatedButton(
-                      onPressed: () => context.read<SpecialistClientProfileCubit>().getSpecialistClientProfile(
-                            userId: widget.userId,
-                          ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                      ),
-                      child: Text(
-                        "common.retry".tr(),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             );
           } else if (state is SpecialistClientProfileSuccess) {

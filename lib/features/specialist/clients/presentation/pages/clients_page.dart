@@ -1,5 +1,6 @@
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/core/widgets/network_error_view.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -129,30 +130,11 @@ class _ClientsPageState extends State<ClientsPage> {
                                   ),
                                 );
                               } else if (state is SpecialistClientsFailure) {
-                                return Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        state.message,
-                                        style: TextStyleManager.style14Medium.copyWith(color: AppColors.error),
+                                return NetworkErrorView(
+                                  onRetry: () => context.read<SpecialistClientsCubit>().getSpecialistClients(
+                                        status: _getStatusString(_selectedTabIndex),
+                                        search: _searchController.text,
                                       ),
-                                      SizedBox(height: 16.h),
-                                      ElevatedButton(
-                                        onPressed: () => context.read<SpecialistClientsCubit>().getSpecialistClients(
-                                              status: _getStatusString(_selectedTabIndex),
-                                              search: _searchController.text,
-                                            ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.primary,
-                                        ),
-                                        child: Text(
-                                          "common.retry".tr(),
-                                          style: const TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                                 );
                               } else if (state is SpecialistClientsSuccess) {
                                 final clientResponse = state.data;
