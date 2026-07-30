@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 
@@ -21,6 +22,9 @@ class VisitCard extends StatelessWidget {
   final String iconPath;
   final String? secondaryButtonText;
   final VoidCallback? onSecondaryPressed;
+
+  /// Opens the chat with this card's client. Null hides the icon entirely.
+  final VoidCallback? onChatPressed;
   final bool showButton;
   final Color? iconColor;
   final bool isCompleted;
@@ -43,6 +47,7 @@ class VisitCard extends StatelessWidget {
     this.iconPath = SvgIcons.monitor,
     this.secondaryButtonText,
     this.onSecondaryPressed,
+    this.onChatPressed,
     this.showButton = true,
     this.iconColor,
     this.isCompleted = false,
@@ -121,6 +126,13 @@ class VisitCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      // Chat with the person this card is about. Only rendered
+                      // when the caller supplies a handler, so cards that have
+                      // nobody to message stay exactly as they were.
+                      if (onChatPressed != null) ...[
+                        MessageIconButton(onTap: onChatPressed),
+                        const Spacer(),
+                      ],
                       SizedBox(
                         height: 36.h,
                         child: ElevatedButton(

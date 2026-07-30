@@ -16,7 +16,10 @@ abstract class ChatRepository {
   });
 
   // Specialist Chat
-  Future<ApiResult<List<UserConversation>>> getSpecialistChats();
+  Future<ApiResult<ConversationsPageResult>> getSpecialistChats({
+    int page,
+    int limit,
+  });
   Future<ApiResult<String>> openSpecialistChat(String userId);
   Future<ApiResult<ChatMessagesPage>> getSpecialistMessages(String conversationId, {int page = 1});
   Future<ApiResult<ChatMessage>> sendSpecialistMedia({

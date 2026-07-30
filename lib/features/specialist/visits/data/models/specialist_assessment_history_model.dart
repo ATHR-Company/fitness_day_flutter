@@ -35,6 +35,11 @@ class SpecialistAssessmentHistoryResponseModel {
 
 class SpecialistAssessmentHistoryItemModel {
   final SpecialistAssessmentHistoryUserModel? user;
+
+  /// Existing conversation with this client, or `null` when there is none yet —
+  /// the chat screen creates one from `user.id` in that case.
+  final String? conversationId;
+
   final String assessmentId;
   final String name;
   final String description;
@@ -48,6 +53,7 @@ class SpecialistAssessmentHistoryItemModel {
 
   SpecialistAssessmentHistoryItemModel({
     this.user,
+    this.conversationId,
     required this.assessmentId,
     required this.name,
     required this.description,
@@ -65,6 +71,7 @@ class SpecialistAssessmentHistoryItemModel {
       user: json['user'] != null
           ? SpecialistAssessmentHistoryUserModel.fromJson(json['user'] as Map<String, dynamic>)
           : null,
+      conversationId: json['conversationId'] as String?,
       assessmentId: json['assessmentId'] as String? ?? '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',

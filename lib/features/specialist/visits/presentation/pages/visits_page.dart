@@ -8,6 +8,7 @@ import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/widgets/app_search_bar.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/utils/open_client_chat.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/network_error_view.dart';
@@ -234,6 +235,16 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
                                           ),
                                         );
                                       },
+                                      // `conversationId` is null until the two
+                                      // have chatted once — the chat screen
+                                      // opens one from the client's id, so the
+                                      // icon still works on a first contact.
+                                      onChatPressed: () => openClientChat(
+                                        context,
+                                        clientId: visit.user?.id,
+                                        conversationId: visit.conversationId,
+                                        clientName: visit.user?.name,
+                                      ),
                                       iconPath: visit.image.isNotEmpty ? visit.image : SvgIcons.monitor,
                                       isUpcoming: isUpcoming,
                                     );

@@ -63,10 +63,14 @@ class ChatRepositoryImpl implements ChatRepository {
   // ── Specialist Chat ───────────────────────────────────────────────────────
 
   @override
-  Future<ApiResult<List<UserConversation>>> getSpecialistChats() async {
+  Future<ApiResult<ConversationsPageResult>> getSpecialistChats({
+    int page = 1,
+    int limit = 20,
+  }) async {
     try {
-      final conversations = await _dataSource.getSpecialistChats();
-      return Success(conversations);
+      final result =
+          await _dataSource.getSpecialistChats(page: page, limit: limit);
+      return Success(result);
     } catch (error) {
       return FailureResult(ErrorHandler.handle(error));
     }

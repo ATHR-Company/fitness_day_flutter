@@ -19,13 +19,30 @@ abstract class ChatRemoteDataSource {
   });
 
   // Specialist Chat
-  Future<List<UserConversation>> getSpecialistChats();
+  Future<ConversationsPageResult> getSpecialistChats({int page, int limit});
   Future<String> openSpecialistChat(String userId);
   Future<ChatMessagesPage> getSpecialistMessages(String conversationId, {int page = 1});
   Future<MessageModel> sendSpecialistMedia({
     required String conversationId,
     required List<XFile> files,
   });
+}
+
+/// One page of the specialist's conversation list.
+class ConversationsPageResult {
+  final List<UserConversation> conversations;
+  final int page;
+  final int totalPages;
+  final int totalCount;
+
+  const ConversationsPageResult({
+    required this.conversations,
+    required this.page,
+    required this.totalPages,
+    required this.totalCount,
+  });
+
+  bool get hasMore => page < totalPages;
 }
 
 /// Holds the paginated result from a messages endpoint.
@@ -118,16 +135,31 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   // ── Specialist Chat Implementation ──────────────────────────────────────
 
   @override
-  Future<List<UserConversation>> getSpecialistChats() async {
-    debugPrint('[REST] GET ${ApiEndpoints.specialistChats}');
-    final response = await _api.get(ApiEndpoints.specialistChats);
+  Future<ConversationsPageResult> getSpecialistChats({
+    int page = 1,
+    int limit = 20,
+  }) async {
+    debugPrint('[REST] GET ${ApiEndpoints.specialistChats}  page=$page');
+    final response = await _api.get(
+      ApiEndpoints.specialistChats,
+      queryParameters: {'page': page, 'limit': limit},
+    );
     final List<dynamic> rawList =
         response.data['data'] as List<dynamic>? ?? [];
-    debugPrint('[REST] getSpecialistChats → ${rawList.length} conversations');
-    return rawList
-        .map((item) =>
-            UserConversation.fromJson(Map<String, dynamic>.from(item as Map)))
-        .toList();
+    // `totalCount` / `page` / `totalPages` sit next to `data`, not inside it.
+    final int currentPage = (response.data['page'] as num?)?.toInt() ?? page;
+    final int totalPages = (response.data['totalPages'] as num?)?.toInt() ?? 1;
+    debugPrint(
+        '[REST] getSpecialistChats → ${rawList.length} conversations  page=$currentPage/$totalPages');
+    return ConversationsPageResult(
+      conversations: rawList
+          .map((item) =>
+              UserConversation.fromJson(Map<String, dynamic>.from(item as Map)))
+          .toList(),
+      page: currentPage,
+      totalPages: totalPages,
+      totalCount: (response.data['totalCount'] as num?)?.toInt() ?? rawList.length,
+    );
   }
 
   @override

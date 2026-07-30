@@ -140,6 +140,12 @@ class SpecialistClientProfileDataModel {
 
 class SpecialistUserDataModel {
   final String? id;
+
+  /// Existing conversation with this client, or `null` when they have never
+  /// chatted. Null is not an error: opening the chat with the client's [id]
+  /// creates the conversation on the spot.
+  final String? conversationId;
+
   final String? fullName;
   final String? avatar;
   final int? age;
@@ -151,6 +157,7 @@ class SpecialistUserDataModel {
 
   SpecialistUserDataModel({
     this.id,
+    this.conversationId,
     this.fullName,
     this.avatar,
     this.age,
@@ -164,6 +171,7 @@ class SpecialistUserDataModel {
   factory SpecialistUserDataModel.fromJson(Map<String, dynamic> json) {
     return SpecialistUserDataModel(
       id: json['id'] as String?,
+      conversationId: json['conversationId'] as String?,
       fullName: json['fullName'] as String?,
       avatar: json['avatar'] as String?,
       age: json['age'] as int?,

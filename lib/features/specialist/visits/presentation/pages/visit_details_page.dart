@@ -12,13 +12,13 @@ import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/core/widgets/visit_goal_card.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/utils/open_client_chat.dart';
 import 'package:fitness_day/core/widgets/add_goal_dialog.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/plan_item_card.dart';
 import 'package:fitness_day/core/widgets/vertical_day_tab_bar.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/widgets/report_text_field.dart';
-import '../../../../shared/conversations/presentation/pages/chat_details_page.dart';
 import 'add_activity_page.dart';
 import 'add_exercise_page.dart';
 import 'add_meal_page.dart';
@@ -150,12 +150,12 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
       return UpcomingVisitShowScreen(
         title: 'visit_details.title'.tr(),
         trailingWidget: MessageIconButton(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
-            );
-          },
+          onTap: () => openClientChat(
+            context,
+            clientId: loadedVisitData.user?.id,
+            conversationId: loadedVisitData.conversationId,
+            clientName: loadedVisitData.user?.name,
+          ),
         ),
         visitTimeRemaining: 'visits.in_minutes'.tr(args: ['25']),
         visitTitle: 'visits.dummy_title'.tr(),
@@ -216,12 +216,12 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                         child: AppBackHeader(
                           title: 'visit_details.title'.tr(),
                           trailingWidget: MessageIconButton(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const ChatDetailsPage()),
-                              );
-                            },
+                            onTap: () => openClientChat(
+                              context,
+                              clientId: loadedVisitData.user?.id,
+                              conversationId: loadedVisitData.conversationId,
+                              clientName: loadedVisitData.user?.name,
+                            ),
                           ),
                         ),
                       ),

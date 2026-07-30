@@ -27,6 +27,11 @@ class SpecialistAssessmentVisitDataResponseModel {
 
 class SpecialistAssessmentVisitDataModel {
   final SpecialistAssessmentUserModel? user;
+
+  /// Existing conversation with this client, or `null` when there is none yet —
+  /// the chat screen creates one from `user.id` in that case.
+  final String? conversationId;
+
   final String assessmentId;
   final String name;
   final String description;
@@ -42,6 +47,7 @@ class SpecialistAssessmentVisitDataModel {
 
   SpecialistAssessmentVisitDataModel({
     this.user,
+    this.conversationId,
     required this.assessmentId,
     required this.name,
     required this.description,
@@ -60,6 +66,7 @@ class SpecialistAssessmentVisitDataModel {
       user: json['user'] != null
           ? SpecialistAssessmentUserModel.fromJson(json['user'] as Map<String, dynamic>)
           : null,
+      conversationId: json['conversationId'] as String?,
       assessmentId: json['assessmentId'] as String? ?? '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
@@ -76,6 +83,7 @@ class SpecialistAssessmentVisitDataModel {
 
   SpecialistAssessmentVisitDataModel copyWith({
     SpecialistAssessmentUserModel? user,
+    String? conversationId,
     String? assessmentId,
     String? name,
     String? description,
@@ -90,6 +98,7 @@ class SpecialistAssessmentVisitDataModel {
   }) {
     return SpecialistAssessmentVisitDataModel(
       user: user ?? this.user,
+      conversationId: conversationId ?? this.conversationId,
       assessmentId: assessmentId ?? this.assessmentId,
       name: name ?? this.name,
       description: description ?? this.description,

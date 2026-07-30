@@ -6,6 +6,8 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/widgets/message_icon_button.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/utils/open_client_chat.dart';
 import 'package:fitness_day/features/specialist/clients/data/models/specialist_client_model.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_client_profile_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_client_profile_state.dart';
@@ -113,6 +115,22 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
             icon: Icon(Icons.arrow_back_ios, color: AppColors.black, size: 20.sp),
             onPressed: () => Navigator.of(context).pop(),
           ),
+          actions: [
+            // Shown even when `conversationId` is null — that only means the
+            // two have never chatted, and opening it creates the conversation.
+            Padding(
+              padding: EdgeInsets.only(right: 12.w, left: 12.w),
+              child: MessageIconButton(
+                onTap: () => openClientChat(
+                  context,
+                  clientId: clientData.userData?.id,
+                  conversationId: clientData.userData?.conversationId,
+                  clientName: clientData.userData?.fullName,
+                  avatarUrl: clientData.userData?.avatar,
+                ),
+              ),
+            ),
+          ],
         ),
         body: Column(
           children: [

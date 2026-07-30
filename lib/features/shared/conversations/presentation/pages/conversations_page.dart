@@ -26,19 +26,36 @@ class ConversationsPage extends StatefulWidget {
 
 class _ConversationsPageState extends State<ConversationsPage> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   late final ConversationsCubit _cubit;
+
+  /// How close to the bottom the user has to get before the next page starts
+  /// loading, so the spinner is rarely the thing they are looking at.
+  static const double _loadMoreThreshold = 300;
 
   @override
   void initState() {
     super.initState();
     _cubit = GetIt.instance<ConversationsCubit>();
     _cubit.fetchSpecialistConversations();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - _loadMoreThreshold) {
+      // The cubit ignores this when there is no next page or one is already in
+      // flight, so firing it on every tick is fine.
+      _cubit.loadNextPage();
+    }
   }
 
   @override
   void dispose() {
     _cubit.close();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -99,8 +116,11 @@ class _ConversationsPageState extends State<ConversationsPage> {
                     builder: (context, state) => switch (state) {
                       ConversationsError(:final message) =>
                         _ErrorView(message: message),
-                      ConversationsLoaded(:final filteredConversations) =>
-                        _buildList(filteredConversations),
+                      ConversationsLoaded(
+                        :final filteredConversations,
+                        :final isLoadingMore
+                      ) =>
+                        _buildList(filteredConversations, isLoadingMore),
                       // Initial state also shows the shimmer — the fetch is
                       // kicked off in initState, so it is never idle for long.
                       _ => const ConversationsListShimmer(),
@@ -115,17 +135,29 @@ class _ConversationsPageState extends State<ConversationsPage> {
     );
   }
 
-  Widget _buildList(List<UserConversation> conversations) {
+  Widget _buildList(List<UserConversation> conversations, bool isLoadingMore) {
     if (conversations.isEmpty) return const ConversationsEmptyState();
 
     return ListView.separated(
+      controller: _scrollController,
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-      itemCount: conversations.length,
+      // One extra row for the footer spinner while the next page loads.
+      itemCount: conversations.length + (isLoadingMore ? 1 : 0),
       separatorBuilder: (context, index) => SizedBox(height: 12.h),
-      itemBuilder: (context, index) => ConversationCard(
-        conversation: conversations[index],
-        onTap: () => _openConversation(conversations[index]),
-      ),
+      itemBuilder: (context, index) {
+        if (index == conversations.length) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          );
+        }
+        return ConversationCard(
+          conversation: conversations[index],
+          onTap: () => _openConversation(conversations[index]),
+        );
+      },
     );
   }
 }
