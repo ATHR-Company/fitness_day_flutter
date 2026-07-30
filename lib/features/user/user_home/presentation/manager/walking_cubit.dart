@@ -9,8 +9,9 @@ import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 import 'package:fitness_day/core/services/health_service.dart';
-import 'package:fitness_day/core/network/api_service.dart';
-import 'package:fitness_day/core/constant/api_endpoints.dart';
+import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/features/user/user_home/data/models/walking_sync_model.dart';
+import 'package:fitness_day/features/user/user_home/domain/usecases/sync_walking_usecase.dart';
 
 part 'walking_state.dart';
 
@@ -25,7 +26,7 @@ part 'walking_state.dart';
 /// so it can never drift or double-count.
 class WalkingCubit extends Cubit<WalkingState> {
   final FitnessHealthService _healthService;
-  final ApiService _apiService;
+  final SyncWalkingUseCase _syncWalkingUseCase;
 
   /// Identifies the plan activity this progress is credited to. The backend
   /// does not infer any of these — every sync names its target explicitly.
@@ -180,7 +181,7 @@ class WalkingCubit extends Cubit<WalkingState> {
 
   WalkingCubit({
     required FitnessHealthService healthService,
-    required ApiService apiService,
+    required SyncWalkingUseCase syncWalkingUseCase,
     required this.assessmentId,
     required this.dayNumber,
     required this.activityId,
@@ -188,7 +189,7 @@ class WalkingCubit extends Cubit<WalkingState> {
     required double goalSteps,
     required double goalDistanceKm,
   })  : _healthService = healthService,
-        _apiService = apiService,
+        _syncWalkingUseCase = syncWalkingUseCase,
         super(WalkingState(
           goalSteps: goalSteps,
           goalDistanceKm: goalDistanceKm,
@@ -582,28 +583,29 @@ class WalkingCubit extends Cubit<WalkingState> {
       _pendingTargetElapsedSeconds = elapsedSeconds;
     }
 
-    try {
-      await _apiService.post(
-        ApiEndpoints.syncWalking,
-        data: {
-          'assessmentId': assessmentId,
-          'dayNumber': dayNumber,
-          'activityId': activityId,
-          'activityItemId': activityItemId,
-          'deltaSteps': _pendingDeltaSteps,
-          'deltaDistance': _pendingDeltaDistanceM,
-          // Per-sync delta, not the cumulative session time: the server applies
-          // this with `$inc`, so sending the running total would compound.
-          'durationSeconds': _pendingDurationSeconds,
-          'syncId': _pendingSyncId,
-        },
-      );
-      _lastSentSteps = _pendingTargetSteps;
-      _lastSentDistanceKm = _pendingTargetDistanceKm;
-      _lastSentElapsedSeconds = _pendingTargetElapsedSeconds;
-      _pendingSyncId = null;
-    } catch (e) {
-      debugPrint('WalkingCubit._syncToBackend error: $e');
+    final ApiResult<WalkingSyncResponseModel> result = await _syncWalkingUseCase(
+      WalkingSyncRequestModel(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        activityId: activityId,
+        activityItemId: activityItemId,
+        deltaSteps: _pendingDeltaSteps,
+        deltaDistance: _pendingDeltaDistanceM,
+        // Per-sync delta, not the cumulative session time: the server applies
+        // this with `$inc`, so sending the running total would compound.
+        durationSeconds: _pendingDurationSeconds,
+        syncId: _pendingSyncId!,
+      ),
+    );
+
+    switch (result) {
+      case Success():
+        _lastSentSteps = _pendingTargetSteps;
+        _lastSentDistanceKm = _pendingTargetDistanceKm;
+        _lastSentElapsedSeconds = _pendingTargetElapsedSeconds;
+        _pendingSyncId = null;
+      case FailureResult(:final failure):
+        debugPrint('WalkingCubit._syncToBackend error: ${failure.message}');
       // Non-fatal — the pending attempt is retried unchanged on the next poll.
     }
   }

@@ -196,8 +196,13 @@ import 'package:fitness_day/features/user/market/domain/repositories/payment_rep
 import 'package:fitness_day/features/user/market/domain/usecases/initiate_payment_usecase.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/get_payment_status_usecase.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/payment_cubit.dart';
+import 'package:fitness_day/features/user/user_home/data/datasources/user_activities_remote_datasource.dart';
+import 'package:fitness_day/features/user/user_home/data/repositories/user_activities_repository_impl.dart';
 import 'package:fitness_day/features/user/user_home/data/repositories/user_home_repository_impl.dart';
+import 'package:fitness_day/features/user/user_home/domain/repositories/user_activities_repository.dart';
 import 'package:fitness_day/features/user/user_home/domain/repositories/user_home_repository.dart';
+import 'package:fitness_day/features/user/user_home/domain/usecases/sync_running_usecase.dart';
+import 'package:fitness_day/features/user/user_home/domain/usecases/sync_walking_usecase.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_home_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
@@ -572,6 +577,22 @@ Future<void> init() async {
   // Health & Activity tracking
   getIt.registerLazySingleton<FitnessHealthService>(
     () => FitnessHealthService(),
+  );
+
+  getIt.registerLazySingleton<UserActivitiesRemoteDataSource>(
+    () => UserActivitiesRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+
+  getIt.registerLazySingleton<UserActivitiesRepository>(
+    () => UserActivitiesRepositoryImpl(getIt<UserActivitiesRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<SyncWalkingUseCase>(
+    () => SyncWalkingUseCase(getIt<UserActivitiesRepository>()),
+  );
+
+  getIt.registerLazySingleton<SyncRunningUseCase>(
+    () => SyncRunningUseCase(getIt<UserActivitiesRepository>()),
   );
 
   // Market / Store

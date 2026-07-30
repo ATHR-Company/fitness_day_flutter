@@ -7,8 +7,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
-import 'package:fitness_day/core/network/api_service.dart';
-import 'package:fitness_day/core/constant/api_endpoints.dart';
+import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/features/user/user_home/data/models/running_sync_model.dart';
+import 'package:fitness_day/features/user/user_home/domain/usecases/sync_running_usecase.dart';
 
 part 'running_state.dart';
 
@@ -19,7 +20,7 @@ part 'running_state.dart';
 /// Calories:  Sent by the backend after we POST distance.
 /// Time:      Real stopwatch from start() to stop().
 class RunningCubit extends Cubit<RunningState> {
-  final ApiService _apiService;
+  final SyncRunningUseCase _syncRunningUseCase;
 
   /// Identifies the plan activity this progress is credited to. Captured when
   /// the screen opens and deliberately frozen for the whole session — a run
@@ -98,13 +99,13 @@ class RunningCubit extends Cubit<RunningState> {
   static const Uuid _uuid = Uuid();
 
   RunningCubit({
-    required ApiService apiService,
+    required SyncRunningUseCase syncRunningUseCase,
     required this.assessmentId,
     required this.dayNumber,
     required this.activityId,
     required this.activityItemId,
     required double goalDistanceKm,
-  })  : _apiService = apiService,
+  })  : _syncRunningUseCase = syncRunningUseCase,
         super(RunningState(goalDistanceKm: goalDistanceKm));
 
   // ─── Public API ───────────────────────────────────────────────────────────
@@ -359,37 +360,36 @@ class RunningCubit extends Cubit<RunningState> {
 
   /// Sends the outstanding attempt. Returns true once it is acknowledged.
   Future<bool> _postPending() async {
-    try {
-      final response = await _apiService.post(
-        ApiEndpoints.syncRunning,
-        data: {
-          'assessmentId': assessmentId,
-          'dayNumber': dayNumber,
-          'activityId': activityId,
-          'activityItemId': activityItemId,
-          'deltaDistance': _pendingDeltaM,
-          // Per-sync delta, not the cumulative session time: the server applies
-          // this with `$inc`, so sending the running total would compound.
-          'durationSeconds': _pendingDurationSeconds,
-          'isFinal': _pendingIsFinal,
-          'syncId': _pendingSyncId,
-        },
-      );
+    final ApiResult<RunningSyncResponseModel> result = await _syncRunningUseCase(
+      RunningSyncRequestModel(
+        assessmentId: assessmentId,
+        dayNumber: dayNumber,
+        activityId: activityId,
+        activityItemId: activityItemId,
+        deltaDistance: _pendingDeltaM,
+        // Per-sync delta, not the cumulative session time: the server applies
+        // this with `$inc`, so sending the running total would compound.
+        durationSeconds: _pendingDurationSeconds,
+        isFinal: _pendingIsFinal,
+        syncId: _pendingSyncId!,
+      ),
+    );
 
-      // Backend returns calories
-      final dynamic calories = response.data?['data']?['caloriesBurned'];
-      if (calories != null && !isClosed) {
-        final double kcal = (calories as num).toDouble();
-        emit(state.copyWith(caloriesKcal: kcal));
-      }
+    switch (result) {
+      case Success(:final data):
+        // Backend returns calories
+        final double? kcal = data.caloriesBurned;
+        if (kcal != null && !isClosed) {
+          emit(state.copyWith(caloriesKcal: kcal));
+        }
 
-      _lastSyncedDistanceKm = _pendingTargetDistanceKm;
-      _lastSyncedElapsedSeconds = _pendingTargetElapsedSeconds;
-      _pendingSyncId = null;
-      return true;
-    } catch (e) {
-      debugPrint('RunningCubit._syncToBackend error: $e');
-      return false;
+        _lastSyncedDistanceKm = _pendingTargetDistanceKm;
+        _lastSyncedElapsedSeconds = _pendingTargetElapsedSeconds;
+        _pendingSyncId = null;
+        return true;
+      case FailureResult(:final failure):
+        debugPrint('RunningCubit._syncToBackend error: ${failure.message}');
+        return false;
     }
   }
 
