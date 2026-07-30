@@ -7,8 +7,16 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/user/market/domain/entities/order_data.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/orders_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/payment_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/checkout/paymob_webview_page.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/order_card.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/order_details_dialog.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/payment_pending_dialog.dart';
+import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -19,6 +27,7 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen> {
   final OrdersCubit _ordersCubit = getIt<OrdersCubit>();
+  final PaymentCubit _paymentCubit = getIt<PaymentCubit>();
 
   @override
   void initState() {
@@ -27,11 +36,118 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   @override
+  void dispose() {
+    _paymentCubit.close();
+    super.dispose();
+  }
+
+  /// Section 8.3: when the backend already reported a live checkout, open it
+  /// directly. Only mint a new one when there isn't one — every `initiate`
+  /// registers a real intention with Paymob.
+  ///
+  /// A failed order is the exception: its checkout is spent, so retrying always
+  /// starts a fresh one (see [OrderData.resumableCheckout]).
+  void _payOrder(OrderData order) {
+    final resumable = order.resumableCheckout;
+    if (resumable != null) {
+      _paymentCubit.startPaymentWithExistingCheckout(order.id, resumable);
+    } else {
+      _paymentCubit.startPayment(order.id);
+    }
+  }
+
+  /// Identical WebView + polling handling to the checkout flow: the page is
+  /// never the verdict, the status endpoint is.
+  Future<void> _onPaymentState(BuildContext context, PaymentState state) async {
+    switch (state) {
+      case PaymentWebviewReady(:final initiation):
+        final result = await PaymobWebViewPage.open(
+          context,
+          webviewUrl: initiation.webviewUrl,
+          amount: initiation.amount,
+          currency: initiation.currency,
+        );
+        if (!mounted) return;
+        // Only a Paymob redirect means a verdict is actually on its way; the
+        // other two are settled with a single check so the buyer is handed
+        // straight back to the app.
+        switch (result) {
+          case PaymobWebViewResult.returned:
+            _paymentCubit.confirmPayment();
+          case PaymobWebViewResult.declined:
+            _paymentCubit.confirmAfterDecline();
+          case PaymobWebViewResult.dismissed:
+            _paymentCubit.confirmAfterDismiss();
+        }
+
+      case PaymentCompleted():
+        getIt<CartCubit>().loadCart();
+        // One fewer unpaid order — the badge has to follow.
+        getIt<CartCubit>().loadCounters();
+        getIt<UserProfileCubit>().getUserProfile();
+        _ordersCubit.loadOrders();
+        if (!mounted) return;
+        showAppSnackBar(
+          context,
+          text: 'market.payment_completed_late'.tr(),
+          isSuccess: true,
+        );
+
+      case PaymentFailed(:final message):
+        _ordersCubit.loadOrders();
+        showAppSnackBar(
+          context,
+          text: message.startsWith('market.') ? message.tr() : message,
+          isError: true,
+        );
+        _paymentCubit.reset();
+
+      case PaymentNotCompleted():
+        // Still pending — say so plainly and leave the order payable.
+        _ordersCubit.loadOrders();
+        showAppSnackBar(context, text: 'market.payment_not_completed'.tr());
+        _paymentCubit.reset();
+
+      case PaymentAwaitingConfirmation():
+        await PaymentPendingDialog.show(
+          context,
+          onDismiss: () => Navigator.of(context).pop(),
+        );
+        _paymentCubit.reset();
+
+      case PaymentError(:final message):
+        showAppSnackBar(context, text: message, isError: true);
+        _paymentCubit.reset();
+
+      case PaymentInitial():
+      case PaymentInitiating():
+      case PaymentConfirming():
+        break;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: _paymentCubit,
+      child: BlocConsumer<PaymentCubit, PaymentState>(
+        listener: _onPaymentState,
+        builder: (context, paymentState) => _buildScaffold(
+          context,
+          isPaying: paymentState is PaymentInitiating ||
+              paymentState is PaymentConfirming,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context, {required bool isPaying}) {
     return Scaffold(
       backgroundColor: AppColors.marketScaffoldBackground,
       body: SafeArea(
-        child: Column(
+        child: Stack(
+          children: [
+            Column(
           children: [
             _buildAppBar(context),
             Expanded(
@@ -67,7 +183,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           itemCount: orders.length,
                           itemBuilder: (context, index) {
                             final order = orders[index];
-                            return _buildOrderCard(order);
+                            return OrderCard(
+                              order: order,
+                              isBusy: isPaying,
+                              // Paid orders have nothing left to do.
+                              onPayTap: order.isPayable
+                                  ? () => _payOrder(order)
+                                  : null,
+                              onTap: () => OrderDetailsDialog.show(
+                                context,
+                                order: order,
+                                onPayTap: order.isPayable
+                                    ? () => _payOrder(order)
+                                    : null,
+                              ),
+                            );
                           },
                         ),
                       );
@@ -75,6 +205,17 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 },
               ),
             ),
+          ],
+            ),
+            if (isPaying)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: AppColors.black.withValues(alpha: 0.35),
+                  child: const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -84,29 +225,39 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            'market.orders_title'.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Icon(
-                Icons.arrow_back_ios_rounded,
-                size: 20.sp,
+      child: SizedBox(
+        height: 47.w,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              'market.orders_title'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyleManager.heading2.copyWith(
                 color: AppColors.black,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ),
-        ],
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.pop(context),
+                child: SizedBox(
+                  width: 47.w,
+                  height: 47.w,
+                  child: Center(
+                    child: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      size: 20.sp,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -204,138 +355,4 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildOrderCard(OrderData order) {
-    final String statusLabel;
-    final Color badgeColor;
-    final Color textColor;
-
-    switch (order.status) {
-      case 'PENDING_PAYMENT':
-        statusLabel = 'market.order_status_pending_payment'.tr();
-        badgeColor = const Color(0xFFFFF6E6);
-        textColor = const Color(0xFFE28B00);
-        break;
-      case 'COMPLETED':
-      case 'DELIVERED':
-        statusLabel = 'market.order_status_completed'.tr();
-        badgeColor = const Color(0xFFEAF8EB);
-        textColor = AppColors.success;
-        break;
-      case 'CANCELLED':
-      case 'FAILED':
-        statusLabel = 'market.order_status_cancelled'.tr();
-        badgeColor = const Color(0xFFFEECEB);
-        textColor = AppColors.error;
-        break;
-      default:
-        statusLabel = 'market.order_status_pending'.tr();
-        badgeColor = const Color(0xFFF5F5F5);
-        textColor = AppColors.textSecondary;
-    }
-
-    String displayDate = order.createdAt;
-    if (order.createdAt.contains('T')) {
-      displayDate = order.createdAt.split('T')[0];
-    }
-
-    final shortId = order.id.length > 8
-        ? order.id.substring(order.id.length - 8)
-        : order.id;
-
-    final int count = order.itemsCount ?? order.items.length;
-    final String itemsLabel = count == 1
-        ? 'market.items_count_single'.tr()
-        : 'market.items_count_multi'.tr(args: [count.toString()]);
-
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.all(16.r),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(
-          color: AppColors.borderGrey.withValues(alpha: 0.5),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'market.order_id'.tr(args: [shortId]),
-                style: TextStyleManager.style13Medium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black,
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: badgeColor,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Text(
-                  statusLabel,
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12.h),
-          Divider(color: AppColors.divider.withValues(alpha: 0.3), height: 1),
-          SizedBox(height: 12.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'market.order_date'.tr(args: [displayDate]),
-                    style: TextStyleManager.style11Medium.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    itemsLabel,
-                    style: TextStyleManager.style11Medium.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'market.order_total'.tr(args: [
-                      order.total.toInt().toString(),
-                      'home.sar'.tr(),
-                    ]),
-                    style: TextStyleManager.style14Medium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }

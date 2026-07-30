@@ -7,6 +7,21 @@
     "offline_banner": "No internet connection",
     "back_online": "Back online"
   },
+  "currency": {
+    "sar": "SAR",
+    "egp": "EGP"
+  },
+  "permissions": {
+    "blocked_title": "Permission required",
+    "open_settings": "Open settings",
+    "cancel": "Cancel",
+    "camera_denied": "Camera access is needed to take a photo",
+    "camera_blocked": "Camera access is turned off. Enable it from the app settings to take a photo.",
+    "gallery_denied": "Photo access is needed to pick an image",
+    "gallery_blocked": "Photo access is turned off. Enable it from the app settings to pick an image.",
+    "microphone_denied": "Microphone access is needed to record a voice message",
+    "microphone_blocked": "Microphone access is turned off. Enable it from the app settings to record a voice message."
+  },
   "login": {
     "welcome_text": "Happy to see you again. Log in to continue your journey towards your strongest version",
     "phone_hint": "Phone Number",
@@ -808,6 +823,35 @@
     "well_done": "Well Done!",
     "well_done_desc": "You've accomplished a day of movement, keep it up to maintain health and relieve pain."
   },
+  "scan_meal": {
+    "title": "Scan Meal",
+    "align_hint": "Align the food inside the frame",
+    "analyzing": "Analyzing the meal...",
+    "retry": "Try again",
+    "camera_failed": "Could not start the camera. Please try again.",
+    "unexpected_error": "Something went wrong. Please try again.",
+    "result": {
+      "unknown_meal": "Unknown meal",
+      "ingredients": "Ingredients",
+      "calories": "Calories",
+      "protein": "Protein",
+      "carbs": "Carbs",
+      "fat": "Fat",
+      "gram_short": "g",
+      "calorie_amount": "{count} cal"
+    },
+    "errors": {
+      "missing_api_key": "The AI service key is not configured. Make sure OPENROUTER_API_KEY exists in the .env file.",
+      "connection_failed": "Could not reach the server. Check your internet connection.",
+      "rate_limited": "You've hit the usage limit. Wait a minute and try again.",
+      "request_failed": "Meal analysis failed (code {code}). Please try again.",
+      "unreadable_response": "Could not read the analysis result. Try taking a clearer photo."
+    }
+  },
+  "workout_plan": {
+    "empty_title": "No workout plan yet",
+    "empty_subtitle": "Your workout plan has not been added yet. Your workout plan will be updated by the specialist soon."
+  },
   "diet_plan": {
     "empty_title": "No diet plan yet",
     "empty_subtitle": "Your diet plan has not been added yet. Your diet plan will be updated by the specialist soon.",
@@ -900,8 +944,17 @@
     "coupon_will_apply": "The coupon will be applied when you confirm the order",
     "coupon_applied": "Coupon applied successfully",
     "payment_cash": "Cash on delivery",
-    "payment_paypal": "PayPal",
-    "paypal_not_available": "PayPal payment is not available yet",
+    "payment_card": "Card payment",
+    "payment_title": "Secure payment",
+    "pay_now": "Pay now",
+    "payment_processing": "Processing your payment, please wait...",
+    "payment_failed_generic": "The payment was not completed. Please try again.",
+    "payment_cancelled_retry": "This payment attempt was replaced. Please try again.",
+    "payment_confirming_title": "Confirming your payment",
+    "payment_confirming_message": "We're confirming your payment and will notify you as soon as it's complete. You can safely leave this page.",
+    "payment_confirming_action": "Got it",
+    "payment_completed_late": "Your payment has been confirmed successfully",
+    "payment_not_completed": "Payment wasn't completed. The order is still awaiting payment.",
     "no_branches": "No branches available",
     "order_number_label": "Order number",
     "discount_label": "Discount",
@@ -970,9 +1023,27 @@
     "order_date": "Order Date: {}",
     "order_total": "Total: {} {}",
     "order_status_pending_payment": "Pending Payment",
+    "order_status_payment_failed": "Payment Failed",
+    "order_status_paid": "Paid",
+    "order_status_processing": "Being Prepared",
+    "order_status_shipped": "Shipped",
+    "order_status_delivered": "Delivered",
     "order_status_completed": "Completed",
     "order_status_cancelled": "Cancelled",
     "order_status_pending": "Pending",
+    "complete_payment": "Complete Payment",
+    "order_details_title": "Order Details",
+    "order_details_items": "Items",
+    "order_details_summary": "Order Summary",
+    "order_details_subtotal": "Subtotal",
+    "order_details_discount": "Discount",
+    "order_details_shipping": "Shipping",
+    "order_details_total": "Total",
+    "order_details_close": "Close",
+    "order_details_pickup_branch": "Pickup Branch",
+    "order_details_delivery_address": "Delivery Address",
+    "order_details_qty_price": "{} × {}",
+    "order_items_separator": ", ",
     "items_count_single": "1 product",
     "items_count_multi": "{} products"
   },

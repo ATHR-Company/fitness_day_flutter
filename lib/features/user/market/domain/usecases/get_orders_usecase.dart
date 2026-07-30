@@ -7,5 +7,11 @@ class GetOrdersUseCase {
 
   GetOrdersUseCase(this.repository);
 
-  Future<ApiResult<List<OrderData>>> call() => repository.getOrders();
+  /// [status] filters to `PENDING_PAYMENT`, `PAID` or `PAYMENT_FAILED`.
+  Future<ApiResult<OrdersPageData>> call({
+    int page = 1,
+    int limit = 10,
+    String? status,
+  }) =>
+      repository.getOrders(page: page, limit: limit, status: status);
 }

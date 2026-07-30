@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/utils/media_permissions.dart';
 import 'package:image_picker/image_picker.dart';
 
 /// Circular image picker generalized in core. Lets the user pick an image
@@ -34,6 +35,14 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
+    final bool granted = await MediaPermissions.ensure(
+      context,
+      source == ImageSource.camera
+          ? MediaPermissionKind.camera
+          : MediaPermissionKind.gallery,
+    );
+    if (!granted || !mounted) return;
+
     final XFile? file = await _picker.pickImage(
       source: source,
       imageQuality: 85,

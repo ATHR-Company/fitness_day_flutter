@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:fitness_day/core/errors/failures.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import '../../domain/entities/order_counters_data.dart';
 import '../../domain/entities/order_data.dart';
 import '../../domain/repositories/checkout_repository.dart';
 import '../datasources/checkout_remote_datasource.dart';
@@ -67,13 +68,46 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
   }
 
   @override
-  Future<ApiResult<List<OrderData>>> getOrders() async {
+  Future<ApiResult<OrdersPageData>> getOrders({
+    int page = 1,
+    int limit = 10,
+    String? status,
+  }) async {
     try {
-      final models = await remoteDataSource.getOrders();
-      return Success(models.map((m) => m.toEntity()).toList());
+      final page0 = await remoteDataSource.getOrders(
+        page: page,
+        limit: limit,
+        status: status,
+      );
+      return Success(OrdersPageData(
+        orders: page0.orders.map((m) => m.toEntity()).toList(),
+        total: page0.total,
+      ));
     } catch (e) {
       return FailureResult(
           ServerFailure(_messageOf(e, 'Failed to load orders')));
+    }
+  }
+
+  @override
+  Future<ApiResult<OrderData>> getOrderById(String orderIdentity) async {
+    try {
+      final model = await remoteDataSource.getOrderById(orderIdentity);
+      return Success(model.toEntity());
+    } catch (e) {
+      return FailureResult(
+          ServerFailure(_messageOf(e, 'Failed to load order')));
+    }
+  }
+
+  @override
+  Future<ApiResult<OrderCountersData>> getCounters() async {
+    try {
+      final model = await remoteDataSource.getCounters();
+      return Success(model.toEntity());
+    } catch (e) {
+      return FailureResult(
+          ServerFailure(_messageOf(e, 'Failed to load counters')));
     }
   }
 

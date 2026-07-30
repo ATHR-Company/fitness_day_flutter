@@ -452,49 +452,7 @@ class _StaticDialogContent extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16.h),
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 40.w, vertical: 8.h),
-                child: SizedBox(
-                  height: 48.h,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        barrierColor:
-                            AppColors.black.withValues(alpha: 0.6),
-                        builder: (_) => CancelSubscriptionDialog(
-                          onConfirm: () {},
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24.r),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.close,
-                            color: AppColors.white, size: 18.sp),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'market.cancel_subscription_button'.tr(),
-                          style: TextStyleManager.style13Medium.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ] else ...[
+          ] else ...[
               Padding(
                 padding:
                     EdgeInsets.symmetric(horizontal: 40.w, vertical: 8.h),

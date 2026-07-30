@@ -11,7 +11,7 @@ import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/pages/chat_details_page.dart';
-import 'package:fitness_day/features/user/ai_chat/presentation/screens/ai_coach_chat_screen.dart';
+import 'package:fitness_day/features/user/ai_chat/presentation/pages/ai_coach_chat_screen.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/conversations_shimmer_loading.dart';
 import 'package:fitness_day/features/user/support/presentation/manager/contact_us_cubit.dart';
 import 'package:fitness_day/features/user/support/presentation/manager/contact_us_state.dart';

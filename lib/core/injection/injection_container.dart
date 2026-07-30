@@ -188,7 +188,14 @@ import 'package:fitness_day/features/user/market/domain/usecases/apply_coupon_us
 import 'package:fitness_day/features/user/market/domain/usecases/edit_delivery_usecase.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/get_orders_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_order_counters_usecase.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/orders_cubit.dart';
+import 'package:fitness_day/features/user/market/data/datasources/payment_remote_datasource.dart';
+import 'package:fitness_day/features/user/market/data/repositories/payment_repository_impl.dart';
+import 'package:fitness_day/features/user/market/domain/repositories/payment_repository.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/initiate_payment_usecase.dart';
+import 'package:fitness_day/features/user/market/domain/usecases/get_payment_status_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/payment_cubit.dart';
 import 'package:fitness_day/features/user/user_home/data/repositories/user_home_repository_impl.dart';
 import 'package:fitness_day/features/user/user_home/domain/repositories/user_home_repository.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
@@ -671,6 +678,9 @@ Future<void> init() async {
       addToCartUseCase: getIt<AddToCartUseCase>(),
       updateQuantityUseCase: getIt<UpdateCartQuantityUseCase>(),
       removeItemUseCase: getIt<RemoveCartItemUseCase>(),
+      // Resolved lazily on first use, so the checkout registrations below
+      // being later in this file is fine.
+      getCountersUseCase: getIt<GetOrderCountersUseCase>(),
     ),
   );
 
@@ -705,8 +715,33 @@ Future<void> init() async {
   getIt.registerLazySingleton<GetOrdersUseCase>(
     () => GetOrdersUseCase(getIt<CheckoutRepository>()),
   );
+  getIt.registerLazySingleton<GetOrderCountersUseCase>(
+    () => GetOrderCountersUseCase(getIt<CheckoutRepository>()),
+  );
   getIt.registerFactory<OrdersCubit>(
     () => OrdersCubit(getIt<GetOrdersUseCase>()),
+  );
+
+  // Payments (Paymob) — PaymentCubit is a factory: one instance per payment
+  // attempt, so a retry never inherits the previous attempt's state.
+  getIt.registerLazySingleton<PaymentRemoteDataSource>(
+    () => PaymentRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<PaymentRepository>(
+    () => PaymentRepositoryImpl(getIt<PaymentRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<InitiatePaymentUseCase>(
+    () => InitiatePaymentUseCase(getIt<PaymentRepository>()),
+  );
+  getIt.registerLazySingleton<GetPaymentStatusUseCase>(
+    () => GetPaymentStatusUseCase(getIt<PaymentRepository>()),
+  );
+  getIt.registerFactory<PaymentCubit>(
+    () => PaymentCubit(
+      initiatePaymentUseCase: getIt<InitiatePaymentUseCase>(),
+      getPaymentStatusUseCase: getIt<GetPaymentStatusUseCase>(),
+      appCache: getIt<AppCache>(),
+    ),
   );
 
   // Specialist Home

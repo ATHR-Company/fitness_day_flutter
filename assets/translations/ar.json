@@ -7,6 +7,21 @@
     "offline_banner": "لا يوجد اتصال بالإنترنت",
     "back_online": "تم استعادة الاتصال"
   },
+  "currency": {
+    "sar": "ر.س",
+    "egp": "ج.م"
+  },
+  "permissions": {
+    "blocked_title": "الإذن مطلوب",
+    "open_settings": "فتح الإعدادات",
+    "cancel": "إلغاء",
+    "camera_denied": "نحتاج إذن الوصول للكاميرا لالتقاط صورة",
+    "camera_blocked": "إذن الكاميرا مغلق. فعّله من إعدادات التطبيق لالتقاط صورة.",
+    "gallery_denied": "نحتاج إذن الوصول للصور لاختيار صورة",
+    "gallery_blocked": "إذن الوصول للصور مغلق. فعّله من إعدادات التطبيق لاختيار صورة.",
+    "microphone_denied": "نحتاج إذن الوصول للميكروفون لتسجيل رسالة صوتية",
+    "microphone_blocked": "إذن الميكروفون مغلق. فعّله من إعدادات التطبيق لتسجيل رسالة صوتية."
+  },
   "login": {
     "welcome_text": "سعداء بعودتك من جديد سجّل الدخول لمتابعة رحلتك نحو نسختك الأقوى",
     "phone_hint": "رقم الجوال",
@@ -808,6 +823,35 @@
     "well_done": "احسنت!",
     "well_done_desc": "لقد أنجزت يوم من الحركات، استمر على هذا الأداء للحفاظ على الصحة وتخفيف الألم."
   },
+  "scan_meal": {
+    "title": "مسح الوجبة",
+    "align_hint": "قم بمحاذاة الطعام داخل الإطار",
+    "analyzing": "جاري تحليل الوجبة...",
+    "retry": "إعادة المحاولة",
+    "camera_failed": "تعذر تشغيل الكاميرا. حاول مرة أخرى.",
+    "unexpected_error": "حدث خطأ غير متوقع. حاول مرة أخرى.",
+    "result": {
+      "unknown_meal": "وجبة غير معروفة",
+      "ingredients": "المكونات",
+      "calories": "سعرات",
+      "protein": "بروتين",
+      "carbs": "كارب",
+      "fat": "دهون",
+      "gram_short": "جم",
+      "calorie_amount": "{count} سعرة"
+    },
+    "errors": {
+      "missing_api_key": "مفتاح خدمة الذكاء الاصطناعي غير مُعدّ. تأكد من وجود OPENROUTER_API_KEY في ملف .env.",
+      "connection_failed": "تعذر الاتصال بالخادم. تأكد من اتصال الإنترنت.",
+      "rate_limited": "تم تجاوز الحد المسموح به. انتظر دقيقة وحاول مرة أخرى.",
+      "request_failed": "فشل تحليل الوجبة (كود {code}). حاول مرة أخرى.",
+      "unreadable_response": "تعذر فهم استجابة التحليل. حاول التقاط صورة أوضح."
+    }
+  },
+  "workout_plan": {
+    "empty_title": "لا يوجد نظام رياضي حتى الآن",
+    "empty_subtitle": "لم يتم إضافة نظامك الرياضي سيتم تحديث خطتك الرياضية من قبل الأخصائي قريباً."
+  },
   "diet_plan": {
     "empty_title": "لا يوجد نظام غذائي حتى الآن",
     "empty_subtitle": "لم يتم إضافة نظامك الغذائي سيتم تحديث خطتك الغذائية من قبل الأخصائي قريباً.",
@@ -920,8 +964,17 @@
     "coupon_will_apply": "سيتم تطبيق الكوبون عند تأكيد الطلب",
     "coupon_applied": "تم تطبيق الكوبون بنجاح",
     "payment_cash": "الدفع عند الاستلام",
-    "payment_paypal": "PayPal",
-    "paypal_not_available": "الدفع عبر PayPal غير متاح حالياً",
+    "payment_card": "الدفع بالبطاقة",
+    "payment_title": "دفع آمن",
+    "pay_now": "ادفع الآن",
+    "payment_processing": "جاري تنفيذ عملية الدفع، برجاء الانتظار...",
+    "payment_failed_generic": "لم تكتمل عملية الدفع. برجاء المحاولة مرة أخرى.",
+    "payment_cancelled_retry": "تم استبدال محاولة الدفع هذه. برجاء المحاولة مرة أخرى.",
+    "payment_confirming_title": "جاري تأكيد عملية الدفع",
+    "payment_confirming_message": "جاري تأكيد عملية الدفع، وسنعلمك فور اكتمالها. يمكنك مغادرة هذه الصفحة بأمان.",
+    "payment_confirming_action": "حسناً",
+    "payment_completed_late": "تم تأكيد عملية الدفع بنجاح",
+    "payment_not_completed": "لم يتم إكمال الدفع. الطلب ما زال في انتظار الدفع.",
     "no_branches": "لا توجد فروع متاحة",
     "order_number_label": "رقم الطلب",
     "discount_label": "الخصم",
@@ -990,9 +1043,27 @@
     "order_date": "تاريخ الطلب: {}",
     "order_total": "الإجمالي: {} {}",
     "order_status_pending_payment": "في انتظار الدفع",
+    "order_status_payment_failed": "فشل الدفع",
+    "order_status_paid": "تم الدفع",
+    "order_status_processing": "قيد التجهيز",
+    "order_status_shipped": "تم الشحن",
+    "order_status_delivered": "تم التوصيل",
     "order_status_completed": "مكتمل",
     "order_status_cancelled": "ملغي",
     "order_status_pending": "قيد المراجعة",
+    "complete_payment": "إكمال الدفع",
+    "order_details_title": "تفاصيل الطلب",
+    "order_details_items": "المنتجات",
+    "order_details_summary": "ملخص الطلب",
+    "order_details_subtotal": "المجموع الفرعي",
+    "order_details_discount": "الخصم",
+    "order_details_shipping": "الشحن",
+    "order_details_total": "الإجمالي",
+    "order_details_close": "إغلاق",
+    "order_details_pickup_branch": "فرع الاستلام",
+    "order_details_delivery_address": "عنوان التوصيل",
+    "order_details_qty_price": "{} × {}",
+    "order_items_separator": "، ",
     "items_count_single": "منتج واحد",
     "items_count_multi": "{} منتجات"
   },

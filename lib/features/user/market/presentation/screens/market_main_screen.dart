@@ -14,6 +14,7 @@ import 'package:fitness_day/features/user/market/presentation/manager/market_hom
 import 'package:fitness_day/features/user/market/presentation/manager/plans_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/cart_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/favorites_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/orders_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/products_list_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_app_bar.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_categories_row.dart';
@@ -46,6 +47,8 @@ class _MarketMainScreenState extends State<MarketMainScreen>
     _tabController = TabController(length: 2, vsync: this);
     // Load the cart once so every product card can reflect membership (the ✓).
     getIt<CartCubit>().loadCart();
+    // Seeds the cart / unpaid-orders badges before anything is opened.
+    getIt<CartCubit>().loadCounters();
   }
 
   @override
@@ -94,6 +97,14 @@ class _MarketMainScreenState extends State<MarketMainScreen>
                     context,
                     MaterialPageRoute(builder: (_) => const FavoritesScreen()),
                   ),
+                  onOrdersTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const OrdersScreen()),
+                    );
+                    // Paying an order changes the badge.
+                    getIt<CartCubit>().loadCounters();
+                  },
                 ),
                 SizedBox(height: 12.h),
                 MarketTabBar(controller: _tabController),

@@ -328,31 +328,41 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            _isEditMode
-                ? 'market.edit_address_title'.tr()
-                : 'market.add_new_address'.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Icon(
-                Icons.arrow_back_ios_rounded,
-                size: 20.sp,
+      child: SizedBox(
+        height: 47.w,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              _isEditMode
+                  ? 'market.edit_address_title'.tr()
+                  : 'market.add_new_address'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyleManager.heading2.copyWith(
                 color: AppColors.black,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ),
-        ],
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.pop(context),
+                child: SizedBox(
+                  width: 47.w,
+                  height: 47.w,
+                  child: Center(
+                    child: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      size: 20.sp,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

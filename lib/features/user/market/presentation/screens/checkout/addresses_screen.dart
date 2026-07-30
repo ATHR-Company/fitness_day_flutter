@@ -6,6 +6,7 @@ import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/widgets/action_confirm_dialog.dart';
 import 'package:fitness_day/features/user/market/domain/entities/address_data.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/addresses_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
@@ -44,25 +45,13 @@ class _AddressesView extends StatelessWidget {
 
   Future<void> _confirmDelete(BuildContext context, AddressData address) async {
     final cubit = context.read<AddressesCubit>();
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('market.delete_address_title'.tr()),
-        content: Text('market.delete_address_confirm'.tr()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text('market.cancel_sub_back'.tr()),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(
-              'market.delete_button'.tr(),
-              style: const TextStyle(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
+    final bool? confirmed = await ActionConfirmDialog.show(
+      context,
+      icon: Icons.delete_outline,
+      title: 'market.delete_address_title'.tr(),
+      warning: 'market.delete_address_confirm'.tr(),
+      confirmText: 'market.delete_button'.tr(),
+      cancelText: 'market.cancel_sub_back'.tr(),
     );
     if (confirmed != true) return;
 
@@ -121,29 +110,39 @@ class _AddressesView extends StatelessWidget {
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            'market.addresses_title'.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Icon(
-                Icons.arrow_back_ios_rounded,
-                size: 20.sp,
+      child: SizedBox(
+        height: 47.w,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              'market.addresses_title'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyleManager.heading2.copyWith(
                 color: AppColors.black,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ),
-        ],
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.pop(context),
+                child: SizedBox(
+                  width: 47.w,
+                  height: 47.w,
+                  child: Center(
+                    child: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      size: 20.sp,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -249,47 +248,31 @@ class _AddressesView extends StatelessWidget {
     AddressesSuccess state,
   ) {
     final bool isSelected = state.selectedAddressId == address.id;
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: isSelected
-              ? AppColors.primary
-              : AppColors.textSecondary.withValues(alpha: 0.2),
-          width: isSelected ? 1.5 : 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () =>
-                context.read<AddressesCubit>().selectAddress(address.id),
-            child: Container(
-              width: 20.w,
-              height: 20.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.primary
-                      : AppColors.textPlaceholder,
-                  width: 2,
-                ),
-                color: isSelected ? AppColors.primary : Colors.transparent,
-              ),
-              child: isSelected
-                  ? Icon(Icons.circle, size: 10.sp, color: AppColors.white)
-                  : null,
-            ),
+
+    // The whole card selects the address. The edit and delete icons carry
+    // their own gestures, and a nested detector wins the tap, so those two
+    // keep working without selecting the row underneath them.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => context.read<AddressesCubit>().selectAddress(address.id),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : AppColors.textSecondary.withValues(alpha: 0.2),
+            width: isSelected ? 1.5 : 1,
           ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: GestureDetector(
-              onTap: () =>
-                  context.read<AddressesCubit>().selectAddress(address.id),
+        ),
+        child: Row(
+          children: [
+            _SelectionDot(isSelected: isSelected),
+            SizedBox(width: 12.w),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -310,18 +293,19 @@ class _AddressesView extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-          SizedBox(width: 12.w),
-          GestureDetector(
-            onTap: () => _openEdit(context, address: address),
-            child: Icon(Icons.edit, size: 20.sp, color: AppColors.primary),
-          ),
-          SizedBox(width: 12.w),
-          GestureDetector(
-            onTap: () => _confirmDelete(context, address),
-            child: Icon(Icons.delete_outline, size: 20.sp, color: AppColors.error),
-          ),
-        ],
+            SizedBox(width: 4.w),
+            _CardAction(
+              icon: Icons.edit,
+              color: AppColors.primary,
+              onTap: () => _openEdit(context, address: address),
+            ),
+            _CardAction(
+              icon: Icons.delete_outline,
+              color: AppColors.error,
+              onTap: () => _confirmDelete(context, address),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -470,5 +454,60 @@ class _AddressesView extends StatelessWidget {
         ),
       ),
     ]);
+  }
+}
+
+/// Radio dot of an address card. Purely visual — the whole card handles the
+/// tap, so this must not swallow one.
+class _SelectionDot extends StatelessWidget {
+  final bool isSelected;
+
+  const _SelectionDot({required this.isSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 20.w,
+      height: 20.w,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isSelected ? AppColors.primary : AppColors.textPlaceholder,
+          width: 2,
+        ),
+        color: isSelected ? AppColors.primary : Colors.transparent,
+      ),
+      child: isSelected
+          ? Icon(Icons.circle, size: 10.sp, color: AppColors.white)
+          : null,
+    );
+  }
+}
+
+/// Edit / delete icon on an address card.
+///
+/// The padding is part of the hit area, which both enlarges the tap target and
+/// keeps it clearly separated from the card-wide selection tap.
+class _CardAction extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _CardAction({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+        child: Icon(icon, size: 20.sp, color: color),
+      ),
+    );
   }
 }

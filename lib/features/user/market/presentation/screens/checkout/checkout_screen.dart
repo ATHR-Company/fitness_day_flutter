@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -9,6 +10,7 @@ import 'package:fitness_day/features/user/market/domain/entities/order_data.dart
 import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/addresses_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/branch_pickup_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/delivery_method_option.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/order_summary_panel.dart';
 
 class CheckoutScreen extends StatelessWidget {
@@ -79,29 +81,39 @@ class _CheckoutViewState extends State<_CheckoutView> {
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            'market.checkout_title'.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Icon(
-                Icons.arrow_back_ios_rounded,
-                size: 20.sp,
+      child: SizedBox(
+        height: 47.w,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              'market.checkout_title'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyleManager.heading2.copyWith(
                 color: AppColors.black,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ),
-        ],
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.pop(context),
+                child: SizedBox(
+                  width: 47.w,
+                  height: 47.w,
+                  child: Center(
+                    child: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      size: 20.sp,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -138,87 +150,29 @@ class _CheckoutViewState extends State<_CheckoutView> {
                 ),
               ),
               SizedBox(height: 16.h),
-              _buildDeliveryOptionCard(
-                context: context,
+              DeliveryMethodOption(
                 title: 'market.delivery_option_shipping'.tr(),
-                method: CheckoutDeliveryMethod.delivery,
-                selected: state.deliveryMethod,
-                icon: Icons.local_shipping,
+                iconPath: SvgIcons.delivery,
+                isSelected:
+                    state.deliveryMethod == CheckoutDeliveryMethod.delivery,
+                onTap: () => context
+                    .read<CheckoutCubit>()
+                    .setDeliveryMethod(CheckoutDeliveryMethod.delivery),
               ),
               SizedBox(height: 12.h),
-              _buildDeliveryOptionCard(
-                context: context,
+              DeliveryMethodOption(
                 title: 'market.delivery_option_branch_pickup'.tr(),
-                method: CheckoutDeliveryMethod.pickup,
-                selected: state.deliveryMethod,
-                icon: Icons.inventory_2,
+                iconPath: SvgIcons.branchPickup,
+                isSelected:
+                    state.deliveryMethod == CheckoutDeliveryMethod.pickup,
+                onTap: () => context
+                    .read<CheckoutCubit>()
+                    .setDeliveryMethod(CheckoutDeliveryMethod.pickup),
               ),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildDeliveryOptionCard({
-    required BuildContext context,
-    required String title,
-    required CheckoutDeliveryMethod method,
-    required CheckoutDeliveryMethod selected,
-    required IconData icon,
-  }) {
-    final isSelected = selected == method;
-    return GestureDetector(
-      onTap: () => context.read<CheckoutCubit>().setDeliveryMethod(method),
-      child: Container(
-        height: 56.h,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(
-            color: isSelected
-                ? AppColors.greenLightAccent
-                : AppColors.textSecondary.withValues(alpha: 0.2),
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36.w,
-              height: 36.w,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: AppColors.white, size: 18.sp),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyleManager.style11Medium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black,
-                ),
-              ),
-            ),
-            Container(
-              width: 16.w,
-              height: 16.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color:
-                      isSelected ? AppColors.primary : AppColors.textPlaceholder,
-                  width: isSelected ? 4 : 1,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

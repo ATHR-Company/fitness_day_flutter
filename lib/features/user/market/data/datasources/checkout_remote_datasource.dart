@@ -14,7 +14,9 @@ abstract class CheckoutRemoteDataSource {
     required String orderIdentity,
     required String deliveryMethod,
   });
-  Future<List<OrderModel>> getOrders();
+  Future<({List<OrderModel> orders, int total})> getOrders({int page, int limit, String? status});
+  Future<OrderModel> getOrderById(String orderIdentity);
+  Future<OrderCountersModel> getCounters();
 }
 
 class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
@@ -23,12 +25,42 @@ class CheckoutRemoteDataSourceImpl implements CheckoutRemoteDataSource {
   CheckoutRemoteDataSourceImpl(this.apiService);
 
   @override
-  Future<List<OrderModel>> getOrders() async {
-    final response = await apiService.get('/orders');
-    final List raw = response.data['data']['data'] as List? ?? [];
-    return raw
+  Future<({List<OrderModel> orders, int total})> getOrders({
+    int page = 1,
+    int limit = 10,
+    String? status,
+  }) async {
+    final response = await apiService.get(
+      ApiEndpoints.orders,
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+        if (status != null && status.isNotEmpty) 'status': status,
+      },
+    );
+    final body = response.data['data'] as Map<String, dynamic>? ?? {};
+    final List raw = body['data'] as List? ?? [];
+    final int total = (body['total'] as num?)?.toInt() ?? raw.length;
+    final orders = raw
         .map((e) => OrderModel.fromJson(e as Map<String, dynamic>))
         .toList();
+    return (orders: orders, total: total);
+  }
+
+  @override
+  Future<OrderModel> getOrderById(String orderIdentity) async {
+    final response = await apiService.get(ApiEndpoints.orderById(orderIdentity));
+    return OrderModel.fromJson(
+      response.data['data'] as Map<String, dynamic>? ?? {},
+    );
+  }
+
+  @override
+  Future<OrderCountersModel> getCounters() async {
+    final response = await apiService.get(ApiEndpoints.orderCounters);
+    return OrderCountersModel.fromJson(
+      response.data['data'] as Map<String, dynamic>? ?? {},
+    );
   }
 
   @override

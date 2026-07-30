@@ -1,6 +1,8 @@
-/// Represents the nutritional analysis result returned from Gemini
-/// after analyzing a meal photo.
+/// Nutritional breakdown returned by the vision model after it analyses a
+/// meal photo.
 class MealAnalysisResult {
+  /// Empty when the model didn't name the meal — the UI then shows its own
+  /// "unknown meal" label, in the current app language.
   final String mealName;
   final List<MealIngredient> ingredients;
   final double calories;
@@ -21,7 +23,7 @@ class MealAnalysisResult {
 
   factory MealAnalysisResult.fromJson(Map<String, dynamic> json) {
     return MealAnalysisResult(
-      mealName: json['meal_name'] as String? ?? 'وجبة غير معروفة',
+      mealName: json['meal_name'] as String? ?? '',
       ingredients: (json['ingredients'] as List<dynamic>? ?? [])
           .map((e) => MealIngredient.fromJson(e as Map<String, dynamic>))
           .toList(),

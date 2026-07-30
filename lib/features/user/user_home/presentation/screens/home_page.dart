@@ -25,6 +25,8 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/unsubsc
 import '../../../../../core/constant/app_assets.dart';
 import 'hydration_details_screen.dart';
 import 'steps_details_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/package_details_dialog.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/pending_payment_watcher.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_packages_grid.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/home_shimmer_loading.dart';
@@ -71,13 +73,25 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cubit,
-      child: const _HomePageContent(),
+      // Home is the landing screen, so it is where a payment interrupted by
+      // the app being killed gets confirmed and reported.
+      child: const PendingPaymentWatcher(child: _HomePageContent()),
     );
   }
 }
 
 class _HomePageContent extends StatelessWidget {
   const _HomePageContent();
+
+  /// Opens the store's plan dialog for the plan the user is subscribed to.
+  /// It loads its own data from `GET /plans/:id`, so only the id is needed.
+  void _showSubscribedPlanDetails(BuildContext context, String planId) {
+    showDialog(
+      context: context,
+      barrierColor: AppColors.black.withValues(alpha: 0.6),
+      builder: (_) => PackageDetailsDialog(planId: planId),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,8 +110,10 @@ class _HomePageContent extends StatelessWidget {
           // Extract dynamic values from homeData
           final userName = homeData?.user?['name'] as String? ?? '';
           final userAvatar = homeData?.user?['avatar'] as String? ?? '';
-          final subscriptionName = homeData?.subscription?['name'] as String?;
-          final subscriptionEndDate = homeData?.subscription?['endDate'] as String?;
+          final subscription = homeData?.subscription;
+          final subscriptionName = subscription?.name;
+          final subscriptionEndDate = subscription?.endDate;
+          final subscribedPlanId = subscription?.planId;
           final currentWeight = homeData?.currentWeight?['value'];
           final weightUnit = homeData?.currentWeight?['unit'] as String? ?? 'kg';
           final weightStatus = homeData?.currentWeight?['status'] as String?;
@@ -154,6 +170,16 @@ class _HomePageContent extends StatelessWidget {
                     child: SubscriptionBanner(
                       subscriptionName: subscriptionName,
                       subscriptionEndDate: subscriptionEndDate,
+                      // Tapping the banner opens the same plan dialog the
+                      // store uses. `GET /plans/:id` reports the active
+                      // subscription itself, so the dialog shows the expiry
+                      // date and the cancel button rather than "add to cart".
+                      onSubscribedTap: subscribedPlanId == null
+                          ? null
+                          : () => _showSubscribedPlanDetails(
+                                context,
+                                subscribedPlanId,
+                              ),
                     ),
                   ),
                   SizedBox(height: 22.h),

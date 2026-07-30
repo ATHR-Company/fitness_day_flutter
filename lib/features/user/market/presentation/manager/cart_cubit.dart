@@ -2,8 +2,10 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import '../../domain/entities/cart_data.dart';
+import '../../domain/entities/order_counters_data.dart';
 import '../../domain/usecases/add_to_cart_usecase.dart';
 import '../../domain/usecases/get_cart_usecase.dart';
+import '../../domain/usecases/get_order_counters_usecase.dart';
 import '../../domain/usecases/remove_cart_item_usecase.dart';
 import '../../domain/usecases/update_cart_quantity_usecase.dart';
 
@@ -17,27 +19,46 @@ class CartCubit extends Cubit<CartState> {
   final AddToCartUseCase _addToCartUseCase;
   final UpdateCartQuantityUseCase _updateQuantityUseCase;
   final RemoveCartItemUseCase _removeItemUseCase;
+  final GetOrderCountersUseCase _getCountersUseCase;
 
   CartCubit({
     required GetCartUseCase getCartUseCase,
     required AddToCartUseCase addToCartUseCase,
     required UpdateCartQuantityUseCase updateQuantityUseCase,
     required RemoveCartItemUseCase removeItemUseCase,
+    required GetOrderCountersUseCase getCountersUseCase,
   })  : _getCartUseCase = getCartUseCase,
         _addToCartUseCase = addToCartUseCase,
         _updateQuantityUseCase = updateQuantityUseCase,
         _removeItemUseCase = removeItemUseCase,
+        _getCountersUseCase = getCountersUseCase,
         super(const CartState());
 
   Future<void> loadCart() async {
     emit(state.copyWith(isLoading: true));
     final result = await _getCartUseCase();
     if (result is Success<CartData>) {
-      emit(state.copyWith(cart: result.data, isLoading: false));
+      emit(state.copyWith(
+        cart: result.data,
+        isLoading: false,
+        hasLoadedCart: true,
+      ));
     } else {
       emit(state.copyWith(isLoading: false));
     }
   }
+
+  /// Refreshes the badge counts without pulling the whole cart.
+  ///
+  /// Silent on failure: a badge that is briefly stale is not worth an error in
+  /// front of the user.
+  Future<void> loadCounters() async {
+    final result = await _getCountersUseCase();
+    if (result is Success<OrderCountersData>) {
+      emit(state.copyWith(counters: result.data));
+    }
+  }
+
 
   /// Adds one item. Returns true on success. The response carries the full
   /// post-add cart, so state is reconciled with the server rather than guessed.
@@ -62,7 +83,11 @@ class CartCubit extends Cubit<CartState> {
     final nextAdding = {...state.addingIds}..remove(itemIdentity);
 
     if (result is Success<CartData>) {
-      emit(state.copyWith(cart: result.data, addingIds: nextAdding));
+      emit(state.copyWith(
+        cart: result.data,
+        addingIds: nextAdding,
+        hasLoadedCart: true,
+      ));
       return true;
     }
 
@@ -89,7 +114,11 @@ class CartCubit extends Cubit<CartState> {
 
     final nextAdding = {...state.addingIds}..remove(itemIdentity);
     if (result is Success<CartData>) {
-      emit(state.copyWith(cart: result.data, addingIds: nextAdding));
+      emit(state.copyWith(
+        cart: result.data,
+        addingIds: nextAdding,
+        hasLoadedCart: true,
+      ));
     } else {
       final message =
           result is FailureResult<CartData> ? result.failure.message : null;
@@ -109,7 +138,11 @@ class CartCubit extends Cubit<CartState> {
 
     final nextAdding = {...state.addingIds}..remove(itemIdentity);
     if (result is Success<CartData>) {
-      emit(state.copyWith(cart: result.data, addingIds: nextAdding));
+      emit(state.copyWith(
+        cart: result.data,
+        addingIds: nextAdding,
+        hasLoadedCart: true,
+      ));
     } else {
       final message =
           result is FailureResult<CartData> ? result.failure.message : null;

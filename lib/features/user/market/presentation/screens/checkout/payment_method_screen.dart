@@ -1,10 +1,9 @@
-import 'dart:ui' as ui;
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/checkout/checkout_exit.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/market/domain/entities/order_data.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/checkout_cubit.dart';
@@ -22,20 +21,18 @@ class PaymentMethodScreen extends StatelessWidget {
       Icons.payments_outlined,
     ),
     _PaymentOption(
-      CheckoutPaymentMethod.paypal,
-      'market.payment_paypal',
-      Icons.account_balance_wallet_outlined,
+      CheckoutPaymentMethod.paymob,
+      'market.payment_card',
+      Icons.credit_card_rounded,
     ),
   ];
 
   Future<void> _confirm(BuildContext context) async {
     final cubit = context.read<CheckoutCubit>();
-    // PayPal's webview handoff is not wired yet — only CASH can place an order.
-    if (cubit.state.paymentMethod == CheckoutPaymentMethod.paypal) {
-      showAppSnackBar(context, text: 'market.paypal_not_available'.tr(), isError: true);
-      return;
-    }
 
+    // This only creates the order (PENDING_PAYMENT). For PAYMOB the buyer is
+    // charged later, from the review screen — the amount is locked when
+    // `initiate` runs, so the coupon has to be settled before then.
     final ok = await cubit.submit();
     if (!context.mounted) return;
     if (ok) {
@@ -58,8 +55,35 @@ class PaymentMethodScreen extends StatelessWidget {
     }
   }
 
+  /// Where "back" goes from here.
+  ///
+  /// Before the order is created this is an ordinary step in the flow, so back
+  /// means back. Once [CheckoutCubit] holds an order the cart has been consumed
+  /// and everything under this screen refers to a finished checkout — from
+  /// there the only sane destination is the store.
+  void _back(BuildContext context) {
+    if (context.read<CheckoutCubit>().state.order == null) {
+      Navigator.pop(context);
+      return;
+    }
+    leaveCheckoutToStore(context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<CheckoutCubit, CheckoutState>(
+      buildWhen: (prev, curr) => (prev.order == null) != (curr.order == null),
+      builder: (context, state) => PopScope(
+        canPop: state.order == null,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _back(context);
+        },
+        child: _buildScaffold(context),
+      ),
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
@@ -108,35 +132,39 @@ class PaymentMethodScreen extends StatelessWidget {
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            'market.payment_method_title'.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w800,
+      child: SizedBox(
+        height: 47.w,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              'market.payment_method_title'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyleManager.heading2.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Directionality.of(context) == ui.TextDirection.rtl
-                  ? Icon(
-                      Icons.arrow_back_ios_rounded,
-                      size: 20.sp,
-                      color: AppColors.black,
-                    )
-                  : Icon(
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _back(context),
+                child: SizedBox(
+                  width: 47.w,
+                  height: 47.w,
+                  child: Center(
+                    child: Icon(
                       Icons.arrow_back_ios_rounded,
                       size: 20.sp,
                       color: AppColors.black,
                     ),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

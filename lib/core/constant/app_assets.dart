@@ -118,6 +118,13 @@ class SvgIcons {
   static const String usersGroup = '$_svgPath/users-group.svg';
   static const String noDiet = '$_svgPath/no_diet.svg';
   static const String noNotifications = '$_svgPath/no_notifications.svg';
+
+  // ── Checkout delivery methods ───────────────────────────────────────────
+  static const String delivery = '$_svgPath/delivery.svg';
+
+  /// Storefront icon for "pick up from branch". The file name comes from the
+  /// design export and doesn't describe what it is used for.
+  static const String branchPickup = '$_svgPath/order-tracking.svg';
 }
 
 /// PNG/JPG asset paths used throughout the application.

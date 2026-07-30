@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
-import 'meal_analysis_model.dart';
-import 'meal_exceptions.dart';
+
+import 'package:fitness_day/core/constant/app_locale.dart';
+import 'package:fitness_day/features/user/user_home/data/datasources/meal_analysis_exception.dart';
+import 'package:fitness_day/features/user/user_home/data/datasources/meal_analysis_prompt.dart';
+import 'package:fitness_day/features/user/user_home/data/models/meal_analysis_model.dart';
 
 /// Handles sending a meal photo to Gemini's vision model and parsing
 /// the nutritional breakdown from the response.
@@ -28,27 +30,17 @@ class GeminiMealService {
   static const String _endpoint =
       'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent';
 
-  static const String _prompt = '''
-أنت خبير تغذية. حلل صورة الوجبة المرفقة وارجع تحليلاً غذائياً دقيقاً.
-أجب فقط بصيغة JSON صالحة بدون أي نص إضافي أو علامات markdown، بالشكل التالي بالضبط:
-{
-  "meal_name": "اسم الوجبة بالعربي",
-  "ingredients": [
-    {"name": "اسم المكون", "approx_amount": "الكمية التقريبية (مثال: 150 جرام)", "calories": 0}
-  ],
-  "calories": 0,
-  "protein_g": 0,
-  "carbs_g": 0,
-  "fat_g": 0,
-  "notes": "أي ملاحظات مهمة عن دقة التقدير أو مكونات غير واضحة"
-}
-إذا لم تستطع تمييز الطعام في الصورة بوضوح، اذكر ذلك في notes وقدم أفضل تخمين ممكن.
-كل الأرقام يجب أن تكون قيماً عددية (numbers) وليست نصوصاً.
-''';
-
   /// Compresses [imageFile], sends it to Gemini along with the analysis
   /// prompt, and parses the JSON response into a [MealAnalysisResult].
-  Future<MealAnalysisResult> analyzeMeal(File imageFile) async {
+  ///
+  /// [languageCode] decides the language of the returned free-text fields;
+  /// it defaults to the app's active language.
+  Future<MealAnalysisResult> analyzeMeal(
+    File imageFile, {
+    String? languageCode,
+  }) async {
+    final String prompt =
+        buildMealAnalysisPrompt(languageCode ?? AppLocale.langCode);
     final Uint8List compressedBytes = await _compressImage(imageFile);
     final String base64Image = base64Encode(compressedBytes);
     final Uri url = Uri.parse('$_endpoint?key=$apiKey');
@@ -57,7 +49,7 @@ class GeminiMealService {
       'contents': [
         {
           'parts': [
-            {'text': _prompt},
+            {'text': prompt},
             {
               'inline_data': {
                 'mime_type': 'image/jpeg',
@@ -72,7 +64,7 @@ class GeminiMealService {
       },
     };
 
-    http.Response response;
+    final http.Response response;
     try {
       response = await http
           .post(
@@ -81,31 +73,27 @@ class GeminiMealService {
             body: jsonEncode(body),
           )
           .timeout(const Duration(seconds: 30));
-    } catch (e) {
-      throw MealAnalysisException('تعذر الاتصال بالخادم. تأكد من اتصال الإنترنت.');
+    } catch (_) {
+      throw const MealAnalysisException.connectionFailed();
     }
 
     if (response.statusCode == 429) {
-      throw MealAnalysisException(
-        'تم تجاوز الحد المسموح به. انتظر دقيقة وحاول مرة أخرى.',
-      );
+      throw const MealAnalysisException.rateLimited();
     }
     if (response.statusCode != 200) {
       debugPrint('Gemini error body: ${response.body}');
-      throw MealAnalysisException(
-        'فشل تحليل الوجبة (كود ${response.statusCode}). حاول مرة أخرى.',
-      );
+      throw MealAnalysisException.requestFailed(response.statusCode);
     }
 
     try {
       final Map<String, dynamic> decoded = jsonDecode(response.body);
       final String text =
           decoded['candidates'][0]['content']['parts'][0]['text'] as String;
-      final String cleanedJson = _stripMarkdownFences(text);
-      final Map<String, dynamic> resultJson = jsonDecode(cleanedJson);
+      final Map<String, dynamic> resultJson =
+          jsonDecode(_stripMarkdownFences(text));
       return MealAnalysisResult.fromJson(resultJson);
-    } catch (e) {
-      throw MealAnalysisException('تعذر فهم استجابة التحليل. حاول التقاط صورة أوضح.');
+    } catch (_) {
+      throw const MealAnalysisException.unreadableResponse();
     }
   }
 

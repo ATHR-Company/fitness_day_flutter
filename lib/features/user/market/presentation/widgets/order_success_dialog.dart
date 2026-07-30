@@ -1,4 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -63,10 +65,12 @@ class _OrderSuccessDialogState extends State<OrderSuccessDialog> {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Icon(
-                  Icons.shopping_bag_outlined,
+                child: AppImage(
+                  SvgIcons.branchPickup,
                   color: AppColors.primary,
-                  size: 36.sp,
+                  // size: 36.sp,
+                  width: 55.w,
+                  height: 55.w,
                 ),
               ),
             ),
@@ -83,14 +87,7 @@ class _OrderSuccessDialogState extends State<OrderSuccessDialog> {
             ),
             SizedBox(height: 8.h),
 
-            // ── Subtitle ──────────────────────────────────────────────────
-            Text(
-              'market.order_success_subtitle'.tr(),
-              textAlign: TextAlign.center,
-              style: TextStyleManager.style11Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
+          
             if (order != null && order.id.isNotEmpty) ...[
               SizedBox(height: 8.h),
               Text(
@@ -119,25 +116,7 @@ class _OrderSuccessDialogState extends State<OrderSuccessDialog> {
             ],
             SizedBox(height: 20.h),
 
-            // ── Star rating ───────────────────────────────────────────────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) {
-                final starIndex = index + 1;
-                return GestureDetector(
-                  onTap: () => setState(() => _rating = starIndex),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4.w),
-                    child: Icon(
-                      starIndex <= _rating ? Icons.star : Icons.star_border,
-                      color: AppColors.starRating,
-                      size: 32.sp,
-                    ),
-                  ),
-                );
-              }),
-            ),
-            SizedBox(height: 24.h),
+            
 
             // ── Home button ───────────────────────────────────────────────
             SizedBox(

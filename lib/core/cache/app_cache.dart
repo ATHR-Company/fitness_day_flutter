@@ -15,6 +15,16 @@ abstract class AppCache {
   String getUserType();
   Future<void> saveIsSubscribed(bool isSubscribed);
   bool getIsSubscribed();
+
+  /// Order whose Paymob payment was started but never resolved on this device.
+  ///
+  /// Written when `initiate` succeeds and cleared once the status endpoint
+  /// reports a final result, so an app that was killed mid-payment can pick
+  /// the confirmation back up on its next launch.
+  Future<void> savePendingPaymentOrderId(String orderIdentity);
+  String? getPendingPaymentOrderId();
+  Future<void> clearPendingPaymentOrderId();
+
   Future<void> clear();
 }
 
@@ -29,6 +39,7 @@ class AppCacheImpl implements AppCache {
   static const _assessmentIdKey = 'assessment_id';
   static const _userTypeKey = 'user_type';
   static const _isSubscribedKey = 'is_subscribed';
+  static const _pendingPaymentOrderKey = 'pending_payment_order_id';
 
   @override
   Future<void> saveIsLoggedIn(bool isLoggedIn) async {
@@ -109,6 +120,21 @@ class AppCacheImpl implements AppCache {
   @override
   bool getIsSubscribed() {
     return _storage.read(_isSubscribedKey) ?? false;
+  }
+
+  @override
+  Future<void> savePendingPaymentOrderId(String orderIdentity) async {
+    await _storage.write(_pendingPaymentOrderKey, orderIdentity);
+  }
+
+  @override
+  String? getPendingPaymentOrderId() {
+    return _storage.read(_pendingPaymentOrderKey);
+  }
+
+  @override
+  Future<void> clearPendingPaymentOrderId() async {
+    await _storage.remove(_pendingPaymentOrderKey);
   }
 
   @override

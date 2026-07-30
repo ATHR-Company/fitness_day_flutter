@@ -10,6 +10,7 @@ import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart'
 import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/checkout_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/orders_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/orders_icon_button.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 
@@ -28,6 +29,8 @@ class _CartScreenState extends State<CartScreen> {
     super.initState();
     // Refresh against the server every time the cart is opened.
     _cart.loadCart();
+    // Feeds both badges (cart + orders) from `GET /orders/counters`.
+    _cart.loadCounters();
   }
 
   @override
@@ -77,66 +80,57 @@ class _CartScreenState extends State<CartScreen> {
   Widget _buildAppBar(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            'market.cart_title'.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Icon(
-                Icons.arrow_back_ios_rounded,
-                size: 20.sp,
+      child: SizedBox(
+        height: 47.w,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              'market.cart_title'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyleManager.heading2.copyWith(
                 color: AppColors.black,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const OrdersScreen()),
-                );
-              },
-              child: _buildIconButton(
-                child: AppImage(
-                  SvgIcons.market_icon,
-                  color: AppColors.textSecondary,
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.pop(context),
+                child: SizedBox(
+                  width: 47.w,
+                  height: 47.w,
+                  child: Center(
+                    child: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      size: 20.sp,
+                      color: AppColors.black,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: OrdersIconButton(
+                size: 47,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OrdersScreen()),
+                  );
+                  // Paying an order changes the count.
+                  _cart.loadCounters();
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildIconButton({required Widget child, Color? background}) {
-    return Container(
-      width: 38.w,
-      height: 38.w,
-      padding: EdgeInsets.all(10.r),
-      decoration: BoxDecoration(
-        color: background ?? AppColors.white,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.textSecondary.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Center(child: child),
-    );
-  }
 
   Widget _buildEmptyState() {
     return Padding(

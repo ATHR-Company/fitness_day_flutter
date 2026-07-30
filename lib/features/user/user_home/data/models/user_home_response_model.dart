@@ -40,6 +40,45 @@ class BannerModel {
   }
 }
 
+/// The `subscription` block of `GET /user-home`, present only while the user
+/// has an active plan.
+///
+/// [planId] is what lets the home screen reopen the plan through
+/// `GET /plans/:id`. The backend has spelled the reference differently across
+/// versions, so it is resolved from whichever form the payload carries:
+/// a flat `planId`, a nested `plan` object/string, or the block's own `id`.
+class HomeSubscriptionModel {
+  final String? planId;
+  final String? name;
+  final String? endDate;
+
+  const HomeSubscriptionModel({this.planId, this.name, this.endDate});
+
+  factory HomeSubscriptionModel.fromJson(Map<String, dynamic> json) {
+    return HomeSubscriptionModel(
+      planId: _resolvePlanId(json),
+      name: json['name'] as String?,
+      endDate: json['endDate'] as String?,
+    );
+  }
+
+  static String? _resolvePlanId(Map<String, dynamic> json) {
+    final plan = json['plan'];
+    final candidates = <dynamic>[
+      json['planId'],
+      if (plan is Map) plan['id'] ?? plan['_id'],
+      if (plan is String) plan,
+      json['id'],
+      json['_id'],
+    ];
+
+    for (final candidate in candidates) {
+      if (candidate is String && candidate.isNotEmpty) return candidate;
+    }
+    return null;
+  }
+}
+
 class HomePlanModel {
   final String id;
   final String name;
@@ -71,7 +110,7 @@ class HomePlanModel {
 
 class UserHomeDataModel {
   final Map<String, dynamic>? user;
-  final Map<String, dynamic>? subscription;
+  final HomeSubscriptionModel? subscription;
   final Map<String, dynamic>? currentWeight;
   final Map<String, dynamic>? visits;
   final DailyTasksModel? dailyTasks;
@@ -94,7 +133,10 @@ class UserHomeDataModel {
   factory UserHomeDataModel.fromJson(Map<String, dynamic> json) {
     return UserHomeDataModel(
       user: json['user'],
-      subscription: json['subscription'],
+      subscription: json['subscription'] is Map
+          ? HomeSubscriptionModel.fromJson(
+              Map<String, dynamic>.from(json['subscription'] as Map))
+          : null,
       currentWeight: json['currentWeight'],
       visits: json['visits'],
       dailyTasks: json['dailyTasks'] != null ? DailyTasksModel.fromJson(json['dailyTasks']) : null,

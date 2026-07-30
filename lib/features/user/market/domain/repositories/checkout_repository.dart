@@ -1,4 +1,5 @@
 import 'package:fitness_day/core/network/api_result.dart';
+import '../entities/order_counters_data.dart';
 import '../entities/order_data.dart';
 
 abstract class CheckoutRepository {
@@ -12,5 +13,11 @@ abstract class CheckoutRepository {
     required String orderIdentity,
     required String deliveryMethod,
   });
-  Future<ApiResult<List<OrderData>>> getOrders();
+  Future<ApiResult<OrdersPageData>> getOrders({
+    int page,
+    int limit,
+    String? status,
+  });
+  Future<ApiResult<OrderData>> getOrderById(String orderIdentity);
+  Future<ApiResult<OrderCountersData>> getCounters();
 }

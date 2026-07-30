@@ -123,10 +123,49 @@ class ApiEndpoints {
   //   DELETE /cart/items/:itemIdentity  — no body
   static String cartItem(String itemIdentity) => '/cart/items/$itemIdentity';
   static const String cartCheckout = '/cart/checkout';
+  /// Where relative media paths live. Order items are snapshots taken at
+  /// checkout and the contract shows them as relative (`products/whey.jpg`),
+  /// while other endpoints return absolute URLs — [resolveMediaUrl] copes with
+  /// either.
+  static const String mediaBaseUrl = 'https://fitnessday.tech/uploads';
+
+  /// Returns [path] untouched when it is already absolute, otherwise hangs it
+  /// off [mediaBaseUrl].
+  static String? resolveMediaUrl(String? path) {
+    if (path == null || path.trim().isEmpty) return null;
+    final String trimmed = path.trim();
+    if (trimmed.startsWith('http')) return trimmed;
+    return '$mediaBaseUrl/${trimmed.replaceFirst(RegExp(r'^/+'), '')}';
+  }
+
+  static const String orders = '/orders';
+  static String orderById(String orderIdentity) => '/orders/$orderIdentity';
+
+  /// Cart + unpaid-order counts for the badges. Cheap enough to call on every
+  /// app open.
+  static const String orderCounters = '/orders/counters';
+
   static String applyOrderCoupon(String orderIdentity) =>
       '/orders/$orderIdentity/coupon';
   static String editOrderDelivery(String orderIdentity) =>
       '/orders/$orderIdentity/delivery';
+
+  // Payments (Paymob)
+  //
+  // Both take no body — the charged amount is read from the stored order, so
+  // the app cannot influence the price.
+  static String initiatePaymobPayment(String orderIdentity) =>
+      '/payments/paymob/orders/$orderIdentity/initiate';
+  static String paymobPaymentStatus(String orderIdentity) =>
+      '/payments/paymob/orders/$orderIdentity/status';
+
+  /// Paymob sends the buyer here once they are done. The payment WebView
+  /// watches for this path and closes as soon as it is hit — the page itself
+  /// returns JSON, not something a buyer should ever see.
+  ///
+  /// Matched against the full URL, so it keeps the `/api` prefix that the rest
+  /// of the constants here leave to the Dio base URL.
+  static const String paymobReturnPath = '/api/payments/paymob/return';
 
   // Assessments
   static const String userProgress = '/assessments/progress';

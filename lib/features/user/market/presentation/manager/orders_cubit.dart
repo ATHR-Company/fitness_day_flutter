@@ -18,7 +18,11 @@ class OrdersLoading extends OrdersState {
 class OrdersSuccess extends OrdersState {
   final List<OrderData> orders;
 
-  const OrdersSuccess(this.orders);
+  /// Total number of orders on the server (may exceed `orders.length` when
+  /// paginated). Used to drive the badge on the orders entry-point icon.
+  final int totalOrders;
+
+  const OrdersSuccess(this.orders, {this.totalOrders = 0});
 }
 
 class OrdersFailure extends OrdersState {
@@ -35,9 +39,13 @@ class OrdersCubit extends Cubit<OrdersState> {
   Future<void> loadOrders() async {
     emit(const OrdersLoading());
     final result = await _getOrdersUseCase();
-    if (result is Success<List<OrderData>>) {
-      emit(OrdersSuccess(result.data));
-    } else if (result is FailureResult<List<OrderData>>) {
+    if (result is Success<OrdersPageData>) {
+      emit(OrdersSuccess(
+        result.data.orders,
+        // The server's count of every order, not just this page.
+        totalOrders: result.data.total,
+      ));
+    } else if (result is FailureResult<OrdersPageData>) {
       emit(OrdersFailure(result.failure.message));
     }
   }
