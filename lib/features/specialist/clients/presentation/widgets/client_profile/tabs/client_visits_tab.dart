@@ -39,6 +39,7 @@ class _ClientVisitsTabState extends State<ClientVisitsTab> {
 
           if (state is ClientAssessmentsFailure) {
             return NetworkErrorView(
+              subtitle: state.message,
               onRetry: () => context.read<ClientAssessmentsCubit>().loadAssessments(userId: widget.userId),
             );
           }

@@ -58,6 +58,7 @@ class ProfilePage extends StatelessWidget {
                           );
                         } else if (state is SpecialistProfileFailure && cubit.profileData == null) {
                           return NetworkErrorView(
+                            subtitle: state.message,
                             onRetry: () => context.read<SpecialistProfileCubit>().getSpecialistProfile(),
                           );
                         } else if (cubit.profileData != null) {

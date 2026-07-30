@@ -9,6 +9,7 @@ import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/features/shared/conversations/domain/entities/chat_message.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/chat_attachment_viewer.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_audio_bubble.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_video_thumbnail.dart';
 
 /// Media area of a chat bubble.
 ///
@@ -91,7 +92,7 @@ class _SingleAttachment extends StatelessWidget {
       child: attachment.isImage
           ? _ImagePreview(attachment: attachment)
           : attachment.isVideo
-              ? const _VideoPreview()
+              ? _VideoPreview(attachment: attachment)
               // Anything that isn't image/video/audio is drawn as a document
               // row — that covers `document` and the legacy `file` type.
               : _DocumentRow(attachment: attachment),
@@ -118,36 +119,21 @@ class _ImagePreview extends StatelessWidget {
 }
 
 class _VideoPreview extends StatelessWidget {
-  const _VideoPreview();
+  final ChatMediaAttachment attachment;
+
+  const _VideoPreview({required this.attachment});
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10.r),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            width: 200.w,
-            height: 150.w,
-            color: Colors.black87,
-            child: Icon(
-              Icons.videocam_rounded,
-              color: AppColors.white.withValues(alpha: 0.3),
-              size: 48.sp,
-            ),
-          ),
-          Container(
-            width: 52.r,
-            height: 52.r,
-            decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.play_arrow_rounded,
-                color: AppColors.primary, size: 32.sp),
-          ),
-        ],
+      child: SizedBox(
+        width: 200.w,
+        height: 150.w,
+        child: ChatVideoThumbnail(
+          source: attachment.url,
+          isNetwork: !attachment.isLocal,
+        ),
       ),
     );
   }
@@ -211,15 +197,10 @@ class _GridCell extends StatelessWidget {
     if (attachment.isImage) return _AttachmentImage(attachment: attachment);
 
     if (attachment.isVideo) {
-      return Container(
-        color: Colors.black87,
-        child: Center(
-          child: Icon(
-            Icons.play_circle_fill_rounded,
-            color: AppColors.white.withValues(alpha: 0.85),
-            size: 40.sp,
-          ),
-        ),
+      return ChatVideoThumbnail(
+        source: attachment.url,
+        isNetwork: !attachment.isLocal,
+        playIconSize: 36,
       );
     }
 

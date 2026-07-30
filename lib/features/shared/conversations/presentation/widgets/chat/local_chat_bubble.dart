@@ -10,6 +10,7 @@ import 'package:fitness_day/features/shared/conversations/presentation/models/lo
 import 'package:fitness_day/features/shared/conversations/presentation/utils/chat_attachment_viewer.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/chat_time_format.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_audio_bubble.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_video_thumbnail.dart';
 
 /// Bubble for an in-memory [LocalChatMessage] — the AI and user-to-user
 /// screens, which render picked media straight from its device path.
@@ -137,23 +138,15 @@ class _LocalBubbleContent extends StatelessWidget {
             path: message.path!,
             isVideo: true,
           ),
-          child: Container(
-            width: 200.w,
-            height: 150.w,
-            decoration: BoxDecoration(
-              color: AppColors.black,
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Center(
-              child: Container(
-                width: 48.r,
-                height: 48.r,
-                decoration: BoxDecoration(
-                  color: AppColors.white.withValues(alpha: 0.85),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.play_arrow_rounded,
-                    color: AppColors.primary, size: 30.sp),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12.r),
+            child: SizedBox(
+              width: 200.w,
+              height: 150.w,
+              child: ChatVideoThumbnail(
+                source: message.path!,
+                isNetwork: false,
+                playIconSize: 48,
               ),
             ),
           ),

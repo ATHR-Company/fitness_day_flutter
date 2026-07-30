@@ -149,6 +149,7 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
                               return const Center(child: CircularProgressIndicator());
                             } else if (state is VisitsFailure) {
                               return NetworkErrorView(
+                                subtitle: state.message,
                                 onRetry: () => context.read<VisitsCubit>().getVisits(
                                       type: _getTypeString(_selectedTabIndex),
                                       search: _searchController.text,

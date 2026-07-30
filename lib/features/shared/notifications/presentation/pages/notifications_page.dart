@@ -106,7 +106,7 @@ class NotificationsPage extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
     if (errorMessage != null) {
-      return NetworkErrorView(onRetry: onRetry);
+      return NetworkErrorView(subtitle: errorMessage, onRetry: onRetry);
     }
     if (items != null) {
       return items!.isEmpty ? _buildEmptyState() : _buildDynamicState(items!);
