@@ -179,4 +179,18 @@ class ApiEndpoints {
   // Addresses
   static const String addresses = '/addresses';
   static String addressById(String id) => '/addresses/$id';
+
+  // Daily check-in, points & reward coupons
+  //
+  // The cycle, the streak and the per-day point values are all server-owned and
+  // recomputed on every request — the app never derives them from stored dates.
+  // A day rolls over at 00:00 **UTC** for every user.
+  static const String dailyCheckInStatus = '/daily-check-in/status';
+  static const String dailyCheckInClaim = '/daily-check-in/claim';
+  static const String dailyCheckInCalendar = '/daily-check-in/calendar';
+
+  static const String pointsRewards = '/points/rewards';
+  static String redeemPointsReward(String rewardId) =>
+      '/points/rewards/$rewardId/redeem';
+  static const String pointsRedemptions = '/points/redemptions';
 }

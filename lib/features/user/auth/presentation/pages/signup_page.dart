@@ -1,5 +1,6 @@
 import 'package:fitness_day/core/network/device_type_helper.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -204,23 +205,27 @@ class _SignUpPageState extends State<SignUpPage> {
                         // ── Social Buttons ─────────────────────────────────────────
                         Row(
                           children: [
-                            // Apple Button
-                            Expanded(
-                              child: AppSocialButton(
-                                label: LocaleKeys.login_apple.tr(),
-                                icon: AppImage(
-                                  SvgIcons.appleLogin,
-                                  height: 22.h,
+                            // Apple Button — iOS only. Sign in with Apple is an
+                            // Apple platform flow, so on Android the button is
+                            // not shown and Google takes the full width.
+                            if (defaultTargetPlatform == TargetPlatform.iOS) ...[
+                              Expanded(
+                                child: AppSocialButton(
+                                  label: LocaleKeys.login_apple.tr(),
+                                  icon: AppImage(
+                                    SvgIcons.appleLogin,
+                                    height: 22.h,
+                                  ),
+                                  onTap: () {
+                                    context.read<UserAuthCubit>().socialAuth(
+                                      provider: 'APPLE',
+                                      idToken: 'test_apple_id_token',
+                                    );
+                                  },
                                 ),
-                                onTap: () {
-                                  context.read<UserAuthCubit>().socialAuth(
-                                    provider: 'APPLE',
-                                    idToken: 'test_apple_id_token',
-                                  );
-                                },
                               ),
-                            ),
-                            SizedBox(width: 16.w),
+                              SizedBox(width: 16.w),
+                            ],
                             Expanded(
                               child: AppSocialButton(
                                 label: LocaleKeys.login_google.tr(),

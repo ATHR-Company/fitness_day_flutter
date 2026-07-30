@@ -25,6 +25,11 @@ abstract class AppCache {
   String? getPendingPaymentOrderId();
   Future<void> clearPendingPaymentOrderId();
 
+  // Daily check-in state is deliberately absent: the cycle, the streak and
+  // "did I claim today" are recomputed server-side on every request (the day
+  // rolls over at 00:00 UTC), so caching any of it on the device would go stale
+  // on its own and disagree with the server.
+
   Future<void> clear();
 }
 

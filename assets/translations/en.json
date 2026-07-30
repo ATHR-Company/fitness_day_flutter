@@ -448,7 +448,28 @@
     "share_friends": "Share with friends and earn more points",
     "get_discount": "Get Discount",
     "award_desc_500": "30% discount on a product in the store",
-    "award_desc_1000": "One week of golden coaching day"
+    "award_desc_1000": "One week of golden coaching day",
+    "remaining_points": "{} points to go",
+    "month_summary": "{} check-in days · {} points",
+    "my_coupons": "My coupons",
+    "no_coupons": "No coupons yet",
+    "no_rewards": "No rewards available right now",
+    "coupon_ready": "Your coupon is ready — use it at checkout",
+    "coupon_single_use": "Single use, and only on your own account",
+    "code_copied": "Code copied",
+    "coupon_available": "Available",
+    "coupon_used": "Used",
+    "points_spent": "Redeemed for {} points",
+    "retry": "Retry"
+  },
+  "check_in": {
+    "title": "Daily Check-In",
+    "day": "Day",
+    "claim_button": "Claim Your Prize",
+    "already_claimed": "Today's prize is claimed",
+    "your_points": "Your points: {}",
+    "claimed_points": "You earned {} points",
+    "close": "Close"
   },
   "achievements": {
     "empty_title": "No achievements yet",

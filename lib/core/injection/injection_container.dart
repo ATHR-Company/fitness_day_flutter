@@ -196,6 +196,18 @@ import 'package:fitness_day/features/user/market/domain/repositories/payment_rep
 import 'package:fitness_day/features/user/market/domain/usecases/initiate_payment_usecase.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/get_payment_status_usecase.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/payment_cubit.dart';
+import 'package:fitness_day/features/user/rewards/data/datasources/rewards_remote_datasource.dart';
+import 'package:fitness_day/features/user/rewards/data/repositories/rewards_repository_impl.dart';
+import 'package:fitness_day/features/user/rewards/domain/repositories/rewards_repository.dart';
+import 'package:fitness_day/features/user/rewards/domain/usecases/claim_daily_check_in_usecase.dart';
+import 'package:fitness_day/features/user/rewards/domain/usecases/get_check_in_calendar_usecase.dart';
+import 'package:fitness_day/features/user/rewards/domain/usecases/get_daily_check_in_status_usecase.dart';
+import 'package:fitness_day/features/user/rewards/domain/usecases/get_points_rewards_usecase.dart';
+import 'package:fitness_day/features/user/rewards/domain/usecases/get_redemptions_usecase.dart';
+import 'package:fitness_day/features/user/rewards/domain/usecases/redeem_reward_usecase.dart';
+import 'package:fitness_day/features/user/rewards/presentation/manager/awards_cubit.dart';
+import 'package:fitness_day/features/user/rewards/presentation/manager/daily_check_in_cubit.dart';
+import 'package:fitness_day/features/user/rewards/presentation/manager/my_coupons_cubit.dart';
 import 'package:fitness_day/features/user/user_home/data/datasources/user_activities_remote_datasource.dart';
 import 'package:fitness_day/features/user/user_home/data/repositories/user_activities_repository_impl.dart';
 import 'package:fitness_day/features/user/user_home/data/repositories/user_home_repository_impl.dart';
@@ -571,6 +583,55 @@ Future<void> init() async {
   getIt.registerFactory<ArticlesListCubit>(
     () => ArticlesListCubit(
       getArticlesUseCase: getIt<GetArticlesUseCase>(),
+    ),
+  );
+
+  // Daily check-in, points & reward coupons
+  getIt.registerLazySingleton<RewardsRemoteDataSource>(
+    () => RewardsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+
+  getIt.registerLazySingleton<RewardsRepository>(
+    () => RewardsRepositoryImpl(getIt<RewardsRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<GetDailyCheckInStatusUseCase>(
+    () => GetDailyCheckInStatusUseCase(getIt<RewardsRepository>()),
+  );
+  getIt.registerLazySingleton<ClaimDailyCheckInUseCase>(
+    () => ClaimDailyCheckInUseCase(getIt<RewardsRepository>()),
+  );
+  getIt.registerLazySingleton<GetCheckInCalendarUseCase>(
+    () => GetCheckInCalendarUseCase(getIt<RewardsRepository>()),
+  );
+  getIt.registerLazySingleton<GetPointsRewardsUseCase>(
+    () => GetPointsRewardsUseCase(getIt<RewardsRepository>()),
+  );
+  getIt.registerLazySingleton<RedeemRewardUseCase>(
+    () => RedeemRewardUseCase(getIt<RewardsRepository>()),
+  );
+  getIt.registerLazySingleton<GetRedemptionsUseCase>(
+    () => GetRedemptionsUseCase(getIt<RewardsRepository>()),
+  );
+
+  getIt.registerFactory<DailyCheckInCubit>(
+    () => DailyCheckInCubit(
+      getStatusUseCase: getIt<GetDailyCheckInStatusUseCase>(),
+      claimUseCase: getIt<ClaimDailyCheckInUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<AwardsCubit>(
+    () => AwardsCubit(
+      getRewardsUseCase: getIt<GetPointsRewardsUseCase>(),
+      getCalendarUseCase: getIt<GetCheckInCalendarUseCase>(),
+      redeemRewardUseCase: getIt<RedeemRewardUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<MyCouponsCubit>(
+    () => MyCouponsCubit(
+      getRedemptionsUseCase: getIt<GetRedemptionsUseCase>(),
     ),
   );
 

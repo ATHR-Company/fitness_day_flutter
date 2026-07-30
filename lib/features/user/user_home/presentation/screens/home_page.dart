@@ -6,6 +6,7 @@ import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/pending_payment_watcher.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_home_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/home/home_page_content.dart';
+import 'package:fitness_day/features/user/user_home/presentation/widgets/home/daily_check_in_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,6 +23,20 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _cubit = getIt<UserHomeCubit>()..loadHomeData();
+    _maybeShowDailyCheckIn();
+  }
+
+  /// Pops the daily check-in dialog when the server says today's reward is
+  /// still unclaimed. The "once a day" decision belongs to the backend — the
+  /// cycle rolls over at 00:00 UTC and is recomputed on every request, so it is
+  /// never inferred from a date stored on the device.
+  Future<void> _maybeShowDailyCheckIn() async {
+    final bool show = await shouldShowDailyCheckIn();
+    if (!show || !mounted) return;
+    // After the first frame, so the tree is fully mounted and context is usable.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) showDailyCheckInDialog(context);
+    });
   }
 
   @override
