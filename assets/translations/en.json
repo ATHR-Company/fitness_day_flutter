@@ -442,6 +442,26 @@
     "delete_account_button": "Delete",
     "rate_app": "Rate App"
   },
+  "awards": {
+    "your_points": "Your current points",
+    "points_unit": "points",
+    "share_friends": "Share with friends and earn more points",
+    "get_discount": "Get Discount",
+    "award_desc_500": "30% discount on a product in the store",
+    "award_desc_1000": "One week of golden coaching day"
+  },
+  "achievements": {
+    "empty_title": "No achievements yet",
+    "empty_subtitle": "Start using the app, and your achievements will appear here automatically.",
+    "hydration_hero_title": "Hydration Hero",
+    "hydration_hero_subtitle": "Committed to drinking the daily water amount for a week.",
+    "steps_king_title": "Steps King",
+    "steps_king_subtitle": "Completed 10,000 steps in a single day.",
+    "month_hero_title": "Month Hero",
+    "month_hero_subtitle": "You were the most active user this month.",
+    "consistency_title": "Consistency",
+    "consistency_subtitle": "Committed to exercise or activity for 7 consecutive days."
+  },
   "drawer": {
     "home": "Home",
     "today_tasks": "Today's Tasks",

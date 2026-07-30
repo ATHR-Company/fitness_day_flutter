@@ -442,6 +442,26 @@
     "delete_account_button": "حذف",
     "rate_app": "قيم التطبيق"
   },
+  "awards": {
+    "your_points": "نقاطك الحالية",
+    "points_unit": "نقطة",
+    "share_friends": "شارك الاصدقاء واربح المزيد من النقاط",
+    "get_discount": "احصل على الخصم",
+    "award_desc_500": "خصم 30 % من منتج في المتجر",
+    "award_desc_1000": "أسبوع من يوم الرشاقة الذهبى"
+  },
+  "achievements": {
+    "empty_title": "لا توجد انجازات بعد",
+    "empty_subtitle": "ابدأ باستخدام التطبيق، وستظهر انجازاتك هنا تلقائياً.",
+    "hydration_hero_title": "بطل الترطيب",
+    "hydration_hero_subtitle": "التزمت بشرب كمية الماء اليومية لمدة أسبوع.",
+    "steps_king_title": "ملك الخطوات",
+    "steps_king_subtitle": "أكملت 10,000 خطوة في يوم واحد.",
+    "month_hero_title": "بطل الشهر",
+    "month_hero_subtitle": "كنت من أكثر المستخدمين نشاطاً هذا الشهر.",
+    "consistency_title": "الاستمرارية",
+    "consistency_subtitle": "التزمت بالتمرين أو النشاط لمدة 7 أيام متتالية."
+  },
   "drawer": {
     "home": "الرئيسية",
     "today_tasks": "مهام اليوم",

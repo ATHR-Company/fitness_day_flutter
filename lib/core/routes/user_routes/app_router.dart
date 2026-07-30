@@ -34,6 +34,7 @@ import 'package:fitness_day/features/user/user_home/presentation/screens/steps_d
 import 'package:fitness_day/features/user/market/presentation/screens/market_main_screen.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_video_screen.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_rest_screen.dart';
+import 'package:fitness_day/features/user/profile/presentation/pages/awards_page.dart';
 
 class UserAppRouter {
   static final GoRouter router = GoRouter(
@@ -238,6 +239,10 @@ class UserAppRouter {
           final restDuration = state.extra as int? ?? 30;
           return WorkoutRestScreen(restDuration: restDuration);
         },
+      ),
+      GoRoute(
+        path: UserAppRoutes.awards,
+        builder: (context, state) => const AwardsPage(),
       ),
     ],
   );

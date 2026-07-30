@@ -33,4 +33,6 @@ class UserAppRoutes extends SharedRoutes {
   static const String stepsDetails = '/steps-details';
   static const String workoutVideo = '/workout-video';
   static const String workoutRest = '/workout-rest';
+  static const String awards = '/awards';
+  static const String achievements = '/achievements';
 }

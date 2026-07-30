@@ -119,6 +119,11 @@ class SvgIcons {
   static const String noDiet = '$_svgPath/no_diet.svg';
   static const String noNotifications = '$_svgPath/no_notifications.svg';
 
+  // ── Awards ──────────────────────────────────────────────────────────────
+  static const String awardGift = '$_svgPath/awardGift.svg';
+  static const String awardGreenFire = '$_svgPath/awardgreenFire.svg';
+  static const String awardRedFire = '$_svgPath/awardRedFire.svg';
+
   // ── Checkout delivery methods ───────────────────────────────────────────
   static const String delivery = '$_svgPath/delivery.svg';
 
@@ -138,6 +143,8 @@ class AppImages {
   static const String onboarding3 = '$_imagePath/onboarding3.png';
   static const String ai = '$_imagePath/ai.png';
   static const String challenge_cap = '$_imagePath/challenge_cap.png';
+  static const String award1 = '$_imagePath/award1.png';
+  static const String achievement = '$_imagePath/achivement.png';
 
   // ── Market ──────────────────────────────────────────────────────────────
   static const String emptyAddress = '$_imagePath/empty_address.png';

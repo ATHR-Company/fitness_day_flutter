@@ -52,6 +52,19 @@
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
+            <!-- Deep links — https://fitnessday.tech/...
+                 autoVerify=true triggers Android App Links (no chooser dialog).
+                 The server must serve /.well-known/assetlinks.json with the
+                 correct SHA-256 fingerprints for verification to succeed. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="fitnessday.tech" />
+            </intent-filter>
         </activity>
         <!-- Health Connect activity for Android 14+ -->
         <activity-alias

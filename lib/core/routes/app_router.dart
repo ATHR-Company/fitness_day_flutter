@@ -52,6 +52,8 @@ import 'package:fitness_day/features/user/workout/presentation/pages/workout_pla
 import 'package:fitness_day/features/user/progress/presentation/pages/user_progress_page.dart';
 import 'package:fitness_day/features/user/challenges/presentation/screens/challenges_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/scan_meal_screen.dart';
+import 'package:fitness_day/features/user/profile/presentation/pages/awards_page.dart';
+import 'package:fitness_day/features/user/profile/presentation/pages/achievements_page.dart';
 
 /// Single combined router — keeps ALL user + specialist routes so that
 /// swapping routerConfig is never needed and "Page Not Found" never occurs.
@@ -63,6 +65,12 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: SharedRoutes.splash,
+    // GoRouter automatically reads the launch URI on cold start when the app
+    // is opened via an App Link — no extra configuration needed because every
+    // deep link path (/store/products/:id, /user-home, etc.) is already a
+    // named route in this router.  The only thing we do here is register a
+    // redirect so unauthenticated deep links land on role-selection instead
+    // of crashing on a protected page.
     routes: [
       // ── Shared ────────────────────────────────────────────────────────────
       GoRoute(
@@ -313,6 +321,14 @@ class AppRouter {
           final restDuration = state.extra as int? ?? 30;
           return WorkoutRestScreen(restDuration: restDuration);
         },
+      ),
+      GoRoute(
+        path: UserAppRoutes.awards,
+        builder: (context, state) => const AwardsPage(),
+      ),
+      GoRoute(
+        path: UserAppRoutes.achievements,
+        builder: (context, state) => const AchievementsPage(),
       ),
     ],
   );

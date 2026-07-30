@@ -283,7 +283,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _buildMenuItem(
           title: 'profile_page.achievements'.tr(), // "الانجازات"
           iconWidget: _buildCircleIcon(iconPath: SvgIcons.achievements),
-          onTap: () {},
+          onTap: () {
+            context.push(UserAppRoutes.achievements);
+          },
         ),
         _buildMenuItem(
           title: 'home.category_progress'.tr(), // "التقدم"
@@ -295,7 +297,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _buildMenuItem(
           title: 'profile_page.awards'.tr(), // "الجوائز"
           iconWidget: _buildCircleIcon(iconPath: SvgIcons.rewards),
-          onTap: () {},
+          onTap: () {
+            context.push(UserAppRoutes.awards);
+          },
         ),
         _buildMenuItem(
           title: 'profile_page.delete_account'.tr(), // "حذف الحساب"

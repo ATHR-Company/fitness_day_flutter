@@ -72,21 +72,37 @@ class ScanMealController extends ChangeNotifier {
     }
   }
 
-  /// Releases the camera when the app leaves the foreground and rebuilds it on
-  /// the way back, so the preview neither freezes nor keeps the device camera
-  /// locked while the app is in the background.
+  /// Releases the camera when the app goes to the background and rebuilds it
+  /// on the way back.
+  ///
+  /// We wait for [AppLifecycleState.paused] — not [AppLifecycleState.inactive]
+  /// — before tearing down the camera. `inactive` fires for transient overlays
+  /// (notification shade, incoming call banner, permission dialogs) which
+  /// would kill the preview unnecessarily. `paused` means the app is truly in
+  /// the background / off-screen.
+  ///
+  /// On `resumed` we guard against a double-init: if the camera is already
+  /// initialised (e.g. the app was only briefly interrupted via `inactive`
+  /// without ever reaching `paused`) we skip the rebuild entirely.
   Future<void> handleAppLifecycle(AppLifecycleState state) async {
-    final controller = _camera;
-    if (controller == null || !controller.value.isInitialized) return;
-
-    if (state == AppLifecycleState.inactive) {
-      // Drop the reference *before* disposing: the screen must stop drawing
-      // the preview, otherwise it renders a disposed controller.
+    if (state == AppLifecycleState.paused) {
+      // App is now in the background — release the camera so other apps
+      // (and the OS) can use it, and stop drawing the preview.
+      final controller = _camera;
+      if (controller == null) return;
       _camera = null;
       _setStatus(ScanMealStatus.loading);
       await controller.dispose();
     } else if (state == AppLifecycleState.resumed) {
-      await initCamera();
+      // Only rebuild if the camera was actually torn down (i.e. we went
+      // through `paused`).  If the camera is already live we do nothing —
+      // this avoids a redundant re-init after a brief `inactive` event such
+      // as swiping down the notification shade.
+      final alreadyLive =
+          _camera != null && (_camera?.value.isInitialized ?? false);
+      if (!alreadyLive) {
+        await initCamera();
+      }
     }
   }
 
