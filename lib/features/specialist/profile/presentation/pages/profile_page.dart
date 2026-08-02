@@ -9,7 +9,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
-import 'package:fitness_day/core/widgets/network_error_view.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/widgets/edit_profile_dialog.dart';
 import 'package:fitness_day/core/widgets/profile/language_dialog.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
@@ -57,8 +57,9 @@ class ProfilePage extends StatelessWidget {
                             ),
                           );
                         } else if (state is SpecialistProfileFailure && cubit.profileData == null) {
-                          return NetworkErrorView(
-                            subtitle: state.message,
+                          return AppErrorView(
+                            error: state.error,
+                            message: state.message,
                             onRetry: () => context.read<SpecialistProfileCubit>().getSpecialistProfile(),
                           );
                         } else if (cubit.profileData != null) {

@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/specialist/clients/domain/usecases/get_specialist_clients_usecase.dart';
 import 'specialist_clients_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class SpecialistClientsCubit extends Cubit<SpecialistClientsState> {
   final GetSpecialistClientsUseCase _getSpecialistClientsUseCase;
@@ -25,7 +26,7 @@ class SpecialistClientsCubit extends Cubit<SpecialistClientsState> {
       case Success(:final data):
         emit(SpecialistClientsSuccess(data));
       case FailureResult(:final failure):
-        emit(SpecialistClientsFailure(failure.message));
+        emit(SpecialistClientsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 }

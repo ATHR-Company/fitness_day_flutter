@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:go_router/go_router.dart';
@@ -36,7 +35,11 @@ class NotificationHelper {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => ChatDetailsPage(
-              title: message.notification?.title ?? 'conversations.title'.tr(),
+              // No `title` on purpose. The push headline is a notification
+              // string, not the other party's name, and [ChatHeader] gives a
+              // passed-in title priority over the name that comes back with
+              // the messages response — so passing it here pinned the wrong
+              // name on the conversation for as long as it stayed open.
               isSpecialist: true,
               conversationId: conversationId,
               specialistId: message.data['senderId'] as String?,

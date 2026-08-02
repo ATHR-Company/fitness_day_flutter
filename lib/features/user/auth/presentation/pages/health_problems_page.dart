@@ -18,6 +18,7 @@ import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_c
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
 import 'package:fitness_day/features/user/auth/data/models/health_questions_model.dart';
 import 'package:fitness_day/features/user/auth/data/models/submit_health_answers_models.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class HealthProblemsPage extends StatefulWidget {
   const HealthProblemsPage({super.key});
@@ -86,7 +87,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
           showAppSnackBar(context, text: state.message, isSuccess: true);
           context.push(UserAppRoutes.bmiReport);
         } else if (state is UserSetupFailure) {
-          showAppSnackBar(context, text: state.message, isError: true);
+          showAppError(context, state.error, message: state.message);
         }
       },
       builder: (context, state) {
@@ -107,7 +108,13 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                 children: [
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    child: AppBackHeader(title: 'auth_health_problems_title'.tr(), canBack: false,),
+                    child: AppBackHeader(
+                      title: 'auth_health_problems_title'.tr(),
+                      canBack: true,
+                      onBackPressed: () {
+                        context.go(UserAppRoutes.login);
+                      },
+                    ),
                   ),
                   Expanded(
                     child: SingleChildScrollView(

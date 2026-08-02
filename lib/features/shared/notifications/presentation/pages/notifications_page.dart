@@ -8,7 +8,8 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import '../../../../../core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
-import 'package:fitness_day/core/widgets/network_error_view.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 /// View-model for a single notification card, used when [NotificationsPage]
 /// is fed real data (see [NotificationsPage.items]).
@@ -39,6 +40,11 @@ class NotificationsPage extends StatelessWidget {
   final bool isLoading;
   final bool isLoadingMore;
   final String? errorMessage;
+
+  /// Typed failure, so a connection problem gets the offline view and a
+  /// backend refusal shows its own message. Callers that still pass only
+  /// [errorMessage] keep the server-error look.
+  final AppError? error;
   final VoidCallback? onRetry;
   final Future<void> Function()? onRefresh;
   final ScrollController? scrollController;
@@ -55,6 +61,7 @@ class NotificationsPage extends StatelessWidget {
     this.isLoading = false,
     this.isLoadingMore = false,
     this.errorMessage,
+    this.error,
     this.onRetry,
     this.onRefresh,
     this.scrollController,
@@ -106,7 +113,7 @@ class NotificationsPage extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
     if (errorMessage != null) {
-      return NetworkErrorView(subtitle: errorMessage, onRetry: onRetry);
+      return AppErrorView(error: error, message: errorMessage, onRetry: onRetry);
     }
     if (items != null) {
       return items!.isEmpty ? _buildEmptyState() : _buildDynamicState(items!);

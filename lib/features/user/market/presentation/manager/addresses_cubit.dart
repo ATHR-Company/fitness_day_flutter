@@ -5,6 +5,7 @@ import '../../domain/usecases/create_address_usecase.dart';
 import '../../domain/usecases/delete_address_usecase.dart';
 import '../../domain/usecases/get_addresses_usecase.dart';
 import '../../domain/usecases/update_address_usecase.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class AddressesState {
   const AddressesState();
@@ -45,7 +46,11 @@ class AddressesSuccess extends AddressesState {
 class AddressesFailure extends AddressesState {
   final String message;
 
-  const AddressesFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const AddressesFailure(this.message, {this.error});
 }
 
 class AddressesCubit extends Cubit<AddressesState> {
@@ -77,7 +82,7 @@ class AddressesCubit extends Cubit<AddressesState> {
       }
       emit(AddressesSuccess(addresses, selectedAddressId: selectedId));
     } else if (result is FailureResult<List<AddressData>>) {
-      emit(AddressesFailure(result.failure.message));
+      emit(AddressesFailure(result.failure.message, error: AppError.from(result.failure)));
     }
   }
 

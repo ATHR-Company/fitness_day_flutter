@@ -12,6 +12,7 @@ import 'package:fitness_day/features/user/profile/domain/usecases/update_user_pr
 import 'package:fitness_day/features/user/profile/domain/usecases/user_signout_usecase.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/verify_change_phone_otp_usecase.dart';
 import 'user_profile_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 /// `GET /users/my-profile` doesn't return weight/height/goal — only the
 /// update endpoint echoes them back. These fields mirror the last known
@@ -72,7 +73,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
           emit(const UserProfileFailure('بيانات فارغة'));
         }
       case FailureResult(:final failure):
-        emit(UserProfileFailure(failure.message));
+        emit(UserProfileFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -113,7 +114,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
         }
         emit(UserProfileSuccess(profileData!));
       case FailureResult(:final failure):
-        emit(UserProfileUpdateFailure(failure.message));
+        emit(UserProfileUpdateFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -126,7 +127,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
         );
         emit(UserProfileSuccess(profileData!));
       case FailureResult(:final failure):
-        emit(UserProfileUpdateFailure(failure.message));
+        emit(UserProfileUpdateFailure(failure.message, error: AppError.from(failure)));
         // Re-emit the last good state so the toggle reflects the unchanged
         // server value rather than getting stuck on the failure state.
         if (profileData != null) emit(UserProfileSuccess(profileData!));
@@ -140,7 +141,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
         profileData = (profileData ?? _placeholderData()).copyWith(lang: data.lang);
         emit(UserProfileSuccess(profileData!));
       case FailureResult(:final failure):
-        emit(UserProfileUpdateFailure(failure.message));
+        emit(UserProfileUpdateFailure(failure.message, error: AppError.from(failure)));
         if (profileData != null) emit(UserProfileSuccess(profileData!));
     }
   }

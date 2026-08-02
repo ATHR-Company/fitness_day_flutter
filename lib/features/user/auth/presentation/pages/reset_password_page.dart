@@ -14,6 +14,8 @@ import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
+import 'package:fitness_day/core/utils/validators.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   final String resetToken;
@@ -54,7 +56,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             showAppSnackBar(context, text: state.response.message, isSuccess: true);
             context.go(UserAppRoutes.login);
           } else if (state is UserAuthFailure) {
-            showAppSnackBar(context, text: state.message, isError: true);
+            showAppError(context, state.error, message: state.message);
           }
         },
         builder: (context, state) {
@@ -102,30 +104,18 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                                 // Password Field
                                 AppPasswordField(
                                   controller: _passwordController,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'login.password_error'.tr();
-                                    }
-                                    if (value.length < 6) {
-                                      return 'login.password_too_short'.tr();
-                                    }
-                                    return null;
-                                  },
+                                  validator: AppValidators.password,
                                 ),
                                 SizedBox(height: 24.h),
                                 // Confirm Password Field
                                 AppPasswordField(
                                   controller: _confirmPasswordController,
                                   hint: 'login.confirm_password_hint'.tr(),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'login.password_error'.tr();
-                                    }
-                                    if (value != _passwordController.text) {
-                                      return 'login.passwords_dont_match'.tr();
-                                    }
-                                    return null;
-                                  },
+                                  validator: (value) =>
+                                      AppValidators.confirmPassword(
+                                    value,
+                                    _passwordController.text,
+                                  ),
                                 ),
                                 SizedBox(height: 48.h),
                                 // Next Button

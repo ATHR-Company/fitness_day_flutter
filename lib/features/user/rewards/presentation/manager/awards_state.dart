@@ -50,5 +50,9 @@ class AwardsLoaded extends AwardsState {
 class AwardsFailure extends AwardsState {
   final String message;
 
-  const AwardsFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const AwardsFailure(this.message, {this.error});
 }

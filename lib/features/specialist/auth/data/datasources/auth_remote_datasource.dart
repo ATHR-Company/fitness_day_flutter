@@ -6,7 +6,7 @@ abstract class AuthRemoteDataSource {
   Future<AuthModel> login(
     String phone,
     String password, {
-    required String fcmToken,
+    String? fcmToken,
     required String deviceType,
   });
   Future<void> logout();
@@ -21,7 +21,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthModel> login(
     String phone,
     String password, {
-    required String fcmToken,
+    String? fcmToken,
     required String deviceType,
   }) async {
     final response = await _apiService.post(
@@ -29,7 +29,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       data: {
         'phone': phone,
         'password': password,
-        'fcmToken': fcmToken,
+        // Omitted when the device cannot register — never faked.
+        'fcmToken': ?fcmToken,
         'deviceType': deviceType,
       },
     );

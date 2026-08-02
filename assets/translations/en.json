@@ -5,7 +5,13 @@
     "no_internet_subtitle": "Please check your network connection and try again.",
     "retry": "Retry",
     "offline_banner": "No internet connection",
-    "back_online": "Back online"
+    "back_online": "Back online",
+    "something_went_wrong": "Something went wrong",
+    "generic_subtitle": "An unexpected error occurred. Please try again later.",
+    "ok": "OK",
+    "timeout": "Connection to the server timed out. Please try again.",
+    "request_cancelled": "The request was cancelled.",
+    "server_status": "A server error occurred (status code: {})."
   },
   "currency": {
     "sar": "SAR",
@@ -93,7 +99,8 @@
     "or": "or",
     "back_to_role": "Back",
     "create_account": "Create Account",
-    "no_account": "Don't have an account? "
+    "no_account": "Don't have an account? ",
+    "password_blank": "Password cannot be only spaces"
   },
   "home": {
     "performance_summary_title": "Performance Summary",

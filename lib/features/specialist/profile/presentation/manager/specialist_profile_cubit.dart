@@ -4,6 +4,7 @@ import 'package:fitness_day/features/specialist/profile/data/models/specialist_p
 import 'package:fitness_day/features/specialist/profile/domain/usecases/get_specialist_profile_usecase.dart';
 import 'package:fitness_day/features/specialist/profile/domain/usecases/update_specialist_profile_usecase.dart';
 import 'specialist_profile_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class SpecialistProfileCubit extends Cubit<SpecialistProfileState> {
   final GetSpecialistProfileUseCase _getSpecialistProfileUseCase;
@@ -28,7 +29,7 @@ class SpecialistProfileCubit extends Cubit<SpecialistProfileState> {
           emit(const SpecialistProfileFailure('بيانات فارغة'));
         }
       case FailureResult(:final failure):
-        emit(SpecialistProfileFailure(failure.message));
+        emit(SpecialistProfileFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -54,7 +55,7 @@ class SpecialistProfileCubit extends Cubit<SpecialistProfileState> {
         }
         emit(SpecialistProfileSuccess(profileData!));
       case FailureResult(:final failure):
-        emit(SpecialistProfileUpdateFailure(failure.message));
+        emit(SpecialistProfileUpdateFailure(failure.message, error: AppError.from(failure)));
     }
   }
 }

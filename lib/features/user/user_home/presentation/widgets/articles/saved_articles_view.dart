@@ -9,6 +9,7 @@ import 'package:fitness_day/features/user/user_home/presentation/manager/saved_a
 import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_state.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/article_detail_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/articles/saved_article_card.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class SavedArticlesView extends StatelessWidget {
   const SavedArticlesView({super.key});
@@ -27,7 +28,12 @@ class SavedArticlesView extends StatelessWidget {
             if (state is SavedArticlesLoading) {
               return const Center(child: CircularProgressIndicator());
             } else if (state is SavedArticlesError) {
-              return Center(child: Text(state.message));
+              return AppErrorView(
+                error: state.error,
+                message: state.message,
+                onRetry: () =>
+                    context.read<SavedArticlesCubit>().fetchSavedArticles(),
+              );
             } else if (state is SavedArticlesLoaded) {
               final articles = state.articles;
               if (articles.isEmpty) return _buildEmptyState();

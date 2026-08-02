@@ -2,6 +2,7 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/user/market/domain/entities/order_data.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/get_orders_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class OrdersState {
   const OrdersState();
@@ -28,7 +29,11 @@ class OrdersSuccess extends OrdersState {
 class OrdersFailure extends OrdersState {
   final String message;
 
-  const OrdersFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const OrdersFailure(this.message, {this.error});
 }
 
 class OrdersCubit extends Cubit<OrdersState> {
@@ -46,7 +51,7 @@ class OrdersCubit extends Cubit<OrdersState> {
         totalOrders: result.data.total,
       ));
     } else if (result is FailureResult<OrdersPageData>) {
-      emit(OrdersFailure(result.failure.message));
+      emit(OrdersFailure(result.failure.message, error: AppError.from(result.failure)));
     }
   }
 }

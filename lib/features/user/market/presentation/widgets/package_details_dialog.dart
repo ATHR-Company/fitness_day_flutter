@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class PackageDetailsDialog extends StatelessWidget {
   /// Provide either [planId] (preferred — fetches real data) or the legacy
@@ -111,9 +112,15 @@ class _PlanDetailsDialogContentState extends State<_PlanDetailsDialogContent> {
                 EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
             child: Padding(
               padding: EdgeInsets.all(24.r),
-              child: Text(state.message,
-                  style: TextStyleManager.style14Medium,
-                  textAlign: TextAlign.center),
+              // Sized so the shared error view has room inside the dialog
+              // frame rather than trying to fill the screen.
+              child: SizedBox(
+                height: 260.h,
+                child: AppErrorView(
+                  error: state.error,
+                  message: state.message,
+                ),
+              ),
             ),
           );
         }
@@ -182,12 +189,19 @@ class _StaticDialogContent extends StatelessWidget {
   });
 
   /// The API sends the end date as an ISO timestamp
-  /// (`2026-08-25T18:45:08.902Z`); show it as a plain local date.
-  String _formatExpiry(String? raw) {
+  /// (`2026-08-25T18:45:08.902Z`); show it as a plain date formatted
+  /// according to the **current app locale** (not the device locale).
+  ///
+  /// We pass [locale] explicitly instead of relying on [DateFormat]'s
+  /// implicit default, which is set once at startup and never updates when
+  /// the user switches language at runtime.
+  String _formatExpiry(String? raw, String locale) {
     if (raw == null || raw.isEmpty) return '';
     final parsed = DateTime.tryParse(raw);
     if (parsed == null) return raw;
-    return DateFormat('dd/MM/yyyy').format(parsed.toLocal());
+    // Use the locale that easy_localization is currently using so the date
+    // format (and any locale-specific digit/separator rules) match the UI.
+    return DateFormat('dd/MM/yyyy', locale).format(parsed.toLocal());
   }
 
   Future<void> _addToCart(BuildContext context, CartCubit cart) async {
@@ -441,7 +455,7 @@ class _StaticDialogContent extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      _formatExpiry(expiryDate),
+                      _formatExpiry(expiryDate, context.locale.languageCode),
                       style: TextStyleManager.style11Medium.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold,

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:fitness_day/features/user/visits/data/models/assessment_model.dart';
 import 'package:fitness_day/features/user/visits/domain/repositories/visits_repository.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 part 'assessments_state.dart';
 
@@ -68,7 +69,7 @@ class AssessmentsCubit extends Cubit<AssessmentsState> {
       _lastWeekStart = result.data.lastDateOfWeekStart;
       emit(AssessmentsLoaded(response: result.data, currentWeekStart: weekStart));
     } else if (result is FailureResult<AssessmentsResponse>) {
-      emit(AssessmentsError(message: result.failure.message));
+      emit(AssessmentsError(message: result.failure.message, error: AppError.from(result.failure)));
     }
   }
 }

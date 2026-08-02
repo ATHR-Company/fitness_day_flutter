@@ -14,6 +14,7 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/subscri
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 /// The user's favourited products and packages, rendered with the same cards
 /// as the store grids.
@@ -50,8 +51,9 @@ class _FavoritesView extends StatelessWidget {
                     }
 
                     if (state is FavoritesFailure) {
-                      return _Message(
-                        text: state.message,
+                      return AppErrorView(
+                        error: state.error,
+                        message: state.message,
                         onRetry: () => context.read<FavoritesCubit>().load(),
                       );
                     }
@@ -183,11 +185,12 @@ class _FavoritesList extends StatelessWidget {
   }
 }
 
+/// Empty-state message — the heart icon says "nothing saved yet", which is why
+/// it is no longer reused for failures; those go to [AppErrorView].
 class _Message extends StatelessWidget {
   final String text;
-  final VoidCallback? onRetry;
 
-  const _Message({required this.text, this.onRetry});
+  const _Message({required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -206,17 +209,6 @@ class _Message extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
-            if (onRetry != null) ...[
-              SizedBox(height: 16.h),
-              ElevatedButton(
-                onPressed: onRetry,
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                child: Text(
-                  'common.retry'.tr(),
-                  style: const TextStyle(color: AppColors.white),
-                ),
-              ),
-            ],
           ],
         ),
       ),

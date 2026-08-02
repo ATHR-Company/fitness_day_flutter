@@ -1,4 +1,5 @@
 import 'package:fitness_day/features/specialist/profile/data/models/specialist_profile_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class SpecialistProfileState {
   const SpecialistProfileState();
@@ -21,7 +22,11 @@ class SpecialistProfileSuccess extends SpecialistProfileState {
 class SpecialistProfileFailure extends SpecialistProfileState {
   final String message;
 
-  const SpecialistProfileFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const SpecialistProfileFailure(this.message, {this.error});
 }
 
 class SpecialistProfileUpdating extends SpecialistProfileState {
@@ -31,5 +36,9 @@ class SpecialistProfileUpdating extends SpecialistProfileState {
 class SpecialistProfileUpdateFailure extends SpecialistProfileState {
   final String message;
 
-  const SpecialistProfileUpdateFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const SpecialistProfileUpdateFailure(this.message, {this.error});
 }

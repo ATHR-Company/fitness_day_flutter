@@ -39,5 +39,9 @@ class MyCouponsLoaded extends MyCouponsState {
 class MyCouponsFailure extends MyCouponsState {
   final String message;
 
-  const MyCouponsFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const MyCouponsFailure(this.message, {this.error});
 }

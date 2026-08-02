@@ -3,6 +3,7 @@ import 'package:fitness_day/features/user/market/domain/entities/store_home_data
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_store_home_usecase.dart';
 import 'market_home_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class MarketHomeCubit extends Cubit<MarketHomeState> {
   final GetStoreHomeUseCase _getStoreHomeUseCase;
@@ -15,7 +16,7 @@ class MarketHomeCubit extends Cubit<MarketHomeState> {
     if (result is Success<StoreHomeData>) {
       emit(MarketHomeSuccess(data: result.data));
     } else if (result is FailureResult<StoreHomeData>) {
-      emit(MarketHomeFailure(result.failure.message));
+      emit(MarketHomeFailure(result.failure.message, error: AppError.from(result.failure)));
     }
   }
 

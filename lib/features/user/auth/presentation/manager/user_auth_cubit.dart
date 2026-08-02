@@ -19,6 +19,7 @@ import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_v
 import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_reset_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_resend_otp_usecase.dart';
 import 'user_auth_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class UserAuthCubit extends Cubit<UserAuthState> {
   final UserSignupUseCase _signupUseCase;
@@ -58,9 +59,17 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         _socketService = socketService,
         super(const UserAuthInitial());
 
+  Future<void> _prepareForNewAuthSession() async {
+    await _secureCache.deleteToken();
+    await _secureCache.deleteRefreshToken();
+    await _appCache.clearSession();
+    _socketService.disconnect();
+  }
+
   Future<void> signup(UserSignupRequest request) async {
     emit(const UserAuthLoading());
-    final actualFcmToken = await FcmHelper.getToken();
+    await _prepareForNewAuthSession();
+    final actualFcmToken = await FcmHelper.tokenForAuthRequest();
     final updatedRequest = UserSignupRequest(
       phone: request.phone,
       password: request.password,
@@ -74,7 +83,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       case Success(:final data):
         emit(UserSignupSuccess(data));
       case FailureResult(:final failure):
-        emit(UserAuthFailure(failure.message));
+        emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -98,7 +107,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _socketService.connectWithStoredToken();
         emit(UserVerifyOtpSuccess(data));
       case FailureResult(:final failure):
-        emit(UserAuthFailure(failure.message));
+        emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -107,7 +116,8 @@ class UserAuthCubit extends Cubit<UserAuthState> {
     required String idToken,
   }) async {
     emit(const UserAuthLoading());
-    final actualFcmToken = await FcmHelper.getToken();
+    await _prepareForNewAuthSession();
+    final actualFcmToken = await FcmHelper.tokenForAuthRequest();
     final request = SocialAuthRequest(
       idToken: idToken,
       provider: provider,
@@ -132,13 +142,14 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _socketService.connectWithStoredToken();
         emit(UserVerifyOtpSuccess(data));
       case FailureResult(:final failure):
-        emit(UserAuthFailure(failure.message));
+        emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
   Future<void> signin(UserSigninRequest request) async {
     emit(const UserAuthLoading());
-    final actualFcmToken = await FcmHelper.getToken();
+    await _prepareForNewAuthSession();
+    final actualFcmToken = await FcmHelper.tokenForAuthRequest();
     final updatedRequest = UserSigninRequest(
       phone: request.phone,
       password: request.password,
@@ -161,7 +172,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         await _socketService.connectWithStoredToken();
         emit(UserSigninSuccess(data));
       case FailureResult(:final failure):
-        emit(UserAuthFailure(failure.message));
+        emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -174,7 +185,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       case Success(:final data):
         emit(ForgotPasswordSendOtpSuccess(data));
       case FailureResult(:final failure):
-        emit(UserAuthFailure(failure.message));
+        emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -187,7 +198,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       case Success(:final data):
         emit(ForgotPasswordVerifyOtpSuccess(data));
       case FailureResult(:final failure):
-        emit(UserAuthFailure(failure.message));
+        emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -208,7 +219,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       case Success(:final data):
         emit(ForgotPasswordResetSuccess(data));
       case FailureResult(:final failure):
-        emit(UserAuthFailure(failure.message));
+        emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -221,7 +232,11 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       case Success(:final data):
         emit(ForgotPasswordResendOtpSuccess(data));
       case FailureResult(:final failure):
-        emit(UserAuthFailure(failure.message));
+        emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
     }
+  }
+
+  Future<void> resendOtp(String token) async {
+    await resendForgotPasswordOtp(token);
   }
 }

@@ -6,7 +6,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
-import 'package:fitness_day/core/widgets/network_error_view.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_state.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/components/progress_chart.dart';
@@ -30,8 +30,9 @@ class ClientProgressTab extends StatelessWidget {
           }
 
           if (state is ClientProgressFailure) {
-            return NetworkErrorView(
-              subtitle: state.message,
+            return AppErrorView(
+              error: state.error,
+              message: state.message,
               onRetry: () => context.read<ClientProgressCubit>().loadProgress(userId: userId),
             );
           }

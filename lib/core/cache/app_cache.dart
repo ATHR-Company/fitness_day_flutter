@@ -25,11 +25,28 @@ abstract class AppCache {
   String? getPendingPaymentOrderId();
   Future<void> clearPendingPaymentOrderId();
 
-  // Daily check-in state is deliberately absent: the cycle, the streak and
-  // "did I claim today" are recomputed server-side on every request (the day
-  // rolls over at 00:00 UTC), so caching any of it on the device would go stale
-  // on its own and disagree with the server.
+  /// Stand-in push token for devices that cannot register with FCM.
+  ///
+  /// Generated once per install and kept for the life of the install, so the
+  /// same device always presents the same identity. Survives logout on
+  /// purpose — it identifies the *device*, not the session. See
+  /// `FcmHelper.tokenForAuthRequest`.
+  Future<void> saveDeviceFallbackId(String id);
+  String? getDeviceFallbackId();
 
+  /// Clears only the current user's session data.
+  ///
+  /// Device-level flags such as [hasSeenOnboarding] are intentionally
+  /// preserved — logout must never send the user back to the onboarding flow
+  /// they already completed.
+  ///
+  /// Keys cleared: is_logged_in, user_type, cached_user_profile,
+  /// assessment_id, is_subscribed, pending_payment_order_id,
+  /// daily_check_in_last_date, daily_check_in_streak.
+  Future<void> clearSession();
+
+  /// Wipes every key in storage including device-level flags.
+  /// Only call this from "Delete account" flows, never from logout.
   Future<void> clear();
 }
 
@@ -45,6 +62,17 @@ class AppCacheImpl implements AppCache {
   static const _userTypeKey = 'user_type';
   static const _isSubscribedKey = 'is_subscribed';
   static const _pendingPaymentOrderKey = 'pending_payment_order_id';
+  static const _deviceFallbackIdKey = 'device_fallback_id';
+
+  @override
+  Future<void> saveDeviceFallbackId(String id) async {
+    await _storage.write(_deviceFallbackIdKey, id);
+  }
+
+  @override
+  String? getDeviceFallbackId() {
+    return _storage.read<String>(_deviceFallbackIdKey);
+  }
 
   @override
   Future<void> saveIsLoggedIn(bool isLoggedIn) async {
@@ -140,6 +168,22 @@ class AppCacheImpl implements AppCache {
   @override
   Future<void> clearPendingPaymentOrderId() async {
     await _storage.remove(_pendingPaymentOrderKey);
+  }
+
+  /// Removes every session-scoped key while keeping device-level flags.
+  /// [_hasSeenOnboardingKey] is intentionally omitted — the user already
+  /// completed onboarding on this device and must not see it again after
+  /// logging out and back in.
+  @override
+  Future<void> clearSession() async {
+    await Future.wait([
+      _storage.remove(_isLoggedInKey),
+      _storage.remove(_userTypeKey),
+      _storage.remove(_userKey),
+      _storage.remove(_assessmentIdKey),
+      _storage.remove(_isSubscribedKey),
+      _storage.remove(_pendingPaymentOrderKey),
+    ]);
   }
 
   @override

@@ -44,6 +44,14 @@ class DietPlanData {
           .toList(),
     );
   }
+
+  DietPlanData copyWith({List<MealItem>? meals}) {
+    return DietPlanData(
+      assessmentId: assessmentId,
+      dayNumber: dayNumber,
+      meals: meals ?? this.meals,
+    );
+  }
 }
 
 class MealItem {
@@ -74,6 +82,18 @@ class MealItem {
       calories: (json['calories'] as num?)?.toDouble() ?? (json['calory'] as num?)?.toDouble() ?? 0.0,
       time: json['time'] as String? ?? '',
       isCompleted: json['isCompleted'] as bool? ?? false,
+    );
+  }
+
+  MealItem copyWith({bool? isCompleted}) {
+    return MealItem(
+      id: id,
+      name: name,
+      categoryName: categoryName,
+      image: image,
+      calories: calories,
+      time: time,
+      isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 }

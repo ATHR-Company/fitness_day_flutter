@@ -14,5 +14,9 @@ class AssessmentDetailsLoaded extends AssessmentDetailsState {
 
 class AssessmentDetailsError extends AssessmentDetailsState {
   final String message;
-  AssessmentDetailsError(this.message);
+
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+  AssessmentDetailsError(this.message, {this.error});
 }

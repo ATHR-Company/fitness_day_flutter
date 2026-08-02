@@ -1,4 +1,5 @@
 import 'package:fitness_day/features/user/profile/data/models/user_profile_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class UserProfileState {
   const UserProfileState();
@@ -21,7 +22,11 @@ class UserProfileSuccess extends UserProfileState {
 class UserProfileFailure extends UserProfileState {
   final String message;
 
-  const UserProfileFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const UserProfileFailure(this.message, {this.error});
 }
 
 class UserProfileUpdating extends UserProfileState {
@@ -31,5 +36,9 @@ class UserProfileUpdating extends UserProfileState {
 class UserProfileUpdateFailure extends UserProfileState {
   final String message;
 
-  const UserProfileUpdateFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const UserProfileUpdateFailure(this.message, {this.error});
 }

@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/specialist/clients/domain/usecases/get_specialist_client_profile_usecase.dart';
 import 'specialist_client_profile_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class SpecialistClientProfileCubit extends Cubit<SpecialistClientProfileState> {
   final GetSpecialistClientProfileUseCase _getSpecialistClientProfileUseCase;
@@ -20,7 +21,7 @@ class SpecialistClientProfileCubit extends Cubit<SpecialistClientProfileState> {
           emit(const SpecialistClientProfileFailure('بيانات فارغة'));
         }
       case FailureResult(:final failure):
-        emit(SpecialistClientProfileFailure(failure.message));
+        emit(SpecialistClientProfileFailure(failure.message, error: AppError.from(failure)));
     }
   }
 }

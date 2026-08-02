@@ -129,10 +129,10 @@ class VisitCard extends StatelessWidget {
                       // Chat with the person this card is about. Only rendered
                       // when the caller supplies a handler, so cards that have
                       // nobody to message stay exactly as they were.
-                      if (onChatPressed != null) ...[
-                        MessageIconButton(onTap: onChatPressed),
-                        const Spacer(),
-                      ],
+                      // if (onChatPressed != null) ...[
+                      //   MessageIconButton(onTap: onChatPressed),
+                      //   const Spacer(),
+                      // ],
                       SizedBox(
                         height: 36.h,
                         child: ElevatedButton(

@@ -15,6 +15,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/hydration/manual_add_sheet.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/hydration/water_action_button.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class HydrationDetailsContent extends StatefulWidget {
   const HydrationDetailsContent({super.key});
@@ -73,28 +74,16 @@ class _HydrationDetailsContentState extends State<HydrationDetailsContent> {
         }
 
         if (state is ActivityDetailsFailure) {
+          final cubit = context.read<ActivityDetailsCubit>();
           return Scaffold(
             backgroundColor: AppColors.white,
-            body: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.error_outline,
-                      color: AppColors.primary, size: 48.sp),
-                  SizedBox(height: 12.h),
-                  Text(state.message,
-                      style: TextStyleManager.style11Medium,
-                      textAlign: TextAlign.center),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.white,
-                    ),
-                    child: const Text('رجوع'),
-                  ),
-                ],
+            body: AppErrorView(
+              error: state.error,
+              message: state.message,
+              onRetry: () => cubit.getActivityDetails(
+                cubit.assessmentId,
+                cubit.dayNumber,
+                cubit.activityId,
               ),
             ),
           );

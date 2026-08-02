@@ -6,6 +6,7 @@ import 'package:fitness_day/features/user/rewards/data/models/redemption_models.
 import 'package:fitness_day/features/user/rewards/domain/usecases/get_check_in_calendar_usecase.dart';
 import 'package:fitness_day/features/user/rewards/domain/usecases/get_points_rewards_usecase.dart';
 import 'package:fitness_day/features/user/rewards/domain/usecases/redeem_reward_usecase.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 part 'awards_state.dart';
 
@@ -41,7 +42,7 @@ class AwardsCubit extends Cubit<AwardsState> {
 
     switch (rewardsResult) {
       case FailureResult(:final failure):
-        emit(AwardsFailure(failure.message));
+        emit(AwardsFailure(failure.message, error: AppError.from(failure)));
         return;
       case Success(:final data):
         emit(AwardsLoaded(

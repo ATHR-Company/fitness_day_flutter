@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
-import 'package:fitness_day/core/widgets/network_error_view.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/features/specialist/home/presentation/widgets/home_header.dart';
 import 'package:fitness_day/features/specialist/home/presentation/widgets/performance_summary_section.dart';
@@ -60,8 +60,9 @@ class HomePage extends StatelessWidget {
                     ),
                   );
                 } else if (state is SpecialistHomeFailure) {
-                  return NetworkErrorView(
-                    subtitle: state.message,
+                  return AppErrorView(
+                    error: state.error,
+                    message: state.message,
                     onRetry: () => context.read<SpecialistHomeCubit>().getSpecialistHomeData(),
                   );
                 } else if (state is SpecialistHomeSuccess) {

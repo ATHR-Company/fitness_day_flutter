@@ -1,4 +1,5 @@
 import 'package:fitness_day/features/specialist/notifications/data/models/specialist_notification_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class SpecialistNotificationsState {
   const SpecialistNotificationsState();
@@ -25,7 +26,11 @@ class SpecialistNotificationsSuccess extends SpecialistNotificationsState {
 class SpecialistNotificationsFailure extends SpecialistNotificationsState {
   final String message;
 
-  const SpecialistNotificationsFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const SpecialistNotificationsFailure(this.message, {this.error});
 }
 
 class SpecialistNotificationsLoadingMore extends SpecialistNotificationsState {

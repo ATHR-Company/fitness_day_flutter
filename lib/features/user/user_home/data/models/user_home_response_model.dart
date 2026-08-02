@@ -22,6 +22,21 @@ class DailyTasksModel {
       currentActivity: json['currentActivity'],
     );
   }
+
+  /// Lets a single task be replaced without refetching the whole home payload.
+  DailyTasksModel copyWith({
+    Map<String, dynamic>? currentMeal,
+    Map<String, dynamic>? currentWorkoutItem,
+    Map<String, dynamic>? currentActivity,
+  }) {
+    return DailyTasksModel(
+      assessmentId: assessmentId,
+      dayNumber: dayNumber,
+      currentMeal: currentMeal ?? this.currentMeal,
+      currentWorkoutItem: currentWorkoutItem ?? this.currentWorkoutItem,
+      currentActivity: currentActivity ?? this.currentActivity,
+    );
+  }
 }
 
 class BannerModel {
@@ -148,6 +163,20 @@ class UserHomeDataModel {
               .map((i) => HomePlanModel.fromJson(i as Map<String, dynamic>))
               .toList()
           : [],
+    );
+  }
+
+  /// Swaps in a patched [dailyTasks] and shares every other field by reference —
+  /// nothing else on the home payload can change without a refetch.
+  UserHomeDataModel copyWith({DailyTasksModel? dailyTasks}) {
+    return UserHomeDataModel(
+      user: user,
+      subscription: subscription,
+      currentWeight: currentWeight,
+      visits: visits,
+      dailyTasks: dailyTasks ?? this.dailyTasks,
+      banners: banners,
+      plans: plans,
     );
   }
 }

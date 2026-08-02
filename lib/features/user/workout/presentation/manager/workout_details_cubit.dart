@@ -1,8 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/services/app_event_bus.dart';
 import 'package:fitness_day/features/user/workout/domain/usecases/get_workout_details_usecase.dart';
 import 'package:fitness_day/features/user/workout/domain/usecases/complete_workout_set_usecase.dart';
 import 'workout_details_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class WorkoutDetailsCubit extends Cubit<WorkoutDetailsState> {
   final GetWorkoutDetailsUseCase _getWorkoutDetailsUseCase;
@@ -28,7 +31,7 @@ class WorkoutDetailsCubit extends Cubit<WorkoutDetailsState> {
           emit(const WorkoutDetailsFailure('No details found for this workout.'));
         }
       case FailureResult(:final failure):
-        emit(WorkoutDetailsFailure(failure.message));
+        emit(WorkoutDetailsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -49,11 +52,21 @@ class WorkoutDetailsCubit extends Cubit<WorkoutDetailsState> {
       case Success(:final data):
         if (data.data != null) {
           emit(WorkoutSetCompletionSuccess(data.data!));
+          // The response already carries the new counters, so the home and
+          // today-tasks cards can be patched from it — no refetch needed.
+          getIt<AppEventBus>().publish(WorkoutProgressChanged(
+            assessmentId: assessmentId,
+            dayNumber: dayNumber,
+            workoutItemId: workoutItemId,
+            completedSets: data.data!.completedSets,
+            totalSets: data.data!.totalSets,
+            isCompleted: data.data!.isCompleted,
+          ));
         } else {
           emit(const WorkoutSetCompletionFailure('Failed to complete set.'));
         }
       case FailureResult(:final failure):
-        emit(WorkoutSetCompletionFailure(failure.message));
+        emit(WorkoutSetCompletionFailure(failure.message, error: AppError.from(failure)));
     }
   }
 }

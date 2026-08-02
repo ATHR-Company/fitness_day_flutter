@@ -1,10 +1,7 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
-import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/user/visits/data/models/activity_details_model.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/activity_details_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/activity_details_state.dart';
@@ -14,6 +11,7 @@ import 'package:fitness_day/features/user/user_home/presentation/screens/activit
 import 'package:fitness_day/features/user/user_home/presentation/widgets/activity/activity_duration.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/activity/running_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/activity/walking_screen.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 /// Waits for [ActivityDetailsCubit] to load once, then keeps the screen alive
 /// while subsequent period-switch calls run in the background.
@@ -92,13 +90,29 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
   /// final sync, and `dispose` cannot await — so the POST was still in flight
   /// while the screen underneath refetched, and that refetch read pre-sync
   /// figures. Stopping here means the sync has landed by the time we pop.
-  Future<void> _finishSessionBeforeLeaving() async {
+  ///
+  /// The re-read afterwards is what tells the screens underneath about the walk.
+  /// Pressing Stop refreshes on its own, so this path only runs when the user
+  /// backs out mid-session — and it is a single GET whose result reaches the
+  /// home and today-tasks cards through [ActivityDetailsCubit]'s publish to
+  /// `AppEventBus`, replacing the two-request home refetch that used to run
+  /// on every return regardless.
+  Future<void> _finishSessionBeforeLeaving(
+      ActivityDetailsCubit activityCubit) async {
     if (_walkingCubit != null && _walkingCubit!.state.isTracking) {
       await _walkingCubit!.stopTracking();
     }
     if (_runningCubit != null && _runningCubit!.state.isRunning) {
       await _runningCubit!.stopSession();
     }
+    if (!mounted) return;
+    // Daily explicitly: the user may have left the weekly tab selected, and the
+    // cards behind this screen are about today.
+    await activityCubit.getActivityDetails(
+      activityCubit.assessmentId,
+      activityCubit.dayNumber,
+      activityCubit.activityId,
+    );
   }
 
   @override
@@ -112,10 +126,14 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        // Resolved before the await so the pop doesn't reach for a context that
-        // may have gone away while the final sync was in flight.
+        // Resolved before the await so neither reaches for a context that may
+        // have gone away while the final sync was in flight.
         final NavigatorState navigator = Navigator.of(context);
-        if (_isSessionActive()) await _finishSessionBeforeLeaving();
+        final ActivityDetailsCubit activityCubit =
+            context.read<ActivityDetailsCubit>();
+        if (_isSessionActive()) {
+          await _finishSessionBeforeLeaving(activityCubit);
+        }
         if (!mounted) return;
         navigator.pop();
       },
@@ -161,29 +179,18 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
         }
 
         if (state is ActivityDetailsFailure && !_initialized) {
+          // Retry rather than "back": the screen never loaded, and leaving is
+          // something the system back gesture already offers.
           return Scaffold(
             backgroundColor: AppColors.white,
-            body: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.error_outline,
-                      color: AppColors.primary, size: 48.sp),
-                  SizedBox(height: 12.h),
-                  Text(state.message,
-                      style: TextStyleManager.style11Medium,
-                      textAlign: TextAlign.center),
-                  SizedBox(height: 16.h),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.white,
-                    ),
-                    child: Text('activity_tracking.back'.tr()),
+            body: AppErrorView(
+              error: state.error,
+              message: state.message,
+              onRetry: () => context.read<ActivityDetailsCubit>().getActivityDetails(
+                    widget.assessmentId,
+                    widget.dayNumber,
+                    widget.activityId,
                   ),
-                ],
-              ),
             ),
           );
         }

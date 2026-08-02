@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "308069649363-fkq57cm5rqs9pffbrvth46utkaufgfbf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fitness_day",
+            "certificate_hash": "86566942a399d2ddf8f10a22e497bc0b45beb859"
+          }
+        },
+        {
           "client_id": "308069649363-5qn9ole74gehrr242rnhi9lsvduhrt87.apps.googleusercontent.com",
           "client_type": 3
         }

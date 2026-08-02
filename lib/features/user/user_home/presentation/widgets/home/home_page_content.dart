@@ -30,9 +30,10 @@ import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/home_shimmer_loading.dart';
 
 import 'package:fitness_day/core/widgets/exit_dialog.dart';
-import 'package:fitness_day/core/widgets/network_error_view.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/user_today_tasks_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/articles_list_page.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class HomePageContent extends StatelessWidget {
   const HomePageContent({super.key});
@@ -102,7 +103,22 @@ class HomePageContent extends StatelessWidget {
         endDrawer: UserAppDrawer(isSubscribed: isSubscribed),
         body: SafeArea(
           child: RefreshIndicator(
-            onRefresh: () => context.read<UserHomeCubit>().loadHomeData(),
+            // Silent: RefreshIndicator draws its own spinner, so dropping the
+            // page to the shimmer on top of it just makes the content flash —
+            // and wiping a loaded home for a refresh the user can repeat is
+            // worse than leaving it up.
+            //
+            // But silent cannot mean *nothing*: the user pulled, so they are
+            // owed an answer. A failure comes back as a return value and is
+            // shown over the page instead of replacing it.
+            onRefresh: () async {
+              final error = await context
+                  .read<UserHomeCubit>()
+                  .loadHomeData(silent: true);
+              if (error != null && context.mounted) {
+                showAppError(context, error);
+              }
+            },
             color: AppColors.primary,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -258,14 +274,13 @@ class HomePageContent extends StatelessWidget {
                                       ),
                                     ),
                                   );
-                                } else {
-                                  return;
                                 }
-                                // The activity screens sync progress while they
-                                // are open, so the card behind them is stale by
-                                // the time the user comes back.
-                                if (!context.mounted) return;
-                                context.read<UserHomeCubit>().loadHomeData();
+                                // No refetch on the way back: the activity
+                                // screens publish every server-confirmed
+                                // reading to AppEventBus while they are
+                                // open, and UserHomeCubit patches this card
+                                // from it. The card is already current by the
+                                // time the pop animation finishes.
                               },
                             ),
                           ),
@@ -338,8 +353,9 @@ class HomePageContent extends StatelessWidget {
         if (state is UserHomeError) {
           return Scaffold(
             backgroundColor: AppColors.white,
-            body: NetworkErrorView(
-              subtitle: state.message,
+            body: AppErrorView(
+              error: state.error,
+              message: state.message,
               onRetry: () => context.read<UserHomeCubit>().loadHomeData(),
             ),
           );

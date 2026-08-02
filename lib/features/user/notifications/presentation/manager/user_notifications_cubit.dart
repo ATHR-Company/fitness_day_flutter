@@ -4,6 +4,7 @@ import 'package:fitness_day/features/user/notifications/data/models/user_notific
 import 'package:fitness_day/features/user/notifications/domain/usecases/get_user_notifications_usecase.dart';
 import 'package:fitness_day/features/user/notifications/domain/usecases/toggle_user_notification_read_usecase.dart';
 import 'user_notifications_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class UserNotificationsCubit extends Cubit<UserNotificationsState> {
   final GetUserNotificationsUseCase _getUserNotificationsUseCase;
@@ -42,7 +43,7 @@ class UserNotificationsCubit extends Cubit<UserNotificationsState> {
           hasReachedMax: _hasReachedMax,
         ));
       case FailureResult(:final failure):
-        emit(UserNotificationsFailure(failure.message));
+        emit(UserNotificationsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 

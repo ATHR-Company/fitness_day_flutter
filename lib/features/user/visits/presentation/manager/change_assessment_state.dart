@@ -32,8 +32,12 @@ class ChangeAssessmentSuccess extends ChangeAssessmentState {
 class ChangeAssessmentError extends ChangeAssessmentState {
   final String message;
 
-  const ChangeAssessmentError({required this.message});
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const ChangeAssessmentError({required this.message, this.error});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, error];
 }

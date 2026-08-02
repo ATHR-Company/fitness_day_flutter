@@ -14,6 +14,7 @@ import 'package:fitness_day/features/user/market/presentation/screens/checkout/e
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/payment_method_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/order_summary_panel.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class AddressesScreen extends StatelessWidget {
   const AddressesScreen({super.key});
@@ -74,7 +75,11 @@ class _AddressesView extends StatelessWidget {
               child: BlocBuilder<AddressesCubit, AddressesState>(
                 builder: (context, state) {
                   if (state is AddressesFailure) {
-                    return _buildErrorState(context, state.message);
+                    return AppErrorView(
+                      error: state.error,
+                      message: state.message,
+                      onRetry: () => context.read<AddressesCubit>().load(),
+                    );
                   }
                   if (state is AddressesSuccess) {
                     return state.addresses.isEmpty
@@ -147,38 +152,6 @@ class _AddressesView extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorState(BuildContext context, String message) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, color: AppColors.error, size: 48.sp),
-            SizedBox(height: 12.h),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyleManager.style13Medium
-                  .copyWith(color: AppColors.textSecondary),
-            ),
-            SizedBox(height: 16.h),
-            ElevatedButton(
-              onPressed: () => context.read<AddressesCubit>().load(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-              ),
-              child: Text(
-                'market.retry_button'.tr(),
-                style: TextStyleManager.style11Medium
-                    .copyWith(color: AppColors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildEmptyState() {
     return Center(

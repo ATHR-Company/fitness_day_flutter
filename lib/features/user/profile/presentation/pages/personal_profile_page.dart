@@ -8,7 +8,6 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
-import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/challenge_image_picker.dart';
 import 'package:fitness_day/core/widgets/loader.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
@@ -16,6 +15,7 @@ import 'package:fitness_day/features/user/profile/presentation/manager/user_prof
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_state.dart';
 import 'package:fitness_day/features/user/profile/presentation/widgets/edit_field_dialog.dart';
 import 'package:fitness_day/features/user/profile/presentation/widgets/edit_goal_dialog.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class PersonalProfilePage extends StatefulWidget {
   const PersonalProfilePage({super.key});
@@ -52,7 +52,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         listenWhen: (previous, current) => current is UserProfileUpdateFailure,
         listener: (context, state) {
           if (state is UserProfileUpdateFailure) {
-            showAppSnackBar(context, text: state.message, isError: true);
+            showAppError(context, state.error, message: state.message);
           }
         },
         child: Container(

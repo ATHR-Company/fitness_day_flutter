@@ -1,9 +1,8 @@
-import 'package:dio/dio.dart';
-import 'package:fitness_day/core/errors/failures.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import '../../domain/entities/cart_data.dart';
 import '../../domain/repositories/cart_repository.dart';
 import '../datasources/cart_remote_datasource.dart';
+import 'package:fitness_day/core/errors/error_handler.dart';
 
 class CartRepositoryImpl implements CartRepository {
   final CartRemoteDataSource remoteDataSource;
@@ -16,7 +15,7 @@ class CartRepositoryImpl implements CartRepository {
       final model = await remoteDataSource.getCart();
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure(_messageOf(e, 'Failed to load cart')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -26,8 +25,7 @@ class CartRepositoryImpl implements CartRepository {
       final model = await remoteDataSource.addToCart(input);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to add item to cart')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -39,8 +37,7 @@ class CartRepositoryImpl implements CartRepository {
           await remoteDataSource.updateQuantity(itemIdentity, quantity);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to update quantity')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -50,20 +47,8 @@ class CartRepositoryImpl implements CartRepository {
       final model = await remoteDataSource.removeItem(itemIdentity);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to remove item')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
-  /// Prefer the backend's already-localized `message` (per the `lang` header)
-  /// so cart errors like "out of stock" show verbatim; fall back otherwise.
-  String _messageOf(Object error, String fallback) {
-    if (error is DioException) {
-      final data = error.response?.data;
-      if (data is Map && data['message'] is String) {
-        return data['message'] as String;
-      }
-    }
-    return fallback;
-  }
 }

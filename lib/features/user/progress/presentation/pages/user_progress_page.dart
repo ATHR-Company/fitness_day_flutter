@@ -10,6 +10,7 @@ import 'package:fitness_day/features/specialist/clients/presentation/widgets/cli
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/components/stat_tile.dart';
 import 'package:fitness_day/features/user/progress/presentation/manager/user_progress_cubit.dart';
 import 'package:fitness_day/features/user/progress/presentation/manager/user_progress_state.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 /// Progress screen for the logged-in user. Reuses the same progress chart and
 /// stat tiles as the specialist client-progress tab, but is driven by
@@ -45,23 +46,10 @@ class UserProgressPage extends StatelessWidget {
             }
 
             if (state is UserProgressFailure) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      state.message,
-                      style: TextStyleManager.style13Medium.copyWith(color: AppColors.error),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 16.h),
-                    ElevatedButton(
-                      onPressed: () => context.read<UserProgressCubit>().loadProgress(),
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                      child: Text('common.retry'.tr(), style: const TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
+              return AppErrorView(
+                error: state.error,
+                message: state.message,
+                onRetry: () => context.read<UserProgressCubit>().loadProgress(),
               );
             }
 

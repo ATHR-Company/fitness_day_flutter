@@ -13,6 +13,7 @@ import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/core/widgets/loader.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'profile_text_field.dart';
+import 'package:fitness_day/core/utils/validators.dart';
 
 class ChangePasswordDialog extends StatefulWidget {
   const ChangePasswordDialog({super.key});
@@ -35,7 +36,31 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     super.dispose();
   }
 
+  /// Runs the same rules the sign-up and reset screens use, so a password that
+  /// would be refused there cannot be set from here either.
+  ///
+  /// This dialog had no validation at all — an empty or all-spaces password was
+  /// sent straight to the server.
+  String? _validate() {
+    final String? old = AppValidators.loginPassword(_oldPasswordController.text);
+    if (old != null) return old;
+
+    final String? fresh = AppValidators.password(_newPasswordController.text);
+    if (fresh != null) return fresh;
+
+    return AppValidators.confirmPassword(
+      _confirmPasswordController.text,
+      _newPasswordController.text,
+    );
+  }
+
   Future<void> _onSave() async {
+    final String? problem = _validate();
+    if (problem != null) {
+      showAppSnackBar(context, text: problem, isError: true);
+      return;
+    }
+
     setState(() => _isLoading = true);
     final result = await context.read<UserProfileCubit>().changePassword(
           oldPassword: _oldPasswordController.text,

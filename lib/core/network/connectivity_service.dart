@@ -4,7 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 /// boolean stream. NOTE: this reflects the device's network *interface*
 /// (wifi/mobile/none), not whether the internet is actually reachable — a
 /// failed request mapped to a `NetworkFailure` remains the source of truth
-/// for per-request errors ([NetworkErrorView]).
+/// for per-request errors (`AppErrorView`).
 class ConnectivityService {
   final Connectivity _connectivity;
 

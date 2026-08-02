@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
-import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/widgets/vertical_day_tab_bar.dart';
 import 'package:fitness_day/core/widgets/today_tasks_section.dart';
@@ -19,6 +18,7 @@ import 'package:fitness_day/features/user/visits/data/models/diet_plan_model.dar
 import 'package:fitness_day/features/user/visits/presentation/widgets/diet_plan/diet_plan_empty_state.dart';
 import 'package:fitness_day/features/user/visits/presentation/widgets/shared/visits_section_title.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class DietPlanPage extends StatefulWidget {
   const DietPlanPage({super.key});
@@ -80,11 +80,10 @@ class _DietPlanPageState extends State<DietPlanPage> {
                 ? assessmentId
                 : (getIt<AppCache>().getAssessmentId() ?? ''),
             'dayNumber': _selectedDayIndex + 1,
-          }).then((_) {
-            if (context.mounted) {
-              context.read<DietPlanCubit>().getDietPlan(_selectedDayIndex + 1);
-            }
           });
+          // No refetch on the way back — MealDetailsCubit publishes the
+          // server-confirmed completion to AppEventBus and DietPlanCubit
+          // ticks this meal from it.
         },
       );
     }).toList();
@@ -147,17 +146,12 @@ class _DietPlanPageState extends State<DietPlanPage> {
                         } else if (state is DietPlanFailure) {
                           return _buildLayoutWithTabBar(
                             context,
-                            child: Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(24.r),
-                                child: Text(
-                                  state.message,
-                                  style: TextStyleManager.style14Medium.copyWith(
-                                    color: AppColors.red,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
+                            child: AppErrorView(
+                              error: state.error,
+                              message: state.message,
+                              onRetry: () => context
+                                  .read<DietPlanCubit>()
+                                  .getDietPlan(_selectedDayIndex + 1),
                             ),
                           );
                         }

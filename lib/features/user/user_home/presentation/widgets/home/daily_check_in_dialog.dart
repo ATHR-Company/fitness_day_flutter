@@ -400,13 +400,13 @@ class _DayTile extends StatelessWidget {
         if (isSpecial)
           Positioned(
             left: -10.w,
-            top: 0,
-            bottom: 0,
+            top: -10.w,
+            // bottom: 0,
             child: Center(
               child: AppImage(
                 SvgIcons.awardGift,
-                width: 32.r,
-                height: 32.r,
+                width: 35.r,
+                height: 35.r,
               ),
             ),
           ),

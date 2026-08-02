@@ -16,7 +16,7 @@ import 'package:fitness_day/features/user/workout/presentation/widgets/workout_p
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_details_cubit.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_details_state.dart';
 import 'package:fitness_day/features/user/workout/data/models/workout_details_model.dart';
-import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 enum ExercisePhase { warmup, exercise, cooldown }
 
@@ -226,7 +226,7 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
                 });
               }
             } else if (state is WorkoutSetCompletionFailure) {
-              showAppSnackBar(context, text: state.message, isError: true);
+              showAppError(context, state.error, message: state.message);
             }
           },
           builder: (context, state) {

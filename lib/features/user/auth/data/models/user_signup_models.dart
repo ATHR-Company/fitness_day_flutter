@@ -2,14 +2,16 @@ class UserSignupRequest {
   final String phone;
   final String password;
   final String passwordConfirm;
-  final String fcmToken;
+  /// Null on devices that cannot register for push (no Play Services, or a
+  /// failed registration). Omitted from the payload rather than faked.
+  final String? fcmToken;
   final String deviceType;
 
   const UserSignupRequest({
     required this.phone,
     required this.password,
     required this.passwordConfirm,
-    required this.fcmToken,
+    this.fcmToken,
     required this.deviceType,
   });
 
@@ -18,8 +20,10 @@ class UserSignupRequest {
       'phone': phone,
       'password': password,
       'passwordConfirm': passwordConfirm,
-      'fcmToken': fcmToken,
       'deviceType': deviceType,
+      // Only sent when the device actually has one — a key with a bogus
+      // value would be stored as a real push address.
+      if (fcmToken != null) 'fcmToken': fcmToken,
     };
   }
 }

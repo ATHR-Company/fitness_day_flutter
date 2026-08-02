@@ -1,4 +1,5 @@
 import 'package:fitness_day/features/user/user_home/domain/entities/article_data.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 abstract class SavedArticlesState {}
 
@@ -26,5 +27,9 @@ class SavedArticlesLoaded extends SavedArticlesState {
 
 class SavedArticlesError extends SavedArticlesState {
   final String message;
-  SavedArticlesError(this.message);
+
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+  SavedArticlesError(this.message, {this.error});
 }

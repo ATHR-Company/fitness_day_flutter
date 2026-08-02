@@ -87,8 +87,12 @@ class PaymentAwaitingConfirmation extends PaymentState {
 class PaymentError extends PaymentState {
   final String message;
 
-  const PaymentError(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const PaymentError(this.message, {this.error});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, error];
 }

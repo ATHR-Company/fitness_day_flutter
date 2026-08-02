@@ -11,6 +11,7 @@ import 'package:fitness_day/features/user/auth/domain/usecases/complete_personal
 import 'package:fitness_day/features/user/auth/domain/usecases/get_health_questions_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/submit_health_answers_usecase.dart';
 import 'user_setup_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class UserSetupCubit extends Cubit<UserSetupState> {
   final GetUserLookupsUseCase _getUserLookupsUseCase;
@@ -112,6 +113,29 @@ class UserSetupCubit extends Cubit<UserSetupState> {
     this.dailyWorkoutHours = dailyWorkoutHours;
   }
 
+  void resetForNewSignup() {
+    fullName = null;
+    gender = null;
+    birthDate = null;
+    height = null;
+    weight = null;
+    activityLevelId = null;
+    goalId = null;
+    branchId = null;
+    dietType = null;
+    dailyMeals = null;
+    preferredFoods = null;
+    dislikedFoods = null;
+    foodAllergies = null;
+    weeklyWorkouts = null;
+    dailySteps = null;
+    preferredExercises = null;
+    dailyWorkoutHours = null;
+    bodyReport = null;
+    isSubscribed = null;
+    emit(const UserSetupInitial());
+  }
+
   Future<void> fetchLookups() async {
     emit(const UserSetupLoading());
     final result = await _getUserLookupsUseCase();
@@ -126,7 +150,7 @@ class UserSetupCubit extends Cubit<UserSetupState> {
           branches: data.branches,
         ));
       case FailureResult(:final failure):
-        emit(UserSetupFailure(failure.message));
+        emit(UserSetupFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -177,6 +201,7 @@ class UserSetupCubit extends Cubit<UserSetupState> {
         // the screen owning that input can show the message under it.
         emit(UserSetupFailure(
           failure.message,
+          error: AppError.from(failure),
           fieldKey: failure is ValidationFailure
               ? ProfileValidationKey.fromApi(failure.key)
               : null,
@@ -191,7 +216,7 @@ class UserSetupCubit extends Cubit<UserSetupState> {
       case Success(:final data):
         emit(HealthQuestionsLoadSuccess(data.data));
       case FailureResult(:final failure):
-        emit(UserSetupFailure(failure.message));
+        emit(UserSetupFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -212,7 +237,7 @@ class UserSetupCubit extends Cubit<UserSetupState> {
           message: data.message,
         ));
       case FailureResult(:final failure):
-        emit(UserSetupFailure(failure.message));
+        emit(UserSetupFailure(failure.message, error: AppError.from(failure)));
     }
   }
 }

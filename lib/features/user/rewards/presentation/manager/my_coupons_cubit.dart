@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/user/rewards/data/models/redemption_models.dart';
 import 'package:fitness_day/features/user/rewards/domain/usecases/get_redemptions_usecase.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 part 'my_coupons_state.dart';
 
@@ -34,7 +35,7 @@ class MyCouponsCubit extends Cubit<MyCouponsState> {
           hasMore: data.hasMore,
         ));
       case FailureResult(:final failure):
-        emit(MyCouponsFailure(failure.message));
+        emit(MyCouponsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 

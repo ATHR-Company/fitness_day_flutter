@@ -7,7 +7,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
-import 'package:fitness_day/core/widgets/network_error_view.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/features/specialist/clients/data/models/client_assessment_model.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_assessments_state.dart';
@@ -38,8 +38,9 @@ class _ClientVisitsTabState extends State<ClientVisitsTab> {
           }
 
           if (state is ClientAssessmentsFailure) {
-            return NetworkErrorView(
-              subtitle: state.message,
+            return AppErrorView(
+              error: state.error,
+              message: state.message,
               onRetry: () => context.read<ClientAssessmentsCubit>().loadAssessments(userId: widget.userId),
             );
           }

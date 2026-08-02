@@ -15,6 +15,7 @@ import 'package:fitness_day/features/user/user_home/presentation/screens/hydrati
 import 'package:fitness_day/features/user/user_home/presentation/screens/steps_details_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/today_tasks/task_section_title.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class UserTodayTasksContent extends StatefulWidget {
   const UserTodayTasksContent({super.key});
@@ -82,30 +83,12 @@ class _UserTodayTasksContentState extends State<UserTodayTasksContent> {
                           }
 
                           if (state is UserTodayTasksError) {
-                            return Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.error_outline,
-                                      color: AppColors.primary, size: 48.sp),
-                                  SizedBox(height: 12.h),
-                                  Text(state.message,
-                                      style: TextStyleManager.style11Medium,
-                                      textAlign: TextAlign.center),
-                                  SizedBox(height: 16.h),
-                                  ElevatedButton(
-                                    onPressed: () => context
-                                        .read<UserTodayTasksCubit>()
-                                        .loadTasks(
-                                            dayNumber: _selectedDayIndex + 1),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primary,
-                                      foregroundColor: AppColors.white,
-                                    ),
-                                    child: const Text('إعادة المحاولة'),
-                                  ),
-                                ],
-                              ),
+                            return AppErrorView(
+                              error: state.error,
+                              message: state.message,
+                              onRetry: () => context
+                                  .read<UserTodayTasksCubit>()
+                                  .loadTasks(dayNumber: _selectedDayIndex + 1),
                             );
                           }
 
@@ -218,17 +201,14 @@ class _UserTodayTasksContentState extends State<UserTodayTasksContent> {
     return null;
   }
 
-  /// Opens an activity screen and reloads the list once it closes — those
-  /// screens sync progress while they are open, so the task card behind them is
-  /// stale by the time the user comes back.
-  Future<void> _openActivity(BuildContext context, Widget screen) async {
-    await Navigator.push(
+  /// Opens an activity screen. No reload on the way back — the activity screens
+  /// publish each server-confirmed reading to `AppEventBus` as it lands, and
+  /// [UserTodayTasksCubit] patches the one card it belongs to. Refetching the
+  /// whole day here would repeat a request whose answer already arrived.
+  void _openActivity(BuildContext context, Widget screen) {
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => screen),
     );
-    if (!context.mounted) return;
-    context
-        .read<UserTodayTasksCubit>()
-        .loadTasks(dayNumber: _selectedDayIndex + 1);
   }
 }

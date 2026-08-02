@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/specialist/home/domain/usecases/get_specialist_home_data_usecase.dart';
 import 'specialist_home_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class SpecialistHomeCubit extends Cubit<SpecialistHomeState> {
   final GetSpecialistHomeDataUseCase _getSpecialistHomeDataUseCase;
@@ -19,7 +20,7 @@ class SpecialistHomeCubit extends Cubit<SpecialistHomeState> {
           emit(const SpecialistHomeFailure('بيانات فارغة'));
         }
       case FailureResult(:final failure):
-        emit(SpecialistHomeFailure(failure.message));
+        emit(SpecialistHomeFailure(failure.message, error: AppError.from(failure)));
     }
   }
 }

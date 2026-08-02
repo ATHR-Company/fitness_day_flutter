@@ -71,6 +71,7 @@ class _SpecialistNotificationsPageContentState
 
         if (state is SpecialistNotificationsFailure) {
           return NotificationsPage(
+            error: state.error,
             errorMessage: state.message,
             onRetry: () => cubit.getNotifications(isRefresh: true),
           );

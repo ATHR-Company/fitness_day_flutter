@@ -4,6 +4,7 @@ import 'package:fitness_day/features/user/market/domain/entities/product_data.da
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_product_by_id_usecase.dart';
 import '../../domain/usecases/toggle_favorite_usecase.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class ProductDetailsState {
   const ProductDetailsState();
@@ -37,7 +38,11 @@ class ProductDetailsSuccess extends ProductDetailsState {
 class ProductDetailsFailure extends ProductDetailsState {
   final String message;
 
-  const ProductDetailsFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const ProductDetailsFailure(this.message, {this.error});
 }
 
 class ProductDetailsCubit extends Cubit<ProductDetailsState> {
@@ -55,7 +60,7 @@ class ProductDetailsCubit extends Cubit<ProductDetailsState> {
     if (result is Success<ProductData>) {
       emit(ProductDetailsSuccess(product: result.data));
     } else if (result is FailureResult<ProductData>) {
-      emit(ProductDetailsFailure(result.failure.message));
+      emit(ProductDetailsFailure(result.failure.message, error: AppError.from(result.failure)));
     }
   }
 

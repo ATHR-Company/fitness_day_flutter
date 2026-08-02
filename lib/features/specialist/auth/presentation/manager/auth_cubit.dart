@@ -26,7 +26,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> login(String phone, String password) async {
     emit(AuthLoading());
-    final fcmToken = await FcmHelper.getToken();
+    final fcmToken = await FcmHelper.tokenForAuthRequest();
     final result = await loginUseCase.call(
       phone,
       password,
@@ -56,7 +56,7 @@ class AuthCubit extends Cubit<AuthState> {
     socketService.disconnect();
     await secureCache.deleteToken();
     await secureCache.deleteRefreshToken();
-    await appCache.clear();
+    await appCache.clearSession();
     RoleNotifier.instance.setRole(AppRole.none);
     emit(AuthLoggedOut());
   }

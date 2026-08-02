@@ -1,10 +1,10 @@
 import '../../../../../core/network/api_result.dart';
-import '../../../../../core/errors/failures.dart';
 import '../datasources/user_home_remote_datasource.dart';
 import '../../domain/repositories/user_home_repository.dart';
 import '../../domain/entities/article_data.dart';
 import '../models/user_home_response_model.dart';
 import '../models/article_model.dart';
+import 'package:fitness_day/core/errors/error_handler.dart';
 
 class UserHomeRepositoryImpl implements UserHomeRepository {
   final UserHomeRemoteDataSource remoteDataSource;
@@ -17,7 +17,7 @@ class UserHomeRepositoryImpl implements UserHomeRepository {
       final response = await remoteDataSource.getUserHomeData();
       return Success(response);
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch home data'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -27,7 +27,7 @@ class UserHomeRepositoryImpl implements UserHomeRepository {
       final response = await remoteDataSource.getArticles(page: page, limit: limit);
       return Success(response);
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch articles'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -37,7 +37,7 @@ class UserHomeRepositoryImpl implements UserHomeRepository {
       final model = await remoteDataSource.getArticleById(id);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch article details'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -47,7 +47,7 @@ class UserHomeRepositoryImpl implements UserHomeRepository {
       final response = await remoteDataSource.getSavedArticles(page: page, limit: limit);
       return Success(response);
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch saved articles'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -57,7 +57,7 @@ class UserHomeRepositoryImpl implements UserHomeRepository {
       final isSaved = await remoteDataSource.toggleSaveArticle(id);
       return Success(isSaved);
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to toggle save article'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 }

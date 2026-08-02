@@ -10,12 +10,18 @@ class AppPasswordField extends StatefulWidget {
   final TextEditingController? controller;
   final FormFieldValidator<String>? validator;
   final String? hint;
+  final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onFieldSubmitted;
 
   const AppPasswordField({
     super.key,
     this.controller,
     this.validator,
     this.hint,
+    this.focusNode,
+    this.textInputAction,
+    this.onFieldSubmitted,
   });
 
   @override
@@ -25,12 +31,13 @@ class AppPasswordField extends StatefulWidget {
 class _AppPasswordFieldState extends State<AppPasswordField> {
   bool _obscureText = true;
   bool _hasText = false;
-  final FocusNode _focusNode = FocusNode();
+  late final FocusNode _focusNode;
   late TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
+    _focusNode = widget.focusNode ?? FocusNode();
     _controller = widget.controller ?? TextEditingController();
     _hasText = _controller.text.isNotEmpty;
     _controller.addListener(_onTextChanged);
@@ -51,7 +58,9 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
     _controller.removeListener(_onTextChanged);
     if (widget.controller == null) {
       _controller.dispose();
@@ -75,6 +84,8 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
       keyboardType: TextInputType.visiblePassword,
       obscureText: _obscureText,
       validator: widget.validator,
+      textInputAction: widget.textInputAction,
+      onFieldSubmitted: widget.onFieldSubmitted,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       textAlign: TextAlign.start,
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),

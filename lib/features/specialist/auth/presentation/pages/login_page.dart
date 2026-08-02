@@ -13,9 +13,12 @@ import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_c
 import 'package:fitness_day/features/specialist/auth/presentation/manager/auth_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
+import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
+import 'package:fitness_day/core/utils/validators.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -68,7 +71,26 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 60.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: IconButton(
+                        onPressed: () => context.go(SharedRoutes.roleSelection),
+                        padding: EdgeInsets.zero,
+                        constraints: BoxConstraints(
+                          minHeight: 48.h,
+                          minWidth: 48.w,
+                        ),
+                        icon: Icon(
+                          Icons.chevron_left,
+                          color: AppColors.textPrimary,
+                          size: 32.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
                   // App Logo from SVG
                   AppImage(SvgIcons.logo, height: 120.h),
                   SizedBox(height: 40.h),
@@ -93,12 +115,7 @@ class _LoginPageState extends State<LoginPage> {
                   // Password Field
                   AppPasswordField(
                     controller: _passwordController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'login.password_error'.tr();
-                      }
-                      return null;
-                    },
+                    validator: AppValidators.loginPassword,
                   ),
                   SizedBox(height: 48.h),
                   // Login Button
@@ -108,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                         showAppSnackBar(context, text: 'login.success_login'.tr(), isSuccess: true);
                         context.go(SpecialistAppRoutes.home);
                       } else if (state is AuthFailure) {
-                        showAppSnackBar(context, text: state.message, isError: true);
+                        showAppError(context, state.error, message: state.message);
                       }
                     },
                     builder: (context, state) {

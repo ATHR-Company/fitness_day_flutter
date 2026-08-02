@@ -22,6 +22,7 @@ import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_st
 import 'package:fitness_day/features/user/auth/data/models/user_verify_otp_models.dart';
 
 import '../manager/user_setup_cubit.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String phoneNumber;
@@ -221,7 +222,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           _currentResetToken = state.response.resetToken;
           showAppSnackBar(context, text: state.response.message, isSuccess: true);
         } else if (state is UserAuthFailure) {
-          showAppSnackBar(context, text: state.message, isError: true);
+          showAppError(context, state.error, message: state.message);
         }
       },
       builder: (context, state) {
@@ -312,21 +313,27 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                   text: 'login.send'.tr(),
                                   onPressed: _onVerifyPressed,
                                 ),
-                                if (widget.isForgotPassword) ...[
-                                  SizedBox(height: 24.h),
-                                  TextButton(
-                                    onPressed: () {
+                                SizedBox(height: 24.h),
+                                TextButton(
+                                  onPressed: () {
+                                    if (widget.isForgotPassword) {
                                       context.read<UserAuthCubit>().resendForgotPasswordOtp(_currentResetToken);
-                                    },
-                                    child: Text(
-                                      LocaleKeys.login_resend_code.tr(),
-                                      style: TextStyleManager.style14Bold.copyWith(
-                                        color: AppColors.primary,
-                                        decoration: TextDecoration.underline,
-                                      ),
+                                    } else {
+                                      showAppSnackBar(
+                                        context,
+                                        text: 'Resending OTP is only supported for password reset flows.',
+                                        isError: true,
+                                      );
+                                    }
+                                  },
+                                  child: Text(
+                                    LocaleKeys.login_resend_code.tr(),
+                                    style: TextStyleManager.style14Bold.copyWith(
+                                      color: AppColors.primary,
+                                      decoration: TextDecoration.underline,
                                     ),
                                   ),
-                                ],
+                                ),
                               ],
                             ),
                           ),

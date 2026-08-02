@@ -27,6 +27,7 @@ import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/widgets/confirm_dialog.dart';
 import 'package:fitness_day/fitness_day.dart';
 import '../../../user_home/presentation/widgets/user_app_drawer.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -54,7 +55,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         getIt<SocketService>().disconnect();
         await getIt<SecureCache>().deleteToken();
         await getIt<SecureCache>().deleteRefreshToken();
-        await getIt<AppCache>().clear();
+        await getIt<AppCache>().clearSession();
         RoleNotifier.instance.setRole(AppRole.none);
         if (context.mounted) {
           context.go(SharedRoutes.roleSelection);
@@ -73,7 +74,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         listenWhen: (previous, current) => current is UserProfileUpdateFailure,
         listener: (context, state) {
           if (state is UserProfileUpdateFailure) {
-            showAppSnackBar(context, text: state.message, isError: true);
+            showAppError(context, state.error, message: state.message);
           }
         },
         child: Builder(

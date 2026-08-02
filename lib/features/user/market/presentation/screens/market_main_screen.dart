@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
-import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:fitness_day/features/user/market/domain/entities/plans_data.dart';
@@ -29,6 +28,7 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/user_ap
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class MarketMainScreen extends StatefulWidget {
   const MarketMainScreen({super.key});
@@ -153,8 +153,10 @@ class _ProductsTab extends StatelessWidget {
         }
 
         if (state is MarketHomeFailure) {
-          return Center(
-            child: Text(state.message, style: TextStyleManager.style14Medium),
+          return AppErrorView(
+            error: state.error,
+            message: state.message,
+            onRetry: () => context.read<MarketHomeCubit>().loadStoreHome(),
           );
         }
 
@@ -317,8 +319,10 @@ class _PackagesTab extends StatelessWidget {
           );
         }
         if (state is PlansFailure) {
-          return Center(
-            child: Text(state.message, style: TextStyleManager.style14Medium),
+          return AppErrorView(
+            error: state.error,
+            message: state.message,
+            onRetry: () => context.read<PlansCubit>().load(),
           );
         }
         if (state is! PlansSuccess) return const SizedBox.shrink();

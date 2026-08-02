@@ -12,6 +12,7 @@ import '../../domain/entities/order_data.dart';
 import '../../domain/entities/payment_data.dart';
 import '../../domain/usecases/get_payment_status_usecase.dart';
 import '../../domain/usecases/initiate_payment_usecase.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 part 'payment_state.dart';
 
@@ -71,7 +72,7 @@ class PaymentCubit extends Cubit<PaymentState> {
         await _appCache.savePendingPaymentOrderId(orderIdentity);
         emit(PaymentWebviewReady(data));
       case FailureResult(:final failure):
-        emit(PaymentError(failure.message));
+        emit(PaymentError(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -209,7 +210,7 @@ class PaymentCubit extends Cubit<PaymentState> {
           // deadline. Anything else (404 = initiate never ran, and other
           // rejections) is terminal.
           if (failure is! NetworkFailure) {
-            emit(PaymentError(failure.message));
+            emit(PaymentError(failure.message, error: AppError.from(failure)));
             return;
           }
           debugPrint('[PaymentCubit] status poll failed, retrying: '

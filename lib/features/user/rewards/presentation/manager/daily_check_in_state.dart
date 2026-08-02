@@ -58,5 +58,9 @@ class DailyCheckInLoaded extends DailyCheckInState {
 class DailyCheckInFailure extends DailyCheckInState {
   final String message;
 
-  const DailyCheckInFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const DailyCheckInFailure(this.message, {this.error});
 }

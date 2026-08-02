@@ -10,7 +10,7 @@ class LoginUseCase {
   Future<Either<String, AuthEntity>> call(
     String phone,
     String password, {
-    required String fcmToken,
+    String? fcmToken,
     required String deviceType,
   }) async {
     return await repository.login(

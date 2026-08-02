@@ -1,4 +1,5 @@
 import 'package:fitness_day/features/specialist/clients/data/models/client_progress_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class ClientProgressState {
   const ClientProgressState();
@@ -22,5 +23,9 @@ class ClientProgressSuccess extends ClientProgressState {
 class ClientProgressFailure extends ClientProgressState {
   final String message;
 
-  const ClientProgressFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const ClientProgressFailure(this.message, {this.error});
 }

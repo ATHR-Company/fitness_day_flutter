@@ -41,6 +41,39 @@ class AppPhoneField extends StatefulWidget {
   State<AppPhoneField> createState() => _AppPhoneFieldState();
 }
 
+/// Refuses a zero in the first position, silently.
+///
+/// The country code already carries the international prefix, so the national
+/// trunk `0` — the one people habitually type in `0106301245` — has no place in
+/// the field. Rejecting the keystroke is friendlier than accepting it and then
+/// explaining the error: nothing appears, and the next digit lands correctly.
+///
+/// Only the *leading* zero is blocked; zeros anywhere else are ordinary digits.
+class _NoLeadingZeroFormatter extends TextInputFormatter {
+  const _NoLeadingZeroFormatter();
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (!newValue.text.startsWith('0')) return newValue;
+
+    final String trimmed = newValue.text.replaceFirst(RegExp(r'^0+'), '');
+    final int removed = newValue.text.length - trimmed.length;
+    // Pull the caret back by however many characters vanished, so it does not
+    // sit past the end of the shortened text.
+    final int offset = (newValue.selection.baseOffset - removed).clamp(
+      0,
+      trimmed.length,
+    );
+    return TextEditingValue(
+      text: trimmed,
+      selection: TextSelection.collapsed(offset: offset),
+    );
+  }
+}
+
 class _AppPhoneFieldState extends State<AppPhoneField> {
   final GlobalKey<FormFieldState<String>> _fieldKey =
       GlobalKey<FormFieldState<String>>();
@@ -60,12 +93,28 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
   String _countryName(Map<String, String> country) =>
       _isAr ? country['ar']! : country['en']!;
 
-  /// Strips a leading zero from [local] and combines with the country code.
-  /// e.g. code='+20', local='0106301245' → '+20106301245'
+  /// Combines the local digits with the country code.
+  ///
+  /// Leading zeros are stripped defensively: [_NoLeadingZeroFormatter] keeps
+  /// them out of the field, but a number prefilled from the API or the cache
+  /// never went through it.
   String _buildFullNumber(String local) {
-    final stripped = local.startsWith('0') ? local.substring(1) : local;
+    final stripped = _stripLeadingZeros(local);
     return '${_selectedCountry['code']}$stripped';
   }
+
+  /// The `0` in `0106301245` is Egypt's national trunk prefix, not part of the
+  /// number — E.164 (`+20106301245`) never carries it. Same for every other
+  /// country in the list, so this is not an Egypt-only rule.
+  static String _stripLeadingZeros(String local) {
+    int i = 0;
+    while (i < local.length && local[i] == '0') {
+      i++;
+    }
+    return local.substring(i);
+  }
+
+  int get _requiredDigits => int.parse(_selectedCountry['digits']!);
 
   void _syncToParent(String localValue) {
     final full = _buildFullNumber(localValue);
@@ -95,12 +144,13 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
       // if matched a non-default country (i.e., norm starts with its code)
       if (norm.startsWith(match['code']!)) {
         _selectedCountry = match;
-        _localController.text = norm.substring(match['code']!.length);
+        _localController.text =
+            _stripLeadingZeros(norm.substring(match['code']!.length));
       } else {
         // fallback: show as-is (without leading +)
-        _localController.text = initial.startsWith('+')
-            ? initial.substring(1)
-            : initial;
+        _localController.text = _stripLeadingZeros(
+          initial.startsWith('+') ? initial.substring(1) : initial,
+        );
       }
     }
   }
@@ -199,34 +249,20 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
                             setState(() {
                               _selectedCountry = country;
 
-                              // Truncate existing text if it exceeds the new country's digit limit
+                              // Truncate what the new country cannot hold. No
+                              // leading zero to preserve any more — the field
+                              // never contains one.
                               final newDigits = int.parse(country['digits']!);
-                              final currentText = _localController.text;
-                              final hasZero = currentText.startsWith('0');
-                              var stripped = hasZero
-                                  ? currentText.substring(1)
-                                  : currentText;
-
-                              if (stripped.length > newDigits) {
-                                stripped = stripped.substring(0, newDigits);
-                                _localController.text = hasZero
-                                    ? '0$stripped'
-                                    : stripped;
-                              }
+                              final current =
+                                  _stripLeadingZeros(_localController.text);
+                              _localController.text = current.length > newDigits
+                                  ? current.substring(0, newDigits)
+                                  : current;
                             });
                             // Re-sync parent controller with new country code
                             _syncToParent(_localController.text);
                             Navigator.pop(context);
-                            // Re-validate both the specific field and the parent Form.
-                            Future.delayed(
-                              const Duration(milliseconds: 50),
-                              () {
-                                if (mounted) {
-                                  _fieldKey.currentState?.validate();
-                                  Form.maybeOf(context)?.validate();
-                                }
-                              },
-                            );
+                            _revalidateAfterCountryChange();
                           },
                           leading: Text(
                             country['flag']!,
@@ -258,6 +294,34 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
     );
   }
 
+  /// Refreshes this field — and only this field — after the country changed.
+  ///
+  /// Two things used to go wrong here. It called `Form.maybeOf(context)
+  /// ?.validate()`, which validates *every* field in the form: picking a
+  /// country lit up errors under the password, the email and anything else the
+  /// user had not filled in yet. And it validated this field even when it was
+  /// empty, so changing the country on an untouched form produced "the number
+  /// must be N digits" about a number nobody had typed.
+  ///
+  /// Now: nothing is touched but this field, and only when the user has
+  /// actually entered something. An empty field is reset instead, which clears
+  /// any error left over from the previous country.
+  void _revalidateAfterCountryChange() {
+    // After the frame, so the sheet has closed and the field's own state has
+    // caught up with the new controller text.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_localController.text.isEmpty) {
+        _fieldKey.currentState?.reset();
+        // reset() clears the text too, so put it back — it was already empty,
+        // but this also restores the parent's copy of the number.
+        _syncToParent('');
+        return;
+      }
+      _fieldKey.currentState?.validate();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // ─── بدون Directionality شاملة — بس العنوان والـ hint بيتأثروا باللغة ───
@@ -282,11 +346,10 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
               widget.autovalidateMode ?? AutovalidateMode.onUserInteraction,
           validator: (_) {
             final local = _localController.text;
-            final requiredDigits = int.parse(_selectedCountry['digits']!);
-            final stripped = local.startsWith('0') ? local.substring(1) : local;
-            if (stripped.length < requiredDigits) {
+            final stripped = _stripLeadingZeros(local);
+            if (stripped.length < _requiredDigits) {
               return 'login.phone_local_digits_min'.tr(
-                args: [requiredDigits.toString()],
+                args: [_requiredDigits.toString()],
               );
             }
             if (widget.validator != null) {
@@ -304,9 +367,12 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
           style: TextStyleManager.heading3,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(
-              int.parse(_selectedCountry['digits']!),
-            ),
+            const _NoLeadingZeroFormatter(),
+            // Counts real digits only. While a leading zero was allowed this
+            // limit was spending one of its slots on it, so an Egyptian number
+            // typed as `0106301245` was capped at ten characters — nine of them
+            // actual digits — and the field could never be made valid.
+            LengthLimitingTextInputFormatter(_requiredDigits),
           ],
           decoration: InputDecoration(
             // الـ hint اتجاهه حسب اللغة فقط
@@ -326,12 +392,19 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      _selectedCountry['flag']!,
-                      style: TextStyle(fontSize: 24.sp),
+                    SizedBox(
+                      width: 24.w,
+                      height: 24.h,
+                      child: Center(
+                        child: Text(
+                          _selectedCountry['flag']!,
+                          // Match the visual size of the password lock SVG
+                          style: TextStyle(fontSize: 18.sp),
+                        ),
+                      ),
                     ),
                     SizedBox(width: 12.w),
-                    // The grey vertical divider
+                    // The grey vertical divider — same height as password field
                     Container(
                       width: 1.w,
                       height: 24.h,
@@ -341,6 +414,7 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
                 ),
               ),
             ),
+            prefixIconConstraints: BoxConstraints(minWidth: 48.w, minHeight: 24.h),
             // Underline borders like in the Figma design
             border: const UnderlineInputBorder(
               borderSide: BorderSide(color: AppColors.divider, width: 1.0),

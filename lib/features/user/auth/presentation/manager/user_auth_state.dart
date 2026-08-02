@@ -2,6 +2,7 @@ import 'package:fitness_day/features/user/auth/data/models/user_signup_models.da
 import 'package:fitness_day/features/user/auth/data/models/user_verify_otp_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_login_models.dart';
 import 'package:fitness_day/features/user/auth/data/models/forgot_password_models.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class UserAuthState {
   const UserAuthState();
@@ -52,5 +53,9 @@ class ForgotPasswordResendOtpSuccess extends UserAuthState {
 
 class UserAuthFailure extends UserAuthState {
   final String message;
-  const UserAuthFailure(this.message);
+
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+  const UserAuthFailure(this.message, {this.error});
 }

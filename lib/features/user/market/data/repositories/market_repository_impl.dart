@@ -1,4 +1,3 @@
-import 'package:fitness_day/core/errors/failures.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import '../../domain/entities/cart_data.dart';
 import '../../domain/entities/favorites_page_data.dart';
@@ -8,6 +7,7 @@ import '../../domain/entities/store_home_data.dart';
 import '../../domain/entities/plans_data.dart';
 import '../../domain/repositories/market_repository.dart';
 import '../datasources/market_remote_datasource.dart';
+import 'package:fitness_day/core/errors/error_handler.dart';
 
 class MarketRepositoryImpl implements MarketRepository {
   final MarketRemoteDataSource remoteDataSource;
@@ -20,7 +20,7 @@ class MarketRepositoryImpl implements MarketRepository {
       final model = await remoteDataSource.getStoreHome();
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch store home data'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -38,7 +38,7 @@ class MarketRepositoryImpl implements MarketRepository {
       );
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch products'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -48,7 +48,7 @@ class MarketRepositoryImpl implements MarketRepository {
       final model = await remoteDataSource.getProductById(id);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch product details'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -58,7 +58,7 @@ class MarketRepositoryImpl implements MarketRepository {
       final model = await remoteDataSource.getPlans(page: page, limit: limit);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch plans'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -68,7 +68,7 @@ class MarketRepositoryImpl implements MarketRepository {
       final model = await remoteDataSource.getPlanById(id);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch plan details'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -84,7 +84,7 @@ class MarketRepositoryImpl implements MarketRepository {
       );
       return Success(isFavorite);
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to toggle favourite'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -97,7 +97,7 @@ class MarketRepositoryImpl implements MarketRepository {
       final model = await remoteDataSource.getFavorites(page: page, limit: limit);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to load favourites'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 }

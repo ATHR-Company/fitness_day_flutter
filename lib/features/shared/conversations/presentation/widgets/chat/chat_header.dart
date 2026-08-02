@@ -42,11 +42,14 @@ class ChatHeader extends StatelessWidget {
               final ChatLoaded? loaded = state is ChatLoaded ? state : null;
               final other = loaded?.otherParty;
 
+              // Falls back to a neutral label, never to a made-up name: the
+              // gap here is "the conversation hasn't loaded yet", and showing
+              // a placeholder person reads as the real correspondent.
               final String name = (title?.isNotEmpty ?? false)
                   ? title!
                   : ((other?.name.isNotEmpty ?? false)
                       ? other!.name
-                      : 'conversations.dummy_name'.tr());
+                      : 'conversations.title'.tr());
               final String? avatar = (avatarUrl?.isNotEmpty ?? false)
                   ? avatarUrl
                   : other?.avatar;

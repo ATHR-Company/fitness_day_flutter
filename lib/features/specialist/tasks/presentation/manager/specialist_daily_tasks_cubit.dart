@@ -3,6 +3,7 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/specialist/tasks/data/models/specialist_daily_task_model.dart';
 import 'package:fitness_day/features/specialist/tasks/domain/usecases/get_specialist_daily_tasks_usecase.dart';
 import 'specialist_daily_tasks_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class SpecialistDailyTasksCubit extends Cubit<SpecialistDailyTasksState> {
   final GetSpecialistDailyTasksUseCase _getSpecialistDailyTasksUseCase;
@@ -35,7 +36,7 @@ class SpecialistDailyTasksCubit extends Cubit<SpecialistDailyTasksState> {
           hasReachedMax: _hasReachedMax,
         ));
       case FailureResult(:final failure):
-        emit(SpecialistDailyTasksFailure(failure.message));
+        emit(SpecialistDailyTasksFailure(failure.message, error: AppError.from(failure)));
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:fitness_day/features/shared/conversations/data/models/user_conversation_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class ConversationsState extends Equatable {
   const ConversationsState();
@@ -72,8 +73,12 @@ class ConversationsLoaded extends ConversationsState {
 class ConversationsError extends ConversationsState {
   final String message;
 
-  const ConversationsError(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const ConversationsError(this.message, {this.error});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, error];
 }

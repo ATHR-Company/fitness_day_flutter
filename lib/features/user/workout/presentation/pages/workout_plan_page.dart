@@ -16,6 +16,7 @@ import 'package:fitness_day/features/user/workout/presentation/manager/workout_p
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_state.dart';
 import 'package:fitness_day/features/user/workout/data/models/workout_plan_model.dart';
 import 'package:fitness_day/core/widgets/exercise_details_dialog.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class WorkoutPlanPage extends StatefulWidget {
   const WorkoutPlanPage({super.key});
@@ -126,17 +127,12 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
                         } else if (state is WorkoutPlanFailure) {
                           return _buildLayoutWithTabBar(
                             context,
-                            child: Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(24.r),
-                                child: Text(
-                                  state.message,
-                                  style: TextStyleManager.style14Medium.copyWith(
-                                    color: AppColors.red,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
+                            child: AppErrorView(
+                              error: state.error,
+                              message: state.message,
+                              onRetry: () => context
+                                  .read<WorkoutPlanCubit>()
+                                  .getWorkoutPlan(_selectedDayIndex + 1),
                             ),
                           );
                         }

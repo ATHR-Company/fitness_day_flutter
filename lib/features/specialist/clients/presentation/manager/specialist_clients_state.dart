@@ -1,4 +1,5 @@
 import 'package:fitness_day/features/specialist/clients/data/models/specialist_client_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class SpecialistClientsState {
   const SpecialistClientsState();
@@ -21,5 +22,9 @@ class SpecialistClientsSuccess extends SpecialistClientsState {
 class SpecialistClientsFailure extends SpecialistClientsState {
   final String message;
 
-  const SpecialistClientsFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const SpecialistClientsFailure(this.message, {this.error});
 }

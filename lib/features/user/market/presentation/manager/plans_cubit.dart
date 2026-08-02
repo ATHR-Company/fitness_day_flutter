@@ -2,6 +2,7 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/user/market/domain/entities/plans_data.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_plans_usecase.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class PlansState {
   const PlansState();
@@ -24,7 +25,11 @@ class PlansSuccess extends PlansState {
 class PlansFailure extends PlansState {
   final String message;
 
-  const PlansFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const PlansFailure(this.message, {this.error});
 }
 
 class PlansCubit extends Cubit<PlansState> {
@@ -38,7 +43,7 @@ class PlansCubit extends Cubit<PlansState> {
     if (result is Success<PlansData>) {
       emit(PlansSuccess(result.data));
     } else if (result is FailureResult<PlansData>) {
-      emit(PlansFailure(result.failure.message));
+      emit(PlansFailure(result.failure.message, error: AppError.from(result.failure)));
     }
   }
 }

@@ -220,6 +220,7 @@ import 'package:fitness_day/features/user/user_home/presentation/manager/user_ho
 import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/articles_list_cubit.dart';
 import 'package:fitness_day/core/services/health_service.dart';
+import 'package:fitness_day/core/services/app_event_bus.dart';
 import 'package:fitness_day/core/services/socket_service.dart';
 
 // Chat (shared/conversations)
@@ -634,6 +635,11 @@ Future<void> init() async {
       getRedemptionsUseCase: getIt<GetRedemptionsUseCase>(),
     ),
   );
+
+  // Carries a task's server-confirmed progress from the detail screen that
+  // changed it to the home / today-tasks cards showing it. Singleton: publisher
+  // and listeners never meet, they only share this instance.
+  getIt.registerLazySingleton<AppEventBus>(() => AppEventBus());
 
   // Health & Activity tracking
   getIt.registerLazySingleton<FitnessHealthService>(

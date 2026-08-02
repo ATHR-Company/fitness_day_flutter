@@ -17,6 +17,7 @@ import 'package:fitness_day/features/user/market/presentation/widgets/order_card
 import 'package:fitness_day/features/user/market/presentation/widgets/order_details_dialog.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/payment_pending_dialog.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -115,8 +116,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
         );
         _paymentCubit.reset();
 
-      case PaymentError(:final message):
-        showAppSnackBar(context, text: message, isError: true);
+      case PaymentError(:final message, :final error):
+        // Blocking on purpose: the user just tried to pay for an order.
+        showAppError(context, error,
+            message: message, display: ErrorDisplay.dialog);
         _paymentCubit.reset();
 
       case PaymentInitial():

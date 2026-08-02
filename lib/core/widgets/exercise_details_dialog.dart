@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_details_cubit.dart';
 import 'package:fitness_day/features/user/workout/data/models/workout_details_model.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class ExerciseDetailsDialog extends StatefulWidget {
   final String? workoutItemId;
@@ -83,12 +84,12 @@ class _ExerciseDetailsDialogState extends State<ExerciseDetailsDialog>
                       )
                     : state is WorkoutDetailsFailure
                         ? SizedBox(
-                            height: 200,
-                            child: Center(
-                              child: Text(
-                                state.message,
-                                style: TextStyleManager.style14Medium.copyWith(color: AppColors.red),
-                              ),
+                            // Fixed height so the shared view sits inside the
+                            // dialog frame instead of trying to fill the screen.
+                            height: 260,
+                            child: AppErrorView(
+                              error: state.error,
+                              message: state.message,
                             ),
                           )
                         : state is WorkoutDetailsSuccess

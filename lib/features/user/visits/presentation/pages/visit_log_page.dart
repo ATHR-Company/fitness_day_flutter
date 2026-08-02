@@ -18,6 +18,7 @@ import 'package:fitness_day/features/user/visits/presentation/widgets/visit_log/
 import 'package:fitness_day/features/user/visits/presentation/widgets/visit_log/week_calendar_strip.dart';
 import 'package:fitness_day/features/user/visits/presentation/widgets/visit_log/visit_log_card.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class VisitLogPage extends StatefulWidget {
   const VisitLogPage({super.key});
@@ -54,7 +55,12 @@ class _VisitLogPageState extends State<VisitLogPage> {
                       );
                     }
                     if (state is AssessmentsError) {
-                      return Center(child: Text(state.message));
+                      return AppErrorView(
+                        error: state.error,
+                        message: state.message,
+                        onRetry: () =>
+                            context.read<AssessmentsCubit>().fetchAssessmentsForCurrentWeek(),
+                      );
                     }
                     if (state is AssessmentsLoaded) {
                       return _buildLoaded(context, state);

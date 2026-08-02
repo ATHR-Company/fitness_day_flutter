@@ -3,6 +3,7 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/user/rewards/data/models/daily_check_in_models.dart';
 import 'package:fitness_day/features/user/rewards/domain/usecases/claim_daily_check_in_usecase.dart';
 import 'package:fitness_day/features/user/rewards/domain/usecases/get_daily_check_in_status_usecase.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 part 'daily_check_in_state.dart';
 
@@ -36,7 +37,7 @@ class DailyCheckInCubit extends Cubit<DailyCheckInState> {
       case Success(:final data):
         emit(DailyCheckInLoaded(status: data));
       case FailureResult(:final failure):
-        emit(DailyCheckInFailure(failure.message));
+        emit(DailyCheckInFailure(failure.message, error: AppError.from(failure)));
     }
   }
 

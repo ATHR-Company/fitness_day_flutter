@@ -11,7 +11,7 @@ import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/open_client_chat.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
-import 'package:fitness_day/core/widgets/network_error_view.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visits_cubit.dart';
@@ -148,8 +148,9 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
                             if (state is VisitsLoading) {
                               return const Center(child: CircularProgressIndicator());
                             } else if (state is VisitsFailure) {
-                              return NetworkErrorView(
-                                subtitle: state.message,
+                              return AppErrorView(
+                                error: state.error,
+                                message: state.message,
                                 onRetry: () => context.read<VisitsCubit>().getVisits(
                                       type: _getTypeString(_selectedTabIndex),
                                       search: _searchController.text,

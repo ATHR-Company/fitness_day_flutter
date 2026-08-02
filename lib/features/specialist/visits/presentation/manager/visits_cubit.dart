@@ -3,6 +3,7 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_history_model.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_assessment_history_usecase.dart';
 import 'visits_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class VisitsCubit extends Cubit<VisitsState> {
   final GetAssessmentHistoryUseCase _getAssessmentHistoryUseCase;
@@ -48,7 +49,7 @@ class VisitsCubit extends Cubit<VisitsState> {
           hasReachedMax: _hasReachedMax,
         ));
       case FailureResult(:final failure):
-        emit(VisitsFailure(failure.message));
+        emit(VisitsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 

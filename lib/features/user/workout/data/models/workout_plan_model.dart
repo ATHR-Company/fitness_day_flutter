@@ -32,6 +32,23 @@ class WorkoutItemModel {
     );
   }
 
+  WorkoutItemModel copyWith({
+    int? totalSets,
+    int? completedSets,
+    bool? isCompleted,
+  }) {
+    return WorkoutItemModel(
+      id: id,
+      name: name,
+      description: description,
+      photo: photo,
+      time: time,
+      totalSets: totalSets ?? this.totalSets,
+      completedSets: completedSets ?? this.completedSets,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -65,6 +82,14 @@ class WorkoutPlanData {
               ?.map((e) => WorkoutItemModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+    );
+  }
+
+  WorkoutPlanData copyWith({List<WorkoutItemModel>? workouts}) {
+    return WorkoutPlanData(
+      assessmentId: assessmentId,
+      dayNumber: dayNumber,
+      workouts: workouts ?? this.workouts,
     );
   }
 

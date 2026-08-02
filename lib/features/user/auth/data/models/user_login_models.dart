@@ -1,13 +1,14 @@
 class UserSigninRequest {
   final String phone;
   final String password;
-  final String fcmToken;
+  /// Null when the device cannot register for push — see [FcmHelper.getToken].
+  final String? fcmToken;
   final String deviceType;
 
   const UserSigninRequest({
     required this.phone,
     required this.password,
-    required this.fcmToken,
+    this.fcmToken,
     required this.deviceType,
   });
 
@@ -15,8 +16,8 @@ class UserSigninRequest {
     return {
       'phone': phone,
       'password': password,
-      'fcmToken': fcmToken,
       'deviceType': deviceType,
+      if (fcmToken != null) 'fcmToken': fcmToken,
     };
   }
 }

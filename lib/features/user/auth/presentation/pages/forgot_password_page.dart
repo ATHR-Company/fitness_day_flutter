@@ -13,7 +13,7 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_state.dart';
-import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -55,7 +55,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               },
             );
           } else if (state is UserAuthFailure) {
-            showAppSnackBar(context, text: state.message, isError: true);
+            showAppError(context, state.error, message: state.message);
           }
         },
         builder: (context, state) {

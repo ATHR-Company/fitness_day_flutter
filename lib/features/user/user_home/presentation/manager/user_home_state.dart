@@ -5,6 +5,7 @@ import 'package:fitness_day/features/user/user_home/domain/entities/article_data
 import 'package:fitness_day/features/user/user_home/domain/entities/subscription_package_data.dart';
 
 import 'package:fitness_day/features/user/user_home/data/models/user_home_response_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 abstract class UserHomeState extends Equatable {
   const UserHomeState();
@@ -44,8 +45,12 @@ class UserHomeLoaded extends UserHomeState {
 class UserHomeError extends UserHomeState {
   final String message;
 
-  const UserHomeError(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const UserHomeError(this.message, {this.error});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, error];
 }

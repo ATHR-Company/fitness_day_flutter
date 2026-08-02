@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 
 class TaskData {
+  /// Server id of the item this card stands for — `mealId`, `workoutItemId` or
+  /// `activityId` depending on the kind of task.
+  ///
+  /// Only used to route a [TaskProgressEvent] to the one card it belongs to.
+  /// The ids were already present, but buried inside [routeExtra] under three
+  /// different keys, which made matching a card impossible without knowing its
+  /// type first.
+  final String? taskId;
+
   final String imagePath;
   final String title;
   final String description;
@@ -19,6 +28,7 @@ class TaskData {
   final VoidCallback? onDetailsPressed;
 
   const TaskData({
+    this.taskId,
     required this.imagePath,
     required this.title,
     required this.description,
@@ -38,6 +48,7 @@ class TaskData {
   });
 
   TaskData copyWith({
+    String? taskId,
     String? imagePath,
     String? title,
     String? description,
@@ -56,6 +67,7 @@ class TaskData {
     VoidCallback? onDetailsPressed,
   }) {
     return TaskData(
+      taskId: taskId ?? this.taskId,
       imagePath: imagePath ?? this.imagePath,
       title: title ?? this.title,
       description: description ?? this.description,

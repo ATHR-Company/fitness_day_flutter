@@ -45,12 +45,18 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     _player.onPositionChanged.listen((p) {
       if (mounted) setState(() => _position = p);
     });
-    _player.onPlayerComplete.listen((_) {
+    _player.onPlayerComplete.listen((_) async {
       if (!mounted) return;
-      setState(() {
-        _isPlaying = false;
-        _position = Duration.zero;
-      });
+      // Seek back to the start so the next tap on "play" calls resume() from
+      // position 0 instead of trying to resume a completed stream (which would
+      // silently no-op on most platform implementations).
+      await _player.seek(Duration.zero);
+      if (mounted) {
+        setState(() {
+          _isPlaying = false;
+          _position = Duration.zero;
+        });
+      }
     });
   }
 
@@ -84,7 +90,15 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     await _ensureSource();
     if (!mounted) return;
     try {
-      await _player.resume();
+      // After onPlayerComplete, the player is in the "completed" state at
+      // position 0.  Calling resume() on some platform implementations
+      // silently no-ops in that state.  We always call play() instead, which
+      // works whether the player is stopped, paused, or completed.
+      await _player.play(
+        widget.isNetwork
+            ? UrlSource(widget.source)
+            : DeviceFileSource(widget.source),
+      );
       if (mounted) setState(() => _isPlaying = true);
     } catch (e) {
       debugPrint('[ChatAudioBubble] ⚠️ playback failed: $e');

@@ -67,9 +67,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
   }
 
-  void _finishOnboarding() {
-    di.getIt<AppCache>().saveHasSeenOnboarding(true);
-    context.go(SharedRoutes.roleSelection);
+  Future<void> _finishOnboarding() async {
+    await di.getIt<AppCache>().saveHasSeenOnboarding(true);
+    if (mounted) context.go(SharedRoutes.roleSelection);
   }
 
   @override

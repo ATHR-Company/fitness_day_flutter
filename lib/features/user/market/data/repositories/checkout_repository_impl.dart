@@ -1,10 +1,9 @@
-import 'package:dio/dio.dart';
-import 'package:fitness_day/core/errors/failures.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import '../../domain/entities/order_counters_data.dart';
 import '../../domain/entities/order_data.dart';
 import '../../domain/repositories/checkout_repository.dart';
 import '../datasources/checkout_remote_datasource.dart';
+import 'package:fitness_day/core/errors/error_handler.dart';
 
 class CheckoutRepositoryImpl implements CheckoutRepository {
   final CheckoutRemoteDataSource remoteDataSource;
@@ -17,8 +16,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       final models = await remoteDataSource.getBranches();
       return Success(models.map((m) => m.toEntity()).toList());
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to load branches')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -28,8 +26,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       final model = await remoteDataSource.checkout(input);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to place order')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -45,8 +42,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       );
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to apply coupon')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -62,8 +58,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       );
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to update delivery')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -84,8 +79,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
         total: page0.total,
       ));
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to load orders')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -95,8 +89,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       final model = await remoteDataSource.getOrderById(orderIdentity);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to load order')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -106,19 +99,8 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
       final model = await remoteDataSource.getCounters();
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(
-          ServerFailure(_messageOf(e, 'Failed to load counters')));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
-  /// Surface the backend's localized message when present.
-  String _messageOf(Object error, String fallback) {
-    if (error is DioException) {
-      final data = error.response?.data;
-      if (data is Map && data['message'] is String) {
-        return data['message'] as String;
-      }
-    }
-    return fallback;
-  }
 }

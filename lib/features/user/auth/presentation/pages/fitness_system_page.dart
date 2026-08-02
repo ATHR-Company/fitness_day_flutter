@@ -16,6 +16,7 @@ import 'package:fitness_day/features/user/auth/domain/entities/profile_validatio
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
 import 'package:fitness_day/features/user/auth/presentation/widgets/profile_validation_errors.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class FitnessSystemPage extends StatefulWidget {
   const FitnessSystemPage({super.key});
@@ -111,7 +112,7 @@ class _FitnessSystemPageState extends State<FitnessSystemPage>
           }
 
           // Anything else (network, server, unknown key) stays a snack bar.
-          showAppSnackBar(context, text: state.message, isError: true);
+          showAppError(context, state.error, message: state.message);
         }
       },
       builder: (context, state) {

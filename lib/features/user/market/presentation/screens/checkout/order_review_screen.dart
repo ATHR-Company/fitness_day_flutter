@@ -15,6 +15,7 @@ import 'package:fitness_day/features/user/market/presentation/widgets/order_succ
 import 'package:fitness_day/features/user/market/presentation/widgets/payment_pending_dialog.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 /// Final review of the created order. The order already exists here, so the
 /// coupon (and delivery change) are applied live against it and the summary
@@ -146,8 +147,11 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
           },
         );
 
-      case PaymentError(:final message):
-        showAppSnackBar(context, text: message, isError: true);
+      case PaymentError(:final message, :final error):
+        // A payment that did not go through is not something to let scroll
+        // past — the user has to register it before doing anything else.
+        showAppError(context, error,
+            message: message, display: ErrorDisplay.dialog);
         context.read<PaymentCubit>().reset();
 
       case PaymentInitial():

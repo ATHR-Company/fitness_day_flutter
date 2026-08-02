@@ -13,7 +13,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<String, AuthEntity>> login(
     String phone,
     String password, {
-    required String fcmToken,
+    String? fcmToken,
     required String deviceType,
   }) async {
     try {

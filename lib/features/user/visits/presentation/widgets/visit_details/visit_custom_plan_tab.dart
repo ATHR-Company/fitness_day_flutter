@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 /// Second tab of the visit details page: the day's custom plan
 /// (nutrition / exercises / activity) plus the vertical day selector.
@@ -56,7 +57,13 @@ class VisitCustomPlanTab extends StatelessWidget {
                 );
               }
               if (state is AssessmentDetailsError) {
-                return Center(child: Text(state.message));
+                return AppErrorView(
+                  error: state.error,
+                  message: state.message,
+                  onRetry: () => context
+                      .read<AssessmentDetailsCubit>()
+                      .getDayDetails(assessmentId, selectedDayIndex + 1),
+                );
               }
               if (state is AssessmentDetailsLoaded) {
                 if (state.dayData == null) return const SizedBox.shrink();
@@ -188,8 +195,8 @@ class _TasksFromData extends StatelessWidget {
           extraUnit: '/ $goal $unit',
           extraIcon: icon,
           done: task['isCompleted'] ?? false,
-          onDetailsPressed: () async {
-            await Navigator.push(
+          onDetailsPressed: () {
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => activityType == 'hydration'
@@ -208,12 +215,11 @@ class _TasksFromData extends StatelessWidget {
                       ),
               ),
             );
-            // Those screens sync progress while open, so this day's figures are
-            // stale by the time the user comes back.
-            if (!context.mounted) return;
-            context
-                .read<AssessmentDetailsCubit>()
-                .getDayDetails(resolvedAssessmentId, dayNum);
+            // No refetch on the way back: those screens publish each
+            // server-confirmed reading to AppEventBus, and
+            // AssessmentDetailsCubit patches this day's payload from it — with
+            // a silent refetch of its own only when the day holds two items
+            // sharing one activityId and the patch would be ambiguous.
           },
         ));
       }

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:fitness_day/features/shared/conversations/data/models/user_conversation_model.dart';
 import 'package:fitness_day/features/shared/conversations/domain/entities/chat_message.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 /// All possible states for the chat screen.
 sealed class ChatState extends Equatable {
@@ -203,8 +204,12 @@ class ChatLoaded extends ChatState {
 class ChatError extends ChatState {
   final String message;
 
-  const ChatError(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const ChatError(this.message, {this.error});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, error];
 }

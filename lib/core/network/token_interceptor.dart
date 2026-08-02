@@ -46,7 +46,10 @@ class TokenInterceptor extends Interceptor {
     await _secureCache.deleteToken();
     await _secureCache.deleteRefreshToken();
     try {
-      await GetIt.instance<AppCache>().clear();
+      // Use clearSession() — not clear() — so the onboarding flag is preserved.
+      // The session expired automatically (token timeout), which is equivalent
+      // to a logout, not an account deletion.
+      await GetIt.instance<AppCache>().clearSession();
     } catch (_) {}
     RoleNotifier.instance.setRole(AppRole.none);
 

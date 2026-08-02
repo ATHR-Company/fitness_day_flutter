@@ -5,6 +5,7 @@ import '../../domain/entities/cart_data.dart';
 import '../../domain/entities/favorites_page_data.dart';
 import '../../domain/usecases/get_favorites_usecase.dart';
 import '../../domain/usecases/toggle_favorite_usecase.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class FavoritesState {
   const FavoritesState();
@@ -27,7 +28,11 @@ class FavoritesSuccess extends FavoritesState {
 class FavoritesFailure extends FavoritesState {
   final String message;
 
-  const FavoritesFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const FavoritesFailure(this.message, {this.error});
 }
 
 class FavoritesCubit extends Cubit<FavoritesState> {
@@ -46,7 +51,7 @@ class FavoritesCubit extends Cubit<FavoritesState> {
       return;
     }
     if (result case FailureResult<FavoritesPageData>(:final failure)) {
-      emit(FavoritesFailure(failure.message));
+      emit(FavoritesFailure(failure.message, error: AppError.from(failure)));
     }
   }
 

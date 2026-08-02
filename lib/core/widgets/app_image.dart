@@ -151,6 +151,40 @@ class AppImage extends StatelessWidget {
     return _flipIfLtr(_clip(_gradient(_align(svgWidget))), context);
   }
 
+  // ── Decode size ───────────────────────────────────────────────────────────
+  //
+  // A bitmap costs `width × height × 4` bytes in memory *whatever size it is
+  // drawn at* — a 1200×1200 product photo is 5.5 MB even inside a 48 px
+  // thumbnail. These decode it near the size it actually renders at.
+
+  /// Ceiling for images whose display size isn't known here.
+  ///
+  /// Wide enough for a full-bleed banner on a 3x phone, and it costs nothing
+  /// when the source is smaller: a target above the original is ignored rather
+  /// than upscaled.
+  static const int _maxDecodeWidth = 1080;
+
+  int? _decodeWidth(BuildContext context) => _decodePixels(context, width);
+
+  /// Only used when there is no width to go by — passing both would fight the
+  /// aspect ratio the source already has.
+  int? _decodeHeight(BuildContext context) =>
+      width == null ? _decodePixels(context, height) : null;
+
+  /// Logical pixels → device pixels, capped.
+  ///
+  /// Guards non-finite sizes on purpose: `AppImage` is often given
+  /// `double.infinity` (it fills its parent), and `infinity.round()` throws.
+  int? _decodePixels(BuildContext context, double? logical) {
+    if (logical == null || !logical.isFinite || logical <= 0) {
+      return _maxDecodeWidth;
+    }
+    final double devicePixels =
+        logical * MediaQuery.devicePixelRatioOf(context);
+    if (!devicePixels.isFinite || devicePixels <= 0) return _maxDecodeWidth;
+    return devicePixels.round().clamp(1, _maxDecodeWidth);
+  }
+
   // ── Network raster (png / jpg / gif / webp …) ────────────────────────────
   //
   // OmniImage handles both SVG and raster URLs, caches via NetworkImage /
@@ -163,6 +197,8 @@ class AppImage extends StatelessWidget {
       height: height,
       width: width,
       color: blur != null ? null : color,
+      memCacheWidth: _decodeWidth(context),
+      memCacheHeight: _decodeHeight(context),
     );
 
     if (blur != null) {
@@ -172,7 +208,12 @@ class AppImage extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            OmniImage(image: p, fit: fit),
+            OmniImage(
+              image: p,
+              fit: fit,
+              memCacheWidth: _decodeWidth(context),
+              memCacheHeight: _decodeHeight(context),
+            ),
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: blur!, sigmaY: blur!),
               child: Container(color: Colors.transparent),

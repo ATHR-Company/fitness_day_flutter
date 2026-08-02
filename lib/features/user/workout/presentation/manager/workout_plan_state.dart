@@ -1,4 +1,5 @@
 import 'package:fitness_day/features/user/workout/data/models/workout_plan_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class WorkoutPlanState {
   const WorkoutPlanState();
@@ -21,5 +22,9 @@ class WorkoutPlanSuccess extends WorkoutPlanState {
 class WorkoutPlanFailure extends WorkoutPlanState {
   final String message;
 
-  const WorkoutPlanFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const WorkoutPlanFailure(this.message, {this.error});
 }

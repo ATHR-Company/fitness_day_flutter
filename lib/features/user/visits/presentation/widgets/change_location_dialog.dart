@@ -12,6 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class ChangeLocationDialog extends StatefulWidget {
   final String assessmentId;
@@ -44,11 +45,7 @@ class _ChangeLocationDialogState extends State<ChangeLocationDialog> {
           );
           context.pop();
         } else if (state is ChangeAssessmentError) {
-          showAppSnackBar(
-            context,
-            text: state.message,
-            isError: true,
-          );
+          showAppError(context, state.error, message: state.message);
         }
       },
       builder: (context, state) {

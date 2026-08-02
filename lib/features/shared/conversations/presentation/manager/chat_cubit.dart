@@ -15,6 +15,7 @@ import 'package:fitness_day/features/shared/conversations/domain/usecases/open_s
 import 'package:fitness_day/features/shared/conversations/domain/usecases/send_media_usecase.dart';
 import 'package:fitness_day/features/shared/conversations/domain/usecases/send_specialist_media_usecase.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 /// Orchestrates the chat feature for both User and Specialist roles.
 ///
@@ -86,7 +87,7 @@ class ChatCubit extends Cubit<ChatState> {
 
       if (openResult is FailureResult) {
         debugPrint('[ChatCubit] ❌ openChat failed: ${(openResult as FailureResult).failure.message}');
-        emit(ChatError((openResult as FailureResult).failure.message));
+        emit(ChatError((openResult as FailureResult).failure.message, error: AppError.from((openResult as FailureResult).failure)));
         return;
       }
       conversationId = (openResult as Success<String>).data;
@@ -94,25 +95,57 @@ class ChatCubit extends Cubit<ChatState> {
     }
 
     // Fetch messages using the correct endpoint for the role.
-    final ApiResult<ChatMessagesPage> messagesResult = isSpecialistMode
-        ? await _getSpecialistMessagesUseCase(conversationId)
-        : await _getMessagesUseCase(conversationId);
+    // We pre-fetch pages 1 + 2 together on open so the list has enough
+    // content to fill the viewport without triggering a pagination load the
+    // instant the user tries to scroll up.  This also fixes the "jumps back
+    // to the bottom on first scroll" bug: the _onScroll listener would
+    // otherwise detect the near-empty page-1 list and immediately request
+    // page 2, which re-triggered _onChatStateChanged and scrolled down.
+    final Future<ApiResult<ChatMessagesPage>> page1Future = isSpecialistMode
+        ? _getSpecialistMessagesUseCase(conversationId, page: 1)
+        : _getMessagesUseCase(conversationId, page: 1);
+
+    final messagesResult = await page1Future;
 
     if (messagesResult is FailureResult) {
       debugPrint('[ChatCubit] ❌ getMessages failed: ${(messagesResult as FailureResult).failure.message}');
-      emit(ChatError((messagesResult as FailureResult).failure.message));
+      emit(ChatError((messagesResult as FailureResult).failure.message, error: AppError.from((messagesResult as FailureResult).failure)));
       return;
     }
-    final page = (messagesResult as Success<ChatMessagesPage>).data;
-    final ordered = page.messages.reversed.toList();
-    debugPrint('[ChatCubit] ✅ getMessages — ${ordered.length} messages loaded');
+
+    final page1 = (messagesResult as Success<ChatMessagesPage>).data;
+    final int totalPages = page1.totalPages;
+
+    // Oldest → newest order for the list.
+    List<ChatMessage> allMessages = page1.messages.reversed.toList();
+    int loadedPage = 1;
+
+    // Pre-fetch page 2 only when it exists, without blocking the socket setup.
+    if (totalPages > 1) {
+      final page2Result = await (isSpecialistMode
+          ? _getSpecialistMessagesUseCase(conversationId, page: 2)
+          : _getMessagesUseCase(conversationId, page: 2));
+
+      if (page2Result is Success<ChatMessagesPage>) {
+        final page2 = page2Result.data;
+        // Page 2 messages are older — prepend them before page 1.
+        allMessages = [
+          ...page2.messages.reversed.toList(),
+          ...allMessages,
+        ];
+        loadedPage = 2;
+        debugPrint('[ChatCubit] ✅ Pre-fetched page 2 — total messages: ${allMessages.length}');
+      }
+    }
+
+    debugPrint('[ChatCubit] ✅ getMessages — ${allMessages.length} messages loaded (pages 1-$loadedPage of $totalPages)');
 
     emit(ChatLoaded(
       conversationId: conversationId,
-      messages: ordered,
-      otherParty: page.otherParty,
-      currentPage: 1,
-      totalPages: page.totalPages,
+      messages: allMessages,
+      otherParty: page1.otherParty,
+      currentPage: loadedPage,
+      totalPages: totalPages,
     ));
 
     // Connect socket.

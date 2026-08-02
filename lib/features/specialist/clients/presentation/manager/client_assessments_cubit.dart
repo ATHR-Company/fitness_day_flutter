@@ -3,6 +3,7 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/specialist/clients/domain/usecases/get_upcoming_assessments_usecase.dart';
 import 'package:fitness_day/features/specialist/clients/domain/usecases/get_previous_assessments_usecase.dart';
 import 'client_assessments_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class ClientAssessmentsCubit extends Cubit<ClientAssessmentsState> {
   final GetUpcomingAssessmentsUseCase _getUpcoming;
@@ -24,11 +25,11 @@ class ClientAssessmentsCubit extends Cubit<ClientAssessmentsState> {
 
     // If either fails, emit failure
     if (upcomingResult case FailureResult(:final failure)) {
-      emit(ClientAssessmentsFailure(failure.message));
+      emit(ClientAssessmentsFailure(failure.message, error: AppError.from(failure)));
       return;
     }
     if (previousResult case FailureResult(:final failure)) {
-      emit(ClientAssessmentsFailure(failure.message));
+      emit(ClientAssessmentsFailure(failure.message, error: AppError.from(failure)));
       return;
     }
 

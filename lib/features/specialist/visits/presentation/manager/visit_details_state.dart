@@ -1,6 +1,7 @@
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_visit_data_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class VisitDetailsState {
   const VisitDetailsState();
@@ -57,5 +58,9 @@ class VisitDetailsSuccess extends VisitDetailsState {
 class VisitDetailsFailure extends VisitDetailsState {
   final String message;
 
-  const VisitDetailsFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const VisitDetailsFailure(this.message, {this.error});
 }

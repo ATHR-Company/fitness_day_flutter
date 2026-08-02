@@ -4,6 +4,7 @@ import 'package:fitness_day/features/specialist/notifications/data/models/specia
 import 'package:fitness_day/features/specialist/notifications/domain/usecases/get_specialist_notifications_usecase.dart';
 import 'package:fitness_day/features/specialist/notifications/domain/usecases/toggle_notification_read_usecase.dart';
 import 'specialist_notifications_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class SpecialistNotificationsCubit extends Cubit<SpecialistNotificationsState> {
   final GetSpecialistNotificationsUseCase _getSpecialistNotificationsUseCase;
@@ -42,7 +43,7 @@ class SpecialistNotificationsCubit extends Cubit<SpecialistNotificationsState> {
           hasReachedMax: _hasReachedMax,
         ));
       case FailureResult(:final failure):
-        emit(SpecialistNotificationsFailure(failure.message));
+        emit(SpecialistNotificationsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 

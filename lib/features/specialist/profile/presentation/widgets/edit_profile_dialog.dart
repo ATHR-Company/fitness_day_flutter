@@ -10,6 +10,7 @@ import 'package:fitness_day/core/widgets/profile/profile_text_field.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_cubit.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_state.dart';
+import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class EditProfileDialog extends StatefulWidget {
   const EditProfileDialog({super.key});
@@ -54,12 +55,12 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
           avatarPath: _localImagePath,
         );
 
-        if (cubit.state is SpecialistProfileUpdateFailure) {
-          final errMsg = (cubit.state as SpecialistProfileUpdateFailure).message;
+        final state = cubit.state;
+        if (state is SpecialistProfileUpdateFailure) {
           if (context.mounted) {
-            showAppSnackBar(context, text: errMsg, isError: true);
+            showAppError(context, state.error, message: state.message);
           }
-          throw Exception("Update failed: $errMsg");
+          throw Exception('Update failed: ${state.message}');
         }
       },
       child: Column(

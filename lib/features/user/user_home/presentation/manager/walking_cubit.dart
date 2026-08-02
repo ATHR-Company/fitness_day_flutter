@@ -206,10 +206,11 @@ class WalkingCubit extends Cubit<WalkingState> {
   static const Duration _kMovementGrace = Duration(seconds: 12);
 
   /// How long usable fixes must show no displacement at all before the gate
-  /// treats "never moved" as evidence of standing still. Without this the first
-  /// seconds of a walk — before the user has cleared the accuracy circle —
-  /// would be vetoed.
-  static const Duration _kStillnessSettle = Duration(seconds: 25);
+  /// treats "never moved" as evidence of standing still. Long enough that the
+  /// opening steps of a walk — taken before the user clears the accuracy
+  /// circle — are not vetoed, short enough that standing and waving the phone
+  /// stops counting quickly.
+  static const Duration _kStillnessSettle = Duration(seconds: 12);
 
   // ─── Activity recognition ─────────────────────────────────────────────────
   //
@@ -261,7 +262,26 @@ class WalkingCubit extends Cubit<WalkingState> {
   }
 
   /// The single gate every step passes through, from either source.
-  bool get _shouldRejectSteps => _activityVerdict ?? _gpsContradictsMovement;
+  ///
+  /// **GPS outranks the classifier.** Waving the phone through a walking motion
+  /// produces exactly the accelerometer pattern the classifier is trained on,
+  /// so it reports WALKING with high confidence and cannot be used to refute
+  /// it. Physical displacement can: when there is a fresh, accurate fix saying
+  /// the user has not moved, that settles it no matter what the pattern looks
+  /// like. Only where GPS has nothing to say — indoors, which is also where
+  /// real walking goes unseen — does the classifier get the casting vote.
+  bool get _shouldRejectSteps {
+    if (_hasFreshFix) return _gpsContradictsMovement;
+    return _activityVerdict ?? false;
+  }
+
+  /// Whether a fix arrived recently enough to be worth trusting over the
+  /// accelerometer.
+  bool get _hasFreshFix {
+    final DateTime? fixAt = _lastUsableFixAt;
+    if (fixAt == null) return false;
+    return DateTime.now().difference(fixAt) <= _kFixFreshness;
+  }
 
   /// Whether GPS is actively contradicting the step sensor.
   ///
@@ -515,6 +535,16 @@ class WalkingCubit extends Cubit<WalkingState> {
       _healthSessionSteps =
           (totalHealthSteps - _initialHealthSteps! - _ignoredHealthSteps)
               .clamp(0, totalHealthSteps);
+
+      // Which signal is deciding, and what it decided. Without this the screen
+      // just shows a number and there is no way to tell a vetoed walk from a
+      // credited shake.
+      debugPrint(
+        '[Walking] gate: reject=$_shouldRejectSteps  '
+        'gps=${_hasFreshFix ? (_gpsContradictsMovement ? "still" : "moving") : "none"}  '
+        'activity=${_lastActivity?.type.name ?? "-"}/${_lastActivity?.confidence.name ?? "-"}  '
+        'pedometer=$_pedometerSessionSteps  health=$_healthSessionSteps  ignored=$_ignoredHealthSteps',
+      );
 
       final int sessionSteps = _sessionSteps;
       _healthSessionDistanceKm = (metrics.distanceKm - _initialHealthDistanceKm!)

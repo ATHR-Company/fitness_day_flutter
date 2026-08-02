@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:fitness_day/features/user/user_home/data/models/article_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/services/app_event_bus.dart';
 import 'package:fitness_day/features/user/user_home/domain/entities/article_data.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/user_home_usecases.dart';
 import 'package:fitness_day/core/network/api_result.dart';
@@ -16,8 +20,35 @@ class ArticlesListCubit extends Cubit<ArticlesListState> {
   bool _hasMore = true;
   bool _isFetching = false;
 
+  /// Live patches from the article details screen and the bookmark buttons —
+  /// see [AppEventBus].
+  late final StreamSubscription<AppEvent> _eventSub;
+
   ArticlesListCubit({required this.getArticlesUseCase})
-      : super(const ArticlesListState());
+      : super(const ArticlesListState()) {
+    _eventSub = getIt<AppEventBus>().stream.listen(_applyEvent);
+  }
+
+  @override
+  Future<void> close() {
+    _eventSub.cancel();
+    return super.close();
+  }
+
+  /// Rewrites the one article a change names, without refetching the page it
+  /// sits on — which for a paginated list would also mean losing every page
+  /// loaded after the first.
+  void _applyEvent(AppEvent event) {
+    if (event is! ArticleChanged) return;
+
+    final int index = state.articles.indexWhere((a) => a.id == event.articleId);
+    if (index == -1) return;
+
+    final List<ArticleData> next = List<ArticleData>.of(state.articles);
+    next[index] =
+        next[index].copyWith(views: event.views, isSaved: event.isSaved);
+    emit(state.copyWith(articles: next));
+  }
 
   Future<void> loadFirstPage() async {
     if (_isFetching) return;

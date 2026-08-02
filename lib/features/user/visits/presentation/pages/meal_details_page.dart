@@ -11,9 +11,9 @@ import 'package:fitness_day/features/user/visits/presentation/widgets/meal_detai
 import 'package:fitness_day/features/user/visits/presentation/widgets/meal_details/meal_details_hero.dart';
 import 'package:fitness_day/features/user/visits/presentation/widgets/meal_details/meal_calories_pill.dart';
 import 'package:fitness_day/features/user/visits/presentation/widgets/meal_details/meal_complete_button.dart';
-import 'package:fitness_day/features/user/visits/presentation/widgets/meal_details/meal_details_error_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class MealDetailsPage extends StatelessWidget {
   final String mealId;
@@ -151,7 +151,10 @@ class MealDetailsPage extends StatelessWidget {
                     ),
                   );
                 } else if (state is MealDetailsFailure) {
-                  return MealDetailsErrorView(message: state.message);
+                  return AppErrorView(
+                    error: state.error,
+                    message: state.message,
+                  );
                 }
                 return const SizedBox.shrink();
               },

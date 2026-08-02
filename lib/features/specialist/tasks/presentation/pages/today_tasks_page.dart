@@ -11,6 +11,7 @@ import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/features/specialist/tasks/presentation/manager/specialist_daily_tasks_cubit.dart';
 import 'package:fitness_day/features/specialist/tasks/presentation/manager/specialist_daily_tasks_state.dart';
 import '../../../visits/presentation/pages/visit_details_page.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class TodayTasksPage extends StatelessWidget {
   const TodayTasksPage({super.key});
@@ -82,20 +83,12 @@ class _TodayTasksPageContentState extends State<_TodayTasksPageContent> {
                     if (state is SpecialistDailyTasksLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is SpecialistDailyTasksFailure) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(state.message),
-                            SizedBox(height: 8.h),
-                            ElevatedButton(
-                              onPressed: () => context
-                                  .read<SpecialistDailyTasksCubit>()
-                                  .getDailyTasks(),
-                              child: Text('home.retry'.tr()),
-                            ),
-                          ],
-                        ),
+                      return AppErrorView(
+                        error: state.error,
+                        message: state.message,
+                        onRetry: () => context
+                            .read<SpecialistDailyTasksCubit>()
+                            .getDailyTasks(),
                       );
                     } else if (state is SpecialistDailyTasksSuccess ||
                         state is SpecialistDailyTasksLoadingMore) {

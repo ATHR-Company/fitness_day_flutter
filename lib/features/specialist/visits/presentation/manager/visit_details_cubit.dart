@@ -13,6 +13,7 @@ import 'package:fitness_day/features/specialist/visits/domain/usecases/update_cu
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
 import 'package:fitness_day/features/specialist/visits/domain/repositories/specialist_visits_repository.dart';
 import 'visit_details_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class VisitDetailsCubit extends Cubit<VisitDetailsState> {
   final GetVisitDataUseCase _getVisitDataUseCase;
@@ -68,7 +69,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
           ));
         }
       case FailureResult(:final failure):
-        emit(VisitDetailsFailure(failure.message));
+        emit(VisitDetailsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -97,7 +98,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
           ));
         }
       case FailureResult(:final failure):
-        emit(VisitDetailsFailure(failure.message));
+        emit(VisitDetailsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -141,7 +142,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
           emit(const VisitDetailsFailure('خطأ في جلب الخطة'));
         }
       case FailureResult(:final failure):
-        emit(VisitDetailsFailure(failure.message));
+        emit(VisitDetailsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 

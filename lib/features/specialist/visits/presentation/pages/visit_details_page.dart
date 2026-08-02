@@ -29,6 +29,7 @@ import '../../data/models/specialist_assessment_visit_data_model.dart';
 import '../../data/models/assessment_current_state.dart';
 import '../../data/models/specialist_assessment_health_report_model.dart';
 import '../../data/models/specialist_assessment_custom_plan_model.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class VisitDetailsPage extends StatelessWidget {
   final bool isUpcoming;
@@ -252,7 +253,14 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                               return const Center(child: CircularProgressIndicator());
                             }
                             if (state is VisitDetailsFailure) {
-                              return Center(child: Text(state.message));
+                              return AppErrorView(
+                                error: state.error,
+                                message: state.message,
+                                onRetry: () => context
+                                    .read<VisitDetailsCubit>()
+                                    .loadVisitData(widget.assessmentId,
+                                        forceRefresh: true),
+                              );
                             }
                             if (state is VisitDetailsSuccess) {
                               return SingleChildScrollView(

@@ -70,6 +70,7 @@ class _UserNotificationsPageContentState extends State<_UserNotificationsPageCon
 
         if (state is UserNotificationsFailure) {
           return NotificationsPage(
+            error: state.error,
             errorMessage: state.message,
             onRetry: () => cubit.getNotifications(isRefresh: true),
           );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/services/app_event_bus.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -32,6 +33,16 @@ class _RelatedArticleCardState extends State<RelatedArticleCard> {
     _isSaved = widget.article.isSaved;
   }
 
+  /// Follows the parent when the flag is changed somewhere else — the same
+  /// article can be open in the details screen above this card.
+  @override
+  void didUpdateWidget(RelatedArticleCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_isLoading && widget.article.isSaved != oldWidget.article.isSaved) {
+      _isSaved = widget.article.isSaved;
+    }
+  }
+
   Future<void> _toggleSave() async {
     if (_isLoading) return;
 
@@ -42,13 +53,20 @@ class _RelatedArticleCardState extends State<RelatedArticleCard> {
     final useCase = getIt<ToggleSaveArticleUseCase>();
     final result = await useCase(widget.article.id);
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-        if (result is Success<bool>) {
-          _isSaved = result.data;
-        }
-      });
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      if (result is Success<bool>) {
+        _isSaved = result.data;
+      }
+    });
+
+    if (result is Success<bool>) {
+      getIt<AppEventBus>().publish(ArticleChanged(
+        articleId: widget.article.id,
+        isSaved: result.data,
+        views: widget.article.views,
+      ));
     }
   }
 

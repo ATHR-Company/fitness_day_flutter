@@ -3,6 +3,7 @@ import 'package:fitness_day/features/user/market/domain/entities/products_page_d
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_products_usecase.dart';
 import 'products_list_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class ProductsListCubit extends Cubit<ProductsListState> {
   final GetProductsUseCase _getProductsUseCase;
@@ -33,7 +34,7 @@ class ProductsListCubit extends Cubit<ProductsListState> {
         hasMore: result.data.hasMore,
       ));
     } else if (result is FailureResult<ProductsPageData>) {
-      emit(ProductsListFailure(result.failure.message));
+      emit(ProductsListFailure(result.failure.message, error: AppError.from(result.failure)));
     }
   }
 

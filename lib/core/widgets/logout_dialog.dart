@@ -140,7 +140,7 @@ class LogoutDialog extends StatelessWidget {
                                   di.getIt<SocketService>().disconnect();
                                   await di.getIt<SecureCache>().deleteToken();
                                   await di.getIt<SecureCache>().deleteRefreshToken();
-                                  await di.getIt<AppCache>().clear();
+                                  await di.getIt<AppCache>().clearSession();
                                   RoleNotifier.instance.setRole(AppRole.none);
                                   if (context.mounted) {
                                     Navigator.pop(context);

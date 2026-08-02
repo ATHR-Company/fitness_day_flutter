@@ -1,8 +1,8 @@
-import 'package:fitness_day/core/errors/failures.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import '../../domain/entities/address_data.dart';
 import '../../domain/repositories/address_repository.dart';
 import '../datasources/address_remote_datasource.dart';
+import 'package:fitness_day/core/errors/error_handler.dart';
 
 class AddressRepositoryImpl implements AddressRepository {
   final AddressRemoteDataSource remoteDataSource;
@@ -15,7 +15,7 @@ class AddressRepositoryImpl implements AddressRepository {
       final models = await remoteDataSource.getAddresses();
       return Success(models.map((m) => m.toEntity()).toList());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to fetch addresses'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -25,7 +25,7 @@ class AddressRepositoryImpl implements AddressRepository {
       final model = await remoteDataSource.createAddress(input);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to create address'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -36,7 +36,7 @@ class AddressRepositoryImpl implements AddressRepository {
       final model = await remoteDataSource.updateAddress(id, input);
       return Success(model.toEntity());
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to update address'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 
@@ -46,7 +46,7 @@ class AddressRepositoryImpl implements AddressRepository {
       await remoteDataSource.deleteAddress(id);
       return const Success(null);
     } catch (e) {
-      return FailureResult(ServerFailure('Failed to delete address'));
+      return FailureResult(ErrorHandler.handle(e));
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
-import 'package:fitness_day/core/widgets/network_error_view.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/open_client_chat.dart';
@@ -61,8 +61,9 @@ class _ClientProfilePageState extends State<ClientProfilePage> {
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
-              body: NetworkErrorView(
-                subtitle: state.message,
+              body: AppErrorView(
+                error: state.error,
+                message: state.message,
                 onRetry: () => context.read<SpecialistClientProfileCubit>().getSpecialistClientProfile(
                       userId: widget.userId,
                     ),

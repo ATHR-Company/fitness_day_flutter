@@ -6,7 +6,7 @@ abstract class AuthRepository {
   Future<Either<String, AuthEntity>> login(
     String phone,
     String password, {
-    required String fcmToken,
+    String? fcmToken,
     required String deviceType,
   });
   Future<Either<String, void>> logout();

@@ -12,6 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/services/app_event_bus.dart';
 
 class ArticleDetailPage extends StatefulWidget {
   final ArticleData article;
@@ -29,6 +30,13 @@ class ArticleDetailPage extends StatefulWidget {
 
 class _ArticleDetailPageState extends State<ArticleDetailPage> {
   late bool isSaved;
+
+  /// The view count the server returned for *this* visit. Reading the article
+  /// is what increments it, so the number passed in from the list is already
+  /// one behind by the time this screen is built — it was only ever a
+  /// placeholder until the fetch lands.
+  late int views;
+
   bool isLoadingSave = false;
   bool isLoadingDetail = true;
 
@@ -36,19 +44,30 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   void initState() {
     super.initState();
     isSaved = widget.article.isSaved;
+    views = widget.article.views;
     _fetchArticleDetail();
   }
 
   Future<void> _fetchArticleDetail() async {
     final useCase = getIt<GetArticleByIdUseCase>();
     final result = await useCase(widget.article.id);
-    if (mounted) {
-      setState(() {
-        isLoadingDetail = false;
-        if (result is Success<ArticleData>) {
-          isSaved = result.data.isSaved;
-        }
-      });
+    if (!mounted) return;
+    setState(() {
+      isLoadingDetail = false;
+      if (result is Success<ArticleData>) {
+        isSaved = result.data.isSaved;
+        views = result.data.views;
+      }
+    });
+    if (result is Success<ArticleData>) {
+      // Every list showing this article is now one view behind. This GET is the
+      // only place the new count exists, so it is broadcast rather than left
+      // for the lists to rediscover with a refetch of their own.
+      getIt<AppEventBus>().publish(ArticleChanged(
+        articleId: widget.article.id,
+        views: result.data.views,
+        isSaved: result.data.isSaved,
+      ));
     }
   }
 
@@ -58,6 +77,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
 
     final useCase = getIt<ToggleSaveArticleUseCase>();
     final result = await useCase(widget.article.id);
+    if (!mounted) return;
 
     setState(() {
       isLoadingSave = false;
@@ -67,6 +87,16 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
         // Optionally show error toast
       }
     });
+
+    if (result is Success<bool>) {
+      // `views` rides along so the saved-articles list can build a full row if
+      // this is the first time it hears about the article.
+      getIt<AppEventBus>().publish(ArticleChanged(
+        articleId: widget.article.id,
+        isSaved: result.data,
+        views: views,
+      ));
+    }
   }
 
   @override
@@ -201,7 +231,7 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
               ),
               SizedBox(width: 4.w),
               Text(
-                '${widget.article.views}',
+                '$views',
                 style: TextStyleManager.style10Medium.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.bold,

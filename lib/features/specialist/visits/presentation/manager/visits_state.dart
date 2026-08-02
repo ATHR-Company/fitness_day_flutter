@@ -1,4 +1,5 @@
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_history_model.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class VisitsState {
   const VisitsState();
@@ -25,7 +26,11 @@ class VisitsSuccess extends VisitsState {
 class VisitsFailure extends VisitsState {
   final String message;
 
-  const VisitsFailure(this.message);
+  /// Typed form of the failure, so the screen can decide between a
+  /// full-screen retry and a message. Null on states not yet migrated.
+  final AppError? error;
+
+  const VisitsFailure(this.message, {this.error});
 }
 
 class VisitsLoadingMore extends VisitsState {

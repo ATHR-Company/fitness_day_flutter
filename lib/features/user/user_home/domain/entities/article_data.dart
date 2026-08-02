@@ -43,4 +43,20 @@ class ArticleData {
   });
 
   String get body => details.map((e) => e.description).join('\n\n');
+
+  /// Only the two fields that change after the article is first loaded — the
+  /// view count the details screen increments, and the bookmark.
+  ArticleData copyWith({int? views, bool? isSaved}) {
+    return ArticleData(
+      id: id,
+      imageUrl: imageUrl,
+      date: date,
+      views: views ?? this.views,
+      title: title,
+      isSaved: isSaved ?? this.isSaved,
+      details: details,
+      relatedArticles: relatedArticles,
+      media: media,
+    );
+  }
 }

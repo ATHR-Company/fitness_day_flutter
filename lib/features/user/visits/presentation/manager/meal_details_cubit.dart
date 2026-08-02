@@ -1,8 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/services/app_event_bus.dart';
 import 'package:fitness_day/features/user/visits/domain/usecases/get_meal_details_usecase.dart';
 import 'package:fitness_day/features/user/visits/domain/usecases/update_meal_completion_usecase.dart';
 import 'meal_details_state.dart';
+import 'package:fitness_day/core/errors/app_error.dart';
 
 class MealDetailsCubit extends Cubit<MealDetailsState> {
   final GetMealDetailsUseCase _getMealDetailsUseCase;
@@ -24,7 +27,7 @@ class MealDetailsCubit extends Cubit<MealDetailsState> {
       case Success(:final data):
         emit(MealDetailsSuccess(data.data));
       case FailureResult(:final failure):
-        emit(MealDetailsFailure(failure.message));
+        emit(MealDetailsFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
@@ -39,10 +42,18 @@ class MealDetailsCubit extends Cubit<MealDetailsState> {
 
     switch (result) {
       case Success(:final data):
-        final updatedData = currentState.mealDetailsData.copyWith(
-          isCompleted: data.data?.isCompleted ?? isCompleted,
-        );
+        final bool confirmed = data.data?.isCompleted ?? isCompleted;
+        final updatedData =
+            currentState.mealDetailsData.copyWith(isCompleted: confirmed);
         emit(MealDetailsSuccess(updatedData, isUpdating: false));
+        // Server-confirmed, so the cards behind this screen can be patched
+        // instead of refetched.
+        getIt<AppEventBus>().publish(MealProgressChanged(
+          assessmentId: assessmentId,
+          dayNumber: dayNumber,
+          mealId: mealId,
+          isCompleted: confirmed,
+        ));
       case FailureResult():
         emit(MealDetailsSuccess(currentState.mealDetailsData, isUpdating: false));
     }

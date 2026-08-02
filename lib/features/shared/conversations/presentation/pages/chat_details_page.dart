@@ -18,13 +18,13 @@ import 'package:fitness_day/features/shared/conversations/presentation/manager/c
 import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_voice_recorder.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/models/local_chat_message.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_attachment_sheet.dart';
-import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_error_view.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_header.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_input_bar.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_messages_list.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_reaction_picker.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/local_chat_messages_list.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/conversations_shimmer_loading.dart';
+import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 /// One conversation.
 ///
@@ -94,6 +94,11 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
 
   Timer? _typingTimer;
   bool _isTypingSignalOn = false;
+
+  /// The last pagination page we saw — any state change that increments this
+  /// means an older page just arrived; we must NOT scroll in that case.
+  /// Initialized to 1; updated to the real value on first ChatLoaded emission.
+  int _lastSeenPage = 1;
 
   bool get _isServerBacked =>
       widget.isSpecialist &&
@@ -204,10 +209,33 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
 
   /// Jumps to the newest message when it arrives while the user is already at
   /// the bottom — an older page loading in must never steal the scroll.
+  /// Scroll to the newest message only when:
+  ///   1. An optimistic message was just appended (we sent a message), OR
+  ///   2. The other party sent a message AND we were already at the bottom.
+  ///
+  /// A pagination load arriving ([currentPage] increased) is explicitly
+  /// excluded — we never scroll when the user is reading history.
   void _onChatStateChanged(BuildContext context, ChatState state) {
-    if (state is! ChatLoaded || state.isLoadingMore || state.messages.isEmpty) {
+    if (state is! ChatLoaded || state.messages.isEmpty) return;
+
+    // Sync _lastSeenPage on the very first ChatLoaded emission (which now
+    // carries pages 1+2 merged, so currentPage may already be 2).
+    if (_lastSeenPage == 1 && state.currentPage > 1) {
+      _lastSeenPage = state.currentPage;
+      // This is the initial load — scroll to bottom to show newest messages.
+      _scrollToBottom();
       return;
     }
+
+    // A new older page just arrived — record it and stay put.
+    if (state.currentPage > _lastSeenPage) {
+      _lastSeenPage = state.currentPage;
+      return;
+    }
+    _lastSeenPage = state.currentPage;
+
+    // Still loading more — don't act yet.
+    if (state.isLoadingMore) return;
 
     final last = state.messages.last;
     final bool isOptimistic = last.id.startsWith('optimistic_');
@@ -407,8 +435,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
                     listener: _onChatStateChanged,
                     builder: (context, state) => switch (state) {
                       ChatLoading() => const ChatMessagesShimmer(),
-                      ChatError(:final message) =>
-                        ChatErrorView(message: message),
+                      ChatError(:final message, :final error) =>
+                        AppErrorView(error: error, message: message),
                       ChatLoaded() => ChatMessagesList(
                           state: state,
                           controller: _scrollController,

@@ -3,13 +3,14 @@ import 'package:equatable/equatable.dart';
 class SocialAuthRequest extends Equatable {
   final String idToken;
   final String provider; // "APPLE", "GOOGLE"
-  final String fcmToken;
+  /// Null when the device cannot register for push — see [FcmHelper.getToken].
+  final String? fcmToken;
   final String deviceType; // "ios", "android"
 
   const SocialAuthRequest({
     required this.idToken,
     required this.provider,
-    required this.fcmToken,
+    this.fcmToken,
     required this.deviceType,
   });
 
@@ -17,8 +18,8 @@ class SocialAuthRequest extends Equatable {
     return {
       'idToken': idToken,
       'provider': provider,
-      'fcmToken': fcmToken,
       'deviceType': deviceType,
+      if (fcmToken != null) 'fcmToken': fcmToken,
     };
   }
 
