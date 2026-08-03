@@ -1,4 +1,4 @@
-package com.example.fitness_day
+package com.athr.fitnessday
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

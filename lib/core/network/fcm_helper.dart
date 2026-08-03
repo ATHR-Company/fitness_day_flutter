@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/firebase_options.dart';
 
 class FcmHelper {
   /// Last token Firebase handed us. Registration is a network round-trip, so
@@ -14,7 +15,9 @@ class FcmHelper {
 
   static Future<void> initialize() async {
     try {
-      await Firebase.initializeApp();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       final messaging = FirebaseMessaging.instance;
 
       // Request permission for notifications
@@ -70,7 +73,9 @@ class FcmHelper {
       }
     }
 
-    debugPrint('FCM token unavailable on this device — push notifications are off.');
+    debugPrint(
+      'FCM token unavailable on this device — push notifications are off.',
+    );
     return null;
   }
 
