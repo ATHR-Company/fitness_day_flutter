@@ -42,8 +42,8 @@ class AppleSignInHelper {
       );
 
       // Sign in to Firebase
-      final UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
       final User? firebaseUser = userCredential.user;
 
       if (firebaseUser == null) {
@@ -55,40 +55,69 @@ class AppleSignInHelper {
     } on AppleSignInFailure {
       rethrow;
     } on SignInWithAppleAuthorizationException catch (e) {
-      debugPrint('[AppleSignIn] ❌ Authorization error: ${e.code} — ${e.message}');
-      
+      debugPrint(
+        '[AppleSignIn] ❌ Authorization error: ${e.code} — ${e.message}',
+      );
+
       // User canceled the sign-in flow
       if (e.code == AuthorizationErrorCode.canceled) {
         return null;
       }
-      
+
       // Map specific error codes to user-friendly messages
       switch (e.code) {
         case AuthorizationErrorCode.failed:
-          throw AppleSignInFailure('login.apple_error_failed'.tr(), code: e.code.toString());
+          throw AppleSignInFailure(
+            'login.apple_error_failed'.tr(),
+            code: e.code.toString(),
+          );
         case AuthorizationErrorCode.invalidResponse:
-          throw AppleSignInFailure('login.apple_error_invalid'.tr(), code: e.code.toString());
+          throw AppleSignInFailure(
+            'login.apple_error_invalid'.tr(),
+            code: e.code.toString(),
+          );
         case AuthorizationErrorCode.notHandled:
-          throw AppleSignInFailure('login.apple_error_not_handled'.tr(), code: e.code.toString());
+          throw AppleSignInFailure(
+            'login.apple_error_not_handled'.tr(),
+            code: e.code.toString(),
+          );
         case AuthorizationErrorCode.unknown:
         default:
-          throw AppleSignInFailure('login.apple_error_generic'.tr(), code: e.code.toString());
+          throw AppleSignInFailure(
+            'login.apple_error_generic'.tr(),
+            code: e.code.toString(),
+          );
       }
     } on FirebaseAuthException catch (e) {
       debugPrint('[AppleSignIn] ❌ Firebase error: ${e.code} — ${e.message}');
-      
+
       // Map Firebase-specific errors
       switch (e.code) {
         case 'account-exists-with-different-credential':
-          throw AppleSignInFailure('login.apple_error_account_exists'.tr(), code: e.code);
+          throw AppleSignInFailure(
+            'login.apple_error_account_exists'.tr(),
+            code: e.code,
+          );
         case 'invalid-credential':
-          throw AppleSignInFailure('login.apple_error_invalid_credential'.tr(), code: e.code);
+          throw AppleSignInFailure(
+            'login.apple_error_invalid_credential'.tr(),
+            code: e.code,
+          );
         case 'operation-not-allowed':
-          throw AppleSignInFailure('login.apple_error_disabled'.tr(), code: e.code);
+          throw AppleSignInFailure(
+            'login.apple_error_disabled'.tr(),
+            code: e.code,
+          );
         case 'user-disabled':
-          throw AppleSignInFailure('login.apple_error_user_disabled'.tr(), code: e.code);
+          throw AppleSignInFailure(
+            'login.apple_error_user_disabled'.tr(),
+            code: e.code,
+          );
         default:
-          throw AppleSignInFailure('login.apple_error_generic'.tr(), code: e.code);
+          throw AppleSignInFailure(
+            'login.apple_error_generic'.tr(),
+            code: e.code,
+          );
       }
     } catch (e) {
       debugPrint('[AppleSignIn] ❌ Unexpected error: $e');

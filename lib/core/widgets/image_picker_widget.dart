@@ -1,18 +1,15 @@
 import 'dart:io';
+
+import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/utils/media_permissions.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:fitness_day/core/utils/permission_helper.dart';
-import 'package:fitness_day/core/widgets/permission_dialog.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 /// Widget to pick images from camera or gallery with permission handling
 class ImagePickerWidget extends StatelessWidget {
   final Function(File) onImagePicked;
 
-  const ImagePickerWidget({
-    Key? key,
-    required this.onImagePicked,
-  }) : super(key: key);
+  const ImagePickerWidget({super.key, required this.onImagePicked});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +18,7 @@ class ImagePickerWidget extends StatelessWidget {
       children: [
         ListTile(
           leading: const Icon(Icons.camera_alt),
-          title: Text('take_photo'.tr()),
+          title: Text('image_picker.take_photo'.tr()),
           onTap: () {
             Navigator.pop(context);
             _pickImageFromCamera(context);
@@ -29,7 +26,7 @@ class ImagePickerWidget extends StatelessWidget {
         ),
         ListTile(
           leading: const Icon(Icons.photo_library),
-          title: Text('choose_from_gallery'.tr()),
+          title: Text('image_picker.choose_from_gallery'.tr()),
           onTap: () {
             Navigator.pop(context);
             _pickImageFromGallery(context);
@@ -41,59 +38,30 @@ class ImagePickerWidget extends StatelessWidget {
 
   /// Pick image from camera with permission check
   Future<void> _pickImageFromCamera(BuildContext context) async {
-    final result = await PermissionHelper.requestCameraWithDialog();
-
-    if (result == PermissionRequestResult.granted) {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 80,
-      );
-
-      if (image != null) {
-        onImagePicked(File(image.path));
-      }
-    } else if (result == PermissionRequestResult.permanentlyDenied) {
-      if (context.mounted) {
-        await PermissionDialog.showCameraPermissionDialog(context);
-      }
-    } else {
-      if (context.mounted) {
-        await PermissionDialog.showSimpleDialog(
-          context: context,
-          title: 'permission_denied'.tr(),
-          message: 'camera_permission_denied_message'.tr(),
-        );
-      }
-    }
+    await _pickImage(context, ImageSource.camera, MediaPermissionKind.camera);
   }
 
   /// Pick image from gallery with permission check
   Future<void> _pickImageFromGallery(BuildContext context) async {
-    final result = await PermissionHelper.requestPhotosWithDialog();
+    await _pickImage(context, ImageSource.gallery, MediaPermissionKind.gallery);
+  }
 
-    if (result == PermissionRequestResult.granted) {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 80,
-      );
+  Future<void> _pickImage(
+    BuildContext context,
+    ImageSource source,
+    MediaPermissionKind permissionKind,
+  ) async {
+    final granted = await MediaPermissions.ensure(context, permissionKind);
+    if (!granted || !context.mounted) return;
 
-      if (image != null) {
-        onImagePicked(File(image.path));
-      }
-    } else if (result == PermissionRequestResult.permanentlyDenied) {
-      if (context.mounted) {
-        await PermissionDialog.showPhotosPermissionDialog(context);
-      }
-    } else {
-      if (context.mounted) {
-        await PermissionDialog.showSimpleDialog(
-          context: context,
-          title: 'permission_denied'.tr(),
-          message: 'photos_permission_denied_message'.tr(),
-        );
-      }
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: source,
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      onImagePicked(File(image.path));
     }
   }
 

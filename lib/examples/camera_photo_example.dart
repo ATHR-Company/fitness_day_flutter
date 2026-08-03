@@ -7,7 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 
 /// Example screen demonstrating camera and photo permissions usage
 class CameraPhotoExample extends StatefulWidget {
-  const CameraPhotoExample({Key? key}) : super(key: key);
+  const CameraPhotoExample({super.key});
 
   @override
   State<CameraPhotoExample> createState() => _CameraPhotoExampleState();
@@ -21,7 +21,6 @@ class _CameraPhotoExampleState extends State<CameraPhotoExample> {
     final granted = await MediaPermissions.ensure(
       context,
       MediaPermissionKind.camera,
-      showExplanation: true,
     );
 
     if (mounted) {
@@ -41,7 +40,6 @@ class _CameraPhotoExampleState extends State<CameraPhotoExample> {
     final granted = await MediaPermissions.ensure(
       context,
       MediaPermissionKind.gallery,
-      showExplanation: true,
     );
 
     if (mounted) {
@@ -61,7 +59,6 @@ class _CameraPhotoExampleState extends State<CameraPhotoExample> {
     final granted = await MediaPermissions.ensure(
       context,
       MediaPermissionKind.location,
-      showExplanation: true,
     );
 
     if (mounted) {

@@ -5,14 +5,15 @@ import 'package:easy_localization/easy_localization.dart';
 
 /// Screen to manage app permissions in settings
 class PermissionsSettingsScreen extends StatefulWidget {
-  const PermissionsSettingsScreen({Key? key}) : super(key: key);
+  const PermissionsSettingsScreen({super.key});
 
   @override
   State<PermissionsSettingsScreen> createState() =>
       _PermissionsSettingsScreenState();
 }
 
-class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
+class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen>
+    with WidgetsBindingObserver {
   bool _cameraGranted = false;
   bool _photosGranted = false;
   bool _microphoneGranted = false;
@@ -21,7 +22,21 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadPermissionStatuses();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadPermissionStatuses();
+    }
   }
 
   /// Load current permission statuses
@@ -31,6 +46,7 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
     final microphone = await PermissionHelper.isMicrophoneGranted();
     final location = await Permission.locationWhenInUse.isGranted;
 
+    if (!mounted) return;
     setState(() {
       _cameraGranted = camera;
       _photosGranted = photos;
@@ -42,12 +58,12 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('permissions'.tr())),
+      appBar: AppBar(title: Text('permissions_settings.permissions'.tr())),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            'permissions_description'.tr(),
+            'permissions_settings.permissions_description'.tr(),
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
@@ -55,32 +71,33 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
           const SizedBox(height: 24),
           _buildPermissionTile(
             icon: Icons.camera_alt,
-            title: 'camera_permission'.tr(),
-            subtitle: 'camera_permission_subtitle'.tr(),
+            title: 'permissions_settings.camera_permission'.tr(),
+            subtitle: 'permissions_settings.camera_permission_subtitle'.tr(),
             isGranted: _cameraGranted,
             onTap: () => _handleCameraPermission(),
           ),
           const Divider(),
           _buildPermissionTile(
             icon: Icons.photo_library,
-            title: 'photos_permission'.tr(),
-            subtitle: 'photos_permission_subtitle'.tr(),
+            title: 'permissions_settings.photos_permission'.tr(),
+            subtitle: 'permissions_settings.photos_permission_subtitle'.tr(),
             isGranted: _photosGranted,
             onTap: () => _handlePhotosPermission(),
           ),
           const Divider(),
           _buildPermissionTile(
             icon: Icons.mic,
-            title: 'microphone_permission'.tr(),
-            subtitle: 'microphone_permission_subtitle'.tr(),
+            title: 'permissions_settings.microphone_permission'.tr(),
+            subtitle: 'permissions_settings.microphone_permission_subtitle'
+                .tr(),
             isGranted: _microphoneGranted,
             onTap: () => _handleMicrophonePermission(),
           ),
           const Divider(),
           _buildPermissionTile(
             icon: Icons.location_on,
-            title: 'location_permission'.tr(),
-            subtitle: 'location_permission_subtitle'.tr(),
+            title: 'permissions_settings.location_permission'.tr(),
+            subtitle: 'permissions_settings.location_permission_subtitle'.tr(),
             isGranted: _locationGranted,
             onTap: () => _handleLocationPermission(),
           ),
@@ -97,7 +114,7 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'permissions_info'.tr(),
+                    'permissions_settings.permissions_info'.tr(),
                     style: TextStyle(color: Colors.blue[700], fontSize: 13),
                   ),
                 ),
@@ -138,7 +155,9 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
           Text(subtitle),
           const SizedBox(height: 4),
           Text(
-            isGranted ? 'allowed'.tr() : 'not_allowed'.tr(),
+            isGranted
+                ? 'permissions_settings.allowed'.tr()
+                : 'permissions_settings.not_allowed'.tr(),
             style: TextStyle(
               color: isGranted ? Colors.green[700] : Colors.red[700],
               fontWeight: FontWeight.w500,
@@ -157,17 +176,15 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
     final status = await PermissionHelper.getCameraStatus();
 
     if (status.isGranted) {
-      _showAlreadyGrantedDialog('camera_permission'.tr());
+      await openAppSettings();
     } else if (status.isPermanentlyDenied) {
-      _showOpenSettingsDialog('camera_permission'.tr());
+      await openAppSettings();
     } else {
       final result = await PermissionHelper.requestCamera();
+      if (!mounted) return;
       setState(() {
         _cameraGranted = result;
       });
-      if (!result) {
-        _showPermissionDeniedDialog('camera_permission'.tr());
-      }
     }
   }
 
@@ -175,18 +192,16 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
   Future<void> _handlePhotosPermission() async {
     final status = await PermissionHelper.getPhotosStatus();
 
-    if (status.isGranted) {
-      _showAlreadyGrantedDialog('photos_permission'.tr());
+    if (status.isGranted || status.isLimited) {
+      await openAppSettings();
     } else if (status.isPermanentlyDenied) {
-      _showOpenSettingsDialog('photos_permission'.tr());
+      await openAppSettings();
     } else {
       final result = await PermissionHelper.requestPhotos();
+      if (!mounted) return;
       setState(() {
         _photosGranted = result;
       });
-      if (!result) {
-        _showPermissionDeniedDialog('photos_permission'.tr());
-      }
     }
   }
 
@@ -195,17 +210,15 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
     final status = await PermissionHelper.getMicrophoneStatus();
 
     if (status.isGranted) {
-      _showAlreadyGrantedDialog('microphone_permission'.tr());
+      await openAppSettings();
     } else if (status.isPermanentlyDenied) {
-      _showOpenSettingsDialog('microphone_permission'.tr());
+      await openAppSettings();
     } else {
       final result = await PermissionHelper.requestMicrophone();
+      if (!mounted) return;
       setState(() {
         _microphoneGranted = result;
       });
-      if (!result) {
-        _showPermissionDeniedDialog('microphone_permission'.tr());
-      }
     }
   }
 
@@ -214,87 +227,15 @@ class _PermissionsSettingsScreenState extends State<PermissionsSettingsScreen> {
     final status = await Permission.locationWhenInUse.status;
 
     if (status.isGranted) {
-      _showAlreadyGrantedDialog('location_permission'.tr());
+      await openAppSettings();
     } else if (status.isPermanentlyDenied) {
-      _showOpenSettingsDialog('location_permission'.tr());
+      await openAppSettings();
     } else {
       final result = await Permission.locationWhenInUse.request();
+      if (!mounted) return;
       setState(() {
         _locationGranted = result.isGranted;
       });
-      if (!result.isGranted) {
-        _showPermissionDeniedDialog('location_permission'.tr());
-      }
     }
-  }
-
-  /// Show already granted dialog
-  void _showAlreadyGrantedDialog(String permissionName) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('permission_already_granted'.tr()),
-        content: Text(
-          'permission_already_granted_message'.tr(
-            namedArgs: {'permission': permissionName},
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('ok'.tr()),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Show open settings dialog
-  void _showOpenSettingsDialog(String permissionName) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('permission_denied'.tr()),
-        content: Text(
-          'permission_denied_open_settings'.tr(
-            namedArgs: {'permission': permissionName},
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('cancel'.tr()),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              openAppSettings();
-            },
-            child: Text('open_settings'.tr()),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Show permission denied dialog
-  void _showPermissionDeniedDialog(String permissionName) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('permission_denied'.tr()),
-        content: Text(
-          'permission_denied_message'.tr(
-            namedArgs: {'permission': permissionName},
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('ok'.tr()),
-          ),
-        ],
-      ),
-    );
   }
 }

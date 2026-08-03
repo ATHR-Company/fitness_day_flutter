@@ -41,6 +41,17 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      definitions = config.build_settings['GCC_PREPROCESSOR_DEFINITIONS']
+      definitions = [definitions].compact unless definitions.is_a?(Array)
+      definitions << '$(inherited)' unless definitions.include?('$(inherited)')
+      [
+        'PERMISSION_CAMERA=1',
+        'PERMISSION_PHOTOS=1',
+        'PERMISSION_MICROPHONE=1',
+        'PERMISSION_LOCATION=1',
+        'PERMISSION_SENSORS=1',
+      ].each { |definition| definitions << definition unless definitions.include?(definition) }
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = definitions
     end
   end
 end

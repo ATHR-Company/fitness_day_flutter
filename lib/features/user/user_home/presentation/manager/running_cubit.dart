@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -141,7 +140,6 @@ class RunningCubit extends Cubit<RunningState> {
   Future<bool> requestPermissions(BuildContext context) async {
     final bool granted = await ActivityPermissions.ensureRunningPermissions(
       context,
-      showExplanation: true,
     );
 
     if (granted && !isClosed) {

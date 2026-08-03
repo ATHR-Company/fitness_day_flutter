@@ -30,6 +30,7 @@ import 'package:fitness_day/fitness_day.dart';
 import '../../../user_home/presentation/widgets/user_app_drawer.dart';
 import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 import 'package:fitness_day/core/utils/permission_tester.dart';
+import 'package:fitness_day/features/settings/presentation/pages/permissions_settings_screen.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});
@@ -269,6 +270,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
       },
     ),
     _buildMenuItem(
+      title: 'common.manage_permissions'.tr(),
+      iconWidget: _buildCircleIcon(
+        iconData: Icons.security_rounded,
+        iconColor: AppColors.primary,
+      ),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const PermissionsSettingsScreen()),
+        );
+      },
+    ),
+    _buildMenuItem(
       title: 'profile.edit_password'.tr(),
       iconWidget: _buildCircleIcon(iconPath: SvgIcons.editPassword),
       onTap: () {
@@ -297,7 +310,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       iconWidget: _buildCircleIcon(iconPath: SvgIcons.notifications),
       trailing: Switch(
         value: data?.notificationsEnabled ?? true,
-        activeColor: AppColors.primary,
+        activeThumbColor: AppColors.primary,
         onChanged: (val) {
           context.read<UserProfileCubit>().toggleNotifications();
         },
