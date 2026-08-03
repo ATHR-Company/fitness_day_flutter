@@ -15,23 +15,40 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/errors/app_error.dart';
 
+import 'package:fitness_day/core/network/connectivity_service.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 class UserHomeCubit extends Cubit<UserHomeState> {
   final GetUserHomeDataUseCase getUserHomeDataUseCase;
   final GetArticlesUseCase getArticlesUseCase;
 
   /// Live patches from the detail screens — see [AppEventBus].
   late final StreamSubscription<AppEvent> _progressSub;
+  StreamSubscription<bool>? _connectivitySub;
 
   UserHomeCubit({
     required this.getUserHomeDataUseCase,
     required this.getArticlesUseCase,
   }) : super(UserHomeLoading()) {
     _progressSub = getIt<AppEventBus>().stream.listen(_applyProgressEvent);
+    _connectivitySub = ConnectivityService().onStatusChange.listen((online) {
+      if (!online) {
+        emit(UserHomeError(
+          'errors.no_internet_title'.tr(),
+          error: const AppError(type: AppErrorType.network, message: ''),
+        ));
+      } else {
+        if (state is UserHomeError) {
+          loadHomeData();
+        }
+      }
+    });
   }
 
   @override
   Future<void> close() {
     _progressSub.cancel();
+    _connectivitySub?.cancel();
     return super.close();
   }
 

@@ -18,6 +18,7 @@ import 'package:fitness_day/features/specialist/clients/presentation/pages/clien
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/features/specialist/home/presentation/manager/specialist_home_cubit.dart';
 import 'package:fitness_day/features/specialist/home/presentation/manager/specialist_home_state.dart';
+import 'package:fitness_day/core/widgets/home_connectivity_banner.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -80,6 +81,10 @@ class HomePage extends StatelessWidget {
                             branch: data.branch,
                             avatarUrl: data.avatar,
                           ),
+
+                          // Offline / reconnected banner — slides in below the header
+                          // and collapses to zero height when the connection is healthy.
+                          const HomeConnectivityBanner(),
 
                           SizedBox(height: 24.h),
 
