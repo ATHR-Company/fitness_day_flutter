@@ -3,7 +3,9 @@ import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/network/device_type_helper.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
+import 'package:fitness_day/core/network/apple_sign_in_helper.dart';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -71,7 +73,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
         listener: (context, state) {
           if (state is UserVerifyOtpSuccess) {
             if (state.response.type == 'user') {
-              if (!state.response.isPersonalDataComplete || !state.response.isSurveyComplete) {
+              if (!state.response.isPersonalDataComplete ||
+                  !state.response.isSurveyComplete) {
                 context.read<UserSetupCubit>().fetchLookups();
               }
               if (!state.response.isPersonalDataComplete) {
@@ -86,7 +89,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
             }
           } else if (state is UserSigninSuccess) {
             if (state.response.type == 'user') {
-              if (!state.response.isPersonalDataComplete || !state.response.isSurveyComplete) {
+              if (!state.response.isPersonalDataComplete ||
+                  !state.response.isSurveyComplete) {
                 context.read<UserSetupCubit>().fetchLookups();
               }
               if (!state.response.isPersonalDataComplete) {
@@ -119,13 +123,17 @@ class _UserLoginPageState extends State<UserLoginPage> {
                     children: [
                       // ── Back button ──────────────────────────────────────
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 8.h,
+                        ),
                         child: SizedBox(
                           height: 48.h,
                           child: Align(
                             alignment: AlignmentDirectional.centerStart,
                             child: IconButton(
-                              onPressed: () => context.go(SharedRoutes.roleSelection),
+                              onPressed: () =>
+                                  context.go(SharedRoutes.roleSelection),
                               padding: EdgeInsets.zero,
                               constraints: BoxConstraints(
                                 minHeight: 48.h,
@@ -185,8 +193,10 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                             _passwordFocusNode.requestFocus();
                                           },
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return LocaleKeys.login_phone_hint.tr();
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return LocaleKeys.login_phone_hint
+                                                  .tr();
                                             }
                                             return null;
                                           },
@@ -199,8 +209,10 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                           controller: _passwordController,
                                           focusNode: _passwordFocusNode,
                                           textInputAction: TextInputAction.done,
-                                          onFieldSubmitted: (_) => _onLoginPressed(),
-                                          validator: AppValidators.loginPassword,
+                                          onFieldSubmitted: (_) =>
+                                              _onLoginPressed(),
+                                          validator:
+                                              AppValidators.loginPassword,
                                         ),
 
                                         SizedBox(height: 16.h),
@@ -214,7 +226,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                               onPressed: () {
                                                 _passwordController.clear();
                                                 context.push(
-                                                    UserAppRoutes.forgotPassword);
+                                                  UserAppRoutes.forgotPassword,
+                                                );
                                               },
                                               style: TextButton.styleFrom(
                                                 padding: EdgeInsets.zero,
@@ -224,14 +237,15 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                                         .shrinkWrap,
                                               ),
                                               child: Text(
-                                                LocaleKeys.login_forgot_password.tr(),
+                                                LocaleKeys.login_forgot_password
+                                                    .tr(),
                                                 style: TextStyleManager
                                                     .style13Medium
                                                     .copyWith(
-                                                  color: AppColors.black,
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                ),
+                                                      color: AppColors.black,
+                                                      decoration: TextDecoration
+                                                          .underline,
+                                                    ),
                                               ),
                                             ),
                                           ],
@@ -241,7 +255,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
                                         // Login Button
                                         CustomButton(
-                                          text: LocaleKeys.login_login_button.tr(),
+                                          text: LocaleKeys.login_login_button
+                                              .tr(),
                                           onPressed: _onLoginPressed,
                                         ),
 
@@ -259,14 +274,16 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                             ),
                                             Padding(
                                               padding: EdgeInsets.symmetric(
-                                                  horizontal: 12.w),
+                                                horizontal: 12.w,
+                                              ),
                                               child: Text(
                                                 LocaleKeys.login_or.tr(),
                                                 style: TextStyleManager
                                                     .style14Medium
                                                     .copyWith(
-                                                  color: AppColors.textSecondary,
-                                                ),
+                                                      color: AppColors
+                                                          .textSecondary,
+                                                    ),
                                               ),
                                             ),
                                             Expanded(
@@ -288,19 +305,41 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                                 TargetPlatform.iOS) ...[
                                               Expanded(
                                                 child: AppSocialButton(
-                                                  label: LocaleKeys.login_apple.tr(),
+                                                  label: LocaleKeys.login_apple
+                                                      .tr(),
                                                   icon: AppImage(
                                                     SvgIcons.appleLogin,
                                                     height: 22.h,
                                                   ),
-                                                  onTap: () {
-                                                    context
-                                                        .read<UserAuthCubit>()
-                                                        .socialAuth(
-                                                          provider: 'APPLE',
-                                                          idToken:
-                                                              'test_apple_id_token',
+                                                  onTap: () async {
+                                                    try {
+                                                      final idToken =
+                                                          await AppleSignInHelper.signIn();
+                                                      if (idToken != null) {
+                                                        if (mounted) {
+                                                          context
+                                                              .read<
+                                                                UserAuthCubit
+                                                              >()
+                                                              .socialAuth(
+                                                                provider:
+                                                                    'APPLE',
+                                                                idToken:
+                                                                    idToken,
+                                                              );
+                                                        }
+                                                      }
+                                                    } on AppleSignInFailure catch (
+                                                      e
+                                                    ) {
+                                                      if (mounted) {
+                                                        showAppSnackBar(
+                                                          context,
+                                                          text: e.message,
+                                                          isError: true,
                                                         );
+                                                      }
+                                                    }
                                                   },
                                                 ),
                                               ),
@@ -308,29 +347,38 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                             ],
                                             Expanded(
                                               child: AppSocialButton(
-                                                label: LocaleKeys.login_google.tr(),
-                                                icon: AppImage(SvgIcons.google,
-                                                    height: 22.h),
+                                                label: LocaleKeys.login_google
+                                                    .tr(),
+                                                icon: AppImage(
+                                                  SvgIcons.google,
+                                                  height: 22.h,
+                                                ),
                                                 onTap: () async {
                                                   try {
                                                     final idToken =
-                                                        await GoogleSignInHelper
-                                                            .signIn();
+                                                        await GoogleSignInHelper.signIn();
                                                     if (idToken != null) {
                                                       if (mounted) {
                                                         context
-                                                            .read<UserAuthCubit>()
+                                                            .read<
+                                                              UserAuthCubit
+                                                            >()
                                                             .socialAuth(
-                                                              provider: 'GOOGLE',
+                                                              provider:
+                                                                  'GOOGLE',
                                                               idToken: idToken,
                                                             );
                                                       }
                                                     }
-                                                  } on GoogleSignInFailure catch (e) {
+                                                  } on GoogleSignInFailure catch (
+                                                    e
+                                                  ) {
                                                     if (mounted) {
-                                                      showAppSnackBar(context,
-                                                          text: e.message,
-                                                          isError: true);
+                                                      showAppSnackBar(
+                                                        context,
+                                                        text: e.message,
+                                                        isError: true,
+                                                      );
                                                     }
                                                   }
                                                 },
@@ -353,22 +401,25 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                               style: TextStyleManager
                                                   .style14Medium
                                                   .copyWith(
-                                                color: AppColors.black,
-                                              ),
+                                                    color: AppColors.black,
+                                                  ),
                                               children: [
                                                 TextSpan(
-                                                    text: LocaleKeys
-                                                        .login_no_account
-                                                        .tr()),
+                                                  text: LocaleKeys
+                                                      .login_no_account
+                                                      .tr(),
+                                                ),
                                                 WidgetSpan(
                                                   alignment:
                                                       PlaceholderAlignment
                                                           .middle,
                                                   child: GestureDetector(
                                                     onTap: () {
-                                                      _passwordController.clear();
+                                                      _passwordController
+                                                          .clear();
                                                       context.push(
-                                                          UserAppRoutes.signUp);
+                                                        UserAppRoutes.signUp,
+                                                      );
                                                     },
                                                     child: Text(
                                                       LocaleKeys
@@ -377,8 +428,9 @@ class _UserLoginPageState extends State<UserLoginPage> {
                                                       style: TextStyleManager
                                                           .style14Bold
                                                           .copyWith(
-                                                        color: AppColors.primary,
-                                                      ),
+                                                            color: AppColors
+                                                                .primary,
+                                                          ),
                                                     ),
                                                   ),
                                                 ),

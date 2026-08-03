@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pedometer/pedometer.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/utils/activity_permissions.dart';
 import 'package:fitness_day/features/user/user_home/data/models/running_sync_model.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/sync_running_usecase.dart';
 
@@ -71,6 +71,7 @@ class RunningCubit extends Cubit<RunningState> {
   /// carries the delta since these marks — never a cumulative total.
   double _lastSyncedDistanceKm = 0;
   int _lastSyncedElapsedSeconds = 0;
+
   /// Sync every 5 m — the same distance as the GPS stream's own
   /// `distanceFilter`, so effectively every fix that counts as movement sends.
   static const double _kSyncThresholdKm = 0.005;
@@ -105,8 +106,8 @@ class RunningCubit extends Cubit<RunningState> {
     required this.activityId,
     required this.activityItemId,
     required double goalDistanceKm,
-  })  : _syncRunningUseCase = syncRunningUseCase,
-        super(RunningState(goalDistanceKm: goalDistanceKm));
+  }) : _syncRunningUseCase = syncRunningUseCase,
+       super(RunningState(goalDistanceKm: goalDistanceKm));
 
   // ─── Public API ───────────────────────────────────────────────────────────
 
@@ -117,16 +118,9 @@ class RunningCubit extends Cubit<RunningState> {
   /// though the user granted everything long ago.
   Future<void> refreshPermissionStatus() async {
     try {
-      final Permission motion = defaultTargetPlatform == TargetPlatform.iOS
-          ? Permission.sensors
-          : Permission.activityRecognition;
-
-      final bool motionGranted = await motion.isGranted;
-      final LocationPermission locPerm = await Geolocator.checkPermission();
-      final bool locationGranted = locPerm == LocationPermission.always ||
-          locPerm == LocationPermission.whileInUse;
-
-      if (!isClosed && motionGranted && locationGranted) {
+      final bool granted =
+          await ActivityPermissions.areRunningPermissionsGranted();
+      if (!isClosed && granted) {
         emit(state.copyWith(permissionGranted: true));
       }
     } catch (e) {
@@ -134,35 +128,31 @@ class RunningCubit extends Cubit<RunningState> {
     }
   }
 
-  Future<bool> requestPermissions() async {
-    // Motion / activity recognition
-    // iOS: pedometer uses CoreMotion → NSMotionUsageDescription (Info.plist)
-    //      permission_handler's Permission.sensors covers CoreMotion on iOS.
-    // Android: ACTIVITY_RECOGNITION is the explicit runtime permission.
-    final Permission motion =
-        defaultTargetPlatform == TargetPlatform.iOS
-            ? Permission.sensors
-            : Permission.activityRecognition;
-    if (!await _grant(motion)) return false;
+  /// Requests both Location and Motion permissions with proper user flow.
+  ///
+  /// Shows explanation dialog before requesting permissions.
+  /// Handles all permission states correctly (granted, denied, restricted, etc.).
+  ///
+  /// Returns true if both permissions are granted.
+  ///
+  /// Note: Requires a BuildContext to show dialogs. The context should be
+  /// passed from the UI layer when the user taps the start button.
+  Future<bool> requestPermissions(BuildContext context) async {
+    final bool granted = await ActivityPermissions.ensureRunningPermissions(
+      context,
+    );
 
-    // Location (fine) — needed for GPS distance
-    LocationPermission locPerm = await Geolocator.checkPermission();
-    if (locPerm == LocationPermission.denied) {
-      locPerm = await Geolocator.requestPermission();
-    }
-    if (locPerm == LocationPermission.denied ||
-        locPerm == LocationPermission.deniedForever) {
-      return false;
+    if (granted && !isClosed) {
+      emit(state.copyWith(permissionGranted: true));
     }
 
-    emit(state.copyWith(permissionGranted: true));
-    return true;
+    return granted;
   }
 
-  Future<void> startSession() async {
+  Future<void> startSession(BuildContext context) async {
     if (state.isRunning) return;
     if (!state.permissionGranted) {
-      final ok = await requestPermissions();
+      final ok = await requestPermissions(context);
       if (!ok) return;
     }
 
@@ -174,14 +164,16 @@ class RunningCubit extends Cubit<RunningState> {
     _pendingSyncId = null;
     _startTime = DateTime.now();
 
-    emit(state.copyWith(
-      isRunning: true,
-      distanceKm: 0,
-      steps: 0,
-      caloriesKcal: 0,
-      elapsedSeconds: 0,
-      sessionFinished: false,
-    ));
+    emit(
+      state.copyWith(
+        isRunning: true,
+        distanceKm: 0,
+        steps: 0,
+        caloriesKcal: 0,
+        elapsedSeconds: 0,
+        sessionFinished: false,
+      ),
+    );
 
     _startGps();
     _startPedometer();
@@ -223,54 +215,52 @@ class RunningCubit extends Cubit<RunningState> {
   // ─── GPS tracking ─────────────────────────────────────────────────────────
 
   void _startGps() {
-    _gpsSub = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 5, // update every 5 metres
-      ),
-    ).listen(
-      (Position pos) {
-        // Drop low-confidence fixes outright. Without this, a stationary phone
-        // still drifts past the 5 m filter and silently accumulates distance
-        // over a long session. The anchor is deliberately left alone — making a
-        // fix we don't trust the reference point for the next measurement would
-        // fold its own error straight into the distance.
-        if (pos.accuracy > _kMaxAcceptableAccuracyMeters) return;
+    _gpsSub =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 5, // update every 5 metres
+          ),
+        ).listen((Position pos) {
+          // Drop low-confidence fixes outright. Without this, a stationary phone
+          // still drifts past the 5 m filter and silently accumulates distance
+          // over a long session. The anchor is deliberately left alone — making a
+          // fix we don't trust the reference point for the next measurement would
+          // fold its own error straight into the distance.
+          if (pos.accuracy > _kMaxAcceptableAccuracyMeters) return;
 
-        if (_lastPos == null) {
+          if (_lastPos == null) {
+            _lastPos = pos;
+            return;
+          }
+
+          final double delta = _haversineKm(_lastPos!, pos);
+
+          // Standing still still wanders past the 5 m filter, so require evidence
+          // of actual movement: either a reported speed in the walking-or-faster
+          // range, or a displacement larger than the fix's own error circle. The
+          // second test covers devices that never report a usable speed.
+          final bool movingBySpeed = pos.speed >= _kMinMovingSpeedMps;
+          final bool movingByDisplacement = delta * 1000 > pos.accuracy;
+          if (!movingBySpeed && !movingByDisplacement) {
+            // Hold the anchor. Advancing it here was why devices that report no
+            // speed accumulated nothing at all: each fix arrives ~5 m after the
+            // last, so a single hop can never exceed a 10–25 m accuracy circle,
+            // and re-anchoring every time meant the displacement test restarted
+            // from scratch forever. Keeping the anchor lets successive hops add
+            // up until they clear the circle, and then they are credited.
+            return;
+          }
+
+          // Ignore GPS noise (> 150 m in one tick = bad fix)
+          if (delta < 0.15) {
+            _gpsDistanceKm += delta;
+            final double newDist = _distanceFor(state.steps);
+            emit(state.copyWith(distanceKm: newDist));
+            _maybeSyncToBackend(newDist);
+          }
           _lastPos = pos;
-          return;
-        }
-
-        final double delta = _haversineKm(_lastPos!, pos);
-
-        // Standing still still wanders past the 5 m filter, so require evidence
-        // of actual movement: either a reported speed in the walking-or-faster
-        // range, or a displacement larger than the fix's own error circle. The
-        // second test covers devices that never report a usable speed.
-        final bool movingBySpeed = pos.speed >= _kMinMovingSpeedMps;
-        final bool movingByDisplacement = delta * 1000 > pos.accuracy;
-        if (!movingBySpeed && !movingByDisplacement) {
-          // Hold the anchor. Advancing it here was why devices that report no
-          // speed accumulated nothing at all: each fix arrives ~5 m after the
-          // last, so a single hop can never exceed a 10–25 m accuracy circle,
-          // and re-anchoring every time meant the displacement test restarted
-          // from scratch forever. Keeping the anchor lets successive hops add
-          // up until they clear the circle, and then they are credited.
-          return;
-        }
-
-        // Ignore GPS noise (> 150 m in one tick = bad fix)
-        if (delta < 0.15) {
-          _gpsDistanceKm += delta;
-          final double newDist = _distanceFor(state.steps);
-          emit(state.copyWith(distanceKm: newDist));
-          _maybeSyncToBackend(newDist);
-        }
-        _lastPos = pos;
-      },
-      onError: (e) => debugPrint('RunningCubit GPS error: $e'),
-    );
+        }, onError: (e) => debugPrint('RunningCubit GPS error: $e'));
   }
 
   // ─── Pedometer ────────────────────────────────────────────────────────────
@@ -302,8 +292,7 @@ class RunningCubit extends Cubit<RunningState> {
   void _startClock() {
     _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (_startTime == null || isClosed) return;
-      final int elapsed =
-          DateTime.now().difference(_startTime!).inSeconds;
+      final int elapsed = DateTime.now().difference(_startTime!).inSeconds;
       emit(state.copyWith(elapsedSeconds: elapsed));
     });
   }
@@ -338,8 +327,10 @@ class RunningCubit extends Cubit<RunningState> {
     // be replay-protected server-side and silently dropped.
     if (_pendingSyncId != null && !await _postPending()) return;
 
-    final double delta =
-        (state.distanceKm - _lastSyncedDistanceKm).clamp(0.0, state.distanceKm);
+    final double delta = (state.distanceKm - _lastSyncedDistanceKm).clamp(
+      0.0,
+      state.distanceKm,
+    );
     final int durationDelta = (state.elapsedSeconds - _lastSyncedElapsedSeconds)
         .clamp(0, state.elapsedSeconds);
 
@@ -360,7 +351,8 @@ class RunningCubit extends Cubit<RunningState> {
 
   /// Sends the outstanding attempt. Returns true once it is acknowledged.
   Future<bool> _postPending() async {
-    final ApiResult<RunningSyncResponseModel> result = await _syncRunningUseCase(
+    final ApiResult<RunningSyncResponseModel>
+    result = await _syncRunningUseCase(
       RunningSyncRequestModel(
         assessmentId: assessmentId,
         dayNumber: dayNumber,
@@ -399,7 +391,8 @@ class RunningCubit extends Cubit<RunningState> {
     const double r = 6371.0;
     final double dLat = _rad(b.latitude - a.latitude);
     final double dLon = _rad(b.longitude - a.longitude);
-    final double h = math.sin(dLat / 2) * math.sin(dLat / 2) +
+    final double h =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
         math.cos(_rad(a.latitude)) *
             math.cos(_rad(b.latitude)) *
             math.sin(dLon / 2) *
@@ -408,9 +401,4 @@ class RunningCubit extends Cubit<RunningState> {
   }
 
   static double _rad(double deg) => deg * math.pi / 180;
-
-  Future<bool> _grant(Permission p) async {
-    if (await p.isGranted) return true;
-    return await p.request() == PermissionStatus.granted;
-  }
 }

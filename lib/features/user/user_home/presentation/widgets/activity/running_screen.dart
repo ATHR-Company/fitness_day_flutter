@@ -64,9 +64,9 @@ class _RunningScreenState extends State<RunningScreen> {
   bool _goalReached = false;
 
   List<String> get _tabs => [
-        'activity_tracking.tab_daily'.tr(),
-        'activity_tracking.tab_weekly'.tr(),
-      ];
+    'activity_tracking.tab_daily'.tr(),
+    'activity_tracking.tab_weekly'.tr(),
+  ];
 
   @override
   void initState() {
@@ -91,8 +91,12 @@ class _RunningScreenState extends State<RunningScreen> {
     _frozenApiProgress = data.currentProgress;
     _frozenApiProgressPct = data.progressPercentage.toInt();
     _frozenApiGoal = data.goal;
-    _frozenApiUnit = data.unit.isNotEmpty ? data.unit : 'activity_tracking.km_unit'.tr();
-    _frozenActivityName = data.name.isNotEmpty ? data.name : 'activity_tracking.running_title'.tr();
+    _frozenApiUnit = data.unit.isNotEmpty
+        ? data.unit
+        : 'activity_tracking.km_unit'.tr();
+    _frozenActivityName = data.name.isNotEmpty
+        ? data.name
+        : 'activity_tracking.running_title'.tr();
     _frozenApiDuration = apiDurationSeconds(data.durationMinutes);
     _frozenApiCalories = data.caloriesBurned ?? 0;
     _goalReached = data.goalReached;
@@ -139,7 +143,7 @@ class _RunningScreenState extends State<RunningScreen> {
       _refreshDetails();
       return;
     }
-    await cubit.startSession();
+    await cubit.startSession(context);
   }
 
   /// Read-only weekly aggregate — distance + summary straight from the API,
@@ -153,7 +157,9 @@ class _RunningScreenState extends State<RunningScreen> {
         : 'activity_tracking.km_unit'.tr();
     final double percent = goal > 0
         ? (progress / goal).clamp(0.0, 1.0)
-        : (data != null ? (data.progressPercentage / 100).clamp(0.0, 1.0) : 0.0);
+        : (data != null
+              ? (data.progressPercentage / 100).clamp(0.0, 1.0)
+              : 0.0);
 
     return Scaffold(
       body: ScreenBackground(
@@ -269,9 +275,11 @@ class _RunningScreenState extends State<RunningScreen> {
 
                       if (!state.permissionGranted)
                         PermissionBanner(
-                          message: 'activity_tracking.needs_location_motion'.tr(),
-                          onTap: () =>
-                              context.read<RunningCubit>().requestPermissions(),
+                          message: 'activity_tracking.needs_location_motion'
+                              .tr(),
+                          onTap: () => context
+                              .read<RunningCubit>()
+                              .requestPermissions(context),
                         )
                       else ...[
                         ActivityCircle(
@@ -293,8 +301,9 @@ class _RunningScreenState extends State<RunningScreen> {
                         ),
                         Text(
                           'activity_tracking.elapsed_time'.tr(),
-                          style: TextStyleManager.style11Medium
-                              .copyWith(color: AppColors.textSecondary),
+                          style: TextStyleManager.style11Medium.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                         SizedBox(height: 24.h),
 
@@ -308,7 +317,8 @@ class _RunningScreenState extends State<RunningScreen> {
                           child: DailySummaryCard(
                             distance: total,
                             unit: _frozenApiUnit,
-                            durationSeconds: _frozenApiDuration +
+                            durationSeconds:
+                                _frozenApiDuration +
                                 (showLive ? state.elapsedSeconds : 0),
                             calories: state.caloriesKcal > 0
                                 ? state.caloriesKcal.round()

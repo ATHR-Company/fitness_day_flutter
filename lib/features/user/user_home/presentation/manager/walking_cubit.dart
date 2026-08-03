@@ -4,7 +4,8 @@ import 'dart:math' as math;
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 // Prefixed: this package and geolocator both export an `ActivityType`.
-import 'package:flutter_activity_recognition/flutter_activity_recognition.dart' as ar;
+import 'package:flutter_activity_recognition/flutter_activity_recognition.dart'
+    as ar;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pedometer/pedometer.dart';
@@ -125,7 +126,8 @@ class WalkingCubit extends Cubit<WalkingState> {
   /// Ceiling on unspent allowance, so idle time cannot bank a burst.
   static const double _kMaxStepBurst = 10;
 
-  int get _sessionSteps => math.max(_healthSessionSteps, _pedometerSessionSteps);
+  int get _sessionSteps =>
+      math.max(_healthSessionSteps, _pedometerSessionSteps);
 
   // ─── Distance ─────────────────────────────────────────────────────────────
   //
@@ -156,10 +158,8 @@ class WalkingCubit extends Cubit<WalkingState> {
   /// an estimate — used only when the health store offers nothing better.
   static const double _kStrideMetres = 0.75;
 
-  double get _sessionDistanceKm => math.max(
-        _healthSessionDistanceKm,
-        _sessionSteps * _kStrideMetres / 1000,
-      );
+  double get _sessionDistanceKm =>
+      math.max(_healthSessionDistanceKm, _sessionSteps * _kStrideMetres / 1000);
 
   // ─── GPS corroboration ────────────────────────────────────────────────────
   //
@@ -248,7 +248,8 @@ class WalkingCubit extends Cubit<WalkingState> {
     if (activity == null) return null;
     if (_isOnFoot(activity)) return false;
 
-    final bool notMoving = activity.type == ar.ActivityType.STILL ||
+    final bool notMoving =
+        activity.type == ar.ActivityType.STILL ||
         activity.type == ar.ActivityType.IN_VEHICLE;
     if (!notMoving || activity.confidence == ar.ActivityConfidence.LOW) {
       return null;
@@ -256,9 +257,7 @@ class WalkingCubit extends Cubit<WalkingState> {
 
     final DateTime? since = _stillSince;
     if (since == null) return null;
-    return DateTime.now().difference(since) > _kStillSettle
-        ? true
-        : null;
+    return DateTime.now().difference(since) > _kStillSettle ? true : null;
   }
 
   /// The single gate every step passes through, from either source.
@@ -317,14 +316,48 @@ class WalkingCubit extends Cubit<WalkingState> {
     required this.activityItemId,
     required double goalSteps,
     required double goalDistanceKm,
-  })  : _healthService = healthService,
-        _syncWalkingUseCase = syncWalkingUseCase,
-        super(WalkingState(
-          goalSteps: goalSteps,
-          goalDistanceKm: goalDistanceKm,
-        ));
+  }) : _healthService = healthService,
+       _syncWalkingUseCase = syncWalkingUseCase,
+       super(
+         WalkingState(goalSteps: goalSteps, goalDistanceKm: goalDistanceKm),
+       );
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
+
+  /// Reads the existing Health permission status **without prompting**.
+  ///
+  /// Similar to RunningCubit's refreshPermissionStatus - checks if permissions
+  /// are already granted so the permission banner doesn't reappear each time
+  /// the screen opens when the user already granted access.
+  Future<void> refreshPermissionStatus() async {
+    try {
+      // Android: Health Connect must be installed first
+      if (Platform.isAndroid) {
+        final bool available = await _healthService.isAvailable();
+        if (!available) {
+          if (!isClosed) {
+            emit(
+              state.copyWith(permissionStatus: HealthPermStatus.needsInstall),
+            );
+          }
+          return;
+        }
+      }
+
+      final bool granted = await _healthService.hasWalkingPermissions();
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            permissionStatus: granted
+                ? HealthPermStatus.granted
+                : HealthPermStatus.notDetermined,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('WalkingCubit.refreshPermissionStatus error: $e');
+    }
+  }
 
   /// Resolves health access, asking the user only when it isn't already held.
   ///
@@ -344,10 +377,13 @@ class WalkingCubit extends Cubit<WalkingState> {
     }
 
     final bool granted = await _healthService.requestWalkingPermissions();
-    emit(state.copyWith(
-      permissionStatus:
-          granted ? HealthPermStatus.granted : HealthPermStatus.denied,
-    ));
+    emit(
+      state.copyWith(
+        permissionStatus: granted
+            ? HealthPermStatus.granted
+            : HealthPermStatus.denied,
+      ),
+    );
     return granted;
   }
 
@@ -387,12 +423,14 @@ class WalkingCubit extends Cubit<WalkingState> {
     _lastActivity = null;
     _stillSince = null;
     _sessionStartedAt = DateTime.now();
-    emit(state.copyWith(
-      steps: 0,
-      distanceKm: 0,
-      caloriesKcal: 0,
-      elapsedSeconds: 0,
-    ));
+    emit(
+      state.copyWith(
+        steps: 0,
+        distanceKm: 0,
+        caloriesKcal: 0,
+        elapsedSeconds: 0,
+      ),
+    );
 
     // The sent markers are session-relative like the readings they are compared
     // against, so they restart at zero too. Any attempt left pending from the
@@ -419,9 +457,11 @@ class WalkingCubit extends Cubit<WalkingState> {
   void _tick() {
     final DateTime? startedAt = _sessionStartedAt;
     if (startedAt == null || isClosed) return;
-    emit(state.copyWith(
-      elapsedSeconds: DateTime.now().difference(startedAt).inSeconds,
-    ));
+    emit(
+      state.copyWith(
+        elapsedSeconds: DateTime.now().difference(startedAt).inSeconds,
+      ),
+    );
   }
 
   /// Ends the session. Reads once more before stopping so the steps taken
@@ -533,8 +573,10 @@ class WalkingCubit extends Cubit<WalkingState> {
       _lastPolledHealthSteps = totalHealthSteps;
 
       _healthSessionSteps =
-          (totalHealthSteps - _initialHealthSteps! - _ignoredHealthSteps)
-              .clamp(0, totalHealthSteps);
+          (totalHealthSteps - _initialHealthSteps! - _ignoredHealthSteps).clamp(
+            0,
+            totalHealthSteps,
+          );
 
       // Which signal is deciding, and what it decided. Without this the screen
       // just shows a number and there is no way to tell a vetoed walk from a
@@ -547,19 +589,27 @@ class WalkingCubit extends Cubit<WalkingState> {
       );
 
       final int sessionSteps = _sessionSteps;
-      _healthSessionDistanceKm = (metrics.distanceKm - _initialHealthDistanceKm!)
-          .clamp(0.0, metrics.distanceKm);
+      _healthSessionDistanceKm =
+          (metrics.distanceKm - _initialHealthDistanceKm!).clamp(
+            0.0,
+            metrics.distanceKm,
+          );
       final double sessionDistanceKm = _sessionDistanceKm;
-      final double sessionCaloriesKcal = (metrics.caloriesKcal - _initialHealthCaloriesKcal!)
-          .clamp(0.0, metrics.caloriesKcal);
+      final double sessionCaloriesKcal =
+          (metrics.caloriesKcal - _initialHealthCaloriesKcal!).clamp(
+            0.0,
+            metrics.caloriesKcal,
+          );
 
       if (!isClosed) {
-        emit(state.copyWith(
-          steps: sessionSteps,
-          distanceKm: sessionDistanceKm,
-          caloriesKcal: sessionCaloriesKcal,
-          isLoading: false,
-        ));
+        emit(
+          state.copyWith(
+            steps: sessionSteps,
+            distanceKm: sessionDistanceKm,
+            caloriesKcal: sessionCaloriesKcal,
+            isLoading: false,
+          ),
+        );
       }
 
       await _syncToBackend(
@@ -577,10 +627,12 @@ class WalkingCubit extends Cubit<WalkingState> {
 
   Future<void> _startPedometerIfPermitted() async {
     try {
-      final Permission motion =
-          Platform.isIOS ? Permission.sensors : Permission.activityRecognition;
+      final Permission motion = Platform.isIOS
+          ? Permission.sensors
+          : Permission.activityRecognition;
       final bool granted =
-          await motion.isGranted || await motion.request() == PermissionStatus.granted;
+          await motion.isGranted ||
+          await motion.request() == PermissionStatus.granted;
       if (granted && !isClosed) _startPedometer();
     } catch (e) {
       debugPrint('WalkingCubit motion permission error: $e');
@@ -608,7 +660,8 @@ class WalkingCubit extends Cubit<WalkingState> {
           // Track how long STILL has held. Any other verdict — including
           // UNKNOWN — ends the run, so a momentary blip cannot start the
           // veto clock over from a walk that never stopped.
-          final bool isStill = activity.type == ar.ActivityType.STILL ||
+          final bool isStill =
+              activity.type == ar.ActivityType.STILL ||
               activity.type == ar.ActivityType.IN_VEHICLE;
           if (isStill && activity.confidence != ar.ActivityConfidence.LOW) {
             _stillSince ??= DateTime.now();
@@ -640,58 +693,59 @@ class WalkingCubit extends Cubit<WalkingState> {
       if (isClosed) return;
 
       _gpsSub?.cancel();
-      _gpsSub = Geolocator.getPositionStream(
-        // Medium accuracy is enough to answer "is this person moving at all?"
-        // and costs far less battery than the navigation-grade modes.
-        //
-        // distanceFilter is 0, not 3: with a filter the stream goes quiet while
-        // the user stands still, the last fix ages past _kFixFreshness, and the
-        // gate falls open again — which is precisely the case it exists to
-        // catch. Standing still has to keep producing fixes to be provable.
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.medium,
-          distanceFilter: 0,
-        ),
-      ).listen(
-        (Position pos) {
-          if (pos.accuracy > _kUsableAccuracyMeters) return;
-          final DateTime now = DateTime.now();
-          _lastUsableFixAt = now;
-          _firstUsableFixAt ??= now;
+      _gpsSub =
+          Geolocator.getPositionStream(
+            // Medium accuracy is enough to answer "is this person moving at all?"
+            // and costs far less battery than the navigation-grade modes.
+            //
+            // distanceFilter is 0, not 3: with a filter the stream goes quiet while
+            // the user stands still, the last fix ages past _kFixFreshness, and the
+            // gate falls open again — which is precisely the case it exists to
+            // catch. Standing still has to keep producing fixes to be provable.
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.medium,
+              distanceFilter: 0,
+            ),
+          ).listen(
+            (Position pos) {
+              if (pos.accuracy > _kUsableAccuracyMeters) return;
+              final DateTime now = DateTime.now();
+              _lastUsableFixAt = now;
+              _firstUsableFixAt ??= now;
 
-          final Position? anchor = _movementAnchor;
-          if (anchor == null) {
-            _movementAnchor = pos;
-            return;
-          }
+              final Position? anchor = _movementAnchor;
+              if (anchor == null) {
+                _movementAnchor = pos;
+                return;
+              }
 
-          // Two independent tests, because neither works everywhere:
-          //
-          //  - speed is the cheap one, but Android's fused provider reports a
-          //    flat 0.0 and iOS reports -1 when it has no valid value, so a
-          //    speed-only test declared every walk stationary.
-          //  - displacement always works, measured against the anchor's own
-          //    error circle so GPS jitter cannot fake it.
-          final bool movingBySpeed = pos.speed >= _kMinWalkingSpeedMps;
-          final double metres = Geolocator.distanceBetween(
-            anchor.latitude,
-            anchor.longitude,
-            pos.latitude,
-            pos.longitude,
+              // Two independent tests, because neither works everywhere:
+              //
+              //  - speed is the cheap one, but Android's fused provider reports a
+              //    flat 0.0 and iOS reports -1 when it has no valid value, so a
+              //    speed-only test declared every walk stationary.
+              //  - displacement always works, measured against the anchor's own
+              //    error circle so GPS jitter cannot fake it.
+              final bool movingBySpeed = pos.speed >= _kMinWalkingSpeedMps;
+              final double metres = Geolocator.distanceBetween(
+                anchor.latitude,
+                anchor.longitude,
+                pos.latitude,
+                pos.longitude,
+              );
+              final bool movingByDisplacement =
+                  metres > math.max(_kMinDisplacementMeters, anchor.accuracy);
+
+              if (movingBySpeed || movingByDisplacement) {
+                _lastMovementAt = now;
+                _movementAnchor = pos;
+              }
+              // Anchor deliberately left alone otherwise — successive small hops
+              // need to add up before they can clear the circle.
+            },
+            onError: (e) => debugPrint('WalkingCubit GPS error: $e'),
+            cancelOnError: false,
           );
-          final bool movingByDisplacement = metres >
-              math.max(_kMinDisplacementMeters, anchor.accuracy);
-
-          if (movingBySpeed || movingByDisplacement) {
-            _lastMovementAt = now;
-            _movementAnchor = pos;
-          }
-          // Anchor deliberately left alone otherwise — successive small hops
-          // need to add up before they can clear the circle.
-        },
-        onError: (e) => debugPrint('WalkingCubit GPS error: $e'),
-        cancelOnError: false,
-      );
     } catch (e) {
       debugPrint('WalkingCubit GPS permission error: $e');
     }
@@ -718,7 +772,8 @@ class WalkingCubit extends Cubit<WalkingState> {
 
         final int rawDelta = event.steps - _lastPedometerReading!;
         final double elapsedSeconds =
-            now.difference(_lastPedometerEventAt ?? now).inMilliseconds / 1000.0;
+            now.difference(_lastPedometerEventAt ?? now).inMilliseconds /
+            1000.0;
 
         // Token bucket: the sensor is a vibration counter, so shaking the phone
         // registers as steps. Real locomotion cannot exceed a few steps per
@@ -741,10 +796,14 @@ class WalkingCubit extends Cubit<WalkingState> {
           // Queue first, credit what the allowance can afford. The surplus
           // stays queued instead of being thrown away, so a batched sensor
           // event no longer loses the steps it could not pay for immediately.
-          _pendingRawSteps =
-              math.min(_pendingRawSteps + rawDelta, _kMaxPendingSteps);
-          final int credited =
-              math.min(_pendingRawSteps, _stepAllowance.floor());
+          _pendingRawSteps = math.min(
+            _pendingRawSteps + rawDelta,
+            _kMaxPendingSteps,
+          );
+          final int credited = math.min(
+            _pendingRawSteps,
+            _stepAllowance.floor(),
+          );
           _pendingRawSteps -= credited;
           _pedometerSessionSteps += credited;
           _stepAllowance -= credited;
@@ -784,12 +843,14 @@ class WalkingCubit extends Cubit<WalkingState> {
     bool isFinal = false,
   }) {
     final Future<void> previous = _syncQueue ?? Future<void>.value();
-    final Future<void> next = previous.then((_) => _runSync(
-          steps: steps,
-          distanceKm: distanceKm,
-          elapsedSeconds: elapsedSeconds,
-          isFinal: isFinal,
-        ));
+    final Future<void> next = previous.then(
+      (_) => _runSync(
+        steps: steps,
+        distanceKm: distanceKm,
+        elapsedSeconds: elapsedSeconds,
+        isFinal: isFinal,
+      ),
+    );
     _syncQueue = next.catchError((_) {});
     return next;
   }
@@ -809,10 +870,12 @@ class WalkingCubit extends Cubit<WalkingState> {
     // nothing is outstanding.
     if (_pendingSyncId == null) {
       final int stepDelta = (steps - _lastSentSteps).clamp(0, steps);
-      final double distDelta =
-          (distanceKm - _lastSentDistanceKm).clamp(0.0, distanceKm);
-      final int durationDelta =
-          (elapsedSeconds - _lastSentElapsedSeconds).clamp(0, elapsedSeconds);
+      final double distDelta = (distanceKm - _lastSentDistanceKm).clamp(
+        0.0,
+        distanceKm,
+      );
+      final int durationDelta = (elapsedSeconds - _lastSentElapsedSeconds)
+          .clamp(0, elapsedSeconds);
 
       // Elapsed time is reported on its own merit: every 15 s poll and the stop
       // press both send, so the walk's duration is credited even when the step
@@ -825,15 +888,17 @@ class WalkingCubit extends Cubit<WalkingState> {
       _pendingSyncId = _uuid.v4();
       _pendingDeltaSteps = stepDelta;
       // Server contract is metres, not kilometres.
-      _pendingDeltaDistanceM =
-          double.parse((distDelta * 1000).toStringAsFixed(1));
+      _pendingDeltaDistanceM = double.parse(
+        (distDelta * 1000).toStringAsFixed(1),
+      );
       _pendingDurationSeconds = durationDelta;
       _pendingTargetSteps = steps;
       _pendingTargetDistanceKm = distanceKm;
       _pendingTargetElapsedSeconds = elapsedSeconds;
     }
 
-    final ApiResult<WalkingSyncResponseModel> result = await _syncWalkingUseCase(
+    final ApiResult<WalkingSyncResponseModel>
+    result = await _syncWalkingUseCase(
       WalkingSyncRequestModel(
         assessmentId: assessmentId,
         dayNumber: dayNumber,

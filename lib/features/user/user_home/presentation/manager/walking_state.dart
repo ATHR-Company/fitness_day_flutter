@@ -1,6 +1,6 @@
 part of 'walking_cubit.dart';
 
-enum HealthPermStatus { unknown, needsInstall, denied, granted }
+enum HealthPermStatus { unknown, notDetermined, needsInstall, denied, granted }
 
 class WalkingState extends Equatable {
   final int steps;
@@ -74,14 +74,14 @@ class WalkingState extends Equatable {
 
   @override
   List<Object?> get props => [
-        steps,
-        distanceKm,
-        caloriesKcal,
-        elapsedSeconds,
-        goalSteps,
-        goalDistanceKm,
-        permissionStatus,
-        isLoading,
-        isTracking,
-      ];
+    steps,
+    distanceKm,
+    caloriesKcal,
+    elapsedSeconds,
+    goalSteps,
+    goalDistanceKm,
+    permissionStatus,
+    isLoading,
+    isTracking,
+  ];
 }

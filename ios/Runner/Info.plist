@@ -3,29 +3,29 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs camera access to scan your food and estimate calories.</string>
+	<string>Fitness Day needs camera access to take photos for your profile, challenges, and chat messages.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs access to your photo library to select challenge images.</string>
+	<string>Fitness Day needs access to your photo library to select images for your profile, challenges, and chat messages.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app needs permission to save images to your photo library.</string>
+	<string>Fitness Day needs permission to save photos to your photo library.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs microphone access to record voice messages in chat.</string>
+	<string>Fitness Day needs microphone access to record voice messages in chat.</string>
 
 	<!-- HealthKit — required for walking steps/distance/calories -->
 	<key>NSHealthShareUsageDescription</key>
-	<string>يحتاج التطبيق للوصول إلى بيانات صحتك لتتبع خطواتك ومسافتك وسعراتك اليومية.</string>
+	<string>Fitness Day needs access to your Health data to track your daily steps, walking distance, and calories burned during walking activities.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>يحتاج التطبيق لتحديث بيانات صحتك.</string>
+	<string>Fitness Day needs permission to update your Health data with your activity progress.</string>
 
 	<!-- CoreMotion — required for pedometer (walking + running steps) -->
 	<key>NSMotionUsageDescription</key>
-	<string>يحتاج التطبيق للوصول إلى مستشعر الحركة لعد الخطوات أثناء المشي والجري.</string>
+	<string>Fitness Day needs access to your motion sensors to accurately count your steps during walking and running activities.</string>
 
 	<!-- Location — required for GPS distance in running -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>يحتاج التطبيق إلى موقعك لحساب المسافة أثناء الجري.</string>
+	<string>Fitness Day needs your location while using the app to accurately track distance during running activities.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>يحتاج التطبيق إلى موقعك لحساب المسافة أثناء الجري.</string>
+	<string>Fitness Day needs your location to accurately track distance during running activities.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleAllowMixedLocalizations</key>
