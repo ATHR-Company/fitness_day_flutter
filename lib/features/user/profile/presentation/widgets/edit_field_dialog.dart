@@ -8,6 +8,8 @@ class EditFieldDialog extends StatefulWidget {
   final String iconPath;
   final Function(String) onSave;
   final TextInputType? keyboardType;
+  final int? maxLength;
+  final bool nameOnly;
 
   const EditFieldDialog({
     super.key,
@@ -16,6 +18,8 @@ class EditFieldDialog extends StatefulWidget {
     required this.iconPath,
     required this.onSave,
     this.keyboardType,
+    this.maxLength,
+    this.nameOnly = false,
   });
 
   @override
@@ -47,6 +51,8 @@ class _EditFieldDialogState extends State<EditFieldDialog> {
         hintText: widget.hintText,
         iconPath: widget.iconPath,
         keyboardType: widget.keyboardType,
+        maxLength: widget.maxLength,
+        nameOnly: widget.nameOnly,
       ),
     );
   }

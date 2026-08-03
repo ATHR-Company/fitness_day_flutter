@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 
 /// Composer of the AI coach screen. The send button is disabled — and greyed
 /// out — while a reply is still being generated.
@@ -39,6 +40,7 @@ class AiChatInputBar extends StatelessWidget {
                 minLines: 1,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => onSend(),
+                inputFormatters: [NoScriptInputFormatter()],
                 decoration: InputDecoration(
                   hintText: 'ai_chat.input_hint'.tr(),
                   hintStyle: TextStyleManager.style10Medium.copyWith(

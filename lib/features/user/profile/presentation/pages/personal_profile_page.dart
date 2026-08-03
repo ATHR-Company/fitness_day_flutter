@@ -133,6 +133,8 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                                   title: 'login.full_name_hint'.tr(),
                                   hintText: name,
                                   iconPath: SvgIcons.editName,
+                                  maxLength: 30,
+                                  nameOnly: true,
                                   onSave: (val) => cubit.updateUserProfile(fullName: val),
                                 ),
                               );

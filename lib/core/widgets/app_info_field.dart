@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 
 class AppInfoField extends StatelessWidget {
   final String hint;
@@ -34,10 +35,19 @@ class AppInfoField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Read-only picker fields (onTap != null) don't need input sanitisation —
+    // the user can't type anything. For editable fields:
+    //   • number keyboard → digits only (no script risk, no need for NoScript)
+    //   • free text        → strip HTML/JS injection patterns in real time
+    final bool isReadOnly = onTap != null;
+    final bool isNumeric = keyboardType == TextInputType.number;
+
     final effectiveFormatters = inputFormatters ??
-        (keyboardType == TextInputType.number
-            ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly]
-            : null);
+        (isReadOnly
+            ? null
+            : isNumeric
+                ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly]
+                : <TextInputFormatter>[NoScriptInputFormatter()]);
     return TextFormField(
       controller: controller,
       readOnly: onTap != null,
