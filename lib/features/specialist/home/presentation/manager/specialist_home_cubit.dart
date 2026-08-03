@@ -4,10 +4,28 @@ import 'package:fitness_day/features/specialist/home/domain/usecases/get_special
 import 'specialist_home_state.dart';
 import 'package:fitness_day/core/errors/app_error.dart';
 
+import 'dart:async';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/network/connectivity_service.dart';
+
 class SpecialistHomeCubit extends Cubit<SpecialistHomeState> {
   final GetSpecialistHomeDataUseCase _getSpecialistHomeDataUseCase;
+  StreamSubscription<bool>? _connectivitySub;
 
-  SpecialistHomeCubit(this._getSpecialistHomeDataUseCase) : super(const SpecialistHomeInitial());
+  SpecialistHomeCubit(this._getSpecialistHomeDataUseCase) : super(const SpecialistHomeInitial()) {
+    _connectivitySub = ConnectivityService().onStatusChange.listen((online) {
+      if (!online) {
+        emit(SpecialistHomeFailure(
+          'errors.no_internet_title'.tr(),
+          error: const AppError(type: AppErrorType.network, message: ''),
+        ));
+      } else {
+        if (state is SpecialistHomeFailure) {
+          getSpecialistHomeData();
+        }
+      }
+    });
+  }
 
   Future<void> getSpecialistHomeData() async {
     emit(const SpecialistHomeLoading());
@@ -22,5 +40,11 @@ class SpecialistHomeCubit extends Cubit<SpecialistHomeState> {
       case FailureResult(:final failure):
         emit(SpecialistHomeFailure(failure.message, error: AppError.from(failure)));
     }
+  }
+
+  @override
+  Future<void> close() {
+    _connectivitySub?.cancel();
+    return super.close();
   }
 }

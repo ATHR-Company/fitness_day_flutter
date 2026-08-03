@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 
 /// Shared labeled text input used across the challenge creation forms.
 /// Direction-agnostic: relies on the ambient [Directionality] instead of
@@ -46,6 +47,8 @@ class ChallengeTextField extends StatelessWidget {
           onTap: onTap,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          // Strip HTML tags and script-injection patterns in real time.
+          inputFormatters: readOnly ? null : [NoScriptInputFormatter()],
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyleManager.style11Medium.copyWith(

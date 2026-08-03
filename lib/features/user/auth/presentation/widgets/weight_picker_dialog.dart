@@ -19,8 +19,8 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
   late int _selectedDecimal;
   late FixedExtentScrollController _intScrollController;
   late FixedExtentScrollController _decimalScrollController;
-  final int minWeight = 1;
-  final int maxWeight = 640;
+  final int minWeight = 20;
+  final int maxWeight = 200;
 
   @override
   void initState() {

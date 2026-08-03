@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -20,6 +21,7 @@ import 'package:fitness_day/features/user/auth/presentation/widgets/height_picke
 import 'package:fitness_day/features/user/auth/presentation/widgets/profile_validation_errors.dart';
 import 'package:fitness_day/features/user/auth/presentation/widgets/weight_picker_dialog.dart';
 import 'package:fitness_day/features/user/auth/data/models/user_lookups_model.dart';
+import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 
 class UserInfoPage extends StatefulWidget {
   const UserInfoPage({super.key});
@@ -176,11 +178,26 @@ class _UserInfoPageState extends State<UserInfoPage>
   }
 
   Future<void> _showDatePicker() async {
+    // Parse the already-selected date from the controller so the picker
+    // opens on it instead of always defaulting to year 2000.
+    DateTime initialDate;
+    try {
+      initialDate = _birthDateController.text.isNotEmpty
+          ? DateFormat('yyyy / MM / dd').parse(_birthDateController.text)
+          : DateTime(2000);
+    } catch (_) {
+      initialDate = DateTime(2000);
+    }
+    // Clamp to valid range just in case.
+    final now = DateTime.now();
+    if (initialDate.isAfter(now)) initialDate = now;
+    if (initialDate.isBefore(DateTime(1940))) initialDate = DateTime(2000);
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(2000),
+      initialDate: initialDate,
       firstDate: DateTime(1940),
-      lastDate: DateTime.now(),
+      lastDate: now,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -336,6 +353,10 @@ class _UserInfoPageState extends State<UserInfoPage>
                           hint: 'login.full_name_hint'.tr(),
                           iconPath: SvgIcons.person,
                           controller: _fullNameController,
+                          inputFormatters: [
+                            NameInputFormatter(),
+                            LengthLimitingTextInputFormatter(30),
+                          ],
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'auth_val_err_full_name'.tr();

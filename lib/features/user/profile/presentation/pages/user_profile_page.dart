@@ -58,7 +58,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
         getIt<SocketService>().disconnect();
         await getIt<SecureCache>().deleteToken();
         await getIt<SecureCache>().deleteRefreshToken();
-        await getIt<AppCache>().clearSession();
+        // Full wipe on account deletion — the device-level onboarding flag
+        // should also be cleared since a different user may sign up next.
+        await getIt<AppCache>().clear();
         RoleNotifier.instance.setRole(AppRole.none);
         if (context.mounted) {
           context.go(SharedRoutes.roleSelection);

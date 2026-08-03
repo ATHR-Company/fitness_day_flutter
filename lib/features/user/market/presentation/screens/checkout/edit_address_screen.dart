@@ -5,11 +5,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 import 'package:fitness_day/features/user/market/domain/entities/address_data.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/addresses_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/map_picker_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/static_map_preview.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 
 class EditAddressScreen extends StatefulWidget {
   /// Pass [address] to pre-fill fields (edit mode).
@@ -410,6 +412,9 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
             keyboardType: keyboardType,
             validator: validator,
             autovalidateMode: AutovalidateMode.onUserInteraction,
+            inputFormatters: keyboardType == TextInputType.number
+                ? null
+                : [NoScriptInputFormatter()],
             decoration: InputDecoration(
               labelStyle: TextStyleManager.style9Medium.copyWith(
                 color: AppColors.textPrimary,

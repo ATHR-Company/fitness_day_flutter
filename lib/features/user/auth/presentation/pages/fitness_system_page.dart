@@ -166,8 +166,12 @@ class _FitnessSystemPageState extends State<FitnessSystemPage>
                               controller: _weeklyExercisesController,
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value == null || value.isEmpty) {
+                                if (value == null || value.trim().isEmpty) {
                                   return 'auth_val_err_fitness_days'.tr();
+                                }
+                                final n = int.tryParse(value.trim());
+                                if (n == null || n < 1) {
+                                  return 'auth_val_err_fitness_days_min'.tr();
                                 }
                                 return null;
                               },
@@ -182,8 +186,12 @@ class _FitnessSystemPageState extends State<FitnessSystemPage>
                               controller: _dailyStepsController,
                               keyboardType: TextInputType.number,
                               validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'auth_val_err_fitness_time'.tr();
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'auth_val_err_fitness_steps'.tr();
+                                }
+                                final n = int.tryParse(value.trim());
+                                if (n == null || n < 1) {
+                                  return 'auth_val_err_fitness_steps_min'.tr();
                                 }
                                 return null;
                               },

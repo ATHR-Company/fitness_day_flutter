@@ -302,8 +302,12 @@ class _DietSystemPageState extends State<DietSystemPage>
                           controller: _dailyMealsController,
                           keyboardType: TextInputType.number,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (value == null || value.trim().isEmpty) {
                               return 'auth_val_err_diet_meals'.tr();
+                            }
+                            final n = int.tryParse(value.trim());
+                            if (n == null || n < 1) {
+                              return 'auth_val_err_diet_meals_min'.tr();
                             }
                             return null;
                           },
@@ -317,7 +321,7 @@ class _DietSystemPageState extends State<DietSystemPage>
                           controller: _preferredFoodsController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'auth_val_err_diet_water'.tr();
+                              return 'auth_val_err_diet_foods'.tr();
                             }
                             return null;
                           },
@@ -331,7 +335,7 @@ class _DietSystemPageState extends State<DietSystemPage>
                           controller: _dislikedFoodsController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'auth_val_err_diet_sleep'.tr();
+                              return 'auth_val_err_diet_disliked'.tr();
                             }
                             return null;
                           },
@@ -345,7 +349,7 @@ class _DietSystemPageState extends State<DietSystemPage>
                           controller: _foodAllergiesController,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'auth_val_err_diet_type'.tr();
+                              return 'auth_val_err_diet_allergy'.tr();
                             }
                             return null;
                           },

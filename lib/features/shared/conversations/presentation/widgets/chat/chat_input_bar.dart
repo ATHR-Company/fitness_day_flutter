@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/chat_time_format.dart';
 
 /// Bottom bar of the chat: the composer, or the recording row while a voice
@@ -80,6 +81,7 @@ class _ComposerRow extends StatelessWidget {
               controller: controller,
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => onSend(),
+              inputFormatters: [NoScriptInputFormatter()],
               decoration: InputDecoration(
                 hintText: 'conversations.write_message_hint'.tr(),
                 hintStyle: TextStyleManager.style10Medium.copyWith(

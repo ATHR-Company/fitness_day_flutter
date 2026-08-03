@@ -28,6 +28,7 @@ import 'package:fitness_day/features/user/market/presentation/widgets/package_de
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_packages_grid.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/home_shimmer_loading.dart';
+import 'package:fitness_day/core/widgets/home_connectivity_banner.dart';
 
 import 'package:fitness_day/core/widgets/exit_dialog.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
@@ -35,8 +36,21 @@ import 'package:fitness_day/features/user/user_home/presentation/screens/user_to
 import 'package:fitness_day/features/user/user_home/presentation/screens/articles_list_page.dart';
 import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
-class HomePageContent extends StatelessWidget {
+class HomePageContent extends StatefulWidget {
   const HomePageContent({super.key});
+
+  @override
+  State<HomePageContent> createState() => _HomePageContentState();
+}
+
+class _HomePageContentState extends State<HomePageContent> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   /// Opens the store's plan dialog for the plan the user is subscribed to.
   /// It loads its own data from `GET /plans/:id`, so only the id is needed.
@@ -121,6 +135,7 @@ class HomePageContent extends StatelessWidget {
             },
             color: AppColors.primary,
             child: SingleChildScrollView(
+              controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -131,6 +146,9 @@ class HomePageContent extends StatelessWidget {
                   userName: userName,
                   userAvatar: userAvatar,
                 ),
+                // Offline / reconnected banner — slides in below the header
+                // and collapses to zero height when the connection is healthy.
+                const HomeConnectivityBanner(),
                 SizedBox(height: 12.h),
 
                 if (isSubscribed) ...[
@@ -315,7 +333,16 @@ class HomePageContent extends StatelessWidget {
                   // Unsubscribed Content
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: const SubscriptionBanner(isSubscribed: false),
+                    child: SubscriptionBanner(
+                      isSubscribed: false,
+                      onSubscribeTap: () {
+                        _scrollController.animateTo(
+                          _scrollController.position.maxScrollExtent,
+                          duration: const Duration(milliseconds: 600),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                    ),
                   ),
                   SizedBox(height: 22.h),
                   

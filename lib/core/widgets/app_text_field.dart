@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 
 class AppFieldLabel extends StatelessWidget {
   final String text;
@@ -59,6 +60,11 @@ class AppTextField extends StatelessWidget {
       validator: validator,
       textAlign: textAlign,
       keyboardType: keyboardType,
+      // Strip HTML/script injection patterns unless the field is read-only
+      // or numeric (numeric keyboards can't type tags anyway).
+      inputFormatters: (readOnly || onTap != null)
+          ? null
+          : [NoScriptInputFormatter()],
       style: TextStyleManager.heading3.copyWith(color: AppColors.black),
       decoration: InputDecoration(
         hintText: hintText,
