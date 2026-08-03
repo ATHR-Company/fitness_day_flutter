@@ -32,8 +32,10 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: AppEnv.firebaseWebApiKey,
+  static FirebaseOptions get web => FirebaseOptions(
+    apiKey: AppEnv.firebaseWebApiKey.isEmpty
+        ? 'AIzaSyBg3UVoZ0axp0Ut3dNRXsKQOajnh1BtnXE' // Fallback to Android key
+        : AppEnv.firebaseWebApiKey,
     appId: '1:308069649363:web:10485a0eb9319d9abe7d26',
     messagingSenderId: '308069649363',
     projectId: 'fitness-day-52c77',
@@ -42,34 +44,47 @@ class DefaultFirebaseOptions {
     measurementId: 'G-T8NGG1WR1J',
   );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: AppEnv.firebaseAndroidApiKey,
-    appId: '1:308069649363:android:3f65e98e687b15ddbe7d26',
+  static FirebaseOptions get android => FirebaseOptions(
+    apiKey: AppEnv.firebaseAndroidApiKey.isEmpty
+        ? 'AIzaSyBg3UVoZ0axp0Ut3dNRXsKQOajnh1BtnXE' // From google-services.json
+        : AppEnv.firebaseAndroidApiKey,
+    appId:
+        '1:308069649363:android:8fa51e989be0be6dbe7d26', // Updated to match google-services.json
     messagingSenderId: '308069649363',
     projectId: 'fitness-day-52c77',
     storageBucket: 'fitness-day-52c77.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: AppEnv.firebaseIosApiKey,
-    appId: '1:308069649363:ios:82f5d10ccd2f7e40be7d26',
+  static FirebaseOptions get ios => FirebaseOptions(
+    apiKey: AppEnv.firebaseIosApiKey.isEmpty
+        ? 'AIzaSyDYaaKbX6Jbhtzvy6bDf5qeP1IRpSUcJHU' // From GoogleService-Info.plist
+        : AppEnv.firebaseIosApiKey,
+    appId:
+        '1:308069649363:ios:2f637aa1ce2d9132be7d26', // Updated to match GoogleService-Info.plist
     messagingSenderId: '308069649363',
     projectId: 'fitness-day-52c77',
     storageBucket: 'fitness-day-52c77.firebasestorage.app',
-    iosBundleId: 'com.example.fitnessDay',
+    iosBundleId:
+        'com.athr.fitnessday', // Updated to match GoogleService-Info.plist
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: AppEnv.firebaseIosApiKey,
-    appId: '1:308069649363:ios:82f5d10ccd2f7e40be7d26',
+  static FirebaseOptions get macos => FirebaseOptions(
+    apiKey: AppEnv.firebaseIosApiKey.isEmpty
+        ? 'AIzaSyDYaaKbX6Jbhtzvy6bDf5qeP1IRpSUcJHU' // From GoogleService-Info.plist
+        : AppEnv.firebaseIosApiKey,
+    appId:
+        '1:308069649363:ios:2f637aa1ce2d9132be7d26', // Updated to match GoogleService-Info.plist
     messagingSenderId: '308069649363',
     projectId: 'fitness-day-52c77',
     storageBucket: 'fitness-day-52c77.firebasestorage.app',
-    iosBundleId: 'com.example.fitnessDay',
+    iosBundleId:
+        'com.athr.fitnessday', // Updated to match GoogleService-Info.plist
   );
 
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: AppEnv.firebaseWebApiKey,
+  static FirebaseOptions get windows => FirebaseOptions(
+    apiKey: AppEnv.firebaseWebApiKey.isEmpty
+        ? 'AIzaSyBg3UVoZ0axp0Ut3dNRXsKQOajnh1BtnXE' // Fallback to Android key
+        : AppEnv.firebaseWebApiKey,
     appId: '1:308069649363:web:f4b054182e497f72be7d26',
     messagingSenderId: '308069649363',
     projectId: 'fitness-day-52c77',

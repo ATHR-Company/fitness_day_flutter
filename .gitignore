@@ -51,3 +51,4 @@ dart_defines.env
 
 # VSCode launch config (contains --dart-define-from-file reference)
 .vscode/launch.json
+notdocs
