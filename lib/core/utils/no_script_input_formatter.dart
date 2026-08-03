@@ -114,6 +114,7 @@ class NoDigitsInputFormatter extends TextInputFormatter {
 ///   - Latin letters (A–Z, a–z)
 ///   - Spaces
 ///   - A single dot (for names like "A. Smith")
+///   - Question marks and percent signs (for names such as "A?" or "100%")
 ///
 /// Blocks everything else: digits, special characters (@, #, $, …), emojis, etc.
 ///
@@ -126,7 +127,7 @@ class NoDigitsInputFormatter extends TextInputFormatter {
 class NameInputFormatter extends TextInputFormatter {
   // Matches characters that are NOT allowed in a name.
   static final RegExp _invalid = RegExp(
-    r'[^\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFFa-zA-Z\s.]',
+    r'[^\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFFa-zA-Z\s.?%]',
   );
 
   @override
