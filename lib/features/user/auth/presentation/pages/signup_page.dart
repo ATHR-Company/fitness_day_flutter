@@ -1,6 +1,8 @@
 import 'package:fitness_day/core/network/device_type_helper.dart';
+import 'package:fitness_day/core/network/apple_sign_in_helper.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -72,7 +74,11 @@ class _SignUpPageState extends State<SignUpPage> {
     return BlocConsumer<UserAuthCubit, UserAuthState>(
       listener: (context, state) {
         if (state is UserSignupSuccess) {
-          showAppSnackBar(context, text: state.response.message, isSuccess: true);
+          showAppSnackBar(
+            context,
+            text: state.response.message,
+            isSuccess: true,
+          );
           context.push(
             UserAppRoutes.otpVerification,
             extra: {
@@ -109,31 +115,33 @@ class _SignUpPageState extends State<SignUpPage> {
               child: SafeArea(
                 child: Column(
                   children: [
-  // ── Back button ──────────────────────────────────────
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-                        child: SizedBox(
-                          height: 48.h,
-                          child: Align(
-                            alignment: AlignmentDirectional.centerStart,
-                            child: IconButton(
-                                onPressed: () => Navigator.of(context).maybePop(),
-                              padding: EdgeInsets.zero,
-                              constraints: BoxConstraints(
-                                minHeight: 48.h,
-                                minWidth: 48.w,
-                              ),
-                              icon: Icon(
-                                Icons.chevron_left,
-                                color: AppColors.textPrimary,
-                                size: 32.sp,
-                              ),
+                    // ── Back button ──────────────────────────────────────
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 8.h,
+                      ),
+                      child: SizedBox(
+                        height: 48.h,
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: IconButton(
+                            onPressed: () => Navigator.of(context).maybePop(),
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints(
+                              minHeight: 48.h,
+                              minWidth: 48.w,
+                            ),
+                            icon: Icon(
+                              Icons.chevron_left,
+                              color: AppColors.textPrimary,
+                              size: 32.sp,
                             ),
                           ),
                         ),
                       ),
+                    ),
 
-                    
                     // ── Scrollable form area ───────────────────────────────
                     Expanded(
                       child: LayoutBuilder(
@@ -193,7 +201,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                         focusNode: _passwordFocusNode,
                                         textInputAction: TextInputAction.next,
                                         onFieldSubmitted: (_) {
-                                          _confirmPasswordFocusNode.requestFocus();
+                                          _confirmPasswordFocusNode
+                                              .requestFocus();
                                         },
                                         validator: AppValidators.password,
                                       ),
@@ -205,20 +214,23 @@ class _SignUpPageState extends State<SignUpPage> {
                                         controller: _confirmPasswordController,
                                         focusNode: _confirmPasswordFocusNode,
                                         textInputAction: TextInputAction.done,
-                                        onFieldSubmitted: (_) => _onSignUpPressed(),
-                                        hint: 'login.confirm_password_hint'.tr(),
+                                        onFieldSubmitted: (_) =>
+                                            _onSignUpPressed(),
+                                        hint: 'login.confirm_password_hint'
+                                            .tr(),
                                         validator: (value) =>
                                             AppValidators.confirmPassword(
-                                          value,
-                                          _passwordController.text,
-                                        ),
+                                              value,
+                                              _passwordController.text,
+                                            ),
                                       ),
 
                                       SizedBox(height: 32.h),
 
                                       // Sign Up Button
                                       CustomButton(
-                                        text: LocaleKeys.login_create_account.tr(),
+                                        text: LocaleKeys.login_create_account
+                                            .tr(),
                                         onPressed: _onSignUpPressed,
                                       ),
 
@@ -236,13 +248,16 @@ class _SignUpPageState extends State<SignUpPage> {
                                           ),
                                           Padding(
                                             padding: EdgeInsets.symmetric(
-                                                horizontal: 12.w),
+                                              horizontal: 12.w,
+                                            ),
                                             child: Text(
                                               LocaleKeys.login_or.tr(),
-                                              style: TextStyleManager.style14Medium
+                                              style: TextStyleManager
+                                                  .style14Medium
                                                   .copyWith(
-                                                color: AppColors.textSecondary,
-                                              ),
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
                                             ),
                                           ),
                                           Expanded(
@@ -264,18 +279,39 @@ class _SignUpPageState extends State<SignUpPage> {
                                               TargetPlatform.iOS) ...[
                                             Expanded(
                                               child: AppSocialButton(
-                                                label: LocaleKeys.login_apple.tr(),
+                                                label: LocaleKeys.login_apple
+                                                    .tr(),
                                                 icon: AppImage(
                                                   SvgIcons.appleLogin,
                                                   height: 22.h,
                                                 ),
-                                                onTap: () {
-                                                  context
-                                                      .read<UserAuthCubit>()
-                                                      .socialAuth(
-                                                        provider: 'APPLE',
-                                                        idToken: 'test_apple_id_token',
+                                                onTap: () async {
+                                                  try {
+                                                    final idToken =
+                                                        await AppleSignInHelper.signIn();
+                                                    if (idToken != null) {
+                                                      if (mounted) {
+                                                        context
+                                                            .read<
+                                                              UserAuthCubit
+                                                            >()
+                                                            .socialAuth(
+                                                              provider: 'APPLE',
+                                                              idToken: idToken,
+                                                            );
+                                                      }
+                                                    }
+                                                  } on AppleSignInFailure catch (
+                                                    e
+                                                  ) {
+                                                    if (mounted) {
+                                                      showAppSnackBar(
+                                                        context,
+                                                        text: e.message,
+                                                        isError: true,
                                                       );
+                                                    }
+                                                  }
                                                 },
                                               ),
                                             ),
@@ -283,9 +319,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                           ],
                                           Expanded(
                                             child: AppSocialButton(
-                                              label: LocaleKeys.login_google.tr(),
-                                              icon: AppImage(SvgIcons.google,
-                                                  height: 22.h),
+                                              label: LocaleKeys.login_google
+                                                  .tr(),
+                                              icon: AppImage(
+                                                SvgIcons.google,
+                                                height: 22.h,
+                                              ),
                                               onTap: () async {
                                                 try {
                                                   final idToken =
@@ -300,10 +339,15 @@ class _SignUpPageState extends State<SignUpPage> {
                                                           );
                                                     }
                                                   }
-                                                } on GoogleSignInFailure catch (e) {
+                                                } on GoogleSignInFailure catch (
+                                                  e
+                                                ) {
                                                   if (mounted) {
-                                                    showAppSnackBar(context,
-                                                        text: e.message, isError: true);
+                                                    showAppSnackBar(
+                                                      context,
+                                                      text: e.message,
+                                                      isError: true,
+                                                    );
                                                   }
                                                 }
                                               },
@@ -317,27 +361,40 @@ class _SignUpPageState extends State<SignUpPage> {
                                       // ── Login Prompt ───────────────────────────────
                                       Padding(
                                         padding: EdgeInsets.only(
-                                            bottom: 24.h, top: 12.h),
+                                          bottom: 24.h,
+                                          top: 12.h,
+                                        ),
                                         child: RichText(
                                           textAlign: TextAlign.center,
                                           text: TextSpan(
-                                            style: TextStyleManager.style14Medium.copyWith(
-                                              color: AppColors.black,
-                                            ),
+                                            style: TextStyleManager
+                                                .style14Medium
+                                                .copyWith(
+                                                  color: AppColors.black,
+                                                ),
                                             children: [
                                               TextSpan(
-                                                  text: 'login.already_have_account'.tr()),
+                                                text:
+                                                    'login.already_have_account'
+                                                        .tr(),
+                                              ),
                                               WidgetSpan(
-                                                  alignment: PlaceholderAlignment.middle,
+                                                alignment:
+                                                    PlaceholderAlignment.middle,
                                                 child: GestureDetector(
                                                   onTap: () {
-                                                    context.go(UserAppRoutes.login);
+                                                    context.go(
+                                                      UserAppRoutes.login,
+                                                    );
                                                   },
                                                   child: Text(
                                                     'login.login_now'.tr(),
-                                                    style: TextStyleManager.style14Bold.copyWith(
-                                                      color: AppColors.primary,
-                                                    ),
+                                                    style: TextStyleManager
+                                                        .style14Bold
+                                                        .copyWith(
+                                                          color:
+                                                              AppColors.primary,
+                                                        ),
                                                   ),
                                                 ),
                                               ),

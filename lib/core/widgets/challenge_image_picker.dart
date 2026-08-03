@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -55,14 +56,21 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
     );
     if (!granted || !mounted) return;
 
-    final XFile? file = await _picker.pickImage(
-      source: source,
-      imageQuality: 85,
-      maxWidth: 1080,
-    );
-    if (file != null) {
-      setState(() => _pickedImage = File(file.path));
-      widget.onImagePicked?.call(_pickedImage!);
+    try {
+      final XFile? file = await _picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1080,
+      );
+      if (file != null && mounted) {
+        setState(() => _pickedImage = File(file.path));
+        widget.onImagePicked?.call(_pickedImage!);
+      }
+      // User cancellation (file == null) is handled gracefully - no error shown
+    } catch (e) {
+      // Handle picker errors silently - they're usually user cancellations
+      // or temporary issues that don't need user notification
+      debugPrint('ChallengeImagePicker._pickImage error: $e');
     }
   }
 
@@ -82,8 +90,7 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
   // ── Full-screen viewer ────────────────────────────────────────────────────
 
   bool get _hasImage =>
-      _pickedImage != null ||
-      (widget.initialImageUrl?.isNotEmpty ?? false);
+      _pickedImage != null || (widget.initialImageUrl?.isNotEmpty ?? false);
 
   void _openFullScreen() {
     if (!_hasImage) return;
@@ -124,7 +131,9 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
             onTap: _onImageTap,
             // Long-press → view current image full-screen (challenge picker
             // only; the profile picker already opens it on tap)
-            onLongPress: (!widget.showEditOverlay && hasImage) ? _openFullScreen : null,
+            onLongPress: (!widget.showEditOverlay && hasImage)
+                ? _openFullScreen
+                : null,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -145,19 +154,17 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
                             fit: BoxFit.cover,
                           )
                         : (networkAvatar.isNotEmpty
-                            ? DecorationImage(
-                                image: NetworkImage(networkAvatar),
-                                fit: BoxFit.cover,
-                              )
-                            : null),
+                              ? DecorationImage(
+                                  image: NetworkImage(networkAvatar),
+                                  fit: BoxFit.cover,
+                                )
+                              : null),
                   ),
                   // Placeholder icon when nothing is selected
                   child: (!hasImage)
                       ? Center(
                           child: Icon(
-                            widget.showEditOverlay
-                                ? Icons.person
-                                : Icons.image,
+                            widget.showEditOverlay ? Icons.person : Icons.image,
                             color: AppColors.primary,
                             size: (size * 0.35).sp,
                           ),

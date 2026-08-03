@@ -7,5 +7,11 @@
 	<true/>
 	<key>com.apple.developer.healthkit.access</key>
 	<array/>
+	
+	<!-- Sign in with Apple entitlement -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
 </dict>
 </plist>

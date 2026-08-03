@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -239,7 +240,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
 
     final last = state.messages.last;
     final bool isOptimistic = last.id.startsWith('optimistic_');
-    final bool isAtBottom = _scrollController.hasClients &&
+    final bool isAtBottom =
+        _scrollController.hasClients &&
         _scrollController.position.pixels < _loadMoreThreshold;
 
     if (isOptimistic || (!last.isMine && isAtBottom)) _scrollToBottom();
@@ -275,12 +277,14 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
     }
 
     setState(() {
-      _localMessages.add(LocalChatMessage(
-        kind: LocalMessageKind.text,
-        isMe: true,
-        time: DateTime.now(),
-        text: text,
-      ));
+      _localMessages.add(
+        LocalChatMessage(
+          kind: LocalMessageKind.text,
+          isMe: true,
+          time: DateTime.now(),
+          text: text,
+        ),
+      );
     });
     _scrollToBottom();
   }
@@ -324,6 +328,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
   /// compressed so the upload can't trip a 413 Request Entity Too Large.
   Future<void> _pickImage(ImageSource source) async {
     if (!await _ensureMediaAccess(source)) return;
+    if (!mounted) return;
 
     try {
       final List<XFile> files;
@@ -342,8 +347,13 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
         );
         files = shot == null ? const [] : [shot];
       }
-      _sendMedia(files);
-    } catch (_) {}
+      if (mounted) {
+        _sendMedia(files);
+      }
+    } catch (e) {
+      // Handle picker errors gracefully - most are user cancellations
+      debugPrint('ChatDetailsPage._pickImage error: $e');
+    }
   }
 
   /// Asks camera-or-gallery first, then picks a single video.
@@ -351,14 +361,19 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
     final ImageSource? source = await showMediaSourceSheet(context);
     if (source == null || !mounted) return;
     if (!await _ensureMediaAccess(source)) return;
+    if (!mounted) return;
 
     try {
       final XFile? file = await _imagePicker.pickVideo(
         source: source,
         maxDuration: const Duration(minutes: 3),
       );
-      if (file != null) _sendMedia([file]);
-    } catch (_) {}
+      if (file != null && mounted) {
+        _sendMedia([file]);
+      }
+    } catch (e) {
+      debugPrint('ChatDetailsPage._pickVideo error: $e');
+    }
   }
 
   Future<void> _pickDocument() async {
@@ -370,10 +385,12 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
         allowedExtensions: const ['pdf'],
       );
       final picked = result?.files.single;
-      if (picked?.path != null) {
+      if (picked?.path != null && mounted) {
         _sendMedia([XFile(picked!.path!, name: picked.name)]);
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('ChatDetailsPage._pickDocument error: $e');
+    }
   }
 
   // ── Voice notes ────────────────────────────────────────────────────────────
@@ -435,17 +452,19 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
                     listener: _onChatStateChanged,
                     builder: (context, state) => switch (state) {
                       ChatLoading() => const ChatMessagesShimmer(),
-                      ChatError(:final message, :final error) =>
-                        AppErrorView(error: error, message: message),
+                      ChatError(:final message, :final error) => AppErrorView(
+                        error: error,
+                        message: message,
+                      ),
                       ChatLoaded() => ChatMessagesList(
-                          state: state,
-                          controller: _scrollController,
-                        ),
+                        state: state,
+                        controller: _scrollController,
+                      ),
                       ChatInitial() => LocalChatMessagesList(
-                          messages: _localMessages,
-                          controller: _scrollController,
-                          onReact: _react,
-                        ),
+                        messages: _localMessages,
+                        controller: _scrollController,
+                        onReact: _react,
+                      ),
                     },
                   ),
                 ),

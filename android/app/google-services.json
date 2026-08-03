@@ -7,6 +7,42 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:308069649363:android:8fa51e989be0be6dbe7d26",
+        "android_client_info": {
+          "package_name": "com.athr.fitnessday"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "308069649363-5qn9ole74gehrr242rnhi9lsvduhrt87.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBg3UVoZ0axp0Ut3dNRXsKQOajnh1BtnXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "308069649363-5qn9ole74gehrr242rnhi9lsvduhrt87.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "308069649363-cmlemvln3dc2ghldnvg60vs4f5c1u6vn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fitnessDay"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:308069649363:android:3f65e98e687b15ddbe7d26",
         "android_client_info": {
           "package_name": "com.example.fitness_day"

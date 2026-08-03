@@ -49,12 +49,31 @@ class FitnessHealthService {
       : HealthDataType.TOTAL_CALORIES_BURNED;
 
   List<HealthDataType> get _walkingTypes => [
-        HealthDataType.STEPS,
-        _distanceType,
-        _caloriesType,
-      ];
+    HealthDataType.STEPS,
+    _distanceType,
+    _caloriesType,
+  ];
 
   // ─── Permissions ──────────────────────────────────────────────────────────
+
+  /// Checks if walking permissions are granted without requesting them.
+  Future<bool> hasWalkingPermissions() async {
+    try {
+      await _ensureConfigured();
+      final perms = List<HealthDataAccess>.filled(
+        _walkingTypes.length,
+        HealthDataAccess.READ,
+      );
+      final bool? has = await _health.hasPermissions(
+        _walkingTypes,
+        permissions: perms,
+      );
+      return has == true;
+    } catch (e) {
+      debugPrint('hasWalkingPermissions error: $e');
+      return false;
+    }
+  }
 
   Future<bool> requestWalkingPermissions() async {
     try {
@@ -63,11 +82,15 @@ class FitnessHealthService {
         _walkingTypes.length,
         HealthDataAccess.READ,
       );
-      final bool? has =
-          await _health.hasPermissions(_walkingTypes, permissions: perms);
+      final bool? has = await _health.hasPermissions(
+        _walkingTypes,
+        permissions: perms,
+      );
       if (has == true) return true;
-      final bool granted =
-          await _health.requestAuthorization(_walkingTypes, permissions: perms);
+      final bool granted = await _health.requestAuthorization(
+        _walkingTypes,
+        permissions: perms,
+      );
       if (Platform.isAndroid && !_historyAuthRequested) {
         try {
           await _health.requestHealthDataHistoryAuthorization();
@@ -118,7 +141,8 @@ class FitnessHealthService {
   }
 
   /// Today's distance (km) + calories (kcal) from the health store.
-  Future<({double distanceKm, double caloriesKcal})> getTodayWalkingMetrics() async {
+  Future<({double distanceKm, double caloriesKcal})>
+  getTodayWalkingMetrics() async {
     try {
       await _ensureConfigured();
       final now = DateTime.now();

@@ -74,6 +74,9 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
         // target, so don't pass the step goal as one.
         goalDistanceKm: 0,
       );
+      // Check if permissions are already granted so the banner doesn't show
+      // unnecessarily when the user reopens the screen.
+      _walkingCubit!.refreshPermissionStatus();
     }
   }
 
@@ -98,7 +101,8 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
   /// `AppEventBus`, replacing the two-request home refetch that used to run
   /// on every return regardless.
   Future<void> _finishSessionBeforeLeaving(
-      ActivityDetailsCubit activityCubit) async {
+    ActivityDetailsCubit activityCubit,
+  ) async {
     if (_walkingCubit != null && _walkingCubit!.state.isTracking) {
       await _walkingCubit!.stopTracking();
     }
@@ -129,8 +133,8 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
         // Resolved before the await so neither reaches for a context that may
         // have gone away while the final sync was in flight.
         final NavigatorState navigator = Navigator.of(context);
-        final ActivityDetailsCubit activityCubit =
-            context.read<ActivityDetailsCubit>();
+        final ActivityDetailsCubit activityCubit = context
+            .read<ActivityDetailsCubit>();
         if (_isSessionActive()) {
           await _finishSessionBeforeLeaving(activityCubit);
         }
@@ -168,7 +172,8 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
       },
       builder: (context, state) {
         // First-time loading
-        if ((state is ActivityDetailsLoading || state is ActivityDetailsInitial) &&
+        if ((state is ActivityDetailsLoading ||
+                state is ActivityDetailsInitial) &&
             !_initialized) {
           return const Scaffold(
             backgroundColor: AppColors.white,
@@ -186,7 +191,8 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
             body: AppErrorView(
               error: state.error,
               message: state.message,
-              onRetry: () => context.read<ActivityDetailsCubit>().getActivityDetails(
+              onRetry: () =>
+                  context.read<ActivityDetailsCubit>().getActivityDetails(
                     widget.assessmentId,
                     widget.dayNumber,
                     widget.activityId,
@@ -196,7 +202,8 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
         }
 
         // Use fresh data or cached data
-        final data = (state is ActivityDetailsSuccess ? state.data : null) ??
+        final data =
+            (state is ActivityDetailsSuccess ? state.data : null) ??
             _cachedData;
         if (data == null) return const SizedBox.shrink();
 
