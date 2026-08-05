@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/utils/measurement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,6 +46,12 @@ class _UserInfoPageState extends State<UserInfoPage>
   final _branchController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  /// The picked birth date itself. The controller only ever holds a *display*
+  /// string, and that string is localized — re-parsing it was locale-dependent
+  /// and silently fell back to a hardcoded 1998-05-15 whenever the parse
+  /// failed. Keeping the DateTime removes the round-trip entirely.
+  DateTime? _birthDate;
+
   @override
   void initState() {
     super.initState();
@@ -72,10 +79,12 @@ class _UserInfoPageState extends State<UserInfoPage>
         _fullNameController.text = cubit.fullName!;
       }
       if (cubit.height != null) {
-        _heightController.text = '${cubit.height!.toInt()} ${'auth_height_unit'.tr()}';
+        _heightController.text =
+            Measurement.withUnit(cubit.height!, 'auth_height_unit'.tr());
       }
       if (cubit.weight != null) {
-        _weightController.text = '${cubit.weight!} ${'auth_weight_unit'.tr()}';
+        _weightController.text =
+            Measurement.withUnit(cubit.weight!, 'auth_weight_unit'.tr());
       }
       if (cubit.gender != null && cubit.gender!.isNotEmpty) {
         _genderController.text = cubit.gender == 'female'
@@ -121,20 +130,22 @@ class _UserInfoPageState extends State<UserInfoPage>
         orElse: () => cubit.branches.isNotEmpty ? cubit.branches.first : const LookupItem(id: '6a411c3b54870ff442172d7b', name: '', type: '', order: 0),
       );
 
-      final double htVal = double.tryParse(_heightController.text.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 170.0;
-      final double wtVal = double.tryParse(_weightController.text.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 70.0;
+      // Round on the way out: the pickers can only produce sane values, but a
+      // restored controller can carry whatever the server last sent back.
+      final double htVal = Measurement.round(
+        Measurement.parse(_heightController.text) ?? 170.0,
+      );
+      final double wtVal = Measurement.round(
+        Measurement.parse(_weightController.text) ?? 70.0,
+      );
 
       final genderVal = (_genderController.text == 'auth_gender_female'.tr() || _genderController.text == 'Female' || _genderController.text == 'أنثى')
           ? 'female'
           : 'male';
 
-      String birthDateIso = '1998-05-15T00:00:00.000Z';
-      try {
-        final parsedDate = DateFormat('yyyy / MM / dd').parse(_birthDateController.text);
-        birthDateIso = parsedDate.toUtc().toIso8601String();
-      } catch (_) {
-        // Fallback to ISO string format if already parsed or invalid
-      }
+      // The form validator already blocks an empty birth-date field, so
+      // _birthDate is set by the time we get here.
+      final birthDateIso = _birthDate!.toUtc().toIso8601String();
 
       cubit.savePersonalData(
         fullName: _fullNameController.text.trim(),
@@ -177,17 +188,14 @@ class _UserInfoPageState extends State<UserInfoPage>
     );
   }
 
+  /// `yyyy / MM / dd` rendered in the app's language — not the device's.
+  String _formatBirthDate(DateTime date) =>
+      DateFormat('yyyy / MM / dd', context.locale.languageCode).format(date);
+
   Future<void> _showDatePicker() async {
-    // Parse the already-selected date from the controller so the picker
-    // opens on it instead of always defaulting to year 2000.
-    DateTime initialDate;
-    try {
-      initialDate = _birthDateController.text.isNotEmpty
-          ? DateFormat('yyyy / MM / dd').parse(_birthDateController.text)
-          : DateTime(2000);
-    } catch (_) {
-      initialDate = DateTime(2000);
-    }
+    // Open on the date already chosen rather than always on year 2000.
+    var initialDate = _birthDate ?? DateTime(2000);
+
     // Clamp to valid range just in case.
     final now = DateTime.now();
     if (initialDate.isAfter(now)) initialDate = now;
@@ -198,6 +206,10 @@ class _UserInfoPageState extends State<UserInfoPage>
       initialDate: initialDate,
       firstDate: DateTime(1940),
       lastDate: now,
+      // Without this the calendar takes its month names and numerals from
+      // whatever Localizations happens to resolve to, which is why it stayed
+      // Arabic while the rest of the app was in English.
+      locale: context.locale,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -212,7 +224,8 @@ class _UserInfoPageState extends State<UserInfoPage>
       },
     );
     if (picked != null) {
-      _birthDateController.text = DateFormat('yyyy / MM / dd').format(picked);
+      _birthDate = picked;
+      _birthDateController.text = _formatBirthDate(picked);
     }
   }
 
@@ -221,20 +234,17 @@ class _UserInfoPageState extends State<UserInfoPage>
       context: context,
       barrierColor: AppColors.black.withValues(alpha: 0.5),
       builder: (ctx) {
+        // A restored value can carry decimals ("155.1 سم"), which int.tryParse
+        // rejected outright and silently reset the wheel to 170.
         final currentVal =
-            int.tryParse(
-              _heightController.text.replaceAll(
-                ' ${'auth_height_unit'.tr()}',
-                '',
-              ),
-            ) ??
-            170;
+            Measurement.parse(_heightController.text)?.round() ?? 170;
         return HeightPickerDialog(initialHeight: currentVal);
       },
     ).then((val) {
       if (val != null) {
         setState(() {
-          _heightController.text = '$val ${'auth_height_unit'.tr()}';
+          _heightController.text =
+              Measurement.withUnit(val as num, 'auth_height_unit'.tr());
         });
       }
     });
@@ -245,20 +255,14 @@ class _UserInfoPageState extends State<UserInfoPage>
       context: context,
       barrierColor: AppColors.black.withValues(alpha: 0.5),
       builder: (ctx) {
-        final currentVal =
-            double.tryParse(
-              _weightController.text.replaceAll(
-                ' ${'auth_weight_unit'.tr()}',
-                '',
-              ),
-            ) ??
-            70.0;
+        final currentVal = Measurement.parse(_weightController.text) ?? 70.0;
         return WeightPickerDialog(initialWeight: currentVal);
       },
     ).then((val) {
       if (val != null) {
         setState(() {
-          _weightController.text = '$val ${'auth_weight_unit'.tr()}';
+          _weightController.text =
+              Measurement.withUnit(val as num, 'auth_weight_unit'.tr());
         });
       }
     });
@@ -350,6 +354,7 @@ class _UserInfoPageState extends State<UserInfoPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.fullName),
                           errorText: errorFor(ProfileValidationKey.fullName),
+                          focusNode: fieldFocusNode(ProfileValidationKey.fullName),
                           hint: 'login.full_name_hint'.tr(),
                           iconPath: SvgIcons.person,
                           controller: _fullNameController,
@@ -370,6 +375,7 @@ class _UserInfoPageState extends State<UserInfoPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.gender),
                           errorText: errorFor(ProfileValidationKey.gender),
+                          focusNode: fieldFocusNode(ProfileValidationKey.gender),
                           hint: 'login.gender_hint'.tr(),
                           iconPath: SvgIcons.gender,
                           controller: _genderController,
@@ -392,16 +398,15 @@ class _UserInfoPageState extends State<UserInfoPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.birthDate),
                           errorText: errorFor(ProfileValidationKey.birthDate),
+                          focusNode: fieldFocusNode(ProfileValidationKey.birthDate),
                           hint: 'login.birth_date_hint'.tr(),
                           iconPath: SvgIcons.birthDate,
                           controller: _birthDateController,
                           onTap: _showDatePicker,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'auth_val_err_age'.tr();
-                            }
-                            return null;
-                          },
+                          // Validate the DateTime, not the display text — that
+                          // is what _onNextPressed actually submits.
+                          validator: (_) =>
+                              _birthDate == null ? 'auth_val_err_age'.tr() : null,
                         ),
                         SizedBox(height: 10.h),
 
@@ -409,6 +414,7 @@ class _UserInfoPageState extends State<UserInfoPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.height),
                           errorText: errorFor(ProfileValidationKey.height),
+                          focusNode: fieldFocusNode(ProfileValidationKey.height),
                           hint: 'login.height_hint'.tr(),
                           iconPath: SvgIcons.height,
                           controller: _heightController,
@@ -431,6 +437,7 @@ class _UserInfoPageState extends State<UserInfoPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.weight),
                           errorText: errorFor(ProfileValidationKey.weight),
+                          focusNode: fieldFocusNode(ProfileValidationKey.weight),
                           hint: 'login.weight_hint'.tr(),
                           iconPath: SvgIcons.weight,
                           controller: _weightController,
@@ -453,6 +460,7 @@ class _UserInfoPageState extends State<UserInfoPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.activityLevel),
                           errorText: errorFor(ProfileValidationKey.activityLevel),
+                          focusNode: fieldFocusNode(ProfileValidationKey.activityLevel),
                           hint: 'login.activity_hint'.tr(),
                           iconPath: SvgIcons.activity,
                           controller: _activityController,
@@ -475,6 +483,7 @@ class _UserInfoPageState extends State<UserInfoPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.goal),
                           errorText: errorFor(ProfileValidationKey.goal),
+                          focusNode: fieldFocusNode(ProfileValidationKey.goal),
                           hint: 'login.goal_hint'.tr(),
                           iconPath: SvgIcons.goal,
                           controller: _goalController,
@@ -497,6 +506,7 @@ class _UserInfoPageState extends State<UserInfoPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.branch),
                           errorText: errorFor(ProfileValidationKey.branch),
+                          focusNode: fieldFocusNode(ProfileValidationKey.branch),
                           hint: 'login.branch_hint'.tr(),
                           iconPath: SvgIcons.location,
                           controller: _branchController,

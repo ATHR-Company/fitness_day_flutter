@@ -1,6 +1,7 @@
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,6 +14,7 @@ import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_info_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
+import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 import 'package:fitness_day/features/user/auth/domain/entities/profile_validation_key.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_state.dart';
@@ -28,6 +30,15 @@ class _DietSystemPageState extends State<DietSystemPage>
     with ProfileValidationErrors<DietSystemPage> {
   @override
   ProfileSetupStep get validationStep => ProfileSetupStep.diet;
+
+  /// Foods, dislikes and allergies are prose lists ("لبن، بيض، مكسرات"), so
+  /// separators and dashes stay allowed — but a quantity has no meaning here,
+  /// and digits in any script are rejected as the user types.
+  static List<TextInputFormatter> get _foodListFormatters => [
+        NoScriptInputFormatter(),
+        NoDigitsInputFormatter(),
+        LengthLimitingTextInputFormatter(200),
+      ];
 
   int _selectedDietType = 0; // 0 for Varied, 1 for Vegetarian
   final _dailyMealsController = TextEditingController();
@@ -298,6 +309,7 @@ class _DietSystemPageState extends State<DietSystemPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.dailyMeals),
                           errorText: errorFor(ProfileValidationKey.dailyMeals),
+                          focusNode: fieldFocusNode(ProfileValidationKey.dailyMeals),
                           hint: 'login.daily_meals_hint'.tr(),
                           controller: _dailyMealsController,
                           keyboardType: TextInputType.number,
@@ -317,8 +329,10 @@ class _DietSystemPageState extends State<DietSystemPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.preferredFoods),
                           errorText: errorFor(ProfileValidationKey.preferredFoods),
+                          focusNode: fieldFocusNode(ProfileValidationKey.preferredFoods),
                           hint: 'login.preferred_foods_hint'.tr(),
                           controller: _preferredFoodsController,
+                          inputFormatters: _foodListFormatters,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'auth_val_err_diet_foods'.tr();
@@ -331,8 +345,10 @@ class _DietSystemPageState extends State<DietSystemPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.dislikedFoods),
                           errorText: errorFor(ProfileValidationKey.dislikedFoods),
+                          focusNode: fieldFocusNode(ProfileValidationKey.dislikedFoods),
                           hint: 'login.disliked_foods_hint'.tr(),
                           controller: _dislikedFoodsController,
+                          inputFormatters: _foodListFormatters,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'auth_val_err_diet_disliked'.tr();
@@ -345,8 +361,10 @@ class _DietSystemPageState extends State<DietSystemPage>
                         AppInfoField(
                           key: fieldKey(ProfileValidationKey.foodAllergies),
                           errorText: errorFor(ProfileValidationKey.foodAllergies),
+                          focusNode: fieldFocusNode(ProfileValidationKey.foodAllergies),
                           hint: 'login.food_allergies_hint'.tr(),
                           controller: _foodAllergiesController,
+                          inputFormatters: _foodListFormatters,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'auth_val_err_diet_allergy'.tr();

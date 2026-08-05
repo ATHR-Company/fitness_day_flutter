@@ -39,7 +39,6 @@ class ConversationsEmptyState extends StatelessWidget {
               color: AppColors.textSecondary,
             ),
           ),
-          SizedBox(height: 60.h),
         ],
       ),
     );

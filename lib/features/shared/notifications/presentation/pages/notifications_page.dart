@@ -8,6 +8,10 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import '../../../../../core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fitness_day/fitness_day.dart';
+import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/core/errors/app_error.dart';
 
@@ -70,31 +74,42 @@ class NotificationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      endDrawer: drawer,
-      body: Builder(
-        builder: (context) {
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: AppColors.visitsBackgroundGradient,
-            ),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  SizedBox(height: 20.h),
+    final role = RoleNotifier.instance.value;
+    final homeRoute = role == AppRole.specialist
+        ? SpecialistAppRoutes.home
+        : UserAppRoutes.home;
 
-                  // Custom Header
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: AppHeader(
-                      title: 'notifications.title'.tr(),
-                      onMenuPressed: () {
-                        Scaffold.of(context).openEndDrawer();
-                      },
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        context.go(homeRoute);
+      },
+      child: Scaffold(
+        endDrawer: drawer,
+        body: Builder(
+          builder: (context) {
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: AppColors.visitsBackgroundGradient,
+              ),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    SizedBox(height: 20.h),
+
+                    // Custom Header
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                      child: AppHeader(
+                        title: 'notifications.title'.tr(),
+                        onMenuPressed: () {
+                          Scaffold.of(context).openEndDrawer();
+                        },
+                      ),
                     ),
-                  ),
 
                   SizedBox(height: 32.h),
 
@@ -105,7 +120,8 @@ class NotificationsPage extends StatelessWidget {
           );
         },
       ),
-    );
+    
+      ));
   }
 
   Widget _buildBody() {

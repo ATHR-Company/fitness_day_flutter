@@ -14,6 +14,30 @@
       },
       "oauth_client": [
         {
+          "client_id": "308069649363-1lhfq8ar22a5dd9o8io4jjut98sqva3r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.athr.fitnessday",
+            "certificate_hash": "28fabda8a282cd8ec881be60b0719f61fdcba8b1"
+          }
+        },
+        {
+          "client_id": "308069649363-j6rhb2suqpum8di3u3e8gq1p3hb4l0o5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.athr.fitnessday",
+            "certificate_hash": "bb9ce21f8b748943b2373364f2c0f10c02e9884c"
+          }
+        },
+        {
+          "client_id": "308069649363-ra7dk40spv478sifk63140gq90p39qne.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.athr.fitnessday",
+            "certificate_hash": "86566942a399d2ddf8f10a22e497bc0b45beb859"
+          }
+        },
+        {
           "client_id": "308069649363-5qn9ole74gehrr242rnhi9lsvduhrt87.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -34,6 +34,10 @@ class ChatMessagesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final messages = state.messages;
+    final allChatImages = messages
+        .expand((m) => m.media)
+        .where((a) => a.isImage)
+        .toList();
 
     return ListView.builder(
       controller: controller,
@@ -50,6 +54,7 @@ class ChatMessagesList extends StatelessWidget {
           return _ListSlot(
             child: ChatMessageBubble(
               message: messages[messages.length - 1 - index],
+              allChatImages: allChatImages,
             ),
           );
         }

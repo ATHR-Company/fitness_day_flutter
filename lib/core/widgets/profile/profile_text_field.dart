@@ -15,6 +15,13 @@ class ProfileTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final int? maxLength;
 
+  /// Replaces the default script/name formatters entirely — pass this when the
+  /// field has its own idea of what a legal character is (e.g. digits only).
+  final List<TextInputFormatter>? inputFormatters;
+
+  /// Validation message shown under the field; `null` keeps it hidden.
+  final String? errorText;
+
   const ProfileTextField({
     super.key,
     required this.hintText,
@@ -24,16 +31,46 @@ class ProfileTextField extends StatelessWidget {
     this.controller,
     this.keyboardType,
     this.maxLength,
+    this.inputFormatters,
+    this.errorText,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasError = errorText != null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildField(hasError),
+        if (hasError) ...[
+          SizedBox(height: 6.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Text(
+              errorText!,
+              style: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.error,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildField(bool hasError) {
     return Container(
       height: 56.h,
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 1),
+        border: Border.all(
+          color: hasError
+              ? AppColors.error
+              : Colors.grey.withValues(alpha: 0.2),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
@@ -54,21 +91,23 @@ class ProfileTextField extends StatelessWidget {
               controller: controller,
               obscureText: isPassword,
               keyboardType: keyboardType,
+              // Caller-supplied formatters win outright.
               // Name-only fields: allow letters + spaces + dot only.
               // Other free-text fields: strip script/HTML patterns.
-              inputFormatters: isPassword
-                  ? null
-                  : nameOnly
-                      ? [
-                          NameInputFormatter(),
-                          if (maxLength != null)
-                            LengthLimitingTextInputFormatter(maxLength!),
-                        ]
-                      : [
-                          NoScriptInputFormatter(),
-                          if (maxLength != null)
-                            LengthLimitingTextInputFormatter(maxLength!),
-                        ],
+              inputFormatters: inputFormatters ??
+                  (isPassword
+                      ? null
+                      : nameOnly
+                          ? [
+                              NameInputFormatter(),
+                              if (maxLength != null)
+                                LengthLimitingTextInputFormatter(maxLength!),
+                            ]
+                          : [
+                              NoScriptInputFormatter(),
+                              if (maxLength != null)
+                                LengthLimitingTextInputFormatter(maxLength!),
+                            ]),
               decoration: InputDecoration(
                 hintText: hintText,
                 hintStyle: TextStyleManager.style11Medium.copyWith(

@@ -214,47 +214,49 @@ class BmiReportPage extends StatelessWidget {
         border: Border.all(color: AppColors.divider),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Container(
+            width: 56.w,
+            height: 56.w,
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.lightGreenBackground,
+              border: Border.all(color: AppColors.lightGreenBorder),
+            ),
+            child: AppImage(
+              iconPath,
+              color: AppColors.primary,
+            ),
+          ),
+          SizedBox(width: 12.w),
           Expanded(
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  height: 56.w,
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.lightGreenBackground,
-                    border: Border.all(color: AppColors.lightGreenBorder),
-                  ),
-                  child: AppImage(
-                    iconPath,
-                    color: AppColors.primary,
-                  ),
+                Text(
+                  title,
+                  style: TextStyleManager.style14Medium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(width: 12.w),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyleManager.style14Medium,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      value,
-                      style: TextStyleManager.style15Medium.copyWith(
-                        color: AppColors.tealText,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                SizedBox(height: 4.h),
+                Text(
+                  value,
+                  style: TextStyleManager.style15Medium.copyWith(
+                    color: AppColors.tealText,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          ?badge,
+          if (badge != null) ...[
+            SizedBox(width: 8.w),
+            badge,
+          ],
         ],
       ),
     );
@@ -264,6 +266,7 @@ class BmiReportPage extends StatelessWidget {
     return Row(
       children: [
         Container(
+          width: 48.w,
           height: 48.w,
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
@@ -277,25 +280,30 @@ class BmiReportPage extends StatelessWidget {
           ),
         ),
         SizedBox(width: 16.w),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyleManager.style14Medium.copyWith(
-                color: AppColors.black,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-            SizedBox(height: 4.h),
-            Text(
-              value,
-              style: TextStyleManager.style14Medium.copyWith(
-                color: AppColors.tealText,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: TextStyleManager.style14Medium.copyWith(
+                  color: AppColors.black,
+                ),
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+              SizedBox(height: 4.h),
+              Text(
+                value,
+                style: TextStyleManager.style14Medium.copyWith(
+                  color: AppColors.tealText,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ],
     );

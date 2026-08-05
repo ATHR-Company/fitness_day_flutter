@@ -73,11 +73,16 @@ class ProgressChart extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'clients_page.visits_summary'.tr(),
-                  style: TextStyleManager.style14Bold,
+                Expanded(
+                  child: Text(
+                    'clients_page.visits_summary'.tr(),
+                    style: TextStyleManager.style14Bold,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
+                SizedBox(width: 8.w),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'clients_page.current_weight'.tr(),

@@ -90,7 +90,8 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.home'.tr(),
                     isSelected: selectedIndex == 0,
                     onTap: () {
-                      context.push(SpecialistAppRoutes.home);
+                      Navigator.pop(context);
+                      context.go(SpecialistAppRoutes.home);
                     },
                   ),
                   _buildMenuItem(
@@ -99,7 +100,8 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.today_tasks'.tr(),
                     isSelected: selectedIndex == 1,
                     onTap: () {
-                      context.push(SpecialistAppRoutes.todayTasks);
+                      Navigator.pop(context);
+                      context.pushReplacement(SpecialistAppRoutes.todayTasks);
                     },
                   ),
                   _buildMenuItem(
@@ -108,7 +110,8 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.visits_log'.tr(),
                     isSelected: selectedIndex == 2,
                     onTap: () {
-                      context.push(SpecialistAppRoutes.visits);
+                      Navigator.pop(context);
+                      context.pushReplacement(SpecialistAppRoutes.visits);
                     },
                   ),
                   _buildMenuItem(
@@ -117,7 +120,8 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.clients'.tr(),
                     isSelected: selectedIndex == 3,
                     onTap: () {
-                      context.push(SpecialistAppRoutes.clients);
+                      Navigator.pop(context);
+                      context.pushReplacement(SpecialistAppRoutes.clients);
                     },
                   ),
                   _buildMenuItem(
@@ -126,7 +130,8 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.notifications'.tr(),
                     isSelected: selectedIndex == 4,
                     onTap: () {
-                      context.push(SpecialistAppRoutes.notifications);
+                      Navigator.pop(context);
+                      context.pushReplacement(SpecialistAppRoutes.notifications);
                     },
                   ),
                   _buildMenuItem(
@@ -135,7 +140,8 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.my_profile'.tr(),
                     isSelected: selectedIndex == 5,
                     onTap: () {
-                      context.push(SpecialistAppRoutes.profile);
+                      Navigator.pop(context);
+                      context.pushReplacement(SpecialistAppRoutes.profile);
                     },
                   ),
                   _buildMenuItem(
@@ -145,6 +151,7 @@ class AppDrawer extends StatelessWidget {
                     isSelected: false,
                     isLogout: true,
                     onTap: () {
+                      Navigator.pop(context);
                       showDialog(
                         context: context,
                         builder: (context) => const LogoutDialog(),
@@ -198,24 +205,32 @@ class AppDrawer extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // First child in RTL goes to the RIGHT (Icon + Text)
-            Row(
-              children: [
-                AppImage(
-                  svgPath,
-                  color: iconColor,
-                  width: 20.sp,
-                  height: 20.sp,
-                ),
-                SizedBox(width: 12.w),
-                Text(
-                  title,
-                  style: TextStyleManager.heading3.copyWith(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
+            // First child in RTL goes to the RIGHT (Icon + Text).
+            // Expanded + ellipsis so a long label shortens instead of pushing
+            // the row past the drawer edge.
+            Expanded(
+              child: Row(
+                children: [
+                  AppImage(
+                    svgPath,
+                    color: iconColor,
+                    width: 20.sp,
+                    height: 20.sp,
                   ),
-                ),
-              ],
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyleManager.heading3.copyWith(
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             // Second child in RTL goes to the LEFT (arrows)

@@ -54,11 +54,19 @@ class CustomOutlinedButton extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    text.replaceAll('»', '').replaceAll('«', '').trim(),
-                    style: TextStyleManager.button.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
+                  // Same reasoning as CustomButton: shrink, never wrap.
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        text.replaceAll('»', '').replaceAll('«', '').trim(),
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
+                        style: TextStyleManager.button.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   if (text.contains('»') || text.contains('«')) ...[

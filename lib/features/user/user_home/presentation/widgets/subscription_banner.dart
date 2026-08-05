@@ -76,35 +76,34 @@ class SubscriptionBanner extends StatelessWidget {
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
-            height: 48.h,
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 2.h),
+            constraints: BoxConstraints(minHeight: 40.h, maxHeight: 48.h),
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(35.r),
             ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'home.expiry_date_label'.tr(),
-                    textAlign: TextAlign.center,
-                    style: TextStyleManager.style9Medium.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'home.expiry_date_label'.tr(),
+                  textAlign: TextAlign.center,
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.white,
+                    fontWeight: FontWeight.w500,
                   ),
-                  SizedBox(height: 3.h),
-                  Text(
-                    formattedDate,
-                    textAlign: TextAlign.center,
-                    style: TextStyleManager.style9Medium.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  formattedDate,
+                  textAlign: TextAlign.center,
+                  style: TextStyleManager.style9Medium.copyWith(
+                    color: AppColors.white,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -137,15 +136,19 @@ class SubscriptionBanner extends StatelessWidget {
               child: AppImage(SvgIcons.diamond),
             ),
 
-            // "Not subscribed" label
-            Text(
-              'home.not_subscribed'.tr(),
-              style: TextStyleManager.style11Medium.copyWith(
-                color: AppColors.greenJungle,
-                fontWeight: FontWeight.bold,
+            // "Not subscribed" label — Flexible so it gives way first. In
+            // English the label plus the CTA is wider than the screen, and
+            // shrinking the label keeps the button (the actionable part) whole.
+            Flexible(
+              child: Text(
+                'home.not_subscribed'.tr(),
+                style: TextStyleManager.style11Medium.copyWith(
+                  color: AppColors.greenJungle,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
 
             SizedBox(width: 8.w),
@@ -163,6 +166,8 @@ class SubscriptionBanner extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   'home.subscribe_now'.tr(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyleManager.style11Medium.copyWith(
                     color: AppColors.white,
                     fontWeight: FontWeight.bold,

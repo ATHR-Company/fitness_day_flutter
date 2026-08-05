@@ -28,6 +28,7 @@ enum ProfileValidationKey {
   preferredExercises('PREFERRED_EXERCISES', ProfileSetupStep.fitness),
   dailyWorkoutHours('DAILY_WORKOUT_HOURS', ProfileSetupStep.fitness);
 
+
   /// The value as it arrives from the API.
   final String apiValue;
 

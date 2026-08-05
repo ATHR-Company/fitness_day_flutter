@@ -71,8 +71,12 @@ class NoScriptInputFormatter extends TextInputFormatter {
   }
 }
 
-/// A [TextInputFormatter] that silently blocks any digit (0–9) from being
-/// entered. Use it on name fields where numbers make no sense.
+/// A [TextInputFormatter] that silently blocks any digit from being entered.
+/// Use it on fields where numbers make no sense — names, food lists, allergies.
+///
+/// Covers Western `0-9`, Arabic-Indic `٠-٩` and Extended Arabic-Indic `۰-۹`.
+/// `\d` alone matches only the Western ones, so an Arabic keyboard walked
+/// straight past the old rule.
 ///
 /// ```dart
 /// inputFormatters: [
@@ -81,7 +85,7 @@ class NoScriptInputFormatter extends TextInputFormatter {
 /// ],
 /// ```
 class NoDigitsInputFormatter extends TextInputFormatter {
-  static final RegExp _digits = RegExp(r'\d');
+  static final RegExp _digits = RegExp(r'[0-9٠-٩۰-۹]');
 
   @override
   TextEditingValue formatEditUpdate(
@@ -107,16 +111,15 @@ class NoDigitsInputFormatter extends TextInputFormatter {
   }
 }
 
-/// A [TextInputFormatter] for name fields.
+/// A [TextInputFormatter] for name fields: **letters and spaces, nothing else**.
 ///
 /// Allows:
-///   - Arabic letters (ء–ي, including diacritics/tashkeel)
-///   - Latin letters (A–Z, a–z)
-///   - Spaces
-///   - A single dot (for names like "A. Smith")
-///   - Question marks and percent signs (for names such as "A?" or "100%")
+///   - Latin letters (A-Z, a-z)
+///   - Arabic letters, their diacritics/tashkeel, the extended letters
+///     (pe, che, zhe ...) and the Unicode presentation forms
+///   - Plain spaces
 ///
-/// Blocks everything else: digits, special characters (@, #, $, …), emojis, etc.
+/// Blocks everything else - digits in any script, punctuation, symbols, emoji.
 ///
 /// ```dart
 /// inputFormatters: [
@@ -126,8 +129,22 @@ class NoDigitsInputFormatter extends TextInputFormatter {
 /// ```
 class NameInputFormatter extends TextInputFormatter {
   // Matches characters that are NOT allowed in a name.
+  //
+  // The ranges are listed one block at a time on purpose. The previous version
+  // allowed ؀-ۿ wholesale, and that block contains the Arabic-Indic
+  // digits (٠-٩) as well as the Arabic comma, semicolon and question
+  // mark - so numbers and punctuation went straight through on an Arabic
+  // keyboard. '.', '?' and '%' were allowed outright on top of that.
   static final RegExp _invalid = RegExp(
-    r'[^\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFFa-zA-Z\s.?%]',
+    r'[^'
+    r'a-zA-Z'                       // Latin letters
+    r'ء-غ'                // Arabic hamza .. ghain (stops before ٠)
+    r'ف-ي'                // Arabic feh .. yeh (skips tatweel ـ)
+    r'ً-ْٰ'          // tashkeel
+    r'ٱ-ۓ'                // extended Arabic letters
+    r'ﭐ-﷿ﹰ-﻿'   // Arabic presentation forms
+    r' '                            // plain space only
+    r']',
   );
 
   @override

@@ -20,6 +20,10 @@ class AppInfoField extends StatelessWidget {
   /// server-side validation messages (`key` in the API error body).
   final String? errorText;
 
+  /// Lets a caller move focus here — used to drop the cursor straight into the
+  /// field the server rejected.
+  final FocusNode? focusNode;
+
   const AppInfoField({
     super.key,
     required this.hint,
@@ -31,6 +35,7 @@ class AppInfoField extends StatelessWidget {
     this.keyboardType,
     this.inputFormatters,
     this.errorText,
+    this.focusNode,
   });
 
   @override
@@ -50,6 +55,7 @@ class AppInfoField extends StatelessWidget {
                 : <TextInputFormatter>[NoScriptInputFormatter()]);
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       readOnly: onTap != null,
       onTap: onTap,
       validator: validator,

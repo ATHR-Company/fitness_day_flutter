@@ -1,3 +1,7 @@
+import 'dart:ui' as ui;
+
+// easy_localization re-exports intl's TextDirection, which shadows Flutter's —
+// hence the `ui.` prefix on every TextDirection below.
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -70,6 +74,63 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
     }
   }
 
+  Widget _buildStepArrow({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Directionality(
+      textDirection: ui.TextDirection.ltr,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: EdgeInsets.all(8.r),
+          child: Icon(icon, color: AppColors.primary, size: 24.sp),
+        ),
+      ),
+    );
+  }
+
+  /// One number column. Both wheels differ only in their range and the field
+  /// they write to, so they share this instead of duplicating the delegate.
+  Widget _buildWheel({
+    required FixedExtentScrollController controller,
+    required int itemCount,
+    required int Function(int index) valueAt,
+    required int selectedValue,
+    required ValueChanged<int> onSelected,
+  }) {
+    return ListWheelScrollView.useDelegate(
+      controller: controller,
+      itemExtent: 50.h,
+      physics: const FixedExtentScrollPhysics(),
+      perspective: 0.005,
+      onSelectedItemChanged: (index) => onSelected(valueAt(index)),
+      childDelegate: ListWheelChildBuilderDelegate(
+        childCount: itemCount,
+        builder: (context, index) {
+          final val = valueAt(index);
+          final isSelected = val == selectedValue;
+          return Container(
+            height: 50.h,
+            alignment: Alignment.center,
+            child: Text(
+              '$val',
+              style: isSelected
+                  ? TextStyleManager.heading2.copyWith(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.bold,
+                    )
+                  : TextStyleManager.heading3.copyWith(
+                      color: AppColors.textSecondary.withValues(alpha: 0.6),
+                    ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -113,97 +174,58 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
-                  // 2. Scroll Wheels Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 50.w,
-                        child: ListWheelScrollView.useDelegate(
-                          controller: _decimalScrollController,
-                          itemExtent: 50.h,
-                          physics: const FixedExtentScrollPhysics(),
-                          perspective: 0.005,
-                          onSelectedItemChanged: (index) {
-                            setState(() {
-                              _selectedDecimal = index;
-                            });
-                          },
-                          childDelegate: ListWheelChildBuilderDelegate(
-                            childCount: 10,
-                            builder: (context, index) {
-                              final val = index;
-                              final isSelected = val == _selectedDecimal;
-                              return Container(
-                                height: 50.h,
-                                alignment: Alignment.center,
-                                child: Text(
-                                  '$val',
-                                  style: isSelected
-                                      ? TextStyleManager.heading2.copyWith(
-                                          color: AppColors.black,
-                                          fontWeight: FontWeight.bold,
-                                        )
-                                      : TextStyleManager.heading3.copyWith(
-                                          color: AppColors.textSecondary
-                                              .withValues(alpha: 0.6),
-                                        ),
-                                ),
-                              );
-                            },
+                  // 2. Scroll Wheels Row.
+                  // Forced LTR: a decimal number reads whole-part-then-tenths
+                  // in every language. The row used to inherit the app's
+                  // direction, so in English the wheels swapped and the screen
+                  // showed "5 . 70" instead of "70 . 5".
+                  Directionality(
+                    textDirection: ui.TextDirection.ltr,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Whole kilogrammes
+                        SizedBox(
+                          width: 70.w,
+                          child: _buildWheel(
+                            controller: _intScrollController,
+                            itemCount: maxWeight - minWeight + 1,
+                            valueAt: (index) => minWeight + index,
+                            selectedValue: _selectedInt,
+                            onSelected: (value) =>
+                                setState(() => _selectedInt = value),
                           ),
                         ),
-                      ),
-                      Text(
-                        '  .  ',
-                        style: TextStyleManager.heading2.copyWith(
-                          color: AppColors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 70.w,
-                        child: ListWheelScrollView.useDelegate(
-                          controller: _intScrollController,
-                          itemExtent: 50.h,
-                          physics: const FixedExtentScrollPhysics(),
-                          perspective: 0.005,
-                          onSelectedItemChanged: (index) {
-                            setState(() {
-                              _selectedInt = minWeight + index;
-                            });
-                          },
-                          childDelegate: ListWheelChildBuilderDelegate(
-                            childCount: maxWeight - minWeight + 1,
-                            builder: (context, index) {
-                              final val = minWeight + index;
-                              final isSelected = val == _selectedInt;
-                              return Container(
-                                height: 50.h,
-                                alignment: Alignment.center,
-                                child: Text(
-                                  '$val',
-                                  style: isSelected
-                                      ? TextStyleManager.heading2.copyWith(
-                                          color: AppColors.black,
-                                          fontWeight: FontWeight.bold,
-                                        )
-                                      : TextStyleManager.heading3.copyWith(
-                                          color: AppColors.textSecondary
-                                              .withValues(alpha: 0.6),
-                                        ),
-                                ),
-                              );
-                            },
+                        Text(
+                          '  .  ',
+                          style: TextStyleManager.heading2.copyWith(
+                            color: AppColors.black,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ],
+                        // Tenths
+                        SizedBox(
+                          width: 50.w,
+                          child: _buildWheel(
+                            controller: _decimalScrollController,
+                            itemCount: 10,
+                            valueAt: (index) => index,
+                            selectedValue: _selectedDecimal,
+                            onSelected: (value) =>
+                                setState(() => _selectedDecimal = value),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  // 3. Left Clickable Arrow (layered on top)
+                  // 3. Step-down arrow, on the same side as the low digits.
+                  // Wrapped in LTR like the wheels: skip_next/skip_previous
+                  // mirror themselves under RTL, which would point them away
+                  // from the direction they actually move the value.
                   Positioned(
                     left: 12.w,
-                    child: GestureDetector(
+                    child: _buildStepArrow(
+                      icon: Icons.skip_previous,
                       onTap: () {
                         int newInt = _selectedInt;
                         int newDec = _selectedDecimal - 1;
@@ -213,21 +235,13 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
                         }
                         _animateTo(newInt, newDec);
                       },
-                      behavior: HitTestBehavior.opaque,
-                      child: Padding(
-                        padding: EdgeInsets.all(8.r),
-                        child: Icon(
-                          Icons.skip_next,
-                          color: AppColors.primary,
-                          size: 24.sp,
-                        ),
-                      ),
                     ),
                   ),
-                  // 4. Right Clickable Arrow (layered on top)
+                  // 4. Step-up arrow
                   Positioned(
                     right: 12.w,
-                    child: GestureDetector(
+                    child: _buildStepArrow(
+                      icon: Icons.skip_next,
                       onTap: () {
                         int newInt = _selectedInt;
                         int newDec = _selectedDecimal + 1;
@@ -237,15 +251,6 @@ class _WeightPickerDialogState extends State<WeightPickerDialog> {
                         }
                         _animateTo(newInt, newDec);
                       },
-                      behavior: HitTestBehavior.opaque,
-                      child: Padding(
-                        padding: EdgeInsets.all(8.r),
-                        child: Icon(
-                          Icons.skip_previous,
-                          color: AppColors.primary,
-                          size: 24.sp,
-                        ),
-                      ),
                     ),
                   ),
                 ],

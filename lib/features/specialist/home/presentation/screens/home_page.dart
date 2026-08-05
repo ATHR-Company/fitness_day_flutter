@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
@@ -103,76 +104,111 @@ class HomePage extends StatelessWidget {
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
                             child: Column(
                               children: [
-                                if (data.upcomingAssessments.isNotEmpty) ...[
-                                  SectionHeader(
-                                    title: "home.upcoming_appointments".tr(),
-                                  ),
-                                  SizedBox(height: 16.h),
-                                  ...data.upcomingAssessments.map((assessment) {
-                                    String formattedTime = '';
-                                    if (assessment.weekStart.isNotEmpty) {
-                                      final parsed = DateTime.tryParse(assessment.weekStart);
-                                      if (parsed != null) {
-                                        formattedTime = DateFormat('yyyy-MM-dd hh:mm a', context.locale.languageCode)
-                                            .format(parsed.toLocal());
-                                      }
-                                    }
-                                    if (formattedTime.isEmpty) {
-                                      formattedTime = assessment.weekStart;
-                                    }
-
-                                    return Padding(
-                                      padding: EdgeInsets.only(bottom: 16.h),
-                                      child: VisitCard(
-                                        timeRemaining: "home.commitment_rate".tr(
-                                          args: [assessment.user?.adherenceRate.toString() ?? '0'],
-                                        ),
-                                        title: assessment.name,
-                                        subtitle: assessment.description,
-                                        personName: assessment.user?.name ?? '',
-                                        visitTime: formattedTime,
-                                        location: assessment.placement,
-                                        iconPath: assessment.image.isNotEmpty ? assessment.image : SvgIcons.monitor,
-                                        buttonText: "home.view_visit".tr(),
-                                        onViewPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => VisitDetailsPage(
-                                                isUpcoming: true,
-                                                assessmentId: assessment.assessmentId,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  }),
-                                ],
-
-                                if (data.needsFollowUp != null) ...[
-                                  SizedBox(height: 24.h),
-                                  SectionHeader(
-                                    title: "home.clients_need_follow_up".tr(),
-                                  ),
-                                  SizedBox(height: 16.h),
-                                  FollowUpAlertCard(
-                                    title: "home.needs_follow_up".tr(),
-                                    clientName: data.needsFollowUp!.name,
-                                    alertReason: data.needsFollowUp!.reason,
-                                    buttonText: 'clients_page.view_profile'.tr(),
-                                    iconPath: data.needsFollowUp!.image.isNotEmpty ? data.needsFollowUp!.image : SvgIcons.needMonitorRed,
-                                    onButtonPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => ClientProfilePage(
-                                            userId: data.needsFollowUp!.id,
+                                if (data.upcomingAssessments.isEmpty && data.needsFollowUp == null) ...[
+                                  SizedBox(height: 32.h),
+                                  Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 32.w),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.groups_rounded,
+                                            size: 100.sp,
+                                            color: AppColors.primary.withValues(alpha: 0.15),
                                           ),
+                                          SizedBox(height: 20.h),
+                                          Text(
+                                            'clients_page.empty_title'.tr(),
+                                            style: TextStyleManager.style16Bold.copyWith(
+                                              color: AppColors.primary,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          SizedBox(height: 8.h),
+                                          Text(
+                                            'clients_page.empty_subtitle'.tr(),
+                                            style: TextStyleManager.style13Medium.copyWith(
+                                              color: AppColors.textSecondary,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ] else ...[
+                                  if (data.upcomingAssessments.isNotEmpty) ...[
+                                    SectionHeader(
+                                      title: "home.upcoming_appointments".tr(),
+                                    ),
+                                    SizedBox(height: 16.h),
+                                    ...data.upcomingAssessments.map((assessment) {
+                                      String formattedTime = '';
+                                      if (assessment.weekStart.isNotEmpty) {
+                                        final parsed = DateTime.tryParse(assessment.weekStart);
+                                        if (parsed != null) {
+                                          formattedTime = DateFormat('yyyy-MM-dd hh:mm a', context.locale.languageCode)
+                                              .format(parsed.toLocal());
+                                        }
+                                      }
+                                      if (formattedTime.isEmpty) {
+                                        formattedTime = assessment.weekStart;
+                                      }
+
+                                      return Padding(
+                                        padding: EdgeInsets.only(bottom: 16.h),
+                                        child: VisitCard(
+                                          timeRemaining: "home.commitment_rate".tr(
+                                            args: [assessment.user?.adherenceRate.toString() ?? '0'],
+                                          ),
+                                          title: assessment.name,
+                                          subtitle: assessment.description,
+                                          personName: assessment.user?.name ?? '',
+                                          visitTime: formattedTime,
+                                          location: assessment.placement,
+                                          iconPath: assessment.image.isNotEmpty ? assessment.image : SvgIcons.monitor,
+                                          buttonText: "home.view_visit".tr(),
+                                          onViewPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => VisitDetailsPage(
+                                                  isUpcoming: true,
+                                                  assessmentId: assessment.assessmentId,
+                                                ),
+                                              ),
+                                            );
+                                          },
                                         ),
                                       );
-                                    },
-                                  ),
+                                    }),
+                                  ],
+
+                                  if (data.needsFollowUp != null) ...[
+                                    SizedBox(height: 24.h),
+                                    SectionHeader(
+                                      title: "home.clients_need_follow_up".tr(),
+                                    ),
+                                    SizedBox(height: 16.h),
+                                    FollowUpAlertCard(
+                                      title: "home.needs_follow_up".tr(),
+                                      clientName: data.needsFollowUp!.name,
+                                      alertReason: data.needsFollowUp!.reason,
+                                      buttonText: 'clients_page.view_profile'.tr(),
+                                      iconPath: data.needsFollowUp!.image.isNotEmpty ? data.needsFollowUp!.image : SvgIcons.needMonitorRed,
+                                      onButtonPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => ClientProfilePage(
+                                              userId: data.needsFollowUp!.id,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ],
                               ],
                             ),

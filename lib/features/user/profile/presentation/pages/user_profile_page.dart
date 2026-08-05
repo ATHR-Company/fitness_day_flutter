@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +6,7 @@ import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
@@ -15,7 +17,6 @@ import 'package:fitness_day/core/widgets/profile/change_phone_dialog.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/services/socket_service.dart';
-import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/features/user/profile/data/models/user_profile_model.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
@@ -27,6 +28,7 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/widgets/confirm_dialog.dart';
 import 'package:fitness_day/fitness_day.dart';
+import 'package:go_router/go_router.dart';
 import '../../../user_home/presentation/widgets/user_app_drawer.dart';
 import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 import 'package:fitness_day/core/utils/permission_tester.dart';
@@ -73,40 +75,46 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      endDrawer: UserAppDrawer(
-        isSubscribed: getIt<AppCache>().getIsSubscribed(),
-      ),
-      body: BlocListener<UserProfileCubit, UserProfileState>(
-        listenWhen: (previous, current) => current is UserProfileUpdateFailure,
-        listener: (context, state) {
-          if (state is UserProfileUpdateFailure) {
-            showAppError(context, state.error, message: state.message);
-          }
-        },
-        child: Builder(
-          builder: (context) {
-            return Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: AppColors.splashBackgroundGradient,
-              ),
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    SizedBox(height: 20.h),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        context.go(UserAppRoutes.home);
+      },
+      child: Scaffold(
+        endDrawer: UserAppDrawer(
+          isSubscribed: getIt<AppCache>().getIsSubscribed(),
+        ),
+        body: BlocListener<UserProfileCubit, UserProfileState>(
+          listenWhen: (previous, current) => current is UserProfileUpdateFailure,
+          listener: (context, state) {
+            if (state is UserProfileUpdateFailure) {
+              showAppError(context, state.error, message: state.message);
+            }
+          },
+          child: Builder(
+            builder: (context) {
+              return Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: AppColors.splashBackgroundGradient,
+                ),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      SizedBox(height: 20.h),
 
-                    // Header
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: AppHeader(
-                        title: 'profile.title'.tr(),
-                        onMenuPressed: () {
-                          Scaffold.of(context).openEndDrawer();
-                        },
+                      // Header
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: AppHeader(
+                          title: 'profile.title'.tr(),
+                          onMenuPressed: () {
+                            Scaffold.of(context).openEndDrawer();
+                          },
+                        ),
                       ),
-                    ),
 
                     SizedBox(height: 24.h),
 
@@ -129,7 +137,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 // Avatar + Name/Identifier (RTL Layout)
-                                Row(
+                                Expanded(
+                                  child: Row(
                                   children: [
                                     Container(
                                       width: 50.r,
@@ -155,27 +164,41 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                             ),
                                     ),
                                     SizedBox(width: 16.w),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          data?.fullName ?? '',
-                                          style: TextStyleManager.style14Bold
-                                              .copyWith(color: AppColors.black),
-                                        ),
-                                        SizedBox(height: 4.h),
-                                        Text(
-                                          data?.identifier ?? '',
-                                          style: TextStyleManager.style11Medium
-                                              .copyWith(
-                                                color: AppColors.textSecondary,
-                                              ),
-                                        ),
-                                      ],
+                                    // Names run up to 30 characters — without
+                                    // Expanded + ellipsis a long one overflows
+                                    // the card instead of being cut short.
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            data?.fullName ?? '',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyleManager.style14Bold
+                                                .copyWith(
+                                                  color: AppColors.black,
+                                                ),
+                                          ),
+                                          SizedBox(height: 4.h),
+                                          Text(
+                                            data?.identifier ?? '',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyleManager
+                                                .style11Medium
+                                                .copyWith(
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
+                                ),
                                 ),
                                 GestureDetector(
                                   onTap: () {
@@ -238,7 +261,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
           },
         ),
       ),
-    );
+    
+    ));
   }
 
   // ── Settings Tab ───────────────────────────────────────────────────────────
@@ -246,24 +270,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     BuildContext context,
     UserProfileDataModel? data,
   ) => [
-    // DEBUG: Permission Tester (only in debug mode)
-    if (kDebugMode) ...[
-      _buildMenuItem(
-        title: '🛠️ Permission Tester (Debug Only)',
-        iconWidget: _buildCircleIcon(
-          iconData: Icons.security,
-          backgroundColor: Colors.orange.withValues(alpha: 0.1),
-          iconColor: Colors.orange,
-        ),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const PermissionTesterScreen()),
-          );
-        },
-      ),
-      SizedBox(height: 8.h),
-    ],
-
+    
     _buildMenuItem(
       title: 'profile.personal_profile'.tr(),
       iconWidget: _buildCircleIcon(iconPath: SvgIcons.profile),
@@ -271,18 +278,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         context.push(UserAppRoutes.personalProfile);
       },
     ),
-    _buildMenuItem(
-      title: 'common.manage_permissions'.tr(),
-      iconWidget: _buildCircleIcon(
-        iconData: Icons.security_rounded,
-        iconColor: AppColors.primary,
-      ),
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const PermissionsSettingsScreen()),
-        );
-      },
-    ),
+  
     _buildMenuItem(
       title: 'profile.edit_password'.tr(),
       iconWidget: _buildCircleIcon(iconPath: SvgIcons.editPassword),

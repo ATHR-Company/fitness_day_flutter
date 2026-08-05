@@ -14,6 +14,9 @@ import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
+import 'package:fitness_day/core/widgets/app_snack_bar.dart';
+import 'package:fitness_day/core/network/api_result.dart';
+
 
 class LogoutDialog extends StatelessWidget {
   const LogoutDialog({super.key});
@@ -129,14 +132,19 @@ class LogoutDialog extends StatelessWidget {
                             : () async {
                                 final role = RoleNotifier.instance.value;
                                 if (role == AppRole.specialist) {
-                                  await context.read<AuthCubit>().logout();
+                                  final error = await context.read<AuthCubit>().logout();
+                                  if (error != null && context.mounted) {
+                                    showAppSnackBar(context, text: error, isError: true);
+                                  }
                                 } else {
-                                  // User logout logic — best-effort API call;
-                                  // local session is cleared regardless of
-                                  // whether the network request succeeds.
-                                  try {
-                                    await di.getIt<UserProfileCubit>().signout();
-                                  } catch (_) {}
+                                  // User logout — requires network; block if offline.
+                                  final signoutResult = await di.getIt<UserProfileCubit>().signout();
+                                  if (signoutResult is FailureResult) {
+                                    if (context.mounted) {
+                                      showAppSnackBar(context, text: signoutResult.failure.message, isError: true);
+                                    }
+                                    return;
+                                  }
                                   di.getIt<SocketService>().disconnect();
                                   await di.getIt<SecureCache>().deleteToken();
                                   await di.getIt<SecureCache>().deleteRefreshToken();

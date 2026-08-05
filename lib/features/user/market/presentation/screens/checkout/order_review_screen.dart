@@ -306,6 +306,10 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                 child: isApplied
                     ? Text(
                         applied.code,
+                        // The box is a fixed 48.h — a long code has to cut off
+                        // rather than wrap into a second, clipped line.
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyleManager.style13Medium.copyWith(
                           color: AppColors.black,
                           fontWeight: FontWeight.bold,
@@ -354,14 +358,21 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                           color: AppColors.primary,
                         ),
                       )
-                    : Text(
-                        (isApplied
-                                ? 'market.remove_button'
-                                : 'market.apply_button')
-                            .tr(),
-                        style: TextStyleManager.style13Medium.copyWith(
-                          color: isApplied ? AppColors.error : AppColors.white,
-                          fontWeight: FontWeight.bold,
+                    // Fixed 100.w button: "Remove" is longer than "Apply" and
+                    // wrapped out of the pill at larger font sizes.
+                    : FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          (isApplied
+                                  ? 'market.remove_button'
+                                  : 'market.apply_button')
+                              .tr(),
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          style: TextStyleManager.style13Medium.copyWith(
+                            color: isApplied ? AppColors.error : AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
               ),
@@ -482,11 +493,19 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                         borderRadius: BorderRadius.circular(25.r),
                       ),
                     ),
-                    child: Text(
-                      'market.cancel_sub_confirm'.tr(),
-                      style: TextStyleManager.style15Medium.copyWith(
-                        color: AppColors.error,
-                        fontWeight: FontWeight.bold,
+                    // Cancel only gets a third of the bar, so "Cancel" wrapped
+                    // to two lines and was clipped by the fixed height.
+                    // scaleDown keeps it on one centred line instead.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'market.cancel_sub_confirm'.tr(),
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
+                        style: TextStyleManager.style15Medium.copyWith(
+                          color: AppColors.error,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -508,16 +527,21 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: Text(
-                      (CheckoutPaymentMethod.fromApi(
-                                  state.order?.paymentMethod) ==
-                              CheckoutPaymentMethod.paymob
-                          ? 'market.pay_now'
-                          : 'market.confirm_order')
-                          .tr(),
-                      style: TextStyleManager.style15Medium.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        (CheckoutPaymentMethod.fromApi(
+                                    state.order?.paymentMethod) ==
+                                CheckoutPaymentMethod.paymob
+                            ? 'market.pay_now'
+                            : 'market.confirm_order')
+                            .tr(),
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
+                        style: TextStyleManager.style15Medium.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

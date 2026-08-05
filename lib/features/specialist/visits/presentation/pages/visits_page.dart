@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/widgets/app_search_bar.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
@@ -16,6 +17,8 @@ import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visits_cubit.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visits_state.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'visit_details_page.dart';
 
 class VisitsPage extends StatelessWidget {
@@ -68,36 +71,42 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: AppColors.profileGradient,
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        endDrawer: const AppDrawer(),
-        body: Builder(
-          builder: (context) {
-            return LoaderHud(
-              isCall: false,
-              child: SafeArea(
-                child: TopCenteredConstrainedBox(
-                  horizontalPadding: 0,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 16.h),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        context.go(SpecialistAppRoutes.home);
+      },
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: AppColors.profileGradient,
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          endDrawer: const AppDrawer(),
+          body: Builder(
+            builder: (context) {
+              return LoaderHud(
+                isCall: false,
+                child: SafeArea(
+                  child: TopCenteredConstrainedBox(
+                    horizontalPadding: 0,
+                    child: Column(
+                      children: [
+                        SizedBox(height: 16.h),
 
-                      // 1. Header
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: AppHeader(
-                          title: 'visits.title'.tr(),
-                          onMenuPressed: () {
-                            Scaffold.of(context).openEndDrawer();
-                          },
+                        // 1. Header
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: AppHeader(
+                            title: 'visits.title'.tr(),
+                            onMenuPressed: () {
+                              Scaffold.of(context).openEndDrawer();
+                            },
+                          ),
                         ),
-                      ),
 
                       SizedBox(height: 24.h),
 
@@ -163,10 +172,36 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
 
                               if (visits.isEmpty) {
                                 return Center(
-                                  child: Text(
-                                    _selectedTabIndex == 0
-                                        ? 'clients_page.no_upcoming_visits'.tr()
-                                        : 'clients_page.no_past_visits'.tr(),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 32.w),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.groups_rounded,
+                                          size: 120.sp,
+                                          color: AppColors.primary.withValues(alpha: 0.15),
+                                        ),
+                                        SizedBox(height: 24.h),
+                                        Text(
+                                          _selectedTabIndex == 0
+                                              ? 'clients_page.no_upcoming_visits'.tr()
+                                              : 'clients_page.no_past_visits'.tr(),
+                                          style: TextStyleManager.style16Bold.copyWith(
+                                            color: AppColors.primary,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        SizedBox(height: 12.h),
+                                        Text(
+                                          'clients_page.empty_subtitle'.tr(),
+                                          style: TextStyleManager.style13Medium.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               }
@@ -266,6 +301,6 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
           },
         ),
       ),
-    );
+    ));
   }
 }

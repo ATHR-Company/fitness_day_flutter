@@ -113,7 +113,7 @@ class UserAppDrawer extends StatelessWidget {
           isSelected: selected == 1,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.visitLog);
+            context.pushReplacement(UserAppRoutes.visitLog);
           },
         ),
         _buildMenuItem(
@@ -122,7 +122,7 @@ class UserAppDrawer extends StatelessWidget {
           isSelected: selected == 2,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.dietPlan);
+            context.pushReplacement(UserAppRoutes.dietPlan);
           },
         ),
         _buildMenuItem(
@@ -131,7 +131,7 @@ class UserAppDrawer extends StatelessWidget {
           isSelected: selected == 3,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.workoutPlan);
+            context.pushReplacement(UserAppRoutes.workoutPlan);
           },
         ),
         _buildMenuItem(
@@ -140,7 +140,7 @@ class UserAppDrawer extends StatelessWidget {
           isSelected: selected == 4,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.store);
+            context.pushReplacement(UserAppRoutes.store);
           },
         ),
         _buildMenuItem(
@@ -149,7 +149,7 @@ class UserAppDrawer extends StatelessWidget {
           isSelected: selected == 5,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.notifications);
+            context.pushReplacement(UserAppRoutes.notifications);
           },
         ),
         _buildMenuItem(
@@ -158,7 +158,7 @@ class UserAppDrawer extends StatelessWidget {
           isSelected: selected == 6,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.profile);
+            context.pushReplacement(UserAppRoutes.profile);
           },
         ),
         _logoutItem(context),
@@ -181,7 +181,7 @@ class UserAppDrawer extends StatelessWidget {
           isSelected: selected == 1,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.visitLog);
+            context.pushReplacement(UserAppRoutes.visitLog);
           },
         ),
         _buildMenuItem(
@@ -190,7 +190,7 @@ class UserAppDrawer extends StatelessWidget {
           isSelected: selected == 2,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.store);
+            context.pushReplacement(UserAppRoutes.store);
           },
         ),
         _buildMenuItem(
@@ -199,7 +199,7 @@ class UserAppDrawer extends StatelessWidget {
           isSelected: selected == 3,
           onTap: () {
             Navigator.pop(context);
-            context.push(UserAppRoutes.profile);
+            context.pushReplacement(UserAppRoutes.profile);
           },
         ),
         _buildMenuItem(
@@ -265,23 +265,31 @@ class UserAppDrawer extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                SvgPicture.asset(
-                  svgPath,
-                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-                  width: 20.sp,
-                  height: 20.sp,
-                ),
-                SizedBox(width: 12.w),
-                Text(
-                  title,
-                  style: TextStyleManager.heading3.copyWith(
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
+            // Expanded + ellipsis: the English "Share with Friends" is wider
+            // than the drawer once the icon and chevron take their share.
+            Expanded(
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    svgPath,
+                    colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                    width: 20.sp,
+                    height: 20.sp,
                   ),
-                ),
-              ],
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyleManager.heading3.copyWith(
+                        color: textColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             if (!isSelected)
               Builder(

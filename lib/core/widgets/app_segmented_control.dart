@@ -111,7 +111,9 @@ class AppSegmentedControl extends StatelessWidget {
                           alignment: Alignment.center,
                           child: AnimatedDefaultTextStyle(
                             duration: const Duration(milliseconds: 250),
+                            textAlign: TextAlign.center,
                             style: TextStyleManager.style11Medium.copyWith(
+
                               color: selectedIndex == i
                                   ? AppColors.primary
                                   : AppColors.divider,

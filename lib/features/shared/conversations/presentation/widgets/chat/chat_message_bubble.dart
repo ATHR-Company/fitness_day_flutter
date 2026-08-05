@@ -15,8 +15,13 @@ import 'package:fitness_day/features/shared/conversations/presentation/widgets/c
 /// timestamp and — for outgoing messages — the delivery ticks.
 class ChatMessageBubble extends StatelessWidget {
   final ChatMessage message;
+  final List<ChatMediaAttachment>? allChatImages;
 
-  const ChatMessageBubble({super.key, required this.message});
+  const ChatMessageBubble({
+    super.key,
+    required this.message,
+    this.allChatImages,
+  });
 
   /// An outgoing message that has neither text nor media yet is an optimistic
   /// placeholder: the upload is still in flight.
@@ -67,6 +72,7 @@ class ChatMessageBubble extends StatelessWidget {
               ChatMediaGrid(
                 attachments: message.media,
                 isMine: message.isMine,
+                allChatImages: allChatImages,
               ),
 
             if (hasText)

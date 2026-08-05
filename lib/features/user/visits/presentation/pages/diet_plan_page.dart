@@ -91,10 +91,20 @@ class _DietPlanPageState extends State<DietPlanPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<DietPlanCubit>()..getDietPlan(_selectedDayIndex + 1),
-      child: Builder(
-        builder: (context) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(UserAppRoutes.home);
+        }
+      },
+      child: BlocProvider(
+        create: (context) => getIt<DietPlanCubit>()..getDietPlan(_selectedDayIndex + 1),
+        child: Builder(
+          builder: (context) {
           return Scaffold(
             key: _scaffoldKey,
             backgroundColor: AppColors.scaffoldBackground,
@@ -168,7 +178,8 @@ class _DietPlanPageState extends State<DietPlanPage> {
           );
         },
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildLayoutWithTabBar(BuildContext context, {required Widget child}) {

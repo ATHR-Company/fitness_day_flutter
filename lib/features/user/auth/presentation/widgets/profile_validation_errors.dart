@@ -12,9 +12,16 @@ import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_s
 /// it into view.
 mixin ProfileValidationErrors<T extends StatefulWidget> on State<T> {
   final Map<ProfileValidationKey, GlobalKey> _fieldKeys = {};
+  final Map<ProfileValidationKey, FocusNode> _focusNodes = {};
 
   ProfileValidationKey? _errorKey;
   String? _errorMessage;
+
+  /// Frames to wait for this screen to become the visible route before giving
+  /// up on scrolling/focusing. ~1s at 60fps — long enough for the pop
+  /// animation, short enough that a screen that never gets revealed stops
+  /// scheduling callbacks.
+  static const int _maxRevealFrames = 60;
 
   /// The step this screen renders — errors for the other steps are ignored.
   ProfileSetupStep get validationStep;
@@ -23,6 +30,19 @@ mixin ProfileValidationErrors<T extends StatefulWidget> on State<T> {
   /// widget `key` of the input.
   GlobalKey fieldKey(ProfileValidationKey key) =>
       _fieldKeys.putIfAbsent(key, () => GlobalKey());
+
+  /// Focus for the offending field. Pass it as the input's `focusNode` so a
+  /// rejected value can be corrected without hunting for the field first.
+  FocusNode fieldFocusNode(ProfileValidationKey key) =>
+      _focusNodes.putIfAbsent(key, () => FocusNode());
+
+  @override
+  void dispose() {
+    for (final node in _focusNodes.values) {
+      node.dispose();
+    }
+    super.dispose();
+  }
 
   /// The server message to render under [key], or null when it's fine.
   String? errorFor(ProfileValidationKey key) =>
@@ -52,16 +72,40 @@ mixin ProfileValidationErrors<T extends StatefulWidget> on State<T> {
       _errorMessage = failure.message;
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _fieldKeys[key]?.currentContext;
-      if (ctx == null) return;
-      Scrollable.ensureVisible(
-        ctx,
-        alignment: 0.25,
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeOut,
-      );
-    });
+    _revealWhenVisible(key, 0);
     return true;
+  }
+
+  /// Scrolls to [key]'s field and focuses it — but only once this screen is
+  /// actually the route on top.
+  ///
+  /// The form is submitted from the *last* onboarding screen, so when the
+  /// server rejects a field owned by an earlier one, this listener runs while
+  /// that later screen is still covering us; it pops back in its own listener,
+  /// which runs after ours. Scrolling and focusing right away therefore
+  /// targeted an off-screen route and did nothing — the message was pinned to
+  /// the field but the user came back to an unscrolled, unfocused form.
+  void _revealWhenVisible(ProfileValidationKey key, int frame) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // The user already started fixing something else, or we're gone.
+      if (!mounted || _errorKey != key) return;
+
+      final route = ModalRoute.of(context);
+      if (route != null && !route.isCurrent) {
+        if (frame < _maxRevealFrames) _revealWhenVisible(key, frame + 1);
+        return;
+      }
+
+      final ctx = _fieldKeys[key]?.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          alignment: 0.25,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOut,
+        );
+      }
+      _focusNodes[key]?.requestFocus();
+    });
   }
 }

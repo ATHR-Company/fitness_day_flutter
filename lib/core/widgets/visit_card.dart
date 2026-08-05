@@ -77,6 +77,8 @@ class VisitCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                    SizedBox(height: 15.w),
+
                 // Header (Icon + Title/Subtitle)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

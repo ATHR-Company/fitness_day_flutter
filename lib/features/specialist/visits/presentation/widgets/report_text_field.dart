@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -12,6 +13,7 @@ class ReportTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final String? errorText;
   final GlobalKey? fieldKey;
+  final List<TextInputFormatter>? inputFormatters;
 
   const ReportTextField({
     super.key,
@@ -22,6 +24,7 @@ class ReportTextField extends StatelessWidget {
     this.keyboardType = TextInputType.number,
     this.errorText,
     this.fieldKey,
+    this.inputFormatters,
   });
 
   @override
@@ -48,6 +51,7 @@ class ReportTextField extends StatelessWidget {
           child: TextFormField(
             controller: controller,
             keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
             style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
             decoration: InputDecoration(
               hintText: hintText,

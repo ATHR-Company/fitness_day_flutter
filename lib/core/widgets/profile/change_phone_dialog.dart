@@ -176,6 +176,7 @@ class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
                   children: [
                     Expanded(
                       child: CustomButton(
+                      
                         text: _otpStep ? 'profile.verify_code'.tr() : 'profile.send_code'.tr(),
                         onPressed: _otpStep ? _onVerify : _onSendCode,
                       ),

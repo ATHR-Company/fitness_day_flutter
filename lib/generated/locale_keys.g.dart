@@ -241,6 +241,7 @@ abstract class  LocaleKeys {
   static const visit_details_write_muscle_percentage = 'visit_details.write_muscle_percentage';
   static const visit_details_protein_percentage = 'visit_details.protein_percentage';
   static const visit_details_write_protein_percentage = 'visit_details.write_protein_percentage';
+  static const visit_details_protein = 'visit_details.protein';
   static const visit_details_end_visit = 'visit_details.end_visit';
   static const visit_details_day_1 = 'visit_details.day_1';
   static const visit_details_day_2 = 'visit_details.day_2';

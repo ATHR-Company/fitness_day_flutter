@@ -25,6 +25,10 @@ class LocalChatMessagesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final allLocalImages = messages
+        .where((m) => m.kind == LocalMessageKind.image)
+        .toList();
+
     return ListView.builder(
       controller: controller,
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
@@ -48,6 +52,7 @@ class LocalChatMessagesList extends StatelessWidget {
           child: LocalChatBubble(
             message: message,
             onLongPress: () => onReact(message),
+            allLocalImages: allLocalImages,
           ),
         );
       },

@@ -20,10 +20,13 @@ class LocalChatBubble extends StatelessWidget {
   /// Opens the reaction picker; the parent owns the resulting emoji.
   final VoidCallback onLongPress;
 
+  final List<LocalChatMessage>? allLocalImages;
+
   const LocalChatBubble({
     super.key,
     required this.message,
     required this.onLongPress,
+    this.allLocalImages,
   });
 
   @override
@@ -65,7 +68,10 @@ class LocalChatBubble extends StatelessWidget {
                         ),
                     ],
                   ),
-                  child: _LocalBubbleContent(message: message),
+                  child: _LocalBubbleContent(
+                    message: message,
+                    allLocalImages: allLocalImages,
+                  ),
                 ),
                 if (message.reaction != null)
                   PositionedDirectional(
@@ -101,8 +107,12 @@ class LocalChatBubble extends StatelessWidget {
 
 class _LocalBubbleContent extends StatelessWidget {
   final LocalChatMessage message;
+  final List<LocalChatMessage>? allLocalImages;
 
-  const _LocalBubbleContent({required this.message});
+  const _LocalBubbleContent({
+    required this.message,
+    this.allLocalImages,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -119,6 +129,7 @@ class _LocalBubbleContent extends StatelessWidget {
             context,
             path: message.path!,
             isVideo: false,
+            allImages: allLocalImages,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12.r),

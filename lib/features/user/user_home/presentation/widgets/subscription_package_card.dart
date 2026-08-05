@@ -311,31 +311,44 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
-                        Text(
-                          '${widget.package.currentPrice}',
-                          style: TextStyleManager.style15Medium.copyWith(
-                            color: AppColors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                        SizedBox(width: 2.w),
-                        Text(
-                          'home.sar'.tr(),
-                          style: TextStyleManager.style8Medium.copyWith(
-                            color: AppColors.black,
-                          ),
-                        ),
-                        if (widget.package.oldPrice > 0) ...[
-                          SizedBox(width: 10.w),
-                          Text(
-                            '${widget.package.oldPrice} ${'home.sar'.tr()}',
-                            style: TextStyleManager.style8Medium.copyWith(
-                              color: AppColors.error,
-                              decoration: TextDecoration.lineThrough,
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  '${widget.package.currentPrice}',
+                                  style: TextStyleManager.style15Medium.copyWith(
+                                    color: AppColors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                                SizedBox(width: 2.w),
+                                Text(
+                                  'home.sar'.tr(),
+                                  style: TextStyleManager.style8Medium.copyWith(
+                                    color: AppColors.black,
+                                  ),
+                                ),
+                                if (widget.package.oldPrice > 0) ...[
+                                  SizedBox(width: 6.w),
+                                  Text(
+                                    '${widget.package.oldPrice} ${'home.sar'.tr()}',
+                                    style: TextStyleManager.style8Medium.copyWith(
+                                      color: AppColors.error,
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ],
                     ),
                     SizedBox(height: 8.h),

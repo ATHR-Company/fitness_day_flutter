@@ -174,8 +174,8 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) => Directionality(
-        // الـ bottom sheet اتجاهه ثابت RTL دايمًا
-        textDirection: ui.TextDirection.rtl,
+        // Bottom sheet direction follows the current app locale.
+        textDirection: _textDir,
         child: StatefulBuilder(
           builder: (ctx, setModalState) {
             return DraggableScrollableSheet(

@@ -28,6 +28,8 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/user_ap
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 class MarketMainScreen extends StatefulWidget {
@@ -73,54 +75,65 @@ class _MarketMainScreenState extends State<MarketMainScreen>
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => getIt<MarketHomeCubit>()..loadStoreHome(),
-        ),
-        BlocProvider(
-          create: (_) => getIt<PlansCubit>()..load(),
-        ),
-      ],
-      child: Scaffold(
-        endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
-        body: ScreenBackground(
-          child: SafeArea(
-            child: Column(
-              children: [
-                MarketAppBar(
-                  onCartTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CartScreen()),
-                  ),
-                  onFavoritesTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const FavoritesScreen()),
-                  ),
-                  onOrdersTap: () async {
-                    await Navigator.push(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(UserAppRoutes.home);
+        }
+      },
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => getIt<MarketHomeCubit>()..loadStoreHome(),
+          ),
+          BlocProvider(
+            create: (_) => getIt<PlansCubit>()..load(),
+          ),
+        ],
+        child: Scaffold(
+          endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
+          body: ScreenBackground(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  MarketAppBar(
+                    onCartTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const OrdersScreen()),
-                    );
-                    // Paying an order changes the badge.
-                    getIt<CartCubit>().loadCounters();
-                  },
-                ),
-                SizedBox(height: 12.h),
-                MarketTabBar(controller: _tabController),
-                SizedBox(height: 16.h),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _ProductsTab(
-                        toProductData: _toProductData,
-                      ),
-                      const _PackagesTab(),
-                    ],
+                      MaterialPageRoute(builder: (_) => const CartScreen()),
+                    ),
+                    onFavoritesTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+                    ),
+                    onOrdersTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const OrdersScreen()),
+                      );
+                      // Paying an order changes the badge.
+                      getIt<CartCubit>().loadCounters();
+                    },
                   ),
-                ),
-              ],
+                  SizedBox(height: 12.h),
+                  MarketTabBar(controller: _tabController),
+                  SizedBox(height: 16.h),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _ProductsTab(
+                          toProductData: _toProductData,
+                        ),
+                        const _PackagesTab(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

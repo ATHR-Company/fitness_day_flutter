@@ -6,6 +6,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/utils/measurement.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/client_progress_state.dart';
@@ -16,6 +17,11 @@ class ClientProgressTab extends StatelessWidget {
   final String userId;
 
   const ClientProgressTab({super.key, required this.userId});
+
+  /// Two decimals at most; `'-'` when the visit has no reading for this metric,
+  /// so a missing value doesn't read as a measured zero.
+  static String _measure(double? value) =>
+      value == null ? '-' : Measurement.format(value);
 
   @override
   Widget build(BuildContext context) {
@@ -40,16 +46,18 @@ class ClientProgressTab extends StatelessWidget {
           if (state is ClientProgressSuccess) {
             final visit = state.data.visit;
 
-            final weightVal = visit?.weight?.value?.toString() ?? '0';
+            // These come off the wire as raw doubles — a weight arrived as
+            // 50.066556668568886 and `toString()` rendered every digit of it.
+            final weightVal = _measure(visit?.weight?.value);
             final weightUnit = visit?.weight?.unit ?? 'clients_page.kg'.tr();
 
-            final heightVal = visit?.height?.value?.toString() ?? '0';
+            final heightVal = _measure(visit?.height?.value);
             final heightUnit = visit?.height?.unit ?? 'clients_page.cm'.tr();
 
-            final idealWeightVal = visit?.idealWeight?.value?.toString() ?? '0';
+            final idealWeightVal = _measure(visit?.idealWeight?.value);
             final idealWeightUnit = visit?.idealWeight?.unit ?? 'clients_page.kg'.tr();
 
-            final bmiVal = visit?.bmi?.value?.toString() ?? '0';
+            final bmiVal = _measure(visit?.bmi?.value);
             final bmiUnit = visit?.bmi?.unit ?? 'clients_page.bmi_unit'.tr();
 
             return ListView(

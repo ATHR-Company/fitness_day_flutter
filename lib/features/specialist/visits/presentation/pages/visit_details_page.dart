@@ -12,6 +12,9 @@ import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/core/widgets/visit_goal_card.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
+import 'package:fitness_day/core/utils/decimal_input_formatter.dart';
+import 'package:fitness_day/core/utils/measurement.dart';
+import 'package:fitness_day/core/utils/validators.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/open_client_chat.dart';
 import 'package:fitness_day/core/widgets/add_goal_dialog.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
@@ -184,15 +187,19 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 onPressed: isStarting
                     ? null
                     : () async {
-                        final cubit = context.read<VisitDetailsCubit>();
-                        final success = await cubit.startVisit(widget.assessmentId);
-                        if (success && context.mounted) {
-                          showAppSnackBar(context, text: 'visit_details.start_success'.tr(), isSuccess: true);
-                          await cubit.loadVisitData(widget.assessmentId, forceRefresh: true);
-                        } else if (!success && context.mounted) {
-                          showAppSnackBar(context, text: 'shared_val_err_required'.tr(), isError: true);
+                          final cubit = context.read<VisitDetailsCubit>();
+                          final result = await cubit.startVisit(widget.assessmentId);
+                          final success = result.$1;
+                          final message = result.$2;
+                          if (success && context.mounted) {
+                            showAppSnackBar(context, text: 'visit_details.start_success'.tr(), isSuccess: true);
+                            await cubit.loadVisitData(widget.assessmentId, forceRefresh: true);
+                          } else if (context.mounted) {
+                            showAppSnackBar(context, text: message, isError: true);
+                          }
                         }
-                      },
+
+                      
               ),
             );
           },
@@ -440,11 +447,14 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     if (_reportFieldsPopulated) return;
     _reportFieldsPopulated = true;
 
+    // Weight and height keep their decimals — `toStringAsFixed(0)` loaded a
+    // 70.5 kg client as "70", and saving without touching the field silently
+    // wrote that rounded-down value back to the server.
     if (healthReport.weight?.value != null && healthReport.weight!.value > 0) {
-      _weightController.text = healthReport.weight!.value.toStringAsFixed(0);
+      _weightController.text = Measurement.format(healthReport.weight!.value);
     }
     if (healthReport.height?.value != null && healthReport.height!.value > 0) {
-      _heightController.text = healthReport.height!.value.toStringAsFixed(0);
+      _heightController.text = Measurement.format(healthReport.height!.value);
     }
     if (healthReport.bmi?.value != null && healthReport.bmi!.value > 0) {
       _bmiController.text = healthReport.bmi!.value.toStringAsFixed(2);
@@ -470,6 +480,18 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
   }
 
   final Map<String, String> _reportErrors = {};
+
+  /// Brings the field carrying [errorKey] into view so the error under it is
+  /// actually read rather than sitting off-screen.
+  void _scrollToField(String errorKey) {
+    final targetKey = _fieldKeys[errorKey];
+    if (targetKey?.currentContext == null) return;
+    Scrollable.ensureVisible(
+      targetKey!.currentContext!,
+      duration: const Duration(milliseconds: 300),
+      alignment: 0.3,
+    );
+  }
 
   final Map<String, GlobalKey> _fieldKeys = {
     'WEIGHT': GlobalKey(),
@@ -504,6 +526,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             suffixText: healthReport.weight?.unit ?? 'visit_details.kg'.tr(),
             controller: _weightController,
             errorText: _reportErrors['WEIGHT'],
+            inputFormatters: [DecimalInputFormatter()],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
@@ -513,6 +536,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             suffixText: healthReport.height?.unit ?? 'visit_details.cm'.tr(),
             controller: _heightController,
             errorText: _reportErrors['HEIGHT'],
+            inputFormatters: [DecimalInputFormatter()],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
@@ -586,8 +610,26 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 _reportErrors.clear();
               });
 
-              final weight = double.tryParse(_weightController.text) ?? 0.0;
-              final height = double.tryParse(_heightController.text) ?? 0.0;
+              // Check locally first. `?? 0.0` used to turn an empty or
+              // malformed field into a real 0 kg / 0 cm and post it, and the
+              // specialist only learned about it from the server's reply.
+              final weightError = AppValidators.weight(_weightController.text);
+              final heightError = AppValidators.height(_heightController.text);
+              if (weightError != null || heightError != null) {
+                setState(() {
+                  if (weightError != null) _reportErrors['WEIGHT'] = weightError;
+                  if (heightError != null) _reportErrors['HEIGHT'] = heightError;
+                });
+                _scrollToField(weightError != null ? 'WEIGHT' : 'HEIGHT');
+                return;
+              }
+
+              final weight = Measurement.round(
+                Measurement.parse(_weightController.text)!,
+              );
+              final height = Measurement.round(
+                Measurement.parse(_heightController.text)!,
+              );
 
               double parsedBmi = 0.0;
               if (weight > 0 && height > 0) {
@@ -626,15 +668,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 setState(() {
                   _reportErrors[errorKey] = message;
                 });
-
-                final targetKey = _fieldKeys[errorKey];
-                if (targetKey?.currentContext != null) {
-                  Scrollable.ensureVisible(
-                    targetKey!.currentContext!,
-                    duration: const Duration(milliseconds: 300),
-                    alignment: 0.3,
-                  );
-                }
+                _scrollToField(errorKey);
               } else if (!success && mounted) {
                 showAppSnackBar(context, text: message, isError: true);
               }

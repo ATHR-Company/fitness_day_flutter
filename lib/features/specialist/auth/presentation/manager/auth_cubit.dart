@@ -48,9 +48,21 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  Future<void> logout() async {
+  Future<String?> logout() async {
     emit(AuthLoading());
-    await logoutUseCase.call();
+    final result = await logoutUseCase.call();
+
+    final String? errorMessage = result.fold(
+      (failure) => failure,
+      (_) => null,
+    );
+
+    if (errorMessage != null) {
+      // API failed (e.g. no internet) — do NOT clear local session.
+      emit(AuthInitial());
+      return errorMessage;
+    }
+
     // Before the token is dropped: the socket was left open on the previous
     // user's session, so it kept receiving their chat events after sign-out.
     socketService.disconnect();
@@ -59,5 +71,6 @@ class AuthCubit extends Cubit<AuthState> {
     await appCache.clearSession();
     RoleNotifier.instance.setRole(AppRole.none);
     emit(AuthLoggedOut());
+    return null;
   }
 }

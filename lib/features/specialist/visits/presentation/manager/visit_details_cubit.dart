@@ -146,7 +146,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
     }
   }
 
-  Future<bool> startVisit(String assessmentId) async {
+  Future<(bool, String)> startVisit(String assessmentId) async {
     final currentState = state;
     final prevSuccess = currentState is VisitDetailsSuccess ? currentState : null;
 
@@ -158,12 +158,8 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
 
     switch (result) {
       case Success(:final data):
+        final isStartedFromApi = data.data?.isStarted ?? true;
         if (prevSuccess != null) {
-          final isStartedFromApi = data.data?.isStarted ?? true;
-          // Optimistically move currentState off NOT_STARTED and mark visitData as
-          // started so the UI doesn't flash back to the "Upcoming" screen (or hide
-          // the goal card, which is gated on visitData.isStarted) while
-          // loadVisitData() catches up.
           final updatedVisitData = prevSuccess.visitData?.copyWith(
             currentState: AssessmentCurrentState.inProgress,
             isStarted: isStartedFromApi,
@@ -176,15 +172,15 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
         } else {
           emit(VisitDetailsSuccess(
             customPlanCache: const {},
-            isStarted: data.data?.isStarted ?? true,
+            isStarted: isStartedFromApi,
           ));
         }
-        return true;
-      case FailureResult():
+        return (true, data.message ?? '');
+      case FailureResult(:final failure):
         if (prevSuccess != null) {
           emit(prevSuccess.copyWith(isStarting: false));
         }
-        return false;
+        return (false, failure.message);
     }
   }
 

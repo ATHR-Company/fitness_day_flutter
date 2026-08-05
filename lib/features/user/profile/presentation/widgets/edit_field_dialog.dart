@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fitness_day/core/widgets/profile/profile_dialog_base.dart';
 import 'package:fitness_day/core/widgets/profile/profile_text_field.dart';
 
@@ -11,6 +12,16 @@ class EditFieldDialog extends StatefulWidget {
   final int? maxLength;
   final bool nameOnly;
 
+  /// Returns an error message for the current text, or `null` when it is
+  /// acceptable. A failing validator keeps the dialog open and blocks [onSave].
+  final String? Function(String)? validator;
+
+  /// Last chance to clean the text before it reaches [onSave] — e.g. rounding
+  /// a weight to two decimals so the server never stores 50.066556668568886.
+  final String Function(String)? normalize;
+
+  final List<TextInputFormatter>? inputFormatters;
+
   const EditFieldDialog({
     super.key,
     required this.title,
@@ -20,6 +31,9 @@ class EditFieldDialog extends StatefulWidget {
     this.keyboardType,
     this.maxLength,
     this.nameOnly = false,
+    this.validator,
+    this.normalize,
+    this.inputFormatters,
   });
 
   @override
@@ -28,6 +42,7 @@ class EditFieldDialog extends StatefulWidget {
 
 class _EditFieldDialogState extends State<EditFieldDialog> {
   late final TextEditingController _controller;
+  String? _errorText;
 
   @override
   void initState() {
@@ -41,11 +56,21 @@ class _EditFieldDialogState extends State<EditFieldDialog> {
     super.dispose();
   }
 
+  bool _validate() {
+    final error = widget.validator?.call(_controller.text);
+    if (error != _errorText) setState(() => _errorText = error);
+    return error == null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ProfileDialogBase(
       title: widget.title,
-      onSave: () async => widget.onSave(_controller.text),
+      validate: _validate,
+      onSave: () async {
+        final value = widget.normalize?.call(_controller.text) ?? _controller.text;
+        return widget.onSave(value);
+      },
       child: ProfileTextField(
         controller: _controller,
         hintText: widget.hintText,
@@ -53,6 +78,8 @@ class _EditFieldDialogState extends State<EditFieldDialog> {
         keyboardType: widget.keyboardType,
         maxLength: widget.maxLength,
         nameOnly: widget.nameOnly,
+        inputFormatters: widget.inputFormatters,
+        errorText: _errorText,
       ),
     );
   }

@@ -140,28 +140,51 @@ class _ConversationsPageState extends State<ConversationsPage> {
   }
 
   Widget _buildList(List<UserConversation> conversations, bool isLoadingMore) {
-    if (conversations.isEmpty) return const ConversationsEmptyState();
+    if (conversations.isEmpty) {
+      return RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: _cubit.fetchSpecialistConversations,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: const Center(
+                  child: ConversationsEmptyState(),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
 
-    return ListView.separated(
-      controller: _scrollController,
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-      // One extra row for the footer spinner while the next page loads.
-      itemCount: conversations.length + (isLoadingMore ? 1 : 0),
-      separatorBuilder: (context, index) => SizedBox(height: 12.h),
-      itemBuilder: (context, index) {
-        if (index == conversations.length) {
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.h),
-            child: Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            ),
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: _cubit.fetchSpecialistConversations,
+      child: ListView.separated(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+        // One extra row for the footer spinner while the next page loads.
+        itemCount: conversations.length + (isLoadingMore ? 1 : 0),
+        separatorBuilder: (context, index) => SizedBox(height: 12.h),
+        itemBuilder: (context, index) {
+          if (index == conversations.length) {
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            );
+          }
+          return ConversationCard(
+            conversation: conversations[index],
+            onTap: () => _openConversation(conversations[index]),
           );
-        }
-        return ConversationCard(
-          conversation: conversations[index],
-          onTap: () => _openConversation(conversations[index]),
-        );
-      },
+        },
+      ),
     );
   }
 }

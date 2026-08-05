@@ -352,42 +352,47 @@ class _AdaptiveOnboardingText extends StatelessWidget {
     required this.maxHeight,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    double scale = 1.0;
-    const double minScale = 0.5;
-    const double step = 0.05;
+  static const double _minScale = 0.5;
+  static const double _step = 0.05;
 
-    while (scale > minScale) {
-      final scaledTitleStyle = titleStyle.copyWith(
-        fontSize: (titleStyle.fontSize ?? 19.sp) * scale,
-      );
-      final scaledSubtitleStyle = subtitleStyle.copyWith(
-        fontSize: (subtitleStyle.fontSize ?? 13.sp) * scale,
-      );
+  /// Height the two paragraphs occupy at [scale], measured the same way
+  /// Flutter will actually paint them.
+  double _measure(BuildContext context, double scale, TextScaler textScaler) {
+    final direction = Directionality.of(context);
 
-      // Measure title height
-      final titlePainter = TextPainter(
-        text: TextSpan(text: title, style: scaledTitleStyle),
-        textDirection: Directionality.of(context),
-      )..layout(maxWidth: maxWidth);
-
-      // Measure subtitle height
-      final subtitlePainter = TextPainter(
-        text: TextSpan(text: subtitle, style: scaledSubtitleStyle),
-        textDirection: Directionality.of(context),
-      )..layout(maxWidth: maxWidth);
-
-      final totalHeight = titlePainter.height + 10.h + subtitlePainter.height;
-
-      if (totalHeight <= maxHeight) {
-        break;
-      }
-      scale -= step;
+    double heightOf(String text, TextStyle style, double fallbackSize) {
+      return (TextPainter(
+        text: TextSpan(
+          text: text,
+          style: style.copyWith(fontSize: (style.fontSize ?? fallbackSize) * scale),
+        ),
+        textDirection: direction,
+        textAlign: TextAlign.center,
+        textScaler: textScaler,
+      )..layout(maxWidth: maxWidth))
+          .height;
     }
 
-    if (scale < minScale) {
-      scale = minScale;
+    return heightOf(title, titleStyle, 19.sp) +
+        10.h +
+        heightOf(subtitle, subtitleStyle, 13.sp);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // A bare TextPainter measures at 1.0 regardless of the device's font-size
+    // setting, while the Text widgets below scale with it. Without passing the
+    // scaler in, the loop concluded the text fit while the phone rendered it
+    // much larger, and the subtitle spilled off the bottom of the screen.
+    final textScaler = MediaQuery.textScalerOf(context);
+
+    // Largest scale that fits; falls through to _minScale if none does.
+    double scale = _minScale;
+    for (double candidate = 1.0; candidate >= _minScale; candidate -= _step) {
+      if (_measure(context, candidate, textScaler) <= maxHeight) {
+        scale = candidate;
+        break;
+      }
     }
 
     final finalTitleStyle = titleStyle.copyWith(
@@ -397,22 +402,29 @@ class _AdaptiveOnboardingText extends StatelessWidget {
       fontSize: (subtitleStyle.fontSize ?? 13.sp) * scale,
     );
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: finalTitleStyle,
+    // At the largest accessibility font sizes even _minScale can outgrow the
+    // box. Scrolling is a better failure mode than a clipped final line.
+    return SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: maxHeight),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: finalTitleStyle,
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: finalSubtitleStyle,
+            ),
+          ],
         ),
-        SizedBox(height: 10.h),
-        Text(
-          subtitle,
-          textAlign: TextAlign.center,
-          style: finalSubtitleStyle,
-        ),
-      ],
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
@@ -27,20 +29,32 @@ class _RelatedArticleCardState extends State<RelatedArticleCard> {
   late bool _isSaved;
   bool _isLoading = false;
 
+  /// Live subscription so tapping the bookmark on the detail page above this
+  /// card immediately reflects here — without it the local copy taken in
+  /// [initState] never updates because [didUpdateWidget] only fires when the
+  /// *parent* rebuilds with a changed widget, which never happens for the fixed
+  /// `relatedArticles` list passed to [ArticleDetailPage].
+  late final StreamSubscription<AppEvent> _eventSub;
+
   @override
   void initState() {
     super.initState();
     _isSaved = widget.article.isSaved;
+    _eventSub = getIt<AppEventBus>().stream.listen(_onEvent);
   }
 
-  /// Follows the parent when the flag is changed somewhere else — the same
-  /// article can be open in the details screen above this card.
   @override
-  void didUpdateWidget(RelatedArticleCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!_isLoading && widget.article.isSaved != oldWidget.article.isSaved) {
-      _isSaved = widget.article.isSaved;
-    }
+  void dispose() {
+    _eventSub.cancel();
+    super.dispose();
+  }
+
+  void _onEvent(AppEvent event) {
+    if (event is! ArticleChanged) return;
+    if (event.articleId != widget.article.id) return;
+    if (event.isSaved == null) return;
+    if (!mounted || _isLoading) return;
+    setState(() => _isSaved = event.isSaved!);
   }
 
   Future<void> _toggleSave() async {

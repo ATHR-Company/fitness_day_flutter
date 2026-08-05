@@ -15,6 +15,8 @@ import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_clients_cubit.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/manager/specialist_clients_state.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/pages/client_profile_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_card.dart';
 
 class ClientsPage extends StatefulWidget {
@@ -45,7 +47,13 @@ class _ClientsPageState extends State<ClientsPage> {
     return BlocProvider<SpecialistClientsCubit>(
       create: (context) => getIt<SpecialistClientsCubit>()
         ..getSpecialistClients(status: _getStatusString(_selectedTabIndex)),
-      child: Container(
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          context.go(SpecialistAppRoutes.home);
+        },
+        child: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
@@ -229,6 +237,6 @@ class _ClientsPageState extends State<ClientsPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

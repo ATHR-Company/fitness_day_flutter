@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
@@ -12,6 +13,8 @@ import 'package:fitness_day/features/specialist/tasks/presentation/manager/speci
 import 'package:fitness_day/features/specialist/tasks/presentation/manager/specialist_daily_tasks_state.dart';
 import '../../../visits/presentation/pages/visit_details_page.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 
 class TodayTasksPage extends StatelessWidget {
   const TodayTasksPage({super.key});
@@ -56,26 +59,32 @@ class _TodayTasksPageContentState extends State<_TodayTasksPageContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: AppColors.profileGradient,
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        endDrawer: const AppDrawer(),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Builder(
-                builder: (context) => AppHeader(
-                  title: 'drawer.today_tasks'.tr(),
-                  onMenuPressed: () {
-                    Scaffold.of(context).openEndDrawer();
-                  },
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        context.go(SpecialistAppRoutes.home);
+      },
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: AppColors.profileGradient,
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          endDrawer: const AppDrawer(),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Builder(
+                  builder: (context) => AppHeader(
+                    title: 'drawer.today_tasks'.tr(),
+                    onMenuPressed: () {
+                      Scaffold.of(context).openEndDrawer();
+                    },
+                  ),
                 ),
-              ),
               SizedBox(height: 16.h),
               Expanded(
                 child: BlocBuilder<SpecialistDailyTasksCubit, SpecialistDailyTasksState>(
@@ -98,8 +107,34 @@ class _TodayTasksPageContentState extends State<_TodayTasksPageContent> {
 
                       if (tasks.isEmpty) {
                         return Center(
-                          child: Text(
-                            'visits.no_tasks'.tr(),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 32.w),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.groups_rounded,
+                                  size: 120.sp,
+                                  color: AppColors.primary.withValues(alpha: 0.15),
+                                ),
+                                SizedBox(height: 24.h),
+                                Text(
+                                  'visits.no_tasks'.tr(),
+                                  style: TextStyleManager.style16Bold.copyWith(
+                                    color: AppColors.primary,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                SizedBox(height: 12.h),
+                                Text(
+                                  'clients_page.empty_subtitle'.tr(),
+                                  style: TextStyleManager.style13Medium.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       }
@@ -174,6 +209,7 @@ class _TodayTasksPageContentState extends State<_TodayTasksPageContent> {
           ),
         ),
       ),
-    );
+    ));
   }
-}
+  }
+

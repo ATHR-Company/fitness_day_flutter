@@ -15,6 +15,8 @@ import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_cubit.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_state.dart';
 import 'package:fitness_day/features/user/workout/data/models/workout_plan_model.dart';
+import 'package:go_router/go_router.dart';
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/widgets/exercise_details_dialog.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
@@ -72,82 +74,93 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<WorkoutPlanCubit>()..getWorkoutPlan(_selectedDayIndex + 1),
-      child: Builder(
-        builder: (context) {
-          return Scaffold(
-            key: _scaffoldKey,
-            backgroundColor: AppColors.scaffoldBackground,
-            endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
-            body: SafeArea(
-              child: Column(
-                children: [
-                  AppHeader(
-                    title: LocaleKeys.drawer_workout_plan.tr(),
-                    onMenuPressed: () {
-                      _scaffoldKey.currentState?.openEndDrawer();
-                    },
-                  ),
-                  SizedBox(height: 16.h),
-                  Expanded(
-                    child: BlocBuilder<WorkoutPlanCubit, WorkoutPlanState>(
-                      builder: (context, state) {
-                        if (state is WorkoutPlanLoading) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: AppColors.primary,
-                            ),
-                          );
-                        } else if (state is WorkoutPlanSuccess) {
-                          final workouts = state.workoutPlanData?.workouts ?? [];
-                          if (workouts.isEmpty) {
-                            return _buildLayoutWithTabBar(
-                              context,
-                              child: _buildEmptyState(),
-                            );
-                          }
-                          final tasks = _mapWorkoutsToTasks(
-                              context, workouts, state.workoutPlanData?.assessmentId ?? '');
-                          return _buildLayoutWithTabBar(
-                            context,
-                            child: SingleChildScrollView(
-                              padding: EdgeInsets.fromLTRB(20.w, 0, 16.w, 24.h),
-                              child: Column(
-                                children: [
-                                  _buildSectionTitle(
-                                    LocaleKeys.workout_exercises.tr(),
-                                  ),
-                                  SizedBox(height: 12.h),
-                                  TodayTasksSection(tasks: tasks),
-                                ],
-                              ),
-                            ),
-                          );
-                        } else if (state is WorkoutPlanFailure) {
-                          return _buildLayoutWithTabBar(
-                            context,
-                            child: AppErrorView(
-                              error: state.error,
-                              message: state.message,
-                              onRetry: () => context
-                                  .read<WorkoutPlanCubit>()
-                                  .getWorkoutPlan(_selectedDayIndex + 1),
-                            ),
-                          );
-                        }
-                        return _buildLayoutWithTabBar(
-                          context,
-                          child: _buildEmptyState(),
-                        );
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(UserAppRoutes.home);
+        }
+      },
+      child: BlocProvider(
+        create: (context) => getIt<WorkoutPlanCubit>()..getWorkoutPlan(_selectedDayIndex + 1),
+        child: Builder(
+          builder: (context) {
+            return Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: AppColors.scaffoldBackground,
+              endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    AppHeader(
+                      title: LocaleKeys.drawer_workout_plan.tr(),
+                      onMenuPressed: () {
+                        _scaffoldKey.currentState?.openEndDrawer();
                       },
                     ),
-                  ),
-                ],
+                    SizedBox(height: 16.h),
+                    Expanded(
+                      child: BlocBuilder<WorkoutPlanCubit, WorkoutPlanState>(
+                        builder: (context, state) {
+                          if (state is WorkoutPlanLoading) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primary,
+                              ),
+                            );
+                          } else if (state is WorkoutPlanSuccess) {
+                            final workouts = state.workoutPlanData?.workouts ?? [];
+                            if (workouts.isEmpty) {
+                              return _buildLayoutWithTabBar(
+                                context,
+                                child: _buildEmptyState(),
+                              );
+                            }
+                            final tasks = _mapWorkoutsToTasks(
+                                context, workouts, state.workoutPlanData?.assessmentId ?? '');
+                            return _buildLayoutWithTabBar(
+                              context,
+                              child: SingleChildScrollView(
+                                padding: EdgeInsets.fromLTRB(20.w, 0, 16.w, 24.h),
+                                child: Column(
+                                  children: [
+                                    _buildSectionTitle(
+                                      LocaleKeys.workout_exercises.tr(),
+                                    ),
+                                    SizedBox(height: 12.h),
+                                    TodayTasksSection(tasks: tasks),
+                                  ],
+                                ),
+                              ),
+                            );
+                          } else if (state is WorkoutPlanFailure) {
+                            return _buildLayoutWithTabBar(
+                              context,
+                              child: AppErrorView(
+                                error: state.error,
+                                message: state.message,
+                                onRetry: () => context
+                                    .read<WorkoutPlanCubit>()
+                                    .getWorkoutPlan(_selectedDayIndex + 1),
+                              ),
+                            );
+                          }
+                          return _buildLayoutWithTabBar(
+                            context,
+                            child: _buildEmptyState(),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

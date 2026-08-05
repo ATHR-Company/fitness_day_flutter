@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
+import 'package:fitness_day/core/utils/measurement.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/features/specialist/clients/data/models/specialist_client_model.dart';
 import 'package:fitness_day/features/specialist/clients/presentation/widgets/client_profile/components/info_card.dart';
@@ -140,7 +141,10 @@ class ClientDataTab extends StatelessWidget {
                           SizedBox(height: 8.h),
                           _buildHeaderDetail(
                             'clients_page.height_short'.tr(),
-                            '${data.userData?.height?.toInt() ?? 0} ${'clients_page.cm'.tr()}',
+                            _measure(
+                              data.userData?.height,
+                              'clients_page.cm'.tr(),
+                            ),
                           ),
                           SizedBox(height: 8.h),
                           _buildHeaderDetail(
@@ -158,7 +162,10 @@ class ClientDataTab extends StatelessWidget {
                           SizedBox(height: 8.h),
                           _buildHeaderDetail(
                             'clients_page.weight'.tr(),
-                            '${data.userData?.weight?.toInt() ?? 0} ${'clients_page.kg'.tr()}',
+                            _measure(
+                              data.userData?.weight,
+                              'clients_page.kg'.tr(),
+                            ),
                           ),
                         ],
                       ),
@@ -287,6 +294,12 @@ class ClientDataTab extends StatelessWidget {
       ),
     );
   }
+
+  /// A measurement with its unit, or "not set" when the API has no value for
+  /// this client. The old `?? 0` printed "0 سم", which reads as a client who
+  /// is zero centimetres tall rather than one whose height was never recorded.
+  String _measure(double? value, String unit) =>
+      value == null ? 'profile_not_set'.tr() : Measurement.withUnit(value, unit);
 
   Widget _buildHeaderDetail(String label, String value) {
     return Text.rich(

@@ -284,29 +284,41 @@ class _Footer extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'market.order_date'.tr(args: [displayDate]),
-              style: TextStyleManager.style11Medium
-                  .copyWith(color: AppColors.textSecondary),
-            ),
-            SizedBox(height: 4.h),
-            Text(
-              itemsLabel,
-              style: TextStyleManager.style11Medium
-                  .copyWith(color: AppColors.textSecondary),
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'market.order_date'.tr(args: [displayDate]),
+                style: TextStyleManager.style11Medium
+                    .copyWith(color: AppColors.textSecondary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                itemsLabel,
+                style: TextStyleManager.style11Medium
+                    .copyWith(color: AppColors.textSecondary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
+        SizedBox(width: 8.w),
         // Currency comes from the order, never from a hardcoded symbol — the
         // backend switches markets by config.
-        Text(
-          formatMoney(order.total, currency: order.currency),
-          style: TextStyleManager.style14Medium.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.primary,
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              formatMoney(order.total, currency: order.currency),
+              style: TextStyleManager.style14Medium.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
+            ),
           ),
         ),
       ],

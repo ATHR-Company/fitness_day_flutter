@@ -46,9 +46,14 @@ class _ContactUsPageState extends State<ContactUsPage> {
       child: Scaffold(
         backgroundColor: AppColors.white,
         body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+          child: RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: _cubit.fetchUserChat,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               // ── Header ──────────────────────────────────────────────────────
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
@@ -181,7 +186,11 @@ class _ContactUsPageState extends State<ContactUsPage> {
                   return const SizedBox.shrink();
                 },
               ),
-            ],
+
+              SizedBox(height: 24.h),
+                ],
+              ),
+            ),
           ),
         ),
       ),

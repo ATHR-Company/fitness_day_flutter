@@ -25,17 +25,24 @@ class ChatMediaGrid extends StatelessWidget {
   /// Only used to colour the voice-note bubble of a single audio attachment.
   final bool isMine;
 
+  final List<ChatMediaAttachment>? allChatImages;
+
   const ChatMediaGrid({
     super.key,
     required this.attachments,
     this.isMine = true,
+    this.allChatImages,
   });
 
   @override
   Widget build(BuildContext context) {
     if (attachments.isEmpty) return const SizedBox.shrink();
     if (attachments.length == 1) {
-      return _SingleAttachment(attachment: attachments.first, isMine: isMine);
+      return _SingleAttachment(
+        attachment: attachments.first,
+        isMine: isMine,
+        allChatImages: allChatImages,
+      );
     }
 
     final visible = attachments.take(_maxVisible).toList();
@@ -58,7 +65,13 @@ class ChatMediaGrid extends StatelessWidget {
           final bool isOverflowCell = hidden > 0 && index == visible.length - 1;
 
           return GestureDetector(
-            onTap: () => openChatAttachment(context, attachment),
+            onTap: () => openChatAttachment(
+              context,
+              attachment,
+              allAttachments: (allChatImages != null && allChatImages!.isNotEmpty)
+                  ? allChatImages
+                  : attachments.where((a) => a.isImage).toList(),
+            ),
             child: isOverflowCell
                 ? _OverflowCell(attachment: attachment, hiddenCount: hidden)
                 : _GridCell(attachment: attachment),
@@ -74,8 +87,13 @@ class ChatMediaGrid extends StatelessWidget {
 class _SingleAttachment extends StatelessWidget {
   final ChatMediaAttachment attachment;
   final bool isMine;
+  final List<ChatMediaAttachment>? allChatImages;
 
-  const _SingleAttachment({required this.attachment, required this.isMine});
+  const _SingleAttachment({
+    required this.attachment,
+    required this.isMine,
+    this.allChatImages,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +105,13 @@ class _SingleAttachment extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => openChatAttachment(context, attachment),
+      onTap: () => openChatAttachment(
+        context,
+        attachment,
+        allAttachments: (allChatImages != null && allChatImages!.isNotEmpty)
+            ? allChatImages
+            : [attachment],
+      ),
       behavior: HitTestBehavior.opaque,
       child: attachment.isImage
           ? _ImagePreview(attachment: attachment)

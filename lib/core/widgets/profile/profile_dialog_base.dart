@@ -14,11 +14,17 @@ class ProfileDialogBase extends StatefulWidget {
   final Widget child;
   final Future<void> Function() onSave;
 
+  /// Runs before [onSave]. Returning `false` aborts the save and leaves the
+  /// dialog open so the caller can show its own inline error — without this
+  /// the dialog pops on every tap and an invalid value goes to the server.
+  final bool Function()? validate;
+
   const ProfileDialogBase({
     super.key,
     required this.title,
     required this.child,
     required this.onSave,
+    this.validate,
   });
 
   @override
@@ -29,6 +35,7 @@ class _ProfileDialogBaseState extends State<ProfileDialogBase> {
   bool _isLoading = false;
 
   Future<void> _onSavePressed() async {
+    if (widget.validate != null && !widget.validate!()) return;
     setState(() => _isLoading = true);
     await widget.onSave();
     if (!mounted) return;

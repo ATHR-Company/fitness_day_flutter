@@ -92,70 +92,80 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
       },
       builder: (context, state) {
         final isLoading = state is UserSetupLoading;
-        return Scaffold(
-          body: LoaderHud(
-            isCall: isLoading,
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: AppColors.splashBackgroundGradient,
-              ),
-              child: SafeArea(
-                child: TopCenteredConstrainedBox(
-                  horizontalPadding: 0,
-                  child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    child: AppBackHeader(
-                      title: 'auth_health_problems_title'.tr(),
-                      canBack: true,
-                      onBackPressed: () {
-                        context.go(UserAppRoutes.login);
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(horizontal: 24.w),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(height: 20.h),
-                            AppImage(
-                              AppImages.healthProblems,
-                              width: 140.w,
-                              height: 140.w,
-                              fit: BoxFit.contain,
-                            ),
-                            SizedBox(height: 32.h),
-                            if (_apiQuestions.isEmpty && !isLoading)
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 40.h),
-                                child: Text(
-                                  'لا توجد أسئلة صحية متاحة حالياً.',
-                                  style: TextStyleManager.style14Medium,
-                                ),
-                              ),
-                            ...List.generate(_apiQuestions.length, (index) {
-                              return _buildQuestionItem(index);
-                            }),
-                            SizedBox(height: 32.h),
-                            CustomButton(
-                              text: 'auth_next_button'.tr(),
-                              onPressed: _onNextPressed,
-                            ),
-                            SizedBox(height: 32.h),
-                          ],
+        return PopScope(
+          canPop: true,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) {
+              context.pop();
+            }
+          },
+          child: Scaffold(
+            body: LoaderHud(
+              isCall: isLoading,
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: AppColors.splashBackgroundGradient,
+                ),
+                child: SafeArea(
+                  child: TopCenteredConstrainedBox(
+                    horizontalPadding: 0,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                          child: AppBackHeader(
+                            title: 'auth_health_problems_title'.tr(),
+                            canBack: true,
+                            onBackPressed: () {
+                              context.pop();
+                            },
+                          ),
                         ),
-                      ),
+                        Expanded(
+                          child: isLoading && _apiQuestions.isEmpty
+                              ? const Center(child: CircularProgressIndicator())
+                              : SingleChildScrollView(
+                                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                                  child: Form(
+                                    key: _formKey,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        SizedBox(height: 20.h),
+                                        AppImage(
+                                          AppImages.healthProblems,
+                                          width: 140.w,
+                                          height: 140.w,
+                                          fit: BoxFit.contain,
+                                        ),
+                                        SizedBox(height: 32.h),
+                                        if (_apiQuestions.isEmpty && !isLoading)
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(vertical: 40.h),
+                                            child: Text(
+                                              'لا توجد أسئلة صحية متاحة حالياً.',
+                                              style: TextStyleManager.style14Medium,
+                                            ),
+                                          ),
+                                        ...List.generate(_apiQuestions.length, (index) {
+                                          return _buildQuestionItem(index);
+                                        }),
+                                        SizedBox(height: 32.h),
+                                        CustomButton(
+                                          text: 'auth_next_button'.tr(),
+                                          onPressed: _onNextPressed,
+                                        ),
+                                        SizedBox(height: 32.h),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
                 ),
               ),
             ),

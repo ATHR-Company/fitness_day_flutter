@@ -1,3 +1,4 @@
+import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,6 +20,7 @@ import 'package:fitness_day/features/user/visits/presentation/widgets/visit_log/
 import 'package:fitness_day/features/user/visits/presentation/widgets/visit_log/visit_log_card.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
+import 'package:go_router/go_router.dart';
 
 class VisitLogPage extends StatefulWidget {
   const VisitLogPage({super.key});
@@ -34,18 +36,24 @@ class _VisitLogPageState extends State<VisitLogPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Colors.transparent,
-      endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
-      body: ScreenBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
-              AppHeader(
-                title: LocaleKeys.drawer_visits_log.tr(),
-                onMenuPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-              ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        context.go(UserAppRoutes.home);
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: Colors.transparent,
+        endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
+        body: ScreenBackground(
+          child: SafeArea(
+            child: Column(
+              children: [
+                AppHeader(
+                  title: LocaleKeys.drawer_visits_log.tr(),
+                  onMenuPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+                ),
               Expanded(
                 child: BlocBuilder<AssessmentsCubit, AssessmentsState>(
                   builder: (context, state) {
@@ -73,7 +81,8 @@ class _VisitLogPageState extends State<VisitLogPage> {
           ),
         ),
       ),
-    );
+    
+    ));
   }
 
   Widget _buildLoaded(BuildContext context, AssessmentsLoaded state) {
@@ -123,7 +132,7 @@ class _VisitLogPageState extends State<VisitLogPage> {
 
     final assessmentsCubit = context.read<AssessmentsCubit>();
 
-    return SingleChildScrollView(
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,35 +168,34 @@ class _VisitLogPageState extends State<VisitLogPage> {
 
           SizedBox(height: 24.h),
 
-          // ── Visit cards for the selected day ──────────────────────
-          if (validIndices.isEmpty)
-            _EmptyVisitsMessage(text: LocaleKeys.visits_no_visits_this_week.tr())
-          else if (visibleAssessments.isEmpty)
-            _EmptyVisitsMessage(text: LocaleKeys.visits_no_visits_today.tr())
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: visibleAssessments.length,
-              separatorBuilder: (context, index) => SizedBox(height: 16.h),
-              itemBuilder: (context, index) {
-                final assessment = visibleAssessments[index];
-                return VisitLogCard(
-                  assessment: assessment,
-                  onDetailsPressed: assessment.canShowDetails
-                      ? () => context.push(
-                            UserAppRoutes.visitDetails,
-                            extra: {
-                              'assessmentId': assessment.assessmentId,
-                              'dayNumber': 1,
-                            },
-                          )
-                      : null,
-                  onReschedulePressed: () =>
-                      showChangeVisitDialog(context, assessment.assessmentId),
-                );
-              },
-            ),
+          Expanded(
+            child: validIndices.isEmpty
+                ? _EmptyVisitsMessage(text: LocaleKeys.visits_no_visits_this_week.tr())
+                : visibleAssessments.isEmpty
+                    ? _EmptyVisitsMessage(text: LocaleKeys.visits_no_visits_today.tr())
+                    : ListView.separated(
+                        padding: EdgeInsets.zero,
+                        itemCount: visibleAssessments.length,
+                        separatorBuilder: (context, index) => SizedBox(height: 16.h),
+                        itemBuilder: (context, index) {
+                          final assessment = visibleAssessments[index];
+                          return VisitLogCard(
+                            assessment: assessment,
+                            onDetailsPressed: assessment.canShowDetails
+                                ? () => context.push(
+                                      UserAppRoutes.visitDetails,
+                                      extra: {
+                                        'assessmentId': assessment.assessmentId,
+                                        'dayNumber': 1,
+                                      },
+                                    )
+                                : null,
+                            onReschedulePressed: () =>
+                                showChangeVisitDialog(context, assessment.assessmentId),
+                          );
+                        },
+                      ),
+          ),
         ],
       ),
     );

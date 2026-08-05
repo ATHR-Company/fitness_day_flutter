@@ -55,11 +55,22 @@ class CustomButton extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    text.replaceAll('»', '').replaceAll('«', '').trim(),
-                    style: TextStyleManager.button.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.bold,
+                  // Flexible + scaleDown: labels vary a lot between Arabic and
+                  // English ("إرسال" vs "Send Code") and the button is often
+                  // half a row wide, so the text has to give way rather than
+                  // wrap onto a clipped second line.
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        text.replaceAll('»', '').replaceAll('«', '').trim(),
+                        maxLines: 1,
+                        textAlign: TextAlign.center,
+                        style: TextStyleManager.button.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   if (text.contains('»') || text.contains('«')) ...[

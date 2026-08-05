@@ -160,6 +160,7 @@ class _FitnessSystemPageState extends State<FitnessSystemPage>
                             // 1. Weekly Exercises
                             AppInfoField(
                               key: fieldKey(ProfileValidationKey.weeklyWorkouts),
+                              focusNode: fieldFocusNode(ProfileValidationKey.weeklyWorkouts),
                               errorText:
                                   errorFor(ProfileValidationKey.weeklyWorkouts),
                               hint: 'login.weekly_exercises_hint'.tr(),
@@ -180,6 +181,7 @@ class _FitnessSystemPageState extends State<FitnessSystemPage>
                             // 2. Daily Steps
                             AppInfoField(
                               key: fieldKey(ProfileValidationKey.dailySteps),
+                              focusNode: fieldFocusNode(ProfileValidationKey.dailySteps),
                               errorText:
                                   errorFor(ProfileValidationKey.dailySteps),
                               hint: 'login.daily_steps_hint'.tr(),
@@ -201,6 +203,7 @@ class _FitnessSystemPageState extends State<FitnessSystemPage>
                             AppInfoField(
                               key: fieldKey(
                                   ProfileValidationKey.preferredExercises),
+                              focusNode: fieldFocusNode(ProfileValidationKey.preferredExercises),
                               errorText: errorFor(
                                   ProfileValidationKey.preferredExercises),
                               hint: 'login.preferred_exercises_hint'.tr(),
@@ -217,6 +220,7 @@ class _FitnessSystemPageState extends State<FitnessSystemPage>
                             AppInfoField(
                               key: fieldKey(
                                   ProfileValidationKey.dailyWorkoutHours),
+                              focusNode: fieldFocusNode(ProfileValidationKey.dailyWorkoutHours),
                               errorText: errorFor(
                                   ProfileValidationKey.dailyWorkoutHours),
                               hint: 'login.daily_exercise_hours_hint'.tr(),

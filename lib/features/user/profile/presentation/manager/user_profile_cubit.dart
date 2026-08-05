@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/utils/measurement.dart';
 import 'package:fitness_day/features/user/profile/data/models/user_profile_model.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/change_password_usecase.dart';
 import 'package:fitness_day/features/user/profile/domain/usecases/delete_account_usecase.dart';
@@ -50,9 +51,15 @@ class UserProfileCubit extends Cubit<UserProfileState> {
   ) : super(const UserProfileInitial()) {
     final cachedUser = _appCache.getUser();
     lastKnownGoalId = cachedUser.goal;
-    lastKnownWeight = cachedUser.weight;
-    lastKnownHeight = cachedUser.height;
+    lastKnownWeight = _rounded(cachedUser.weight);
+    lastKnownHeight = _rounded(cachedUser.height);
   }
+
+  /// The backend returns whatever float it computed (a weight came back as
+  /// 50.066556668568886). Round on the way in so every screen reading these
+  /// fields — and the local cache — carries the same two decimals.
+  static double? _rounded(double? value) =>
+      value == null ? null : Measurement.round(value);
 
   Future<void> getUserProfile() async {
     emit(const UserProfileLoading());
@@ -65,8 +72,8 @@ class UserProfileCubit extends Cubit<UserProfileState> {
           // `goal` here is a display name (e.g. "زيادة الوزن"), not an ID,
           // so we store it separately for display while keeping the ID
           // (from cache / last update) for submitting edits.
-          lastKnownWeight = profileData!.weight ?? lastKnownWeight;
-          lastKnownHeight = profileData!.height ?? lastKnownHeight;
+          lastKnownWeight = _rounded(profileData!.weight) ?? lastKnownWeight;
+          lastKnownHeight = _rounded(profileData!.height) ?? lastKnownHeight;
           lastKnownGoalName = profileData!.goal ?? lastKnownGoalName;
           emit(UserProfileSuccess(profileData!));
         } else {
@@ -99,8 +106,8 @@ class UserProfileCubit extends Cubit<UserProfileState> {
           // The update response returns the goal as an ID — store it so
           // subsequent edits can submit the correct ID to the server.
           lastKnownGoalId = updated.goal ?? lastKnownGoalId;
-          lastKnownWeight = updated.weight ?? lastKnownWeight;
-          lastKnownHeight = updated.height ?? lastKnownHeight;
+          lastKnownWeight = _rounded(updated.weight) ?? lastKnownWeight;
+          lastKnownHeight = _rounded(updated.height) ?? lastKnownHeight;
           profileData = (profileData ?? _placeholderData()).copyWith(
             fullName: updated.fullName,
             avatar: updated.avatar,

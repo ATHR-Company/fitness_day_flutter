@@ -26,6 +26,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
   final AudioPlayer _player = AudioPlayer();
 
   bool _isPlaying = false;
+  bool _isCompleted = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
 
@@ -36,6 +37,18 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
   /// bubble was disposed mid-load.
   bool _sourceLoaded = false;
 
+  void _handlePlaybackComplete() {
+    if (!mounted) return;
+    setState(() {
+      _isCompleted = true;
+      _isPlaying = false;
+      _position = Duration.zero;
+    });
+    _player.seek(Duration.zero).catchError((e) {
+      debugPrint('[ChatAudioBubble] seek failed: $e');
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -43,20 +56,17 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       if (mounted) setState(() => _duration = d);
     });
     _player.onPositionChanged.listen((p) {
-      if (mounted) setState(() => _position = p);
-    });
-    _player.onPlayerComplete.listen((_) async {
-      if (!mounted) return;
-      // Seek back to the start so the next tap on "play" calls resume() from
-      // position 0 instead of trying to resume a completed stream (which would
-      // silently no-op on most platform implementations).
-      await _player.seek(Duration.zero);
-      if (mounted) {
-        setState(() {
-          _isPlaying = false;
-          _position = Duration.zero;
-        });
+      if (mounted && !_isCompleted) {
+        setState(() => _position = p);
+        if (_isPlaying &&
+            _duration > Duration.zero &&
+            p.inMilliseconds >= _duration.inMilliseconds - 150) {
+          _handlePlaybackComplete();
+        }
       }
+    });
+    _player.onPlayerComplete.listen((_) {
+      _handlePlaybackComplete();
     });
   }
 
@@ -90,6 +100,11 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     await _ensureSource();
     if (!mounted) return;
     try {
+      if (mounted) {
+        setState(() {
+          _isCompleted = false;
+        });
+      }
       // After onPlayerComplete, the player is in the "completed" state at
       // position 0.  Calling resume() on some platform implementations
       // silently no-ops in that state.  We always call play() instead, which

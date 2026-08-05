@@ -137,16 +137,29 @@ class RoleSelectionPage extends StatelessWidget {
               ),
             ],
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              icon,
-              SizedBox(width: 12.w),
-              Text(
-                title,
-                style: TextStyleManager.button.copyWith(color: textColor),
-              ),
-            ],
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                icon,
+                SizedBox(width: 12.w),
+                // The pill is a fixed 56.h and the labels are long
+                // ("Continue as Specialist"), so the text shrinks to fit
+                // instead of wrapping into a clipped second line.
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      style: TextStyleManager.button.copyWith(color: textColor),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

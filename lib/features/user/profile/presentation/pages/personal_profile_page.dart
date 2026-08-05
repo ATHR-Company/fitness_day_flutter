@@ -10,6 +10,9 @@ import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/challenge_image_picker.dart';
 import 'package:fitness_day/core/widgets/loader.dart';
+import 'package:fitness_day/core/utils/decimal_input_formatter.dart';
+import 'package:fitness_day/core/utils/measurement.dart';
+import 'package:fitness_day/core/utils/validators.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_state.dart';
@@ -143,17 +146,27 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                           _buildProfileRow(
                             label: 'login.weight_hint'.tr(),
                             value: weight != null
-                                ? '$weight ${'visit_details.kg'.tr()}'
+                                ? Measurement.withUnit(
+                                    weight, 'visit_details.kg'.tr())
                                 : 'profile_not_set'.tr(),
                             onTap: () {
                               showDialog(
                                 context: context,
                                 builder: (context) => EditFieldDialog(
                                   title: 'login.weight_hint'.tr(),
-                                  hintText: weight?.toString() ?? '',
+                                  hintText: weight != null
+                                      ? Measurement.format(weight)
+                                      : '',
                                   iconPath: SvgIcons.wieght,
-                                  keyboardType: TextInputType.number,
-                                  onSave: (val) => cubit.updateUserProfile(weight: val),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  inputFormatters: [DecimalInputFormatter()],
+                                  validator: AppValidators.weight,
+                                  normalize: (val) =>
+                                      Measurement.normalize(val) ?? val,
+                                  onSave: (val) =>
+                                      cubit.updateUserProfile(weight: val),
                                 ),
                               );
                             },
@@ -161,17 +174,27 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                           _buildProfileRow(
                             label: 'login.height_hint'.tr(),
                             value: height != null
-                                ? '$height ${'visit_details.cm'.tr()}'
+                                ? Measurement.withUnit(
+                                    height, 'visit_details.cm'.tr())
                                 : 'profile_not_set'.tr(),
                             onTap: () {
                               showDialog(
                                 context: context,
                                 builder: (context) => EditFieldDialog(
                                   title: 'login.height_hint'.tr(),
-                                  hintText: height?.toString() ?? '',
+                                  hintText: height != null
+                                      ? Measurement.format(height)
+                                      : '',
                                   iconPath: SvgIcons.height,
-                                  keyboardType: TextInputType.number,
-                                  onSave: (val) => cubit.updateUserProfile(height: val),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  inputFormatters: [DecimalInputFormatter()],
+                                  validator: AppValidators.height,
+                                  normalize: (val) =>
+                                      Measurement.normalize(val) ?? val,
+                                  onSave: (val) =>
+                                      cubit.updateUserProfile(height: val),
                                 ),
                               );
                             },
@@ -227,32 +250,43 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
           boxShadow: AppShadows.profileItemShadow,
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Right visual side: label
             Text(
               label,
               style: TextStyleManager.style11Medium,
             ),
-            // Left visual side: value + edit button (RTL layout)
-            Row(
-              children: [
-                Text(
-                  value,
-                  style: TextStyleManager.style11Medium.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
+            SizedBox(width: 12.w),
+            // Left visual side: value + edit button (RTL layout).
+            // The value takes the leftover width and ellipsises — a 30-char
+            // name used to push the row past the card and paint an overflow
+            // stripe over it.
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: TextStyleManager.style11Medium.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
-                if (onTap != null) ...[
-                  SizedBox(width: 12.w),
-                  AppImage(
-                    SvgIcons.editInfo,
-                    width: 11.r,
-                    height: 11.r,
-                  ),
+                  if (onTap != null) ...[
+                    SizedBox(width: 12.w),
+                    AppImage(
+                      SvgIcons.editInfo,
+                      width: 11.r,
+                      height: 11.r,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ],
         ),
