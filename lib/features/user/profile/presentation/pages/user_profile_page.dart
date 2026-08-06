@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -75,6 +77,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    // `.tr()` reads a global translation table, so it never registers this
+    // widget as a dependant of the locale. Everything on this page outside a
+    // BlocBuilder therefore kept its old language after a change — the header
+    // and the Settings/Specialist tabs stayed Arabic while the rows below,
+    // which the profile cubit rebuilt when it saved the language, switched to
+    // English. Reading context.locale subscribes to the locale, so the whole
+    // page refreshes the moment it changes instead of on the next setState.
+    context.locale;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -183,16 +194,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                                 ),
                                           ),
                                           SizedBox(height: 4.h),
-                                          Text(
-                                            data?.identifier ?? '',
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyleManager
-                                                .style11Medium
-                                                .copyWith(
-                                                  color:
-                                                      AppColors.textSecondary,
-                                                ),
+                                          Directionality(
+                                            textDirection:ui. TextDirection.ltr,
+                                            child: Text(
+                                              data?.identifier ?? '',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyleManager
+                                                  .style11Medium
+                                                  .copyWith(
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
+                                            ),
                                           ),
                                         ],
                                       ),

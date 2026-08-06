@@ -4,13 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/utils/validators.dart';
 import 'package:fitness_day/core/widgets/challenge_image_picker.dart';
 import 'package:fitness_day/core/widgets/profile/profile_dialog_base.dart';
 import 'package:fitness_day/core/widgets/profile/profile_text_field.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_cubit.dart';
-import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/specialist/profile/presentation/manager/specialist_profile_state.dart';
-import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
 
 class EditProfileDialog extends StatefulWidget {
   const EditProfileDialog({super.key});
@@ -22,18 +21,32 @@ class EditProfileDialog extends StatefulWidget {
 class _EditProfileDialogState extends State<EditProfileDialog> {
   late final TextEditingController _nameController;
   String? _localImagePath;
+  String? _nameError;
 
   @override
   void initState() {
     super.initState();
     final cubit = context.read<SpecialistProfileCubit>();
     _nameController = TextEditingController(text: cubit.profileData?.name ?? '');
+    // Typing clears the message pinned under the field.
+    _nameController.addListener(() {
+      if (_nameError != null && mounted) setState(() => _nameError = null);
+    });
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  /// Runs before the request. Returning false keeps the dialog open with the
+  /// reason under the field. Same rule as the user's name edit — a name the
+  /// backend would reject never leaves the device.
+  bool _validate() {
+    final error = AppValidators.personName(_nameController.text);
+    if (error != _nameError) setState(() => _nameError = error);
+    return error == null;
   }
 
   @override
@@ -43,24 +56,20 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
     return ProfileDialogBase(
       title: 'profile.personal_profile'.tr(),
+      validate: _validate,
       onSave: () async {
-        final name = _nameController.text.trim();
-        if (name.isEmpty) {
-          showAppSnackBar(context, text: 'profile.name_cannot_be_empty'.tr(), isError: true);
-          throw Exception("Name is empty");
-        }
-
         await cubit.updateSpecialistProfile(
-          name: name,
+          name: _nameController.text.trim(),
           avatarPath: _localImagePath,
         );
 
         final state = cubit.state;
         if (state is SpecialistProfileUpdateFailure) {
-          if (context.mounted) {
-            showAppError(context, state.error, message: state.message);
-          }
-          throw Exception('Update failed: ${state.message}');
+          // The server's own wording goes under the field, next to the value
+          // it is talking about, and throwing keeps the dialog open so the
+          // name can actually be corrected.
+          if (mounted) setState(() => _nameError = state.message);
+          throw Exception('Update rejected: ${state.message}');
         }
       },
       child: Column(
@@ -89,6 +98,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
             controller: _nameController,
             hintText: 'conversations.dummy_name'.tr(),
             iconPath: SvgIcons.editName,
+            nameOnly: true,
+            maxLength: 30,
+            errorText: _nameError,
           ),
         ],
       ),

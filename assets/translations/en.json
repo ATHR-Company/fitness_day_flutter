@@ -264,7 +264,10 @@
     "search_hint": "Search for client or visit",
     "tab_upcoming": "Upcoming",
     "tab_history": "History",
+    "in_less_than_a_minute": "In less than a minute",
     "in_minutes": "In {} minutes",
+    "in_hours": "In {} hours",
+    "in_days": "In {} days",
     "client_name_label": "Client Name :",
     "visit_time_label": "Visit Time :",
     "visit_location_label": "Location :",
@@ -292,6 +295,10 @@
     "change_time_button": "Change Time"
   },
   "visit_details": {
+    "field_required": "This field is required",
+    "field_invalid_number": "Please enter a valid number",
+    "field_must_be_positive": "Value must be greater than zero",
+    "field_percentage_range": "Value must be between 0 and 100",
     "no_meals": "No meals added",
     "no_exercises": "No exercises added",
     "no_activities": "No activities added",
@@ -487,7 +494,9 @@
     "mic_permission_denied": "Can't record without microphone permission",
     "no_messages": "No messages yet",
     "no_conversation": "No conversation started yet",
-    "unknown_client": "Client"
+    "unknown_client": "Client",
+    "show_more": "Show more",
+    "show_less": "Show less"
   },
   "profile": {
     "title": "My Profile",
@@ -499,6 +508,8 @@
     "privacy_policy": "Privacy Policy",
     "edit_language": "Edit Language",
     "edit_name": "Edit Name",
+    "name_cannot_be_empty": "Please enter your name",
+    "name_too_short": "Name must be at least {min} characters",
     "save": "Save",
     "cancel": "Cancel",
     "current_password": "Current Password",

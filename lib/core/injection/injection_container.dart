@@ -4,6 +4,7 @@ import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/network/api_service.dart';
 import 'package:fitness_day/core/network/token_interceptor.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_cubit.dart';
 
 // Specialist Auth
 import 'package:fitness_day/features/specialist/auth/data/datasources/auth_remote_datasource.dart';
@@ -235,7 +236,6 @@ import 'package:fitness_day/features/shared/conversations/domain/usecases/get_sp
 import 'package:fitness_day/features/shared/conversations/domain/usecases/open_specialist_chat_usecase.dart';
 import 'package:fitness_day/features/shared/conversations/domain/usecases/get_specialist_messages_usecase.dart';
 import 'package:fitness_day/features/shared/conversations/domain/usecases/send_specialist_media_usecase.dart';
-import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_cubit.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/manager/conversations_cubit.dart';
 import 'package:fitness_day/features/user/support/presentation/manager/contact_us_cubit.dart';
 

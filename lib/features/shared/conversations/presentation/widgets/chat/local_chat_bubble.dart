@@ -10,6 +10,7 @@ import 'package:fitness_day/features/shared/conversations/presentation/models/lo
 import 'package:fitness_day/features/shared/conversations/presentation/utils/chat_attachment_viewer.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/chat_time_format.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_audio_bubble.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_expandable_text.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_video_thumbnail.dart';
 
 /// Bubble for an in-memory [LocalChatMessage] — the AI and user-to-user
@@ -118,8 +119,8 @@ class _LocalBubbleContent extends StatelessWidget {
   Widget build(BuildContext context) {
     switch (message.kind) {
       case LocalMessageKind.text:
-        return Text(
-          message.text ?? '',
+        return ChatExpandableText(
+          text: message.text ?? '',
           style: TextStyleManager.style11Medium,
         );
 

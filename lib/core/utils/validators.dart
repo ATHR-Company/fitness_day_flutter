@@ -53,6 +53,20 @@ class AppValidators {
     return null;
   }
 
+  /// Shortest name the backend accepts. Mirrored here so a name it would
+  /// reject never leaves the device.
+  static const int minNameLength = 2;
+
+  /// A person's name — used by both the user and the specialist profile edits.
+  static String? personName(String? value) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return 'profile.name_cannot_be_empty'.tr();
+    if (name.length < minNameLength) {
+      return 'profile.name_too_short'.tr(namedArgs: {'min': '$minNameLength'});
+    }
+    return null;
+  }
+
   /// Weight in kilogrammes. Accepts a decimal number inside
   /// [Measurement.minWeight]–[Measurement.maxWeight]; anything outside that is
   /// a typo, not a person.

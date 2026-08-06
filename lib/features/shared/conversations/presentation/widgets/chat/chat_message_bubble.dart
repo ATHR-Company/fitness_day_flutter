@@ -7,6 +7,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/shared/conversations/domain/entities/chat_message.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/chat_time_format.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_expandable_text.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_media_grid.dart';
 
 /// WhatsApp-style bubble for a server-backed [ChatMessage].
@@ -80,8 +81,8 @@ class ChatMessageBubble extends StatelessWidget {
                 padding: hasMedia
                     ? EdgeInsets.fromLTRB(8.w, 4.h, 8.w, 2.h)
                     : EdgeInsets.zero,
-                child: Text(
-                  message.text,
+                child: ChatExpandableText(
+                  text: message.text,
                   textAlign: isRtl ? TextAlign.right : TextAlign.left,
                   style: TextStyleManager.style11Medium.copyWith(
                     fontSize: 13.sp,

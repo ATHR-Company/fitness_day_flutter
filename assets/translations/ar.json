@@ -255,7 +255,10 @@
     "search_hint": "بحث عن عميل أو زيارة",
     "tab_upcoming": "القادمة",
     "tab_history": "السجل",
+    "in_less_than_a_minute": "بعد أقل من دقيقة",
     "in_minutes": "بعد {} دقيقة",
+    "in_hours": "بعد {} ساعة",
+    "in_days": "بعد {} يوم",
     "client_name_label": "اسم العميل :",
     "visit_time_label": "ميعاد الزيارة :",
     "visit_location_label": "مكان الزيارة :",
@@ -283,6 +286,10 @@
     "change_time_button": "تغيير الميعاد"
   },
   "visit_details": {
+    "field_required": "هذا الحقل مطلوب",
+    "field_invalid_number": "الرجاء إدخال رقم صحيح",
+    "field_must_be_positive": "القيمة يجب أن تكون أكبر من صفر",
+    "field_percentage_range": "القيمة يجب أن تكون بين 0 و 100",
     "no_meals": "لا توجد وجبات مضافة",
     "no_exercises": "لا توجد تمارين مضافة",
     "no_activities": "لا توجد أنشطة مضافة",
@@ -478,7 +485,9 @@
     "mic_permission_denied": "لا يمكن التسجيل بدون إذن الميكروفون",
     "no_messages": "لا توجد رسائل بعد",
     "no_conversation": "لم تبدأ المحادثة بعد",
-    "unknown_client": "عميل"
+    "unknown_client": "عميل",
+    "show_more": "عرض المزيد",
+    "show_less": "عرض أقل"
   },
   "profile": {
     "title": "ملفي",
@@ -490,6 +499,8 @@
     "privacy_policy": "سياسة الخصوصية",
     "edit_language": "تعديل اللغة",
     "edit_name": "تعديل الاسم",
+    "name_cannot_be_empty": "الرجاء إدخال الاسم",
+    "name_too_short": "يجب ألا يقل الاسم عن حرفين",
     "save": "حفظ",
     "cancel": "إلغاء",
     "current_password": "كلمة المرور الحالية",

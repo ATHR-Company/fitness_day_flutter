@@ -4,7 +4,7 @@ import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/widgets/message_icon_button.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
-import 'package:fitness_day/features/shared/conversations/presentation/pages/conversations_page.dart';
+import 'package:fitness_day/features/user/support/presentation/pages/contact_us_page.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/assessment_details_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/widgets/visit_details/visit_summary_tab.dart';
 import 'package:fitness_day/features/user/visits/presentation/widgets/visit_details/visit_custom_plan_tab.dart';
@@ -80,7 +80,8 @@ class _VisitDetailsContentState extends State<_VisitDetailsContent> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const ConversationsPage()),
+                        builder: (_) => const ContactUsPage(),
+                      ),
                     ),
                   ),
                 ),

@@ -39,12 +39,23 @@ class VisitSummaryTab extends StatelessWidget {
           final summary = state.summaryData?['data'] ?? state.summaryData;
           if (summary == null) return const SizedBox.shrink();
 
-          final specialistName =
-              summary['specialistName'] ?? LocaleKeys.spec_mock_name.tr();
-          final visitTime = summary['appointment'] != null
-              ? _fmtDate(summary['appointment'])
-              : '${LocaleKeys.visits_today.tr()} 4:30 ${LocaleKeys.visits_pm.tr()}';
-          final location = summary['placement'] ?? LocaleKeys.visits_hq_location.tr();
+          // The name is read from whichever shape the endpoint returns rather
+          // than falling back to spec_mock_name ("محمد عبدالله"). A placeholder
+          // person is worse than a blank: it reads as real data, so a card
+          // whose name simply failed to load looked like it belonged to
+          // somebody else entirely.
+          final personName = (summary['specialistName'] ??
+                  (summary['specialist'] is Map
+                      ? summary['specialist']['name']
+                      : null) ??
+                  (summary['user'] is Map ? summary['user']['name'] : null) ??
+                  '')
+              .toString();
+          // No stand-in values behind these either: an appointment that failed
+          // to load showed a confident "today 4:30 PM", and a missing venue
+          // named the HQ. A blank says "not loaded"; a placeholder lies.
+          final visitTime = _fmtDate(summary['appointment']?.toString());
+          final location = summary['placement']?.toString() ?? '';
 
           final String goalStr = summary['goal'] ?? '';
           List<String> goals = [];
@@ -64,10 +75,9 @@ class VisitSummaryTab extends StatelessWidget {
               children: [
                 VisitCard(
                   timeRemaining: '',
-                  title: summary['name'] ?? LocaleKeys.home_weekly_follow_up.tr(),
-                  subtitle:
-                      summary['description'] ?? LocaleKeys.home_weekly_follow_up_desc.tr(),
-                  personName: specialistName,
+                  title: summary['name']?.toString() ?? '',
+                  subtitle: summary['description']?.toString() ?? '',
+                  personName: personName,
                   personNameLabel: LocaleKeys.visits_client_name_label.tr(),
                   visitTime: visitTime,
                   location: location,

@@ -8,6 +8,7 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_header.dart';
 import 'package:fitness_day/core/widgets/app_search_bar.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
+import 'package:fitness_day/core/utils/date_time_utils.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/open_client_chat.dart';
 import 'package:fitness_day/core/widgets/app_drawer.dart';
@@ -244,7 +245,7 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
                                     }
 
                                     final timeRem = isUpcoming && index == 0
-                                        ? 'visits.in_minutes'.tr(args: ['25'])
+                                        ? formatVisitTimeRemaining(visit.weekStart, context)
                                         : '';
 
                                     return VisitCard(

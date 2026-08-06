@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -13,7 +14,6 @@ import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/media_source_sheet.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
-import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_cubit.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_state.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_voice_recorder.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/models/local_chat_message.dart';

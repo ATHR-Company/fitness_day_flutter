@@ -289,11 +289,15 @@ class VisitCard extends StatelessWidget {
           ),
         ),
         SizedBox(width: 4.w),
-        Text(
-          value,
-          style: TextStyleManager.style9Medium.copyWith(
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
+        Expanded(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyleManager.style9Medium.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],

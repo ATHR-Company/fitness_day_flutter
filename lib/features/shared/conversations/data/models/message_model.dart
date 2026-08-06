@@ -88,8 +88,14 @@ class MessageModel extends ChatMessage {
       senderType: (json['senderType'] as String?) ?? 'user',
       isMine: json['isMine'] as bool? ?? false,
       status: _parseStatus(json['status'] as String?),
+      // The API sends UTC ("...T14:05:02.623Z") and DateTime.tryParse keeps it
+      // that way, so reading .hour off it gave the UTC hour — a message sent
+      // at 5:19pm in Riyadh came back reading 2:19pm. Optimistic local
+      // messages use DateTime.now(), which *is* local, so the same chat showed
+      // a message at the right time until it reloaded and jumped back 3 hours.
       createdAt:
-          DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+          DateTime.tryParse(json['createdAt'] as String? ?? '')?.toLocal() ??
+              DateTime.now(),
       media: mediaList,
     );
   }

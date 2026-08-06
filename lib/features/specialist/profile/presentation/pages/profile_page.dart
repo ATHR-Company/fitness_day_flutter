@@ -23,6 +23,11 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Same reason as the user profile page: `.tr()` doesn't subscribe a widget
+    // to the locale, and this screen hosts the language dialog, so it has to
+    // rebuild itself when the language changes.
+    context.locale;
+
     return BlocProvider(
       create: (context) => di.getIt<SpecialistProfileCubit>()..getSpecialistProfile(),
       child: PopScope(

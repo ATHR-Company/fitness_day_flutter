@@ -91,8 +91,10 @@ class ClientDataTab extends StatelessWidget {
                 ),
               ),
             ),
+          SizedBox(height: 16.h),
+        
           Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             child: Column(
               children: [
                 Row(

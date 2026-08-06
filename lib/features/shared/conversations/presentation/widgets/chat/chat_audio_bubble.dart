@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,97 +26,145 @@ class ChatAudioBubble extends StatefulWidget {
 
 class _ChatAudioBubbleState extends State<ChatAudioBubble> {
   final AudioPlayer _player = AudioPlayer();
+  final List<StreamSubscription<dynamic>> _subs = [];
 
   bool _isPlaying = false;
   bool _isCompleted = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
 
-  /// The source is loaded on the first play instead of in [initState].
-  /// Preloading every bubble spun up a native MediaPlayer (and an HTTP
-  /// connection for remote clips) for each voice note the list scrolled past,
-  /// which stuttered the scroll and threw "Bad state: No element" whenever the
-  /// bubble was disposed mid-load.
   bool _sourceLoaded = false;
+  bool _loadingSource = false;
+  bool _disposed = false;
 
-  void _handlePlaybackComplete() {
-    if (!mounted) return;
+  Source get _source => widget.isNetwork
+      ? UrlSource(widget.source)
+      : DeviceFileSource(widget.source);
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Without this the player releases its source the moment a clip finishes,
+    // so the duration snapped back to 00:00 and playing again had to rebuild
+    // the whole thing from scratch.
+    _player.setReleaseMode(ReleaseMode.stop);
+
+    _subs.add(_player.onDurationChanged.listen((d) {
+      if (_disposed || d <= Duration.zero) return;
+      setState(() => _duration = d);
+    }));
+    _subs.add(_player.onPositionChanged.listen((p) {
+      if (_disposed || _isCompleted) return;
+      setState(() => _position = p);
+      // onPlayerComplete is unreliable on some Android builds, so the tail of
+      // the clip counts as finished too. _handlePlaybackComplete is idempotent,
+      // so whichever signal lands first wins and the other is a no-op.
+      if (_isPlaying &&
+          _duration > Duration.zero &&
+          p.inMilliseconds >= _duration.inMilliseconds - 150) {
+        _handlePlaybackComplete();
+      }
+    }));
+    _subs.add(_player.onPlayerComplete.listen((_) => _handlePlaybackComplete()));
+
+    // Load the clip's metadata up front so the bubble shows its length before
+    // anyone presses play — the duration used to stay 00:00 until playback
+    // started, and reopening the chat reset it to 00:00 again.
+    //
+    // Deferred by a frame so a list of voice notes doesn't prepare every
+    // native player during the same build that is trying to paint them.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _ensureSource());
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    for (final sub in _subs) {
+      sub.cancel();
+    }
+    _player.dispose();
+    super.dispose();
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    // Every callback here can land after the bubble scrolled out of the list.
+    if (_disposed || !mounted) return;
+    super.setState(fn);
+  }
+
+  Future<void> _handlePlaybackComplete() async {
+    if (_disposed || _isCompleted) return;
     setState(() {
       _isCompleted = true;
       _isPlaying = false;
       _position = Duration.zero;
     });
-    _player.seek(Duration.zero).catchError((e) {
-      debugPrint('[ChatAudioBubble] seek failed: $e');
-    });
-  }
 
-  @override
-  void initState() {
-    super.initState();
-    _player.onDurationChanged.listen((d) {
-      if (mounted) setState(() => _duration = d);
-    });
-    _player.onPositionChanged.listen((p) {
-      if (mounted && !_isCompleted) {
-        setState(() => _position = p);
-        if (_isPlaying &&
-            _duration > Duration.zero &&
-            p.inMilliseconds >= _duration.inMilliseconds - 150) {
-          _handlePlaybackComplete();
-        }
-      }
-    });
-    _player.onPlayerComplete.listen((_) {
-      _handlePlaybackComplete();
-    });
-  }
-
-  @override
-  void dispose() {
-    _player.dispose();
-    super.dispose();
+    try {
+      // pause() before seek(), and in that order.
+      //
+      // The onPositionChanged branch calls this 150ms *before* the clip
+      // actually ends, so the player is still running at this point. Seeking a
+      // running player back to zero doesn't stop it — it restarts it, which is
+      // why every voice note played through exactly twice: once for real, then
+      // once more from the rewind. Pausing first makes the rewind a rewind.
+      await _player.pause();
+      if (_disposed) return;
+      await _player.seek(Duration.zero);
+    } catch (e) {
+      debugPrint('[ChatAudioBubble] reset after completion failed: $e');
+    }
   }
 
   Future<void> _ensureSource() async {
-    if (_sourceLoaded) return;
+    if (_sourceLoaded || _loadingSource || _disposed) return;
+    _loadingSource = true;
     try {
-      if (widget.isNetwork) {
-        await _player.setSourceUrl(widget.source);
-      } else {
-        await _player.setSourceDeviceFile(widget.source);
-      }
+      await _player.setSource(_source);
+      if (_disposed) return;
       _sourceLoaded = true;
+
+      // onDurationChanged usually fires on prepare, but it can be missed when
+      // the platform reports the duration before this listener is attached.
+      if (_duration <= Duration.zero) {
+        final d = await _player.getDuration();
+        if (!_disposed && d != null && d > Duration.zero) {
+          setState(() => _duration = d);
+        }
+      }
     } catch (e) {
       debugPrint('[ChatAudioBubble] ⚠️ could not load ${widget.source}: $e');
+    } finally {
+      _loadingSource = false;
     }
   }
 
   Future<void> _toggle() async {
     if (_isPlaying) {
       await _player.pause();
-      if (mounted) setState(() => _isPlaying = false);
+      setState(() => _isPlaying = false);
       return;
     }
 
     await _ensureSource();
-    if (!mounted) return;
+    if (_disposed || !_sourceLoaded) return;
+
     try {
-      if (mounted) {
-        setState(() {
-          _isCompleted = false;
-        });
+      // Restart from the top when the previous run finished.
+      if (_isCompleted || _position >= _duration && _duration > Duration.zero) {
+        await _player.seek(Duration.zero);
+        if (_disposed) return;
       }
-      // After onPlayerComplete, the player is in the "completed" state at
-      // position 0.  Calling resume() on some platform implementations
-      // silently no-ops in that state.  We always call play() instead, which
-      // works whether the player is stopped, paused, or completed.
-      await _player.play(
-        widget.isNetwork
-            ? UrlSource(widget.source)
-            : DeviceFileSource(widget.source),
-      );
-      if (mounted) setState(() => _isPlaying = true);
+      setState(() => _isCompleted = false);
+
+      // resume(), not play(source): the source is already prepared by
+      // _ensureSource, and handing play() a second Source made the player
+      // prepare the same clip twice — which is why a voice note played back
+      // doubled.
+      await _player.resume();
+      setState(() => _isPlaying = true);
     } catch (e) {
       debugPrint('[ChatAudioBubble] ⚠️ playback failed: $e');
     }

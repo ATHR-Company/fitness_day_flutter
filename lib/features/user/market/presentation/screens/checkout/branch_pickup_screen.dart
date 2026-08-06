@@ -248,21 +248,41 @@ class _BranchPickupScreenState extends State<BranchPickupScreen> {
           ),
         ),
         SizedBox(height: 12.h),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: days.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 12.h,
-            crossAxisSpacing: 12.w,
-            childAspectRatio: 2.2,
+        // Two per row, with the height driven by the content.
+        //
+        // This was a GridView with childAspectRatio: 2.2, which pins every
+        // cell to a fixed height. "11:00 AM - 11:00 PM" doesn't fit on one
+        // line, so the second line pushed each card 11px past its cell — the
+        // Friday card underneath, which has no height constraint, rendered
+        // fine all along. IntrinsicHeight keeps the two cards in a row the
+        // same height as the taller one.
+        for (int i = 0; i < days.length; i += 2)
+          Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: _buildTimeCard(
+                      days[i]['day']!,
+                      days[i]['time']!,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: i + 1 < days.length
+                        ? _buildTimeCard(
+                            days[i + 1]['day']!,
+                            days[i + 1]['time']!,
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            ),
           ),
-          itemBuilder: (context, index) {
-            return _buildTimeCard(days[index]['day']!, days[index]['time']!);
-          },
-        ),
-        SizedBox(height: 12.h),
+        // No extra gap here — each row above already carries its own 12.h.
         Align(
           alignment: Alignment.center,
           child: SizedBox(
@@ -288,7 +308,9 @@ class _BranchPickupScreenState extends State<BranchPickupScreen> {
         ),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -299,11 +321,17 @@ class _BranchPickupScreenState extends State<BranchPickupScreen> {
                 size: 14.sp,
               ),
               SizedBox(width: 4.w),
-              Text(
-                day,
-                style: TextStyleManager.style11Medium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black,
+              // "Wednesday" already fills half the card in English — it has to
+              // cut off rather than push the icon out of the border.
+              Expanded(
+                child: Text(
+                  day,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyleManager.style11Medium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.black,
+                  ),
                 ),
               ),
             ],

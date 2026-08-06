@@ -30,7 +30,7 @@ class AppSegmentedControl extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => onItemSelected(i),
                 child: Container(
-                  height: 40.h,
+                  height: 45.h,
                   decoration: BoxDecoration(
                     color: selectedIndex == i
                         ? AppColors.primary
@@ -41,6 +41,7 @@ class AppSegmentedControl extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     items[i],
+                    textAlign: TextAlign.center,
                     style: TextStyleManager.style11Medium.copyWith(
                       color: selectedIndex == i
                           ? AppColors.white

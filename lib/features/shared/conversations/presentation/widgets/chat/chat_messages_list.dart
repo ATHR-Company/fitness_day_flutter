@@ -51,9 +51,15 @@ class ChatMessagesList extends StatelessWidget {
 
         final int index = rawIndex - _headCount;
         if (index < messages.length) {
+          final message = messages[messages.length - 1 - index];
           return _ListSlot(
+            // Keyed by message, not by list position: a new message shifts
+            // every index, and without this the stateful children of a bubble
+            // (video thumbnail, voice note) stayed attached to the slot and
+            // kept playing the previous message's media.
             child: ChatMessageBubble(
-              message: messages[messages.length - 1 - index],
+              key: ValueKey(message.id),
+              message: message,
               allChatImages: allChatImages,
             ),
           );

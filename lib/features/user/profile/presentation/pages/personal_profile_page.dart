@@ -47,6 +47,14 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     }
   }
 
+  /// The server's rejection message for the edit that just ran, or `null` when
+  /// it succeeded. Handed to each [EditFieldDialog] so the reason lands under
+  /// the field being edited.
+  String? _updateError(UserProfileCubit cubit) {
+    final state = cubit.state;
+    return state is UserProfileUpdateFailure ? state.message : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,9 +62,13 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
       body: BlocListener<UserProfileCubit, UserProfileState>(
         listenWhen: (previous, current) => current is UserProfileUpdateFailure,
         listener: (context, state) {
-          if (state is UserProfileUpdateFailure) {
-            showAppError(context, state.error, message: state.message);
-          }
+          if (state is! UserProfileUpdateFailure) return;
+          // An open dialog shows the message under its own field, so the
+          // full-width banner would be a second copy of it — on top of the
+          // screen the user has already left. This only fires for edits with
+          // no dialog behind them, like the avatar upload.
+          if (ModalRoute.of(context)?.isCurrent != true) return;
+          showAppError(context, state.error, message: state.message);
         },
         child: Container(
           width: double.infinity,
@@ -138,7 +150,11 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                                   iconPath: SvgIcons.editName,
                                   maxLength: 30,
                                   nameOnly: true,
-                                  onSave: (val) => cubit.updateUserProfile(fullName: val),
+                                  validator: AppValidators.personName,
+                                  normalize: (val) => val.trim(),
+                                  errorAfterSave: () => _updateError(cubit),
+                                  onSave: (val) =>
+                                      cubit.updateUserProfile(fullName: val),
                                 ),
                               );
                             },
@@ -165,6 +181,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                                   validator: AppValidators.weight,
                                   normalize: (val) =>
                                       Measurement.normalize(val) ?? val,
+                                  errorAfterSave: () => _updateError(cubit),
                                   onSave: (val) =>
                                       cubit.updateUserProfile(weight: val),
                                 ),
@@ -193,6 +210,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                                   validator: AppValidators.height,
                                   normalize: (val) =>
                                       Measurement.normalize(val) ?? val,
+                                  errorAfterSave: () => _updateError(cubit),
                                   onSave: (val) =>
                                       cubit.updateUserProfile(height: val),
                                 ),

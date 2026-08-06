@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:intl/intl.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/utils/date_time_utils.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/app_segmented_control.dart';
 import 'package:fitness_day/core/widgets/visit_card.dart';
@@ -84,6 +86,87 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
   final TextEditingController _musclePercentageController = TextEditingController();
   final TextEditingController _proteinController = TextEditingController();
 
+  /// Report fields in the order they appear on screen, paired with the
+  /// controller they read and the rule they must satisfy. Used both to
+  /// validate the form in one pass and to pick which field to scroll to.
+  late final List<
+      ({String key, TextEditingController controller, String? Function(String) rule})>
+      _reportFields = [
+    (key: 'WEIGHT', controller: _weightController, rule: AppValidators.weight),
+    (key: 'HEIGHT', controller: _heightController, rule: AppValidators.height),
+    (
+      key: 'FAT_PERCENTAGE',
+      controller: _fatPercentageController,
+      rule: _percentage
+    ),
+    (key: 'FAT_WEIGHT', controller: _fatWeightController, rule: _positiveNumber),
+    (
+      key: 'MUSCLE_WEIGHT',
+      controller: _muscleWeightController,
+      rule: _positiveNumber
+    ),
+    (key: 'BMR', controller: _bmrController, rule: _positiveNumber),
+    (
+      key: 'MUSCLE_PERCENTAGE',
+      controller: _musclePercentageController,
+      rule: _percentage
+    ),
+    (key: 'PROTEIN', controller: _proteinController, rule: _positiveNumber),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Editing a field drops the message pinned under it, so a corrected value
+    // doesn't keep showing the reason it was rejected.
+    for (final field in _reportFields) {
+      field.controller.addListener(() {
+        if (_reportErrors.remove(field.key) != null && mounted) setState(() {});
+      });
+    }
+  }
+
+  /// Required, numeric, greater than zero.
+  String? _positiveNumber(String raw) {
+    final text = raw.trim();
+    if (text.isEmpty) return 'visit_details.field_required'.tr();
+    final value = double.tryParse(text);
+    if (value == null) return 'visit_details.field_invalid_number'.tr();
+    if (value <= 0) return 'visit_details.field_must_be_positive'.tr();
+    return null;
+  }
+
+  /// Required, numeric, within 0–100.
+  String? _percentage(String raw) {
+    final text = raw.trim();
+    if (text.isEmpty) return 'visit_details.field_required'.tr();
+    final value = double.tryParse(text);
+    if (value == null) return 'visit_details.field_invalid_number'.tr();
+    if (value <= 0 || value > 100) {
+      return 'visit_details.field_percentage_range'.tr();
+    }
+    return null;
+  }
+
+  /// Checks the whole report in one pass.
+  ///
+  /// The API reports a single rejected field per response, so saving a form
+  /// with several blanks meant fixing one, saving, being told about the next,
+  /// and round-tripping through the server for each one. Every offending field
+  /// is flagged here at once, before anything is sent.
+  ///
+  /// BMI is left out on purpose — it is derived from weight and height below
+  /// rather than typed, so requiring it would be asking for a value the screen
+  /// already knows.
+  Map<String, String> _validateReport() {
+    final errors = <String, String>{};
+    for (final field in _reportFields) {
+      final error = field.rule(field.controller.text);
+      if (error != null) errors[field.key] = error;
+    }
+    return errors;
+  }
+
   @override
   void dispose() {
     _weightController.dispose();
@@ -115,6 +198,10 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
     } else if (index == 2) {
       cubit.loadCustomPlan(widget.assessmentId, _selectedDayIndex + 1);
     }
+  }
+
+  String _formatUpcomingVisitTime(SpecialistAssessmentVisitDataModel visitData) {
+    return formatVisitDate(visitData.weekStart, context);
   }
 
   void _onDayChanged(int dayIndex) {
@@ -161,19 +248,22 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             clientName: loadedVisitData.user?.name,
           ),
         ),
-        visitTimeRemaining: 'visits.in_minutes'.tr(args: ['25']),
-        visitTitle: 'visits.dummy_title'.tr(),
-        visitSubtitle: 'visits.dummy_subtitle'.tr(),
-        personName: 'visits.dummy_client'.tr(),
+        visitTimeRemaining: formatVisitTimeRemaining(loadedVisitData.weekStart, context),
+        // Straight from GET /specialist/assessment-history/details/:id — the
+        // response carries name, description and user.name, but the screen was
+        // still rendering the placeholder strings the layout was built with.
+        visitTitle: loadedVisitData.name,
+        visitSubtitle: loadedVisitData.description,
+        personName: loadedVisitData.user?.name ?? '',
         personNameLabel: 'visits.client_name_label'.tr(),
-        visitTime: '${'visits.today'.tr()} 4:30 ${'visits.pm'.tr()}',
-        visitLocation: 'visits.hq_location'.tr(),
+        visitTime: _formatUpcomingVisitTime(loadedVisitData),
+        visitLocation: loadedVisitData.placement,
         visitGoalTitle: 'visit_details.visit_goal_title'.tr(),
+        // The four goal_N strings were placeholders too. The response has one
+        // `goal` field; the section stays hidden as before, so flipping
+        // showGoal on now surfaces the real goal rather than the sample text.
         visitGoals: [
-          'visit_details.goal_1'.tr(),
-          'visit_details.goal_2'.tr(),
-          'visit_details.goal_3'.tr(),
-          'visit_details.goal_4'.tr(),
+          if ((loadedVisitData.goal ?? '').isNotEmpty) loadedVisitData.goal!,
         ],
         showGoal: false,
         bottomAction: BlocBuilder<VisitDetailsCubit, VisitDetailsState>(
@@ -545,6 +635,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             hintText: 'visit_details.bmi'.tr(),
             controller: _bmiController,
             errorText: _reportErrors['BMI'],
+            inputFormatters: [DecimalInputFormatter()],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
@@ -554,6 +645,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             suffixText: healthReport.fatPercentage?.unit ?? '%',
             controller: _fatPercentageController,
             errorText: _reportErrors['FAT_PERCENTAGE'],
+            inputFormatters: [DecimalInputFormatter()],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
@@ -563,6 +655,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             suffixText: healthReport.fatWeight?.unit ?? 'visit_details.kg'.tr(),
             controller: _fatWeightController,
             errorText: _reportErrors['FAT_WEIGHT'],
+            inputFormatters: [DecimalInputFormatter()],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
@@ -572,6 +665,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             suffixText: healthReport.muscleWeight?.unit ?? 'visit_details.kg'.tr(),
             controller: _muscleWeightController,
             errorText: _reportErrors['MUSCLE_WEIGHT'],
+            inputFormatters: [DecimalInputFormatter()],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
@@ -581,6 +675,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             suffixText: healthReport.bmr?.unit ?? '',
             controller: _bmrController,
             errorText: _reportErrors['BMR'],
+            inputFormatters: [DecimalInputFormatter(maxIntegerDigits: 5)],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
@@ -590,6 +685,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             suffixText: healthReport.musclePercentage?.unit ?? '%',
             controller: _musclePercentageController,
             errorText: _reportErrors['MUSCLE_PERCENTAGE'],
+            inputFormatters: [DecimalInputFormatter()],
           ),
           SizedBox(height: 16.h),
           ReportTextField(
@@ -599,6 +695,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             suffixText: healthReport.protein?.unit ?? '',
             controller: _proteinController,
             errorText: _reportErrors['PROTEIN'],
+            inputFormatters: [DecimalInputFormatter()],
           ),
           SizedBox(height: 24.h),
           CustomButton(
@@ -610,17 +707,16 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 _reportErrors.clear();
               });
 
-              // Check locally first. `?? 0.0` used to turn an empty or
-              // malformed field into a real 0 kg / 0 cm and post it, and the
-              // specialist only learned about it from the server's reply.
-              final weightError = AppValidators.weight(_weightController.text);
-              final heightError = AppValidators.height(_heightController.text);
-              if (weightError != null || heightError != null) {
-                setState(() {
-                  if (weightError != null) _reportErrors['WEIGHT'] = weightError;
-                  if (heightError != null) _reportErrors['HEIGHT'] = heightError;
-                });
-                _scrollToField(weightError != null ? 'WEIGHT' : 'HEIGHT');
+              // Check every field locally first. `?? 0.0` used to turn an
+              // empty or malformed field into a real 0 and post it, and the
+              // specialist only learned about it from the server's reply —
+              // one field at a time.
+              final errors = _validateReport();
+              if (errors.isNotEmpty) {
+                setState(() => _reportErrors.addAll(errors));
+                _scrollToField(
+                  _reportFields.firstWhere((f) => errors.containsKey(f.key)).key,
+                );
                 return;
               }
 

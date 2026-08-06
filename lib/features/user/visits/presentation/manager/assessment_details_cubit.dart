@@ -50,6 +50,24 @@ class AssessmentDetailsCubit extends Cubit<AssessmentDetailsState> {
     }
   }
 
+  /// Summary only — no day payload.
+  ///
+  /// The upcoming-visit screen shows the assessment's name, description,
+  /// specialist, appointment and goal, none of which live in the day response,
+  /// so pulling one would be a wasted round trip.
+  Future<void> getSummary(String assessmentId) async {
+    emit(AssessmentDetailsLoading());
+    final result = await _repository.getAssessmentDetails(assessmentId);
+    switch (result) {
+      case Success(:final data):
+        _summaryData = data;
+        emit(AssessmentDetailsLoaded(summaryData: _summaryData, dayData: _dayData));
+      case FailureResult(:final failure):
+        emit(AssessmentDetailsError(failure.message,
+            error: AppError.from(failure)));
+    }
+  }
+
   /// [silent] keeps the current day on screen instead of dropping to the
   /// spinner, and leaves it there if the refetch fails — used when the refetch
   /// is the cubit's own idea rather than something the user asked for.

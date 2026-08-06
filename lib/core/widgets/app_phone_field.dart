@@ -85,7 +85,16 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
   List<Map<String, String>> _filtered = [];
 
   // ─── helper ───────────────────────────────────────────────────────────────
-  bool get _isAr => Localizations.localeOf(context).languageCode == 'ar';
+
+  /// The app's language, taken from easy_localization — the same source every
+  /// visible string comes from.
+  ///
+  /// This used to read `Localizations.localeOf(context)`, which is Flutter's
+  /// own resolution against `supportedLocales` and is not necessarily the
+  /// locale `.tr()` is rendering. When the two disagreed the country sheet
+  /// listed English names in a right-to-left layout: flag on the right,
+  /// dial code on the left.
+  bool get _isAr => context.locale.languageCode == 'ar';
 
   ui.TextDirection get _textDir =>
       _isAr ? ui.TextDirection.rtl : ui.TextDirection.ltr;
@@ -166,6 +175,11 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
     _filtered = Countries.all;
     _searchController.clear();
 
+    // Captured here, not read inside the builder: the sheet is built by the
+    // root overlay, so pinning the direction to this field's locale keeps the
+    // layout and the country names on the same language.
+    final sheetDirection = _textDir;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -175,7 +189,7 @@ class _AppPhoneFieldState extends State<AppPhoneField> {
       ),
       builder: (ctx) => Directionality(
         // Bottom sheet direction follows the current app locale.
-        textDirection: _textDir,
+        textDirection: sheetDirection,
         child: StatefulBuilder(
           builder: (ctx, setModalState) {
             return DraggableScrollableSheet(

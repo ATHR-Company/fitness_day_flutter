@@ -11,13 +11,18 @@ import 'package:fitness_day/features/shared/conversations/presentation/utils/cha
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_audio_bubble.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_video_thumbnail.dart';
 
-/// Media area of a chat bubble.
+/// Media area of a chat bubble — a WhatsApp-style album.
 ///
 ///   - 1 attachment  → full-width image / video / voice note / document row
-///   - 2 attachments → side by side
-///   - 3+            → 2-column grid, with a "+N" overlay on the last cell
+///   - 2 attachments → two squares side by side
+///   - 3 attachments → one **portrait** cell filling the height on the leading
+///                     side, the other two stacked beside it
+///   - 4+            → 2×2 grid, with a "+N" overlay on the last cell
+///
+/// The odd case is the point of the layout: a plain 2-column grid left the
+/// third image alone on its own row with dead space next to it.
 class ChatMediaGrid extends StatelessWidget {
-  /// How many cells the grid shows before collapsing the rest into "+N".
+  /// How many cells the album shows before collapsing the rest into "+N".
   static const int _maxVisible = 4;
 
   final List<ChatMediaAttachment> attachments;
@@ -34,6 +39,12 @@ class ChatMediaGrid extends StatelessWidget {
     this.allChatImages,
   });
 
+  /// What the full-screen viewer pages through when a cell is tapped.
+  List<ChatMediaAttachment> get _viewerSet =>
+      (allChatImages != null && allChatImages!.isNotEmpty)
+          ? allChatImages!
+          : attachments.where((a) => a.isImage).toList();
+
   @override
   Widget build(BuildContext context) {
     if (attachments.isEmpty) return const SizedBox.shrink();
@@ -47,36 +58,96 @@ class ChatMediaGrid extends StatelessWidget {
 
     final visible = attachments.take(_maxVisible).toList();
     final int hidden = attachments.length - visible.length;
+    final double gap = 2.w;
+
+    Widget cell(int index) {
+      final attachment = visible[index];
+      final bool isOverflowCell = hidden > 0 && index == visible.length - 1;
+
+      return GestureDetector(
+        onTap: () => openChatAttachment(
+          context,
+          attachment,
+          allAttachments: _viewerSet,
+        ),
+        child: isOverflowCell
+            ? _OverflowCell(attachment: attachment, hiddenCount: hidden)
+            : _GridCell(attachment: attachment),
+      );
+    }
+
+    late final Widget album;
+    switch (visible.length) {
+      case 2:
+        album = Row(
+          // stretch, not the default centre: Expanded only tightens the main
+          // axis, so a centred cell let the image keep its own height and sit
+          // with bubble background above and below it.
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: cell(0)),
+            SizedBox(width: gap),
+            Expanded(child: cell(1)),
+          ],
+        );
+
+      case 3:
+        album = Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: cell(0)),
+            SizedBox(width: gap),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: cell(1)),
+                  SizedBox(height: gap),
+                  Expanded(child: cell(2)),
+                ],
+              ),
+            ),
+          ],
+        );
+
+      default:
+        album = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: cell(0)),
+                  SizedBox(width: gap),
+                  Expanded(child: cell(1)),
+                ],
+              ),
+            ),
+            SizedBox(height: gap),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: cell(2)),
+                  SizedBox(width: gap),
+                  Expanded(child: cell(3)),
+                ],
+              ),
+            ),
+          ],
+        );
+    }
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10.r),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: visible.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 2.w,
-          crossAxisSpacing: 2.w,
-          childAspectRatio: 1,
-        ),
-        itemBuilder: (context, index) {
-          final attachment = visible[index];
-          final bool isOverflowCell = hidden > 0 && index == visible.length - 1;
-
-          return GestureDetector(
-            onTap: () => openChatAttachment(
-              context,
-              attachment,
-              allAttachments: (allChatImages != null && allChatImages!.isNotEmpty)
-                  ? allChatImages
-                  : attachments.where((a) => a.isImage).toList(),
-            ),
-            child: isOverflowCell
-                ? _OverflowCell(attachment: attachment, hiddenCount: hidden)
-                : _GridCell(attachment: attachment),
-          );
-        },
+      child: AspectRatio(
+        // Two cells make one row of squares; three and four both fill a square
+        // block. Driving the height from the ratio keeps every cell exact —
+        // no intrinsic pass, no scroll view, so nothing can inherit stray
+        // MediaQuery padding the way the old GridView did.
+        aspectRatio: visible.length == 2 ? 2 : 1,
+        child: album,
       ),
     );
   }

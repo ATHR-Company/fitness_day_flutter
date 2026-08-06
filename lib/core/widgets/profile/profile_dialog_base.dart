@@ -37,10 +37,26 @@ class _ProfileDialogBaseState extends State<ProfileDialogBase> {
   Future<void> _onSavePressed() async {
     if (widget.validate != null && !widget.validate!()) return;
     setState(() => _isLoading = true);
-    await widget.onSave();
+
+    // [onSave] rejects a save by throwing. That was already the contract, but
+    // nothing caught it: the exception escaped as an unhandled async error,
+    // _isLoading was never cleared, and the dialog sat behind a spinner
+    // forever with no way out but the close button.
+    //
+    // The thrown object is deliberately not shown here — whoever threw it has
+    // already put the reason in front of the user, under the field it belongs
+    // to.
+    var saved = false;
+    try {
+      await widget.onSave();
+      saved = true;
+    } catch (e) {
+      debugPrint('[ProfileDialogBase] save rejected: $e');
+    }
+
     if (!mounted) return;
     setState(() => _isLoading = false);
-    Navigator.of(context).pop();
+    if (saved) Navigator.of(context).pop();
   }
 
   @override

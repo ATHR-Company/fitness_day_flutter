@@ -36,6 +36,12 @@ class ChatCubit extends Cubit<ChatState> {
   /// When true, specialist endpoints are used instead of user endpoints.
   bool _isSpecialistMode = false;
 
+  /// Makes every optimistic id unique on its own, without leaning on the clock:
+  /// two sends inside the same millisecond would otherwise share an id, and
+  /// that id is what replaces (or removes) the placeholder once the upload
+  /// settles — and what keys the bubble in the list.
+  int _optimisticSeq = 0;
+
   ChatCubit({
     required OpenChatUseCase openChatUseCase,
     required GetMessagesUseCase getMessagesUseCase,
@@ -201,7 +207,7 @@ class ChatCubit extends Cubit<ChatState> {
     );
 
     final optimistic = MessageModel(
-      id: 'optimistic_${DateTime.now().millisecondsSinceEpoch}',
+      id: 'optimistic_${DateTime.now().millisecondsSinceEpoch}_${++_optimisticSeq}',
       conversationId: currentState.conversationId,
       text: text,
       senderType: 'user',
@@ -229,7 +235,7 @@ class ChatCubit extends Cubit<ChatState> {
     // Optimistic message: local previews + "sent" tick, replaced by the
     // server message once the upload finishes.
     final optimistic = MessageModel(
-      id: 'optimistic_media_${DateTime.now().millisecondsSinceEpoch}',
+      id: 'optimistic_media_${DateTime.now().millisecondsSinceEpoch}_${++_optimisticSeq}',
       conversationId: currentState.conversationId,
       text: '',
       senderType: 'user',

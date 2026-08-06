@@ -20,6 +20,12 @@ class EditFieldDialog extends StatefulWidget {
   /// a weight to two decimals so the server never stores 50.066556668568886.
   final String Function(String)? normalize;
 
+  /// Checked once [onSave] has finished. Return the server's rejection message
+  /// to pin it under the field and keep the dialog open; `null` means the save
+  /// went through. Without this the dialog closed on a rejected value and the
+  /// reason appeared as a banner over the screen the user had just left.
+  final String? Function()? errorAfterSave;
+
   final List<TextInputFormatter>? inputFormatters;
 
   const EditFieldDialog({
@@ -33,6 +39,7 @@ class EditFieldDialog extends StatefulWidget {
     this.nameOnly = false,
     this.validator,
     this.normalize,
+    this.errorAfterSave,
     this.inputFormatters,
   });
 
@@ -48,6 +55,10 @@ class _EditFieldDialogState extends State<EditFieldDialog> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.hintText);
+    // Typing clears whatever message is pinned under the field.
+    _controller.addListener(() {
+      if (_errorText != null && mounted) setState(() => _errorText = null);
+    });
   }
 
   @override
@@ -69,7 +80,15 @@ class _EditFieldDialogState extends State<EditFieldDialog> {
       validate: _validate,
       onSave: () async {
         final value = widget.normalize?.call(_controller.text) ?? _controller.text;
-        return widget.onSave(value);
+        await widget.onSave(value);
+
+        final serverError = widget.errorAfterSave?.call();
+        if (serverError != null) {
+          // Pin the server's wording under the field and throw, which is how
+          // ProfileDialogBase is told to keep the dialog open.
+          if (mounted) setState(() => _errorText = serverError);
+          throw Exception('Update rejected: $serverError');
+        }
       },
       child: ProfileTextField(
         controller: _controller,

@@ -50,6 +50,8 @@ class LocalChatMessagesList extends StatelessWidget {
         return Padding(
           padding: EdgeInsets.only(bottom: 16.h),
           child: LocalChatBubble(
+            // Identity, not index — see the note in [ChatMessagesList].
+            key: ObjectKey(message),
             message: message,
             onLongPress: () => onReact(message),
             allLocalImages: allLocalImages,
