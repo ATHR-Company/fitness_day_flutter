@@ -4,6 +4,7 @@ import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/network/api_service.dart';
 import 'package:fitness_day/core/network/token_interceptor.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
+import 'package:fitness_day/core/services/app_event_bus.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/manager/chat_cubit.dart';
 
 // Specialist Auth
@@ -117,6 +118,7 @@ import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_s
 import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_verify_otp_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_reset_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_resend_otp_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/user_resend_otp_usecase.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cubit.dart';
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 
@@ -221,8 +223,17 @@ import 'package:fitness_day/features/user/user_home/presentation/manager/user_ho
 import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/articles_list_cubit.dart';
 import 'package:fitness_day/core/services/health_service.dart';
-import 'package:fitness_day/core/services/app_event_bus.dart';
+import 'package:fitness_day/core/services/session_manager.dart';
+import 'package:fitness_day/core/services/session_manager.dart';
 import 'package:fitness_day/core/services/socket_service.dart';
+import 'package:fitness_day/features/user/challenges/data/datasources/challenges_remote_datasource.dart';
+import 'package:fitness_day/features/user/challenges/data/repositories/challenges_repository_impl.dart';
+import 'package:fitness_day/features/user/challenges/domain/repositories/challenges_repository.dart';
+import 'package:fitness_day/features/user/challenges/domain/usecases/challenges_usecases.dart';
+import 'package:fitness_day/features/user/challenges/presentation/manager/achievements_cubit.dart';
+import 'package:fitness_day/features/user/challenges/presentation/manager/activity_sync_service.dart';
+import 'package:fitness_day/features/user/challenges/presentation/manager/challenge_details_cubit.dart';
+import 'package:fitness_day/features/user/challenges/presentation/manager/challenges_cubit.dart';
 
 // Chat (shared/conversations)
 import 'package:fitness_day/features/shared/conversations/data/datasources/chat_remote_datasource.dart';
@@ -428,6 +439,10 @@ Future<void> init() async {
     () => ForgotPasswordResendOtpUseCase(getIt<UserAuthRepository>()),
   );
 
+  getIt.registerLazySingleton<UserResendOtpUseCase>(
+    () => UserResendOtpUseCase(getIt<UserAuthRepository>()),
+  );
+
   getIt.registerLazySingleton<GetDietPlanUseCase>(
     () => GetDietPlanUseCase(getIt<VisitsRepository>()),
   );
@@ -480,6 +495,7 @@ Future<void> init() async {
       forgotPasswordVerifyOtpUseCase: getIt<ForgotPasswordVerifyOtpUseCase>(),
       forgotPasswordResetUseCase: getIt<ForgotPasswordResetUseCase>(),
       forgotPasswordResendOtpUseCase: getIt<ForgotPasswordResendOtpUseCase>(),
+      resendOtpUseCase: getIt<UserResendOtpUseCase>(),
       secureCache: getIt<SecureCache>(),
       appCache: getIt<AppCache>(),
       socketService: getIt<SocketService>(),
@@ -1072,6 +1088,79 @@ Future<void> init() async {
   );
 
   // ═════════════════════════════════════════════════
+  //          CHALLENGES & ACHIEVEMENTS
+  // ═════════════════════════════════════════════════
+  //
+  // A separate product from the plan's activities: open to every signed-in
+  // user, with its own ledger and its own write endpoint. Nothing here reads
+  // the plan's numbers, and nothing in the plan reads these.
+
+  getIt.registerLazySingleton<ChallengesRemoteDataSource>(
+    () => ChallengesRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+
+  getIt.registerLazySingleton<ChallengesRepository>(
+    () => ChallengesRepositoryImpl(getIt<ChallengesRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<PushActivityUseCase>(
+    () => PushActivityUseCase(getIt<ChallengesRepository>()),
+  );
+  getIt.registerLazySingleton<GetDailyTotalsUseCase>(
+    () => GetDailyTotalsUseCase(getIt<ChallengesRepository>()),
+  );
+  getIt.registerLazySingleton<GetChallengesUseCase>(
+    () => GetChallengesUseCase(getIt<ChallengesRepository>()),
+  );
+  getIt.registerLazySingleton<GetChallengeDetailsUseCase>(
+    () => GetChallengeDetailsUseCase(getIt<ChallengesRepository>()),
+  );
+  getIt.registerLazySingleton<JoinChallengeUseCase>(
+    () => JoinChallengeUseCase(getIt<ChallengesRepository>()),
+  );
+  getIt.registerLazySingleton<LeaveChallengeUseCase>(
+    () => LeaveChallengeUseCase(getIt<ChallengesRepository>()),
+  );
+  getIt.registerLazySingleton<GetAchievementsUseCase>(
+    () => GetAchievementsUseCase(getIt<ChallengesRepository>()),
+  );
+  getIt.registerLazySingleton<GetDailyAchievementsUseCase>(
+    () => GetDailyAchievementsUseCase(getIt<ChallengesRepository>()),
+  );
+
+  // Singleton: it owns the retry queue for failed deltas, and a second
+  // instance would mean a second queue that can double-count.
+  getIt.registerLazySingleton<ActivitySyncService>(
+    () => ActivitySyncService(
+      pushActivityUseCase: getIt<PushActivityUseCase>(),
+      eventBus: getIt<AppEventBus>(),
+    ),
+  );
+
+  getIt.registerFactory<ChallengesCubit>(
+    () => ChallengesCubit(
+      getChallengesUseCase: getIt<GetChallengesUseCase>(),
+      joinChallengeUseCase: getIt<JoinChallengeUseCase>(),
+      leaveChallengeUseCase: getIt<LeaveChallengeUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<ChallengeDetailsCubit>(
+    () => ChallengeDetailsCubit(
+      getChallengeDetailsUseCase: getIt<GetChallengeDetailsUseCase>(),
+      joinChallengeUseCase: getIt<JoinChallengeUseCase>(),
+      leaveChallengeUseCase: getIt<LeaveChallengeUseCase>(),
+    ),
+  );
+
+  getIt.registerFactory<AchievementsCubit>(
+    () => AchievementsCubit(
+      getAchievementsUseCase: getIt<GetAchievementsUseCase>(),
+      getDailyAchievementsUseCase: getIt<GetDailyAchievementsUseCase>(),
+    ),
+  );
+
+  // ═════════════════════════════════════════════════
   //               CHAT (Socket.IO + REST)
   // ═════════════════════════════════════════════════
 
@@ -1080,6 +1169,20 @@ Future<void> init() async {
   getIt.registerLazySingleton<SocketService>(
     () => SocketService(secureCache: getIt<SecureCache>()),
   );
+
+  getIt.registerLazySingleton<SessionManager>(
+    () => SessionManager(secureCache: getIt<SecureCache>()),
+  );
+
+  // One device per account. The socket carries the news instantly to a device
+  // that is online; TokenInterceptor catches the same revocation from a 401 for
+  // one that was not. Wired here rather than inside SocketService so the socket
+  // doesn't depend on the thing that shuts it down.
+  getIt<SocketService>().onForceLogout = (reason) {
+    getIt<SessionManager>().endSession(
+      reason: SessionEndReason.loggedInElsewhere,
+    );
+  };
 
   getIt.registerLazySingleton<ChatRemoteDataSource>(
     () => ChatRemoteDataSourceImpl(getIt<ApiService>()),

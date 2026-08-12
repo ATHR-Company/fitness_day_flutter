@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:collection/collection.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,10 +13,10 @@ import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/selection_bottom_sheet.dart';
 import 'package:fitness_day/core/widgets/app_text_field.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
-import 'package:fitness_day/core/widgets/time_picker_bottom_sheet.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/utils/plan_day_time.dart';
 import 'package:fitness_day/features/specialist/visits/data/datasources/specialist_visits_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
 
@@ -23,16 +24,22 @@ import 'package:fitness_day/features/specialist/visits/presentation/manager/visi
 class AddActivityPage extends StatefulWidget {
   final String assessmentId;
   final int dayNumber;
-  final String weekStart;       // Assessment week start — base date for the day
-  final String? activityItemId; // If provided, it's Edit Mode
+  final String weekStart; // Assessment week start — base date for the day
+
+  /// The activity item being edited, or null in add mode. Carries the activity
+  /// id, the goal and the stored time, so the screen opens populated without a
+  /// round trip.
+  final SpecialistActivityModel? activity;
 
   const AddActivityPage({
     super.key,
     required this.assessmentId,
     required this.dayNumber,
     required this.weekStart,
-    this.activityItemId,
+    this.activity,
   });
+
+  bool get isEditMode => activity != null;
 
   @override
   State<AddActivityPage> createState() => _AddActivityPageState();
@@ -44,7 +51,11 @@ class _AddActivityPageState extends State<AddActivityPage> {
   List<SpecialistActivityLookupModel> _activities = [];
   SpecialistActivityLookupModel? _selectedActivity;
 
-  TimeOfDay _selectedTime = const TimeOfDay(hour: 10, minute: 0);
+  /// An activity has no time of its own to pick — it runs across the whole day
+  /// — but the API still takes one. In edit mode this holds whatever the item
+  /// was already saved with, so changing the goal doesn't silently rewrite it.
+  String? _existingTime;
+
   final TextEditingController _goalController = TextEditingController();
 
   bool _isLoading = false;
@@ -72,34 +83,16 @@ class _AddActivityPageState extends State<AddActivityPage> {
     setState(() => _isLoading = true);
     await _loadActivities();
 
-    if (widget.activityItemId != null && _activities.isNotEmpty) {
-      try {
-        final activityDetailsResp = await _remoteDataSource.getActivityDetails(
-          assessmentId: widget.assessmentId,
-          dayNumber: widget.dayNumber,
-          activityItemId: widget.activityItemId!,
-        );
-        final activityDetails = activityDetailsResp.data;
+    final SpecialistActivityModel? activity = widget.activity;
+    if (activity != null) {
+      // By id, not by name — matching on the display name fell through to
+      // `_activities.first` whenever the backend reworded it, so editing
+      // Hydration could quietly turn it into Walking.
+      _selectedActivity =
+          _activities.firstWhereOrNull((a) => a.id == activity.activityId);
 
-        // 1. Find and select activity lookup by name
-        final matchedActivity = _activities.firstWhere(
-          (a) => a.name.trim().toLowerCase() == activityDetails.name.trim().toLowerCase(),
-          orElse: () => _activities.first,
-        );
-        _selectedActivity = matchedActivity;
-
-        // 2. Set controllers
-        _goalController.text = activityDetails.goal.toInt().toString();
-
-        // 3. Parse time
-        if (activityDetails.time != null && activityDetails.time!.isNotEmpty) {
-          final parsed = DateTime.tryParse(activityDetails.time!);
-          if (parsed != null) {
-            final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
-            _selectedTime = TimeOfDay.fromDateTime(localDate);
-          }
-        }
-      } catch (_) {}
+      _goalController.text = activity.goal.toInt().toString();
+      if (activity.time.isNotEmpty) _existingTime = activity.time;
     }
 
     setState(() => _isLoading = false);
@@ -146,7 +139,9 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20.w),
                     child: AppBackHeader(
-                      title: widget.activityItemId != null ? 'تعديل النشاط' : 'add_activity.title'.tr(),
+                      title: widget.isEditMode
+                          ? 'add_activity.edit_title'.tr()
+                          : 'add_activity.title'.tr(),
                     ),
                   ),
 
@@ -184,12 +179,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
                           SizedBox(height: 20.h),
 
-                          // Activity Time
-                          AppFieldLabel(text: 'add_meal.meal_time'.tr()),
-                          _buildTimeField(),
-
-                          SizedBox(height: 20.h),
-
                           // Target Goal
                           AppFieldLabel(text: 'add_activity.target_goal'.tr()),
                           _buildTargetGoalField(),
@@ -204,7 +193,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
                   Container(
                     padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                     child: CustomButton(
-                      text: widget.activityItemId != null
+                      text: widget.isEditMode
                           ? 'visit_details.save'.tr()
                           : 'add_activity.add_button'.tr(),
                       color: AppColors.primary,
@@ -217,31 +206,6 @@ class _AddActivityPageState extends State<AddActivityPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTimeField() {
-    final formatTime = DateFormat('hh:mm a', context.locale.languageCode);
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute);
-
-    return AppTextField(
-      hintText: formatTime.format(dt),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      onTap: () async {
-        final time = await showModalBottomSheet<TimeOfDay>(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => TimePickerBottomSheet(initialTime: _selectedTime),
-        );
-        if (time != null) {
-          setState(() {
-            _selectedTime = time;
-          });
-        }
-      },
-      readOnly: true,
     );
   }
 
@@ -295,22 +259,26 @@ class _AddActivityPageState extends State<AddActivityPage> {
 
   Future<void> _onSave() async {
     if (_selectedActivity == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى اختيار اسم النشاط أولاً'),
-          backgroundColor: AppColors.error,
-        ),
+      showAppSnackBar(
+        context,
+        text: 'add_activity.select_name_first'.tr(),
+        isError: true,
       );
       return;
     }
 
     final goal = int.tryParse(_goalController.text) ?? 0;
 
-    final timeStr = buildPlanItemTime(
-      weekStart: widget.weekStart,
-      dayNumber: widget.dayNumber,
-      time: _selectedTime,
-    );
+    // The screen no longer asks for a time, but `time` is still part of the
+    // endpoint's contract. Editing resends what was already stored; a brand new
+    // activity is stamped at the start of its own day, which is the closest
+    // thing to "no particular time" the field can carry.
+    final timeStr = _existingTime ??
+        buildPlanItemTime(
+          weekStart: widget.weekStart,
+          dayNumber: widget.dayNumber,
+          time: const TimeOfDay(hour: 0, minute: 0),
+        );
 
     setState(() => _isLoading = true);
     final cubit = context.read<VisitDetailsCubit>();
@@ -318,12 +286,12 @@ class _AddActivityPageState extends State<AddActivityPage> {
     final bool success;
     final String message;
 
-    if (widget.activityItemId != null) {
+    if (widget.isEditMode) {
       // Edit mode (PATCH)
       final result = await cubit.updateActivity(
         assessmentId: widget.assessmentId,
         dayNumber: widget.dayNumber,
-        activityItemId: widget.activityItemId!,
+        activityItemId: widget.activity!.activityItemId,
         activityId: _selectedActivity!.id,
         goal: goal,
         time: timeStr,

@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,24 +14,34 @@ import 'package:fitness_day/core/widgets/app_text_field.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/time_picker_bottom_sheet.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/utils/date_time_utils.dart';
 import 'package:fitness_day/core/utils/plan_day_time.dart';
 import 'package:fitness_day/features/specialist/visits/data/datasources/specialist_visits_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
 
 class AddExercisePage extends StatefulWidget {
   final String assessmentId;
   final int dayNumber;
-  final String weekStart;      // Assessment week start — base date for the day
-  final String? workoutItemId; // If provided, it's Edit Mode
+  final String weekStart; // Assessment week start — base date for the day
+
+  /// The workout item being edited, or null in add mode.
+  ///
+  /// The plan response now carries the exercise id and the prescribed
+  /// sets/reps/rest, so the screen opens fully populated without a round trip
+  /// and without matching the exercise list by name.
+  final SpecialistWorkoutModel? workout;
 
   const AddExercisePage({
     super.key,
     required this.assessmentId,
     required this.dayNumber,
     required this.weekStart,
-    this.workoutItemId,
+    this.workout,
   });
+
+  bool get isEditMode => workout != null;
 
   @override
   State<AddExercisePage> createState() => _AddExercisePageState();
@@ -74,38 +85,23 @@ class _AddExercisePageState extends State<AddExercisePage> {
     setState(() => _isLoading = true);
     await _loadExercises();
 
-    if (widget.workoutItemId != null && _exercises.isNotEmpty) {
-      try {
-        final workoutDetailsResp = await _remoteDataSource.getWorkoutDetails(
-          assessmentId: widget.assessmentId,
-          dayNumber: widget.dayNumber,
-          workoutItemId: widget.workoutItemId!,
-        );
-        final workoutDetails = workoutDetailsResp.data;
+    final SpecialistWorkoutModel? workout = widget.workout;
+    if (workout != null) {
+      // Selected by id, not by display name: an exercise the backend has since
+      // renamed used to fall through to `_exercises.first`, so the specialist
+      // opened "Pull Up" and was shown — and could save — something else.
+      _selectedExercise =
+          _exercises.firstWhereOrNull((e) => e.id == workout.exerciseId);
 
-        if (workoutDetails != null) {
-          // 1. Find and select exercise lookup by name
-          final matchedExercise = _exercises.firstWhere(
-            (e) => e.name.trim().toLowerCase() == workoutDetails.name.trim().toLowerCase(),
-            orElse: () => _exercises.first,
-          );
-          _selectedExercise = matchedExercise;
+      _setsController.text = workout.sets.toString();
+      _repsController.text = workout.reps.toString();
+      _restController.text = workout.restDuration.toString();
 
-          // 2. Set controllers
-          _setsController.text = workoutDetails.sets.toString();
-          _repsController.text = workoutDetails.reps.toString();
-          _restController.text = workoutDetails.restDuration.toString();
-
-          // 3. Parse time
-          if (workoutDetails.time.isNotEmpty) {
-            final parsed = DateTime.tryParse(workoutDetails.time);
-            if (parsed != null) {
-              final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
-              _selectedTime = TimeOfDay.fromDateTime(localDate);
-            }
-          }
-        }
-      } catch (_) {}
+      final parsed = DateTime.tryParse(workout.time);
+      if (parsed != null) {
+        final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
+        _selectedTime = TimeOfDay.fromDateTime(localDate);
+      }
     }
 
     setState(() => _isLoading = false);
@@ -150,7 +146,9 @@ class _AddExercisePageState extends State<AddExercisePage> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.w),
                   child: AppBackHeader(
-                    title: widget.workoutItemId != null ? 'تعديل التمرين' : 'add_exercise.title'.tr(),
+                    title: widget.isEditMode
+                        ? 'add_exercise.edit_title'.tr()
+                        : 'add_exercise.title'.tr(),
                   ),
                 ),
 
@@ -213,7 +211,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
                           suffixIcon: Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                             child: Text(
-                              'ثانية',
+                              'add_exercise.unit_second'.tr(),
                               style: TextStyleManager.style11Medium.copyWith(color: AppColors.textSecondary),
                             ),
                           ),
@@ -239,7 +237,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
                 Container(
                   padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                   child: CustomButton(
-                    text: widget.workoutItemId != null
+                    text: widget.isEditMode
                         ? 'visit_details.save'.tr()
                         : 'add_exercise.add_button'.tr(),
                     color: AppColors.primary,
@@ -255,12 +253,11 @@ class _AddExercisePageState extends State<AddExercisePage> {
   }
 
   Widget _buildTimeField() {
-    final formatTime = DateFormat('hh:mm a', context.locale.languageCode);
     final now = DateTime.now();
     final dt = DateTime(now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute);
 
     return AppTextField(
-      hintText: formatTime.format(dt),
+      hintText: formatPlanClock(dt),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       onTap: () async {
         final time = await showModalBottomSheet<TimeOfDay>(
@@ -283,7 +280,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
     if (_selectedExercise == null) {
       showAppSnackBar(
         context,
-        text: 'يرجى اختيار اسم التمرين أولاً',
+        text: 'add_exercise.select_name_first'.tr(),
         isError: true,
       );
       return;
@@ -305,12 +302,12 @@ class _AddExercisePageState extends State<AddExercisePage> {
     final bool success;
     final String message;
 
-    if (widget.workoutItemId != null) {
+    if (widget.isEditMode) {
       // Edit mode (PATCH)
       final result = await cubit.updateWorkout(
         assessmentId: widget.assessmentId,
         dayNumber: widget.dayNumber,
-        workoutItemId: widget.workoutItemId!,
+        workoutItemId: widget.workout!.workoutItemId,
         exerciseId: _selectedExercise!.id,
         sets: sets,
         reps: reps,

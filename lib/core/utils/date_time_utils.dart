@@ -1,6 +1,28 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+/// Wall-clock time of a custom-plan item — always Latin digits and English
+/// AM/PM, whatever the app language is.
+///
+/// Pinned to `en` on purpose: [TimePickerBottomSheet] renders its spinner under
+/// a forced `en_US` Localizations override, so formatting the result with the
+/// app locale meant the specialist picked `08:30 PM` and the field underneath
+/// then read it back as `٠٨:٣٠ م`.
+String formatPlanClock(DateTime time) =>
+    DateFormat('hh:mm a', 'en').format(time);
+
+/// Same, for a time that arrives as an ISO string from the API.
+///
+/// Returns the input untouched when it can't be parsed — the server has sent
+/// plain `"08:00"` alongside full timestamps, and showing that is better than
+/// showing nothing.
+String formatPlanClockIso(String isoTime) {
+  if (isoTime.isEmpty) return '';
+  final parsed = DateTime.tryParse(isoTime);
+  if (parsed == null) return isoTime;
+  return formatPlanClock(parsed.isUtc ? parsed.toLocal() : parsed);
+}
+
 String formatVisitDate(String isoDate, BuildContext context) {
   if (isoDate.isEmpty) return '';
   final parsed = DateTime.tryParse(isoDate);

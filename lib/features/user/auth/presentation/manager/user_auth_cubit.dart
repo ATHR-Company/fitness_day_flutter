@@ -18,8 +18,10 @@ import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_s
 import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_verify_otp_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_reset_usecase.dart';
 import 'package:fitness_day/features/user/auth/domain/usecases/forgot_password_resend_otp_usecase.dart';
+import 'package:fitness_day/features/user/auth/domain/usecases/user_resend_otp_usecase.dart';
 import 'user_auth_state.dart';
 import 'package:fitness_day/core/errors/app_error.dart';
+import 'package:fitness_day/core/errors/failures.dart';
 
 class UserAuthCubit extends Cubit<UserAuthState> {
   final UserSignupUseCase _signupUseCase;
@@ -30,6 +32,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
   final ForgotPasswordVerifyOtpUseCase _forgotPasswordVerifyOtpUseCase;
   final ForgotPasswordResetUseCase _forgotPasswordResetUseCase;
   final ForgotPasswordResendOtpUseCase _forgotPasswordResendOtpUseCase;
+  final UserResendOtpUseCase _resendOtpUseCase;
   final SecureCache _secureCache;
   final AppCache _appCache;
   final SocketService _socketService;
@@ -43,6 +46,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
     required ForgotPasswordVerifyOtpUseCase forgotPasswordVerifyOtpUseCase,
     required ForgotPasswordResetUseCase forgotPasswordResetUseCase,
     required ForgotPasswordResendOtpUseCase forgotPasswordResendOtpUseCase,
+    required UserResendOtpUseCase resendOtpUseCase,
     required SecureCache secureCache,
     required AppCache appCache,
     required SocketService socketService,
@@ -54,6 +58,7 @@ class UserAuthCubit extends Cubit<UserAuthState> {
         _forgotPasswordVerifyOtpUseCase = forgotPasswordVerifyOtpUseCase,
         _forgotPasswordResetUseCase = forgotPasswordResetUseCase,
         _forgotPasswordResendOtpUseCase = forgotPasswordResendOtpUseCase,
+        _resendOtpUseCase = resendOtpUseCase,
         _secureCache = secureCache,
         _appCache = appCache,
         _socketService = socketService,
@@ -232,11 +237,42 @@ class UserAuthCubit extends Cubit<UserAuthState> {
       case Success(:final data):
         emit(ForgotPasswordResendOtpSuccess(data));
       case FailureResult(:final failure):
+        // Throttling is the same answer in both flows and gets the same
+        // treatment — a countdown, not a full-screen error.
+        if (failure is RateLimitFailure) {
+          emit(UserResendOtpCooldown(
+            failure.retryAfterSeconds,
+            failure.message,
+          ));
+          return;
+        }
         emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
     }
   }
 
   Future<void> resendOtp(String token) async {
     await resendForgotPasswordOtp(token);
+  }
+
+  /// Asks for the signup code again.
+  ///
+  /// A throttled reply is not treated as a failure — it carries the seconds
+  /// left, which the screen turns into a countdown on the resend button.
+  Future<void> resendSignupOtp(String phone) async {
+    emit(const UserAuthLoading());
+    final result = await _resendOtpUseCase(UserResendOtpRequest(phone: phone));
+    switch (result) {
+      case Success(:final data):
+        emit(UserResendOtpSuccess(data));
+      case FailureResult(:final failure):
+        if (failure is RateLimitFailure) {
+          emit(UserResendOtpCooldown(
+            failure.retryAfterSeconds,
+            failure.message,
+          ));
+          return;
+        }
+        emit(UserAuthFailure(failure.message, error: AppError.from(failure)));
+    }
   }
 }

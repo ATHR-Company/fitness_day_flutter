@@ -3,30 +3,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
-import 'package:fitness_day/features/user/challenges/domain/entities/challenge_model.dart';
+import 'package:fitness_day/features/user/challenges/data/models/challenge_model.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_app_bar.dart';
-import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_exercise_content.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_header_info.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_hero_section.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_options_sheet.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_previous_achievements.dart';
-import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_steps_content.dart';
+import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_progress_content.dart';
 
 // ─── Challenge Type ───────────────────────────────────────────────────────────
 
-enum ChallengeType { steps, exercise }
+/// Which body the active-challenge screen shows.
+///
+/// Derived from the challenge's own metric rather than passed in by whoever
+/// opens the screen — the server decides what a challenge measures, and a
+/// caller guessing it would put a step counter on a hydration challenge.
+enum ChallengeType {
+  /// Steps — a counter and a ring.
+  steps,
+
+  /// Distance or calories — both come from walking and running.
+  exercise,
+
+  /// Water, in millilitres.
+  hydration;
+
+  static ChallengeType fromMetric(ChallengeMetric? metric) => switch (metric) {
+        ChallengeMetric.steps => ChallengeType.steps,
+        ChallengeMetric.waterMl => ChallengeType.hydration,
+        // Distance and calories are both earned by moving, and an unknown
+        // metric is safest here too: the generic body shows progress against
+        // the goal without claiming to know how it is earned.
+        _ => ChallengeType.exercise,
+      };
+}
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 class ChallengeActiveScreen extends StatefulWidget {
   final ChallengeModel challenge;
-  final ChallengeType challengeType;
 
-  const ChallengeActiveScreen({
-    super.key,
-    required this.challenge,
-    this.challengeType = ChallengeType.exercise,
-  });
+  const ChallengeActiveScreen({super.key, required this.challenge});
+
+  ChallengeType get challengeType =>
+      ChallengeType.fromMetric(challenge.metric);
 
   @override
   State<ChallengeActiveScreen> createState() => _ChallengeActiveScreenState();
@@ -70,14 +90,16 @@ class _ChallengeActiveScreenState extends State<ChallengeActiveScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      ChallengeHeroSection(imageUrl: widget.challenge.imageUrl),
+                      ChallengeHeroSection(imageUrl: widget.challenge.image),
                       SizedBox(height: 24.h),
                       ChallengeHeaderInfo(challenge: widget.challenge),
                       SizedBox(height: 24.h),
-                      if (widget.challengeType == ChallengeType.steps)
-                        ChallengeStepsContent(challenge: widget.challenge)
-                      else
-                        ChallengeExerciseContent(challenge: widget.challenge),
+                      // One ring for every metric. It reads progress, goal and
+                      // unit off the challenge, so steps, kilometres, calories
+                      // and millilitres all render correctly — the old split
+                      // put a mocked "today's exercise" card, with a fixed day
+                      // number, on anything that was not a step challenge.
+                      ChallengeProgressContent(challenge: widget.challenge),
                       SizedBox(height: 32.h),
                       const ChallengePreviousAchievements(),
                       SizedBox(height: 32.h),

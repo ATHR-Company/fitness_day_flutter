@@ -62,6 +62,10 @@ class _ConversationsPageState extends State<ConversationsPage> {
   /// Opens the conversation, then refreshes the list so the last message and
   /// unread badge reflect what happened inside the chat.
   Future<void> _openConversation(UserConversation conversation) async {
+    // The card already withholds the tap, but the rule belongs here too — an
+    // archived client must not be reachable through any future entry point.
+    if (conversation.isArchived) return;
+
     final otherParty = conversation.otherParty;
     final String name = otherParty?.name ?? '';
 
@@ -94,44 +98,52 @@ class _ConversationsPageState extends State<ConversationsPage> {
             gradient: AppColors.visitsBackgroundGradient,
           ),
           child: SafeArea(
-            child: Column(
-              children: [
-                SizedBox(height: 20.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: AppBackHeader(title: 'conversations.title'.tr()),
-                ),
-                SizedBox(height: 24.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: AppSearchBar(
-                    hintText: 'conversations.search_hint'.tr(),
-                    controller: _searchController,
-                    onChanged: _cubit.searchConversations,
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Expanded(
-                  child: BlocBuilder<ConversationsCubit, ConversationsState>(
-                    builder: (context, state) => switch (state) {
-                      ConversationsError(:final message, :final error) =>
-                        AppErrorView(
-                          error: error,
-                          message: message,
-                          onRetry: _cubit.fetchSpecialistConversations,
+            child: BlocBuilder<ConversationsCubit, ConversationsState>(
+              builder: (context, state) {
+                // Tested against the *unfiltered* list on purpose: a search that
+                // matches nothing must keep the bar on screen, or there would be
+                // no way to clear the query it is showing.
+                final bool hasAnyConversation =
+                    state is ConversationsLoaded && state.conversations.isNotEmpty;
+
+                return Column(
+                  children: [
+                    SizedBox(height: 20.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: AppBackHeader(title: 'conversations.title'.tr()),
+                    ),
+                    SizedBox(height: 24.h),
+                    // Nothing to search through yet — an empty inbox shouldn't
+                    // offer a search box above its own empty state.
+                    if (hasAnyConversation) ...[
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        child: AppSearchBar(
+                          hintText: 'conversations.search_hint'.tr(),
+                          controller: _searchController,
+                          onChanged: _cubit.searchConversations,
                         ),
-                      ConversationsLoaded(
-                        :final filteredConversations,
-                        :final isLoadingMore
-                      ) =>
-                        _buildList(filteredConversations, isLoadingMore),
-                      // Initial state also shows the shimmer — the fetch is
-                      // kicked off in initState, so it is never idle for long.
-                      _ => const ConversationsListShimmer(),
-                    },
-                  ),
-                ),
-              ],
+                      ),
+                      SizedBox(height: 16.h),
+                    ],
+                    Expanded(
+                      child: switch (state) {
+                        ConversationsError(:final message, :final error) =>
+                          AppErrorView(
+                            error: error,
+                            message: message,
+                            onRetry: _cubit.fetchSpecialistConversations,
+                          ),
+                        ConversationsLoaded() => _buildList(state),
+                        // Initial state also shows the shimmer — the fetch is
+                        // kicked off in initState, so it is never idle for long.
+                        _ => const ConversationsListShimmer(),
+                      },
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -139,8 +151,16 @@ class _ConversationsPageState extends State<ConversationsPage> {
     );
   }
 
-  Widget _buildList(List<UserConversation> conversations, bool isLoadingMore) {
+  Widget _buildList(ConversationsLoaded state) {
+    final conversations = state.filteredConversations;
+    final bool isLoadingMore = state.isLoadingMore;
+
     if (conversations.isEmpty) {
+      // Two different empty screens: "you have no conversations" is a state of
+      // the inbox, "nothing matched" is a state of the query — telling the
+      // specialist their inbox is empty while it plainly isn't would be a lie.
+      final bool isSearching = state.searchQuery.trim().isNotEmpty;
+
       return RefreshIndicator(
         color: AppColors.primary,
         onRefresh: _cubit.fetchSpecialistConversations,
@@ -150,8 +170,13 @@ class _ConversationsPageState extends State<ConversationsPage> {
               physics: const AlwaysScrollableScrollPhysics(),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: const Center(
-                  child: ConversationsEmptyState(),
+                child: Center(
+                  child: isSearching
+                      ? AppErrorView(
+                          title: 'conversations.no_search_results_title'.tr(),
+                          message: 'conversations.no_search_results'.tr(),
+                        )
+                      : const ConversationsEmptyState(),
                 ),
               ),
             );

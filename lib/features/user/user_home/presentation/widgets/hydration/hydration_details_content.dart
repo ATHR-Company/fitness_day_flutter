@@ -28,7 +28,13 @@ class HydrationDetailsContent extends StatefulWidget {
 class _HydrationDetailsContentState extends State<HydrationDetailsContent> {
   bool _isUpdating = false;
 
-  void _showManualAddSheet(ActivityDetailsData data) {
+  /// One picker for both directions.
+  ///
+  /// Removing water used to subtract a fixed 0.25 L with no say in the matter,
+  /// which is no way to correct a mistaken entry of any other size — the same
+  /// sheet that adds an amount now takes one away.
+  void _showAmountSheet({required bool isIncrease}) {
+    final cubit = context.read<ActivityDetailsCubit>();
     showDialog(
       context: context,
       barrierColor: AppColors.black.withValues(alpha: 0.4),
@@ -36,27 +42,39 @@ class _HydrationDetailsContentState extends State<HydrationDetailsContent> {
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
         child: ManualAddSheet(
-          onAdd: (amount) {
-            context
-                .read<ActivityDetailsCubit>()
-                .increaseHydration(amount: amount);
-          },
+          title: isIncrease
+              ? 'hydration.enter_manually'.tr()
+              : 'hydration.choose_amount_to_remove'.tr(),
+          onConfirm: (amount) => _applyAmount(
+            cubit: cubit,
+            amount: amount,
+            isIncrease: isIncrease,
+          ),
         ),
       ),
     );
   }
 
-  Future<void> _onIncrease() async {
-    if (_isUpdating) return;
-    setState(() => _isUpdating = true);
-    await context.read<ActivityDetailsCubit>().increaseHydration(amount: 1.0);
-    if (mounted) setState(() => _isUpdating = false);
-  }
+  /// The quick button under the dial — one litre, no picker. That is the point
+  /// of it; the manual sheet is there for anything else.
+  Future<void> _onQuickIncrease() => _applyAmount(
+        cubit: context.read<ActivityDetailsCubit>(),
+        amount: 1.0,
+        isIncrease: true,
+      );
 
-  Future<void> _onDecrease() async {
+  Future<void> _applyAmount({
+    required ActivityDetailsCubit cubit,
+    required double amount,
+    required bool isIncrease,
+  }) async {
     if (_isUpdating) return;
     setState(() => _isUpdating = true);
-    await context.read<ActivityDetailsCubit>().decreaseHydration(amount: 0.25);
+    if (isIncrease) {
+      await cubit.increaseHydration(amount: amount);
+    } else {
+      await cubit.decreaseHydration(amount: amount);
+    }
     if (mounted) setState(() => _isUpdating = false);
   }
 
@@ -219,7 +237,7 @@ class _HydrationDetailsContentState extends State<HydrationDetailsContent> {
                                 iconWidget: AppImage(SvgIcons.waterGlass,
                                     width: 40.w, height: 40.h),
                                 label: '+1 $unit',
-                                onTap: _isUpdating ? null : _onIncrease,
+                                onTap: _isUpdating ? null : _onQuickIncrease,
                                 size: 80,
                               ),
                             ),
@@ -244,7 +262,7 @@ class _HydrationDetailsContentState extends State<HydrationDetailsContent> {
                                 ),
                                 label: 'hydration.manual'.tr(),
                                 onTap: data != null
-                                    ? () => _showManualAddSheet(data)
+                                    ? () => _showAmountSheet(isIncrease: true)
                                     : null,
                                 size: 80,
                               ),
@@ -261,7 +279,9 @@ class _HydrationDetailsContentState extends State<HydrationDetailsContent> {
                                       : AppColors.hydrationAccent,
                                 ),
                                 label: 'hydration.decrease'.tr(),
-                                onTap: _isUpdating ? null : _onDecrease,
+                                onTap: (_isUpdating || data == null)
+                                    ? null
+                                    : () => _showAmountSheet(isIncrease: false),
                                 size: 80,
                               ),
                             ),

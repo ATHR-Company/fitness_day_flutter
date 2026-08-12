@@ -24,6 +24,9 @@ abstract class UserAuthRepository {
   Future<ApiResult<ForgotPasswordResetResponseModel>> resetPassword(
     ForgotPasswordResetRequest request,
   );
+  Future<ApiResult<UserSignupResponseModel>> resendSignupOtp(
+    UserResendOtpRequest request,
+  );
   Future<ApiResult<ForgotPasswordTokenResponseModel>> resendForgotPasswordOtp(
     ForgotPasswordResendOtpRequest request,
   );

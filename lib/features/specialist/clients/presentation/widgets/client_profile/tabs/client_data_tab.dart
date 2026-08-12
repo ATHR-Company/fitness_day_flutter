@@ -247,15 +247,7 @@ class ClientDataTab extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          q.answer == true
-                              ? Icons.check_circle_rounded
-                              : Icons.radio_button_unchecked_rounded,
-                          color: q.answer == true
-                              ? AppColors.primary
-                              : AppColors.textSecondary,
-                          size: 16.sp,
-                        ),
+                        _AnswerMark(answer: q.answer),
                         SizedBox(width: 8.w),
                         Expanded(
                           child: Text(
@@ -320,6 +312,34 @@ class ClientDataTab extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The client's answer to one health question, as a mark next to it.
+///
+/// Yes and no are both real answers and are coloured as such — green and red.
+/// A null answer is the third case: the question was never answered, so it
+/// stays grey rather than being reported as a "no" the client never gave.
+class _AnswerMark extends StatelessWidget {
+  final bool? answer;
+
+  const _AnswerMark({required this.answer});
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      switch (answer) {
+        true => Icons.check_circle_rounded,
+        false => Icons.cancel_rounded,
+        null => Icons.radio_button_unchecked_rounded,
+      },
+      color: switch (answer) {
+        true => AppColors.primary,
+        false => AppColors.error,
+        null => AppColors.textSecondary,
+      },
+      size: 16.sp,
     );
   }
 }

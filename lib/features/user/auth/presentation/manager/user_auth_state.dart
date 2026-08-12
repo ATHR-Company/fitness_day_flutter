@@ -51,6 +51,24 @@ class ForgotPasswordResendOtpSuccess extends UserAuthState {
   const ForgotPasswordResendOtpSuccess(this.response);
 }
 
+/// A new signup code went out. [response] carries the replacement signup token
+/// — the previous one is spent and verifying with it would fail.
+class UserResendOtpSuccess extends UserAuthState {
+  final UserSignupResponseModel response;
+  const UserResendOtpSuccess(this.response);
+}
+
+/// The resend was refused because one was requested too recently.
+///
+/// Its own state rather than a [UserAuthFailure]: nothing went wrong, the user
+/// simply has to wait, and the screen answers with a countdown instead of an
+/// error.
+class UserResendOtpCooldown extends UserAuthState {
+  final int retryAfterSeconds;
+  final String message;
+  const UserResendOtpCooldown(this.retryAfterSeconds, this.message);
+}
+
 class UserAuthFailure extends UserAuthState {
   final String message;
 

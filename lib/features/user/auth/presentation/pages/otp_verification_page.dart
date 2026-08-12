@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:fitness_day/core/widgets/resend_code_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +12,6 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
-import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/app_back_header.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
@@ -43,18 +43,37 @@ class OtpVerificationPage extends StatefulWidget {
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final _pinController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  late String _currentResetToken;
+  /// The token the code was issued against — a signup token here, a reset token
+  /// in the forgot-password flow. Held in state rather than read from the
+  /// widget because a resend replaces it: verifying against the token this
+  /// screen was opened with would fail after the user asked for a new code.
+  late String _currentToken;
+
+  final _resendCountdown = ResendCountdown();
 
   @override
   void initState() {
     super.initState();
-    _currentResetToken = widget.signupToken ?? '';
+    _currentToken = widget.signupToken ?? '';
+    // The code the previous screen just triggered starts the clock too — the
+    // button would otherwise invite a tap that can only be refused.
+    _resendCountdown.start(kResendCooldownSeconds);
   }
 
   @override
   void dispose() {
+    _resendCountdown.dispose();
     _pinController.dispose();
     super.dispose();
+  }
+
+  void _onResendPressed() {
+    FocusScope.of(context).unfocus();
+    if (widget.isForgotPassword) {
+      context.read<UserAuthCubit>().resendForgotPasswordOtp(_currentToken);
+    } else {
+      context.read<UserAuthCubit>().resendSignupOtp(widget.phoneNumber);
+    }
   }
 
   void _onVerifyPressed() {
@@ -73,12 +92,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     if (_formKey.currentState?.validate() ?? false) {
       if (widget.isForgotPassword) {
         context.read<UserAuthCubit>().verifyForgotPasswordOtp(
-          _currentResetToken,
+          _currentToken,
           _pinController.text.trim(),
         );
       } else {
         final request = UserVerifyOtpRequest(
-          signupToken: widget.signupToken ?? '',
+          signupToken: _currentToken,
           otp: _pinController.text.trim(),
         );
         context.read<UserAuthCubit>().verifyOtp(request);
@@ -133,7 +152,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       onPressed: () {
                         Navigator.pop(modalContext);
                         if (widget.isForgotPassword) {
-                          context.pushReplacement(UserAppRoutes.resetPassword, extra: _currentResetToken);
+                          context.pushReplacement(UserAppRoutes.resetPassword, extra: _currentToken);
                         } else {
                           if (!isPersonalDataComplete) {
                             context.pushReplacement(UserAppRoutes.userInfo);
@@ -211,7 +230,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             message: state.response.message,
           );
         } else if (state is ForgotPasswordVerifyOtpSuccess) {
-          _currentResetToken = state.response.resetToken;
+          _currentToken = state.response.resetToken;
           _showSuccessBottomSheet(
             context,
             isPersonalDataComplete: false,
@@ -219,8 +238,22 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             message: state.response.message,
           );
         } else if (state is ForgotPasswordResendOtpSuccess) {
-          _currentResetToken = state.response.resetToken;
+          _currentToken = state.response.resetToken;
+          _pinController.clear();
+          _resendCountdown.start(kResendCooldownSeconds);
           showAppSnackBar(context, text: state.response.message, isSuccess: true);
+        } else if (state is UserResendOtpSuccess) {
+          // The reply carries a *replacement* signup token; the old one is
+          // spent, so verifying with it would be rejected.
+          _currentToken = state.response.signupToken;
+          _pinController.clear();
+          _resendCountdown.start(kResendCooldownSeconds);
+          showAppSnackBar(context, text: state.response.message, isSuccess: true);
+        } else if (state is UserResendOtpCooldown) {
+          // Not an error — the server is telling us exactly how long is left,
+          // which is better information than the local guess.
+          _resendCountdown.start(state.retryAfterSeconds);
+          showAppSnackBar(context, text: state.message, isError: true);
         } else if (state is UserAuthFailure) {
           showAppError(context, state.error, message: state.message);
         }
@@ -314,25 +347,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                   onPressed: _onVerifyPressed,
                                 ),
                                 SizedBox(height: 24.h),
-                                TextButton(
-                                  onPressed: () {
-                                    if (widget.isForgotPassword) {
-                                      context.read<UserAuthCubit>().resendForgotPasswordOtp(_currentResetToken);
-                                    } else {
-                                      showAppSnackBar(
-                                        context,
-                                        text: 'Resending OTP is only supported for password reset flows.',
-                                        isError: true,
-                                      );
-                                    }
-                                  },
-                                  child: Text(
-                                    LocaleKeys.login_resend_code.tr(),
-                                    style: TextStyleManager.style14Bold.copyWith(
-                                      color: AppColors.primary,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
+                                ResendCodeButton(
+                                  countdown: _resendCountdown,
+                                  onResend: _onResendPressed,
                                 ),
                               ],
                             ),

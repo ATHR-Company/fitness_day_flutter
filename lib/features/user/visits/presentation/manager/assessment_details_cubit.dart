@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:fitness_day/core/services/app_event_bus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_result.dart';
-import 'package:fitness_day/core/services/app_event_bus.dart';
 import 'package:fitness_day/features/user/visits/domain/repositories/visits_repository.dart';
 import 'package:fitness_day/core/errors/app_error.dart';
 

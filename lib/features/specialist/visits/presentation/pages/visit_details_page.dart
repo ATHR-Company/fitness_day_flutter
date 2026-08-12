@@ -124,6 +124,29 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
         if (_reportErrors.remove(field.key) != null && mounted) setState(() {});
       });
     }
+
+    // BMI is derived, not typed — the save call already recomputes it from
+    // weight and height and throws away whatever was in the box. Filling it in
+    // live keeps the screen honest about that instead of leaving an editable
+    // field whose value never reaches the server.
+    _weightController.addListener(_recomputeBmi);
+    _heightController.addListener(_recomputeBmi);
+  }
+
+  /// Rewrites the BMI box from the current weight and height.
+  ///
+  /// Leaves the box untouched while either input is missing or invalid, so a
+  /// BMI that came from the server survives until there is a real value to
+  /// replace it with — a half-typed height shouldn't blank the field.
+  void _recomputeBmi() {
+    final double? weight = Measurement.parse(_weightController.text);
+    final double? height = Measurement.parse(_heightController.text);
+    if (weight == null || height == null || weight <= 0 || height <= 0) return;
+
+    final double metres = height / 100;
+    final String bmi = (weight / (metres * metres)).toStringAsFixed(2);
+    if (_bmiController.text == bmi) return;
+    _bmiController.text = bmi;
   }
 
   /// Required, numeric, greater than zero.
@@ -503,12 +526,14 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   onSave: (goal) async {
                     final cubit = context.read<VisitDetailsCubit>();
                     final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
+                    // A rejection goes back to the dialog, which keeps itself
+                    // open and shows the reason under the field.
+                    if (!success) return message;
                     if (mounted) {
-                      showAppSnackBar(context, text: message, isSuccess: success, isError: !success);
-                    }
-                    if (success && mounted) {
+                      showAppSnackBar(context, text: message, isSuccess: true);
                       _onTabChanged(1);
                     }
+                    return null;
                   },
                 );
               },
@@ -519,9 +544,11 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   onSave: (goal) async {
                     final cubit = context.read<VisitDetailsCubit>();
                     final (success, message) = await cubit.updateGoal(widget.assessmentId, goal);
+                    if (!success) return message;
                     if (mounted) {
-                      showAppSnackBar(context, text: message, isSuccess: success, isError: !success);
+                      showAppSnackBar(context, text: message, isSuccess: true);
                     }
+                    return null;
                   },
                 );
               },
@@ -632,10 +659,10 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
           ReportTextField(
             fieldKey: _fieldKeys['BMI'],
             label: 'visit_details.bmi'.tr(),
-            hintText: 'visit_details.bmi'.tr(),
+            hintText: 'visit_details.bmi_auto_hint'.tr(),
             controller: _bmiController,
             errorText: _reportErrors['BMI'],
-            inputFormatters: [DecimalInputFormatter()],
+            readOnly: true,
           ),
           SizedBox(height: 16.h),
           ReportTextField(
@@ -1037,17 +1064,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
   }
 
   Widget _buildMealCard(SpecialistMealModel meal, int dayNumber, String weekStart) {
-    String formattedTime = '';
-    if (meal.time.isNotEmpty) {
-      final parsed = DateTime.tryParse(meal.time);
-      if (parsed != null) {
-        final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
-        formattedTime = DateFormat('hh:mm a', context.locale.languageCode).format(localDate);
-      }
-    }
-    if (formattedTime.isEmpty) {
-      formattedTime = meal.time;
-    }
+    final String formattedTime = formatPlanClockIso(meal.time);
 
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
@@ -1067,10 +1084,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   assessmentId: widget.assessmentId,
                   dayNumber: dayNumber,
                   weekStart: weekStart,
-                  mealId: meal.mealId,
-                  initialCategoryName: meal.categoryName,
-                  initialMealName: meal.name,
-                  initialTime: meal.time,
+                  meal: meal,
                 ),
               ),
             ),
@@ -1112,17 +1126,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
   }
 
   Widget _buildExerciseCard(SpecialistWorkoutModel workout, int dayNumber, String weekStart) {
-    String formattedTime = '';
-    if (workout.time.isNotEmpty) {
-      final parsed = DateTime.tryParse(workout.time);
-      if (parsed != null) {
-        final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
-        formattedTime = DateFormat('hh:mm a', context.locale.languageCode).format(localDate);
-      }
-    }
-    if (formattedTime.isEmpty) {
-      formattedTime = workout.time;
-    }
+    final String formattedTime = formatPlanClockIso(workout.time);
 
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
@@ -1142,7 +1146,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   assessmentId: widget.assessmentId,
                   dayNumber: dayNumber,
                   weekStart: weekStart,
-                  workoutItemId: workout.workoutItemId,
+                  workout: workout,
                 ),
               ),
             ),
@@ -1200,7 +1204,7 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                   assessmentId: widget.assessmentId,
                   dayNumber: dayNumber,
                   weekStart: weekStart,
-                  activityItemId: activity.activityItemId,
+                  activity: activity,
                 ),
               ),
             ),

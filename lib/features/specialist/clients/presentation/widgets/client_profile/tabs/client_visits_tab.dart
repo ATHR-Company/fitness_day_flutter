@@ -70,14 +70,7 @@ class _ClientVisitsTabState extends State<ClientVisitsTab> {
                 SizedBox(height: 16.h),
                 Expanded(
                   child: visits.isEmpty
-                      ? Center(
-                          child: Text(
-                            isUpcoming
-                                ? 'clients_page.no_upcoming_visits'.tr()
-                                : 'clients_page.no_past_visits'.tr(),
-                            style: TextStyleManager.style13Medium.copyWith(color: AppColors.textSecondary),
-                          ),
-                        )
+                      ? _EmptyVisits(isUpcoming: isUpcoming)
                       : ListView.builder(
                           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                           itemCount: visits.length,
@@ -139,5 +132,55 @@ class _ClientVisitsTabState extends State<ClientVisitsTab> {
     } catch (_) {
       return isoDate;
     }
+  }
+}
+
+/// Same shape as the empty state on the specialist's own visits screen, but the
+/// copy talks about *this client* — a bare "no visits" line under a client's
+/// profile reads like the screen failed to load rather than like an answer.
+class _EmptyVisits extends StatelessWidget {
+  final bool isUpcoming;
+
+  const _EmptyVisits({required this.isUpcoming});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isUpcoming
+                  ? Icons.event_available_rounded
+                  : Icons.history_rounded,
+              size: 120.sp,
+              color: AppColors.primary.withValues(alpha: 0.15),
+            ),
+            SizedBox(height: 24.h),
+            Text(
+              isUpcoming
+                  ? 'clients_page.no_upcoming_visits'.tr()
+                  : 'clients_page.no_past_visits'.tr(),
+              style: TextStyleManager.style16Bold.copyWith(
+                color: AppColors.primary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 12.h),
+            Text(
+              isUpcoming
+                  ? 'clients_page.no_upcoming_visits_subtitle'.tr()
+                  : 'clients_page.no_past_visits_subtitle'.tr(),
+              style: TextStyleManager.style13Medium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

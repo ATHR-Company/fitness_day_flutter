@@ -21,12 +21,18 @@ class ChatHeader extends StatelessWidget {
   final bool isAi;
   final bool isSpecialist;
 
+  /// Tapping the avatar or the name runs this. Null leaves the header inert —
+  /// there is nowhere to go from an AI chat, or from a chat whose other party
+  /// has no profile page on this side of the app.
+  final VoidCallback? onProfileTap;
+
   const ChatHeader({
     super.key,
     this.title,
     this.avatarUrl,
     this.isAi = false,
     this.isSpecialist = false,
+    this.onProfileTap,
   });
 
   @override
@@ -61,17 +67,29 @@ class ChatHeader extends StatelessWidget {
                     child: Icon(Icons.arrow_back_ios,
                         color: AppColors.black, size: 20.sp),
                   ),
-                  _Avatar(
-                    avatar: avatar,
-                    isAi: isAi,
-                    isSpecialist: isSpecialist,
-                    isOnline: isAi || (other?.online ?? false),
-                  ),
-                  SizedBox(width: 12.w),
+                  // Avatar and name are one target, so the whole identity block
+                  // behaves like the single link it looks like.
                   Expanded(
-                    child: _NameAndStatus(
-                      name: name,
-                      isTyping: loaded?.isOtherPartyTyping ?? false,
+                    child: GestureDetector(
+                      onTap: onProfileTap,
+                      behavior: HitTestBehavior.opaque,
+                      child: Row(
+                        children: [
+                          _Avatar(
+                            avatar: avatar,
+                            isAi: isAi,
+                            isSpecialist: isSpecialist,
+                            isOnline: isAi || (other?.online ?? false),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: _NameAndStatus(
+                              name: name,
+                              isTyping: loaded?.isOtherPartyTyping ?? false,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

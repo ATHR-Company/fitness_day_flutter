@@ -55,12 +55,18 @@ class UserConversation {
   final String? lastMessageMediaType;
   final int unreadCount;
 
+  /// The other party is no longer an active correspondent — their subscription
+  /// ended, or the specialist filed them away. The row is still listed, but it
+  /// is shown dimmed and can't be opened.
+  final bool isArchived;
+
   const UserConversation({
     this.conversationId,
     this.otherParty,
     this.lastMessageText,
     this.lastMessageMediaType,
     this.unreadCount = 0,
+    this.isArchived = false,
   });
 
   /// Formatted last message representation (e.g. text or media label)
@@ -118,6 +124,27 @@ class UserConversation {
       lastMessageText: lastMsgMap?['text'] as String?,
       lastMessageMediaType: lastMsgMap?['mediaType'] as String?,
       unreadCount: unread,
+      isArchived: _readArchived(json, convObj, otherPartyMap),
     );
+  }
+
+  /// Reads the archived flag from wherever the server puts it.
+  ///
+  /// The rest of this factory already accepts two response shapes, and the flag
+  /// could sit on the conversation or on the party it belongs to. Missing means
+  /// not archived — a client is only hidden away when the server says so.
+  static bool _readArchived(
+    Map<String, dynamic> root,
+    Map<String, dynamic>? conversation,
+    Map<String, dynamic>? otherParty,
+  ) {
+    for (final source in [root, conversation, otherParty]) {
+      if (source == null) continue;
+      for (final key in const ['isArchived', 'archived']) {
+        final value = source[key];
+        if (value is bool) return value;
+      }
+    }
+    return false;
   }
 }

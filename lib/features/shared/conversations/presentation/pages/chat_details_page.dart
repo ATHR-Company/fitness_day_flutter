@@ -24,6 +24,7 @@ import 'package:fitness_day/features/shared/conversations/presentation/widgets/c
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_reaction_picker.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/local_chat_messages_list.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/widgets/conversations_shimmer_loading.dart';
+import 'package:fitness_day/features/specialist/clients/presentation/pages/client_profile_page.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 /// One conversation.
@@ -428,6 +429,34 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
+  /// The client whose profile the header links to.
+  ///
+  /// [ChatDetailsPage.specialistId] is the id the caller opened the chat with —
+  /// in specialist mode that *is* the client's userId, and it is the same one
+  /// the clients list navigates with. The party returned with the messages is
+  /// the fallback for a chat opened straight from a conversationId.
+  String? get _clientId {
+    if (!widget.isSpecialistMode) return null;
+    final String? fromCaller = widget.specialistId;
+    if (fromCaller != null && fromCaller.isNotEmpty) return fromCaller;
+    final state = _chatCubit.state;
+    final String? fromChat =
+        state is ChatLoaded ? state.otherParty?.id : null;
+    return (fromChat != null && fromChat.isNotEmpty) ? fromChat : null;
+  }
+
+  /// Opens the client's profile from the header. A no-op outside specialist
+  /// mode — a client tapping their specialist's name has nowhere to land.
+  void _openClientProfile() {
+    final String? clientId = _clientId;
+    if (clientId == null) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ClientProfilePage(userId: clientId)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -445,6 +474,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
                   avatarUrl: widget.avatarUrl,
                   isAi: widget.isAi,
                   isSpecialist: widget.isSpecialist,
+                  onProfileTap: _openClientProfile,
                 ),
                 Expanded(
                   child: BlocConsumer<ChatCubit, ChatState>(

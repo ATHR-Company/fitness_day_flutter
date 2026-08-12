@@ -34,6 +34,13 @@ class ErrorHandler {
           final message = response.data['message'] ??
               response.data['error'] ??
               'errors.something_went_wrong'.tr();
+          // Throttled requests say how long the caller has to wait. Checked
+          // before `key` so a rate limit that also names a field still reaches
+          // the screen as a countdown rather than an inline field error.
+          final retryAfter = response.data['retryAfterSeconds'];
+          if (retryAfter is num) {
+            return RateLimitFailure(message.toString(), retryAfter.round());
+          }
           // Field-level validation errors carry the offending field in `key`
           // so the UI can show the message under that specific input.
           final key = response.data['key'];

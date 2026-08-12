@@ -26,6 +26,21 @@ class ValidationFailure extends ServerFailure {
   List<Object?> get props => [message, key];
 }
 
+/// A 429 that says when the caller may try again, e.g.
+/// `{"message": "Wait a moment before requesting a new code.",
+///   "retryAfterSeconds": 59}`.
+///
+/// Distinct from a plain [ServerFailure] because the screen can do something
+/// with it: count the seconds down on the button instead of only apologising.
+class RateLimitFailure extends ServerFailure {
+  final int retryAfterSeconds;
+
+  const RateLimitFailure(super.message, this.retryAfterSeconds);
+
+  @override
+  List<Object?> get props => [message, retryAfterSeconds];
+}
+
 class NetworkFailure extends Failure {
   const NetworkFailure(super.message);
 }

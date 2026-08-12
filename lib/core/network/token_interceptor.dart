@@ -1,17 +1,17 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
-import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
 import 'package:fitness_day/core/constant/app_locale.dart';
-import 'package:fitness_day/core/routes/app_router.dart';
-import 'package:fitness_day/core/routes/shared/shared_routes.dart';
-import 'package:fitness_day/core/services/socket_service.dart';
-import 'package:fitness_day/fitness_day.dart';
+import 'package:fitness_day/core/services/session_manager.dart';
 
 class TokenInterceptor extends Interceptor {
+  /// Value the backend puts in `key` when the account was signed into on
+  /// another device. Matched on instead of `message`, which is localized and
+  /// free to be reworded.
+  static const String _kSessionRevoked = 'session_revoked';
+
   final SecureCache _secureCache;
 
   TokenInterceptor(this._secureCache);
@@ -34,29 +34,38 @@ class TokenInterceptor extends Interceptor {
     return _performRefresh(refreshToken);
   }
 
-  /// The session can no longer be authenticated (no refresh token, or the
-  /// backend rejected it) — clear all local session state and send the user
-  /// back to role selection so they can log in again.
-  Future<void> _handleSessionExpired() async {
-    // The socket authenticates with the same token, so an expired session must
-    // close it too — otherwise it keeps retrying against a dead session.
-    try {
-      GetIt.instance<SocketService>().disconnect();
-    } catch (_) {}
-    await _secureCache.deleteToken();
-    await _secureCache.deleteRefreshToken();
-    try {
-      // Use clearSession() — not clear() — so the onboarding flag is preserved.
-      // The session expired automatically (token timeout), which is equivalent
-      // to a logout, not an account deletion.
-      await GetIt.instance<AppCache>().clearSession();
-    } catch (_) {}
-    RoleNotifier.instance.setRole(AppRole.none);
+  /// Message carried by a `session_revoked` reply, held between the refresh
+  /// attempt that hit it and the [onError] branch that reports it.
+  ///
+  /// A refresh answered with `session_revoked` is indistinguishable from a
+  /// refresh that simply failed by the time [_performRefresh] returns null, and
+  /// the two deserve different words on screen.
+  String? _revokedDuringRefresh;
 
-    final context = AppRouter.navigatorKey.currentContext;
-    if (context != null) {
-      context.go(SharedRoutes.roleSelection);
-    }
+  /// True when a response is a 401 the session cannot come back from.
+  ///
+  /// Every other 401 means "this access token is stale" and is answered with a
+  /// refresh. This one means the session itself is gone, so refreshing would
+  /// only ask the server to say no again.
+  bool _isSessionRevoked(Response<dynamic>? response) {
+    if (response?.statusCode != 401) return false;
+    final dynamic data = response?.data;
+    return data is Map && data['key'] == _kSessionRevoked;
+  }
+
+  String? _messageOf(Response<dynamic>? response) {
+    final dynamic data = response?.data;
+    if (data is Map && data['message'] is String) return data['message'] as String;
+    return null;
+  }
+
+  /// The session can no longer be authenticated — clear all local session state
+  /// and send the user back to role selection.
+  Future<void> _endSession(SessionEndReason reason, {String? serverMessage}) {
+    return GetIt.instance<SessionManager>().endSession(
+      reason: reason,
+      serverMessage: serverMessage,
+    );
   }
 
   bool _isTokenExpired(String token) {
@@ -100,6 +109,11 @@ class TokenInterceptor extends Interceptor {
         }
       }
     } catch (e) {
+      // A refresh refused with `session_revoked` is not a failed refresh — the
+      // account moved to another device. Remember it so the caller can say so.
+      if (e is DioException && _isSessionRevoked(e.response)) {
+        _revokedDuringRefresh = _messageOf(e.response) ?? '';
+      }
       // Refresh failed, clean tokens to prevent infinite refresh cycles
       await _secureCache.deleteToken();
       await _secureCache.deleteRefreshToken();
@@ -134,6 +148,16 @@ class TokenInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     if (err.response?.statusCode == 401) {
+      // Checked before anything else: this 401 is terminal, and running it
+      // through the refresh path would burn a round trip to be told the same.
+      if (_isSessionRevoked(err.response)) {
+        await _endSession(
+          SessionEndReason.loggedInElsewhere,
+          serverMessage: _messageOf(err.response),
+        );
+        return super.onError(err, handler);
+      }
+
       final currentRefreshToken = await _secureCache.getRefreshToken();
       if (currentRefreshToken != null && currentRefreshToken.isNotEmpty) {
         final newAccessToken = await _refreshSingleFlight();
@@ -164,7 +188,14 @@ class TokenInterceptor extends Interceptor {
       }
       // Reached only when there was no refresh token, or the refresh
       // attempt itself failed — the session is unrecoverable.
-      await _handleSessionExpired();
+      final String? revoked = _revokedDuringRefresh;
+      _revokedDuringRefresh = null;
+      await _endSession(
+        revoked != null
+            ? SessionEndReason.loggedInElsewhere
+            : SessionEndReason.expired,
+        serverMessage: revoked,
+      );
     }
     super.onError(err, handler);
   }

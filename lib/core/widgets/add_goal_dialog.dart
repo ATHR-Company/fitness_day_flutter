@@ -8,7 +8,12 @@ import 'package:easy_localization/easy_localization.dart';
 
 class AddGoalDialog extends StatefulWidget {
   final String initialGoal;
-  final Function(String) onSave;
+
+  /// Saves the goal. Return `null` when it went through — the dialog then
+  /// closes. Any other string is pinned under the field and the dialog stays
+  /// open with the text still in it, so the rejection is read next to what
+  /// caused it instead of as a banner over the screen the user just left.
+  final Future<String?> Function(String) onSave;
 
   const AddGoalDialog({
     super.key,
@@ -23,16 +28,52 @@ class AddGoalDialog extends StatefulWidget {
 class _AddGoalDialogState extends State<AddGoalDialog> {
   late final TextEditingController _goalController;
 
+  String? _errorText;
+  bool _isSaving = false;
+
   @override
   void initState() {
     super.initState();
     _goalController = TextEditingController(text: widget.initialGoal);
+    // Typing clears whatever message is pinned under the field.
+    _goalController.addListener(() {
+      if (_errorText != null && mounted) setState(() => _errorText = null);
+    });
   }
 
   @override
   void dispose() {
     _goalController.dispose();
     super.dispose();
+  }
+
+  Future<void> _save() async {
+    final String goal = _goalController.text.trim();
+
+    // Caught here rather than at the server: an empty goal is something this
+    // screen already knows is wrong, and there is no reason to round-trip.
+    if (goal.isEmpty) {
+      setState(() => _errorText = 'visit_details.field_required'.tr());
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+      _errorText = null;
+    });
+
+    final String? error = await widget.onSave(goal);
+    if (!mounted) return;
+
+    if (error != null) {
+      setState(() {
+        _isSaving = false;
+        _errorText = error;
+      });
+      return;
+    }
+
+    Navigator.of(context).pop();
   }
 
   @override
@@ -97,7 +138,9 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
-                  color: Colors.grey.withValues(alpha: 0.2),
+                  color: _errorText != null
+                      ? AppColors.error
+                      : Colors.grey.withValues(alpha: 0.2),
                   width: 1,
                 ),
                 boxShadow: [
@@ -125,6 +168,18 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
                 ),
               ),
             ),
+
+            if (_errorText != null) ...[
+              SizedBox(height: 8.h),
+              Text(
+                _errorText!,
+                style: TextStyleManager.style10Medium.copyWith(
+                  color: AppColors.error,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ],
+
             SizedBox(height: 32.h),
 
             // Action Buttons
@@ -140,10 +195,8 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
                 Expanded(
                   child: CustomButton(
                     text: 'visit_details.save'.tr(),
-                    onPressed: () {
-                      widget.onSave(_goalController.text.trim());
-                      Navigator.of(context).pop();
-                    },
+                    isLoading: _isSaving,
+                    onPressed: _save,
                   ),
                 ),
               ],
@@ -155,14 +208,18 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
   }
 }
 
+/// [onSave] returns `null` on success, or the message to pin under the field.
 void showAddGoalDialog({
   required BuildContext context,
   required String initialGoal,
-  required Function(String) onSave,
+  required Future<String?> Function(String) onSave,
 }) {
   showDialog(
     context: context,
     barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
+    // The dialog owns when it closes now — tapping outside must not discard a
+    // save that is already in flight.
+    barrierDismissible: false,
     builder: (context) => AddGoalDialog(
       initialGoal: initialGoal,
       onSave: onSave,

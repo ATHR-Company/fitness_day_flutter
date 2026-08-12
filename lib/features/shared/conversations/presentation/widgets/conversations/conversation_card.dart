@@ -9,7 +9,13 @@ import 'package:fitness_day/features/shared/conversations/data/models/user_conve
 
 /// One row in the conversations list: avatar with online dot, name, the last
 /// message and either the unread badge or a chevron.
+///
+/// An archived conversation is drawn at half strength and does not respond to
+/// taps — it stays on the list as a record, not as a way in.
 class ConversationCard extends StatelessWidget {
+  /// How much of the row survives once it is archived.
+  static const double _archivedOpacity = 0.45;
+
   final UserConversation conversation;
   final VoidCallback onTap;
 
@@ -33,9 +39,12 @@ class ConversationCard extends StatelessWidget {
     final otherParty = conversation.otherParty;
     final String name = otherParty?.name ?? '';
     final int unreadCount = conversation.unreadCount;
+    final bool isArchived = conversation.isArchived;
 
-    return GestureDetector(
-      onTap: onTap,
+    final Widget card = GestureDetector(
+      // Null, not a callback that returns early: the row genuinely has no
+      // action, so it shouldn't swallow the tap and look broken either.
+      onTap: isArchived ? null : onTap,
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
@@ -88,7 +97,12 @@ class ConversationCard extends StatelessWidget {
               ),
             ),
             SizedBox(width: 12.w),
-            if (unreadCount > 0)
+            // The chevron promises a destination, so an archived row loses it
+            // and says what it is instead — otherwise the fade reads as a
+            // rendering glitch rather than a state.
+            if (isArchived)
+              const _ArchivedTag()
+            else if (unreadCount > 0)
               _UnreadBadge(count: unreadCount)
             else
               Icon(
@@ -98,6 +112,43 @@ class ConversationCard extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+
+    if (!isArchived) return card;
+    return Opacity(opacity: _archivedOpacity, child: card);
+  }
+}
+
+/// Label that replaces the chevron on an archived row.
+class _ArchivedTag extends StatelessWidget {
+  const _ArchivedTag();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: AppColors.divider.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.archive_outlined,
+            size: 12.sp,
+            color: AppColors.textSecondary,
+          ),
+          SizedBox(width: 4.w),
+          Text(
+            'conversations.archived'.tr(),
+            style: TextStyleManager.heading3.copyWith(
+              color: AppColors.textSecondary,
+              fontSize: 10.sp,
+            ),
+          ),
+        ],
       ),
     );
   }

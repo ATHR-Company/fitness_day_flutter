@@ -65,6 +65,7 @@ class ApiEndpoints {
   static const String forgotPasswordVerifyOtp = '/auth/forgot-password/verify-otp';
   static const String forgotPasswordReset = '/auth/forgot-password/reset';
   static const String forgotPasswordResendOtp = '/auth/forgot-password/resend-otp';
+  static const String userResendOtp = '/auth/user/resend-otp';
   static const String userLookups = '/lookups/user';
   static const String healthQuestions = '/health-questions';
   static const String completePersonalData = '/users/complete-personal-data';
@@ -107,6 +108,24 @@ class ApiEndpoints {
   // since the last acknowledged sync, never a cumulative total.
   static const String syncWalking = '/user-activities/walking/sync';
   static const String syncRunning = '/user-activities/running/sync';
+
+  // ── Challenges & achievements ─────────────────────────────────────────────
+  //
+  // A **second, separate** ledger from the plan's activity sync above. It is
+  // open to every signed-in user — no subscription, no assessment — so it
+  // cannot read the plan's numbers and keeps its own. Every delta the app
+  // produces goes to both: same numbers, two calls, never one derived from the
+  // other.
+  static const String activitySync = '/activity-sync';
+  static const String activitySyncDaily = '/activity-sync/daily';
+
+  static const String challenges = '/challenges';
+  static String challengeById(String id) => '/challenges/$id';
+  static String joinChallenge(String id) => '/challenges/$id/join';
+  static String leaveChallenge(String id) => '/challenges/$id/leave';
+
+  static const String achievements = '/achievements';
+  static const String achievementsDaily = '/achievements/daily';
 
   // Store / Market
   static const String storeHome = '/store/home';

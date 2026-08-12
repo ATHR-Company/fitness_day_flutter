@@ -11,6 +11,7 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/user_ap
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/utils/date_time_utils.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_cubit.dart';
 import 'package:fitness_day/features/user/workout/presentation/manager/workout_plan_state.dart';
@@ -37,17 +38,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
       final isAr = context.locale.languageCode == 'ar';
       final setsUnit = isAr ? 'مجموعات' : 'sets';
 
-      String formattedTime = '';
-      if (workout.time.isNotEmpty) {
-        final parsedTime = DateTime.tryParse(workout.time);
-        if (parsedTime != null) {
-          formattedTime = DateFormat('hh:mm a', context.locale.languageCode)
-              .format(parsedTime.toLocal());
-        }
-      }
-      if (formattedTime.isEmpty) {
-        formattedTime = workout.time;
-      }
+      final String formattedTime = formatPlanClockIso(workout.time);
 
       return TaskData(
         imagePath: workout.photo,

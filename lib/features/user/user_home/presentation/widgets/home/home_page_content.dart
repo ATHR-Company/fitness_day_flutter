@@ -247,9 +247,16 @@ class _HomePageContentState extends State<HomePageContent> {
                               isSvgImage: currentActivity['image'] == null || 
                                           currentActivity['image'].toString().endsWith('/.png') || 
                                           currentActivity['image'].toString().endsWith('/.jpg'),
-                              title: currentActivity['name'] ?? 'home.hydration_title'.tr(),
+                              // Empty, not the hydration copy: these fall back
+                              // for *any* activity, so a walking task with no
+                              // description of its own was captioned "staying
+                              // hydrated helps improve energy and focus".
+                              // Missing text is shown as missing — the today
+                              // tasks screen already does this.
+                              title: currentActivity['name'] as String? ?? '',
                               time: 'home.hydration_all_day'.tr(),
-                              description: currentActivity['description'] ?? 'home.hydration_desc'.tr(),
+                              description:
+                                  currentActivity['description'] as String? ?? '',
                               extraLabel: '${currentActivity['currentProgress'] ?? 0}',
                               extraUnit: '/ ${currentActivity['goal'] ?? 0} ${currentActivity['unit'] ?? ''}',
                               extraIcon: _activityIcon(currentActivity['activityType'] as String? ?? ''),

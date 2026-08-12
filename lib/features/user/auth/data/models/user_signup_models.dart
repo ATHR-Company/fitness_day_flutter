@@ -28,6 +28,19 @@ class UserSignupRequest {
   }
 }
 
+/// Asks for the signup code to be sent again.
+///
+/// Keyed by phone rather than by the signup token: the token is single-use per
+/// send, and the whole point of a resend is that the previous one may never
+/// have arrived. The reply carries a fresh token.
+class UserResendOtpRequest {
+  final String phone;
+
+  const UserResendOtpRequest({required this.phone});
+
+  Map<String, dynamic> toJson() => {'phone': phone};
+}
+
 class UserSignupResponseModel {
   final bool success;
   final int statusCode;

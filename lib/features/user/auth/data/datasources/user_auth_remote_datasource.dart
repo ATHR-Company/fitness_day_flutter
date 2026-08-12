@@ -27,6 +27,7 @@ abstract class UserAuthRemoteDataSource {
   Future<ForgotPasswordTokenResponseModel> resendForgotPasswordOtp(
     ForgotPasswordResendOtpRequest request,
   );
+  Future<UserSignupResponseModel> resendSignupOtp(UserResendOtpRequest request);
   Future<UserLookupsResponseModel> getLookups();
   Future<HealthQuestionsResponseModel> getHealthQuestions();
   Future<CompletePersonalDataResponseModel> completePersonalData(
@@ -109,6 +110,17 @@ class UserAuthRemoteDataSourceImpl implements UserAuthRemoteDataSource {
       data: request.toJson(),
     );
     return ForgotPasswordResetResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<UserSignupResponseModel> resendSignupOtp(
+    UserResendOtpRequest request,
+  ) async {
+    final response = await _apiService.post(
+      ApiEndpoints.userResendOtp,
+      data: request.toJson(),
+    );
+    return UserSignupResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   @override

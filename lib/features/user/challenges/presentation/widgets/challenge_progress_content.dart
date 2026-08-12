@@ -4,36 +4,30 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
-import 'package:fitness_day/features/user/challenges/domain/entities/challenge_model.dart';
+import 'package:fitness_day/features/user/challenges/data/models/challenge_model.dart';
 
-/// Circular steps-progress indicator shown on the active challenge screen
-/// for step-based challenges.
-class ChallengeStepsContent extends StatelessWidget {
+/// Progress ring for the active challenge screen. Metric-agnostic: it reads
+/// progress, goal and unit off the challenge, so it serves steps, kilometres,
+/// calories and millilitres alike.
+class ChallengeProgressContent extends StatelessWidget {
   final ChallengeModel challenge;
-  final double current;
-  final double goal;
-  final int goalPercent;
 
-  const ChallengeStepsContent({
-    super.key,
-    required this.challenge,
-    this.current = 2500,
-    this.goal = 5000,
-    this.goalPercent = 44,
-  });
-
-  double get _percent => (current / goal).clamp(0.0, 1.0);
+  const ChallengeProgressContent({super.key, required this.challenge});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         SizedBox(height: 8.h),
+        // Every number is the challenge's own. These were defaulted constants
+        // (2500 of 5000, 44%) that the widget showed for whichever challenge it
+        // was given, so the ring never matched what the user had actually done.
         _StepsCircularIndicator(
-          percent: _percent,
-          current: current,
-          goal: goal,
-          goalPercent: goalPercent,
+          percent: challenge.progressFraction,
+          current: challenge.progress,
+          goal: challenge.goal,
+          goalPercent: challenge.progressPercentage.round(),
+          unit: challenge.unit,
         ),
         SizedBox(height: 32.h),
       ],
@@ -47,11 +41,16 @@ class _StepsCircularIndicator extends StatelessWidget {
   final double goal;
   final int goalPercent;
 
+  /// Already translated by the backend — "خطوة", "كم", "مل". Never built from
+  /// the metric here.
+  final String unit;
+
   const _StepsCircularIndicator({
     required this.percent,
     required this.current,
     required this.goal,
     required this.goalPercent,
+    required this.unit,
   });
 
   @override
@@ -95,7 +94,7 @@ class _StepsCircularIndicator extends StatelessWidget {
                     ),
                     SizedBox(height: 8.h),
                     Text(
-                      '/ ${goal.toStringAsFixed(0)} ${'challenges.steps_unit'.tr()}',
+                      '/ ${goal.toStringAsFixed(0)} $unit',
                       style: TextStyleManager.style11Medium.copyWith(color: AppColors.textSecondary),
                     ),
                   ],

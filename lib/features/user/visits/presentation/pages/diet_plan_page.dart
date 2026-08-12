@@ -11,6 +11,7 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/user_ap
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/utils/date_time_utils.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_cubit.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/diet_plan_state.dart';
@@ -43,14 +44,7 @@ class _DietPlanPageState extends State<DietPlanPage> {
         categoryTitle = LocaleKeys.add_meal_dinner.tr();
       }
 
-      String time = '';
-      if (meal.time.isNotEmpty) {
-        final parsedTime = DateTime.tryParse(meal.time);
-        if (parsedTime != null) {
-          time = DateFormat('hh:mm a', context.locale.languageCode)
-              .format(parsedTime.toLocal());
-        }
-      }
+      String time = formatPlanClockIso(meal.time);
 
       if (time.isEmpty) {
         time = LocaleKeys.diet_plan_default_breakfast_time.tr();

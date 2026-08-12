@@ -1,6 +1,7 @@
 {
   "profile_not_set": "Not set",
   "errors": {
+    "session_revoked": "You were signed out because your account was used on another device.",
     "no_internet_title": "No internet connection",
     "no_internet_subtitle": "Please check your network connection and try again.",
     "retry": "Retry",
@@ -111,6 +112,7 @@
     "verify_subtitle": "We sent the verification code to the mobile number. Please enter the code to verify.",
     "verify_incomplete": "Please enter the full 6-digit verification code",
     "resend_code": "Resend Code",
+    "resend_code_in": "Resend code in {}",
     "verify_success_title": "Verified Successfully!",
     "verify_success_subtitle": "Now your account can be used with ease.",
     "next": "Next",
@@ -339,6 +341,7 @@
     "write_height": "Enter height",
     "cm": "cm",
     "bmi": "Body Mass Index (BMI)",
+    "bmi_auto_hint": "Calculated automatically from weight and height",
     "body_fat_percentage": "Body Fat Percentage",
     "write_body_fat_percentage": "Enter body fat percentage",
     "fat_mass": "Fat Mass",
@@ -395,6 +398,10 @@
   },
   "add_meal": {
     "title": "Add Meal",
+    "edit_title": "Edit Meal",
+    "ingredients": "Ingredients",
+    "unit_gram": "gram",
+    "select_type_and_name_first": "Please choose the meal type and name first",
     "meal_type": "Meal Type",
     "meal_type_hint": "Meal Type",
     "meal_name": "Meal Name",
@@ -421,6 +428,9 @@
   },
   "add_exercise": {
     "title": "Add Exercise",
+    "edit_title": "Edit Exercise",
+    "unit_second": "second",
+    "select_name_first": "Please choose the exercise name first",
     "exercise_name": "Exercise Name",
     "exercise_name_hint": "Search for exercise name",
     "exercise_time": "Exercise Time",
@@ -440,6 +450,8 @@
   },
   "add_activity": {
     "title": "Add Activity",
+    "edit_title": "Edit Activity",
+    "select_name_first": "Please choose the activity name first",
     "activity_name": "Activity Name",
     "activity_name_hint": "Select Activity",
     "target_goal": "Target Goal",
@@ -496,7 +508,10 @@
     "no_conversation": "No conversation started yet",
     "unknown_client": "Client",
     "show_more": "Show more",
-    "show_less": "Show less"
+    "show_less": "Show less",
+    "archived": "Archived",
+    "no_search_results_title": "No results",
+    "no_search_results": "No conversation matches that name"
   },
   "profile": {
     "title": "My Profile",
@@ -654,7 +669,9 @@
     "empty_title": "No Clients Yet",
     "empty_subtitle": "There are no clients yet. Client data will appear here once they start their subscription in one of the packages.",
     "no_upcoming_visits": "No upcoming visits",
-    "no_past_visits": "No past visits"
+    "no_past_visits": "No past visits",
+    "no_upcoming_visits_subtitle": "No upcoming visit has been booked for this client yet.",
+    "no_past_visits_subtitle": "This client hasn't completed any visit yet."
   },
   "auth_bmi_report_title": "BMI Report",
   "auth_bmi_report_desc": "View your health data and BMI to start your journey\ntowards better health and fitness.",
@@ -894,6 +911,12 @@
     "description_body": "Challenge yourself today and walk 15,000 steps! This challenge helps you increase your daily activity, improve your physical health, and burn calories in a fun and easy way. Step by step, you will feel energetic and vital throughout the day.",
     "btn_next": "Next",
     "btn_join": "Join",
+    "btn_leave": "Leave challenge",
+    "leave_title": "Leave this challenge?",
+    "leave_message": "Your progress in this challenge will be discarded. Joining again starts from scratch.",
+    "no_rules": "No rules were set for this challenge.",
+    "completed": "Challenge completed",
+    "ended": "Challenge ended",
     "rule_1": "Start now — every step counts from the moment you begin the challenge.",
     "rule_2": "Track your steps using your phone or smartwatch.",
     "rule_3": "Short rest breaks are allowed; what matters is reaching the final goal.",
@@ -1246,6 +1269,8 @@
     "decrease": "Remove",
     "reminder_time_label": "Next reminder",
     "enter_manually": "Enter the amount manually",
+    "choose_amount_to_remove": "Choose the amount to remove",
+    "litre_short": "L",
     "save": "Save",
     "reminder_title": "Water Reminder",
     "save_changes_title": "Save changes?",

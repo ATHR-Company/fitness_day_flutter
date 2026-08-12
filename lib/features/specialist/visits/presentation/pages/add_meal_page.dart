@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:collection/collection.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,30 +14,35 @@ import 'package:fitness_day/core/widgets/selection_bottom_sheet.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/time_picker_bottom_sheet.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/utils/date_time_utils.dart';
 import 'package:fitness_day/core/utils/plan_day_time.dart';
 import 'package:fitness_day/features/specialist/visits/data/datasources/specialist_visits_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visit_details_cubit.dart';
 
 class AddMealPage extends StatefulWidget {
   final String assessmentId;
   final int dayNumber;
-  final String weekStart;         // Assessment week start — base date for the day
-  final String? mealId;           // If provided → Edit Mode
-  final String? initialCategoryName; // Pre-selected category name (edit mode)
-  final String? initialMealName;     // Pre-selected meal name (edit mode)
-  final String? initialTime;         // Pre-selected time ISO string (edit mode)
+  final String weekStart; // Assessment week start — base date for the day
+
+  /// The meal being edited, or null in add mode.
+  ///
+  /// The whole model is passed rather than a handful of display strings: it
+  /// carries the category and template **ids** and the ingredient weights that
+  /// were actually saved, which is everything this screen needs to open showing
+  /// the plan as it stands.
+  final SpecialistMealModel? meal;
 
   const AddMealPage({
     super.key,
     required this.assessmentId,
     required this.dayNumber,
     required this.weekStart,
-    this.mealId,
-    this.initialCategoryName,
-    this.initialMealName,
-    this.initialTime,
+    this.meal,
   });
+
+  bool get isEditMode => meal != null;
 
   @override
   State<AddMealPage> createState() => _AddMealPageState();
@@ -81,56 +87,71 @@ class _AddMealPageState extends State<AddMealPage> {
     setState(() => _isLoading = true);
     await _loadCategories();
 
-    if (widget.mealId != null && _categories.isNotEmpty) {
-      // Edit mode: use data passed from the plan card (no GET request needed)
-      final categoryName = widget.initialCategoryName ?? '';
-      final mealName = widget.initialMealName ?? '';
-      final timeStr = widget.initialTime ?? '';
+    final SpecialistMealModel? meal = widget.meal;
+    if (meal != null && _categories.isNotEmpty) {
+      // Edit mode: everything comes off the plan item itself — no GET, and no
+      // matching by display name. `firstWhereOrNull` on the id means a lookup
+      // the backend has since removed leaves the field empty and asking to be
+      // filled, instead of quietly selecting the first entry in the list.
+      _selectedCategory = _categories
+          .firstWhereOrNull((c) => c.id == meal.mealCategoryId);
 
-      // 1. Match category by name
-      if (categoryName.isNotEmpty) {
-        final matchedCategory = _categories.firstWhere(
-          (c) => c.name.trim().toLowerCase() == categoryName.trim().toLowerCase(),
-          orElse: () => _categories.first,
-        );
-        _selectedCategory = matchedCategory;
-
-        // 2. Load templates for that category
+      if (_selectedCategory != null) {
         try {
-          final temps = await _remoteDataSource.getMealTemplates(categoryId: matchedCategory.id);
-          _templates = temps;
-
-          // 3. Match template by meal name
-          if (mealName.isNotEmpty && _templates.isNotEmpty) {
-            final matchedTemplate = _templates.firstWhere(
-              (t) => t.name.trim().toLowerCase() == mealName.trim().toLowerCase(),
-              orElse: () => _templates.first,
-            );
-            _selectedTemplate = matchedTemplate;
-
-            // 4. Set ingredients with default weights
-            _ingredients = matchedTemplate.ingredients.map((i) => {
-              'ingredientId': i.ingredientId,
-              'name': i.name,
-              'weight': i.defaultWeight,
-              'unit': i.unit,
-              'controller': TextEditingController(text: i.defaultWeight.toStringAsFixed(0)),
-            }).toList();
-          }
+          _templates = await _remoteDataSource.getMealTemplates(
+            categoryId: _selectedCategory!.id,
+          );
+          _selectedTemplate = _templates
+              .firstWhereOrNull((t) => t.id == meal.mealTemplateId);
         } catch (_) {}
       }
 
-      // 5. Parse time
-      if (timeStr.isNotEmpty) {
-        final parsed = DateTime.tryParse(timeStr);
-        if (parsed != null) {
-          final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
-          _selectedTime = TimeOfDay.fromDateTime(localDate);
-        }
+      if (_selectedTemplate != null) {
+        _ingredients = _ingredientsFor(_selectedTemplate!, saved: meal.ingredients);
+      }
+
+      final parsed = DateTime.tryParse(meal.time);
+      if (parsed != null) {
+        final localDate = parsed.isUtc ? parsed.toLocal() : parsed;
+        _selectedTime = TimeOfDay.fromDateTime(localDate);
       }
     }
 
     setState(() => _isLoading = false);
+  }
+
+  /// Rows for the ingredient editor.
+  ///
+  /// The template defines *which* ingredients a meal has; [saved] — present
+  /// only when editing — defines the weights this client was actually
+  /// prescribed. Reading the template's defaults instead meant opening an
+  /// edited meal reset every weight, and saving without noticing wrote those
+  /// defaults back over the specialist's own numbers.
+  List<Map<String, dynamic>> _ingredientsFor(
+    SpecialistMealTemplateModel template, {
+    List<SpecialistMealIngredientModel> saved = const [],
+  }) {
+    return template.ingredients.map((i) {
+      final SpecialistMealIngredientModel? stored =
+          saved.firstWhereOrNull((s) => s.ingredientId == i.ingredientId);
+      final double weight = stored?.weight ?? i.defaultWeight;
+      return {
+        'ingredientId': i.ingredientId,
+        'name': i.name,
+        'weight': weight,
+        'unit': i.unit,
+        'controller': TextEditingController(text: weight.toStringAsFixed(0)),
+      };
+    }).toList();
+  }
+
+  /// Disposes the controllers of the rows being replaced — rebuilding the list
+  /// without this leaks one controller per ingredient on every meal change.
+  void _replaceIngredients(List<Map<String, dynamic>> next) {
+    for (final ing in _ingredients) {
+      (ing['controller'] as TextEditingController?)?.dispose();
+    }
+    _ingredients = next;
   }
 
   Future<void> _loadTemplates(String categoryId) async {
@@ -162,7 +183,7 @@ class _AddMealPageState extends State<AddMealPage> {
           _selectedCategory = _categories[index];
           _selectedTemplate = null;
           _templates = [];
-          _ingredients = [];
+          _replaceIngredients([]);
         });
         _loadTemplates(_selectedCategory!.id);
       },
@@ -184,13 +205,9 @@ class _AddMealPageState extends State<AddMealPage> {
         final template = _templates[index];
         setState(() {
           _selectedTemplate = template;
-          _ingredients = template.ingredients.map((i) => {
-            'ingredientId': i.ingredientId,
-            'name': i.name,
-            'weight': i.defaultWeight,
-            'unit': i.unit,
-            'controller': TextEditingController(text: i.defaultWeight.toStringAsFixed(0)),
-          }).toList();
+          // Picking a different meal starts from that meal's own defaults —
+          // the previous meal's weights have nothing to say about it.
+          _replaceIngredients(_ingredientsFor(template));
         });
       },
     );
@@ -216,7 +233,9 @@ class _AddMealPageState extends State<AddMealPage> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.w),
                   child: AppBackHeader(
-                    title: widget.mealId != null ? 'تعديل الوجبة' : 'add_meal.title'.tr(),
+                    title: widget.isEditMode
+                        ? 'add_meal.edit_title'.tr()
+                        : 'add_meal.title'.tr(),
                   ),
                 ),
 
@@ -280,7 +299,7 @@ class _AddMealPageState extends State<AddMealPage> {
 
                         if (_selectedTemplate != null && _ingredients.isNotEmpty) ...[
                           SizedBox(height: 24.h),
-                          AppFieldLabel(text: 'المكونات'),
+                          AppFieldLabel(text: 'add_meal.ingredients'.tr()),
                           SizedBox(height: 10.h),
                           ..._ingredients.map((ing) {
                             final controller = ing['controller'] as TextEditingController;
@@ -305,7 +324,7 @@ class _AddMealPageState extends State<AddMealPage> {
                                       suffixIcon: Padding(
                                         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
                                         child: Text(
-                                          ing['unit'] == 'gram' ? 'جرام' : ing['unit'],
+                                          _unitLabel(ing['unit'] as String?),
                                           style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
                                         ),
                                       ),
@@ -327,7 +346,7 @@ class _AddMealPageState extends State<AddMealPage> {
                 Container(
                   padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
                   child: CustomButton(
-                    text: widget.mealId != null
+                    text: widget.isEditMode
                         ? 'visit_details.save'.tr()
                         : 'add_meal.add_button'.tr(),
                     color: AppColors.primary,
@@ -342,13 +361,20 @@ class _AddMealPageState extends State<AddMealPage> {
     );
   }
 
+  /// Ingredient units arrive from the server as English identifiers. Only the
+  /// ones the app has wording for are translated; anything else is shown as it
+  /// came, which beats blanking out a unit the backend just introduced.
+  String _unitLabel(String? unit) {
+    if (unit == 'gram') return 'add_meal.unit_gram'.tr();
+    return unit ?? '';
+  }
+
   Widget _buildTimeField() {
-    final formatTime = DateFormat('hh:mm a', context.locale.languageCode);
     final now = DateTime.now();
     final dt = DateTime(now.year, now.month, now.day, _selectedTime.hour, _selectedTime.minute);
 
     return AppTextField(
-      hintText: formatTime.format(dt),
+      hintText: formatPlanClock(dt),
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       onTap: () async {
         final time = await showModalBottomSheet<TimeOfDay>(
@@ -371,7 +397,7 @@ class _AddMealPageState extends State<AddMealPage> {
     if (_selectedCategory == null || _selectedTemplate == null) {
       showAppSnackBar(
         context,
-        text: 'يرجى اختيار نوع ومسمى الوجبة أولاً',
+        text: 'add_meal.select_type_and_name_first'.tr(),
         isError: true,
       );
       return;
@@ -398,12 +424,12 @@ class _AddMealPageState extends State<AddMealPage> {
     final bool success;
     final String message;
 
-    if (widget.mealId != null) {
+    if (widget.isEditMode) {
       // Edit mode (PATCH)
       final result = await cubit.updateMeal(
         assessmentId: widget.assessmentId,
         dayNumber: widget.dayNumber,
-        mealId: widget.mealId!,
+        mealId: widget.meal!.mealId,
         mealCategoryId: _selectedCategory!.id,
         mealTemplateId: _selectedTemplate!.id,
         time: timeStr,

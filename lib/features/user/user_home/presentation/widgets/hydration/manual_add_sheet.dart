@@ -8,21 +8,36 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 
 class WaterOption {
   final double amount;
-  final String label;
   final String iconAsset;
 
-  const WaterOption({
-    required this.amount,
-    required this.label,
-    required this.iconAsset,
-  });
+  const WaterOption({required this.amount, required this.iconAsset});
 }
 
-/// Bottom-sheet dialog for manually entering a water quantity.
-class ManualAddSheet extends StatefulWidget {
-  final void Function(double) onAdd;
+/// Litres, written the way a person writes them: `1 L`, `0.75 L`, `0.3 L`.
+///
+/// Always Latin digits and always with the leading zero. The screen used to
+/// assemble the text by hand as `'.${amount * 100}'`, which dropped the leading
+/// zero on every fraction — and turned a full litre into `.100 L`.
+String formatLitres(double litres) {
+  // Two decimals is the most any preset needs; trailing zeros are noise.
+  String text = litres.toStringAsFixed(2);
+  if (text.contains('.')) {
+    text = text.replaceFirst(RegExp(r'0+$'), '');
+    text = text.replaceFirst(RegExp(r'\.$'), '');
+  }
+  return text;
+}
 
-  const ManualAddSheet({super.key, required this.onAdd});
+/// Dialog for picking a water quantity — used both to add and to remove.
+class ManualAddSheet extends StatefulWidget {
+  /// Receives the chosen amount in litres. What happens to it — added or
+  /// subtracted — is the caller's decision.
+  final void Function(double) onConfirm;
+
+  /// Heading. Defaults to the "enter manually" wording of the add flow.
+  final String? title;
+
+  const ManualAddSheet({super.key, required this.onConfirm, this.title});
 
   @override
   State<ManualAddSheet> createState() => _ManualAddSheetState();
@@ -31,15 +46,15 @@ class ManualAddSheet extends StatefulWidget {
 class _ManualAddSheetState extends State<ManualAddSheet> {
   // Available amounts and their icons (ordered largest to smallest).
   final List<WaterOption> _options = const [
-    WaterOption(amount: 1.0, label: '1 L', iconAsset: SvgIcons.water1L),
-    WaterOption(amount: 0.75, label: '.75 L', iconAsset: SvgIcons.water75L),
-    WaterOption(amount: 0.5, label: '.5 L', iconAsset: SvgIcons.water5L),
-    WaterOption(amount: 0.3, label: '.3 L', iconAsset: SvgIcons.water3L),
-    WaterOption(amount: 0.2, label: '.2 L', iconAsset: SvgIcons.waterGlass),
+    WaterOption(amount: 1.0, iconAsset: SvgIcons.water1L),
+    WaterOption(amount: 0.75, iconAsset: SvgIcons.water75L),
+    WaterOption(amount: 0.5, iconAsset: SvgIcons.water5L),
+    WaterOption(amount: 0.3, iconAsset: SvgIcons.water3L),
+    WaterOption(amount: 0.2, iconAsset: SvgIcons.waterGlass),
   ];
 
-  int _selectedIndex = 3; // default .3 L
-  double _manualAmount = 0.25;
+  int _selectedIndex = 3; // default 0.3 L
+  late double _manualAmount;
 
   @override
   void initState() {
@@ -80,7 +95,8 @@ class _ManualAddSheetState extends State<ManualAddSheet> {
                 AppImage(SvgIcons.water_bg, width: 60.w, height: 80.h),
                 SizedBox(height: 12.h),
                 Text(
-                  'hydration.enter_manually'.tr(),
+                  widget.title ?? 'hydration.enter_manually'.tr(),
+                  textAlign: TextAlign.center,
                   style: TextStyleManager.heading3.copyWith(
                     color: AppColors.black,
                     fontWeight: FontWeight.bold,
@@ -98,7 +114,7 @@ class _ManualAddSheetState extends State<ManualAddSheet> {
                     ),
                   ),
                   child: Text(
-                    '.${(_manualAmount * 100).toStringAsFixed(0)} L',
+                    '${formatLitres(_manualAmount)} ${'hydration.litre_short'.tr()}',
                     style: TextStyleManager.heading2.copyWith(
                       color: AppColors.hydrationAccent,
                       fontWeight: FontWeight.bold,
@@ -129,7 +145,7 @@ class _ManualAddSheetState extends State<ManualAddSheet> {
                             _buildContainerIcon(index, isSelected),
                             SizedBox(height: 4.h),
                             Text(
-                              opt.label,
+                              '${formatLitres(opt.amount)} ${'hydration.litre_short'.tr()}',
                               style: TextStyleManager.style10Medium.copyWith(
                                 color: isSelected ? AppColors.hydrationAccent : AppColors.black,
                                 fontWeight: FontWeight.bold,
@@ -147,7 +163,7 @@ class _ManualAddSheetState extends State<ManualAddSheet> {
                   height: 48.h,
                   child: ElevatedButton(
                     onPressed: () {
-                      widget.onAdd(_manualAmount);
+                      widget.onConfirm(_manualAmount);
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(

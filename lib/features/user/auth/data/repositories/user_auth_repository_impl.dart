@@ -28,6 +28,20 @@ class UserAuthRepositoryImpl implements UserAuthRepository {
   }
 
   @override
+  Future<ApiResult<UserSignupResponseModel>> resendSignupOtp(
+    UserResendOtpRequest request,
+  ) async {
+    try {
+      final response = await _remoteDataSource.resendSignupOtp(request);
+      return Success(response);
+    } catch (e) {
+      // A 429 here becomes a RateLimitFailure carrying `retryAfterSeconds`,
+      // which is what the OTP screen counts down from.
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
   Future<ApiResult<UserVerifyOtpResponseModel>> verifyOtp(UserVerifyOtpRequest request) async {
     try {
       final response = await _remoteDataSource.verifyOtp(request);

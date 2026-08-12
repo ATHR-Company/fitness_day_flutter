@@ -39,6 +39,26 @@ class SocketService {
   /// starts the backoff over instead of inheriting an old streak.
   static const Duration _kStableAfter = Duration(seconds: 10);
 
+  // ── Forced logout ─────────────────────────────────────────────────────────
+
+  /// Called when the server ends this device's session, with its stated
+  /// `reason` (e.g. `logged_in_from_another_device`).
+  ///
+  /// Wired at DI time rather than owned here: closing the session is not the
+  /// socket's job, and making it depend on the thing that tears it down would
+  /// be a cycle.
+  void Function(String reason)? onForceLogout;
+
+  /// Set once the server has forced us out, and cleared only by an explicit
+  /// [connect] — i.e. a new sign-in.
+  ///
+  /// The kick that follows `forceLogout` is an `io server disconnect`, which is
+  /// exactly what [_scheduleReconnectAfterKick] exists to retry. Without this
+  /// flag the device would spend the next minute reconnecting to a session the
+  /// server has already revoked, and every attempt would be refused at the
+  /// handshake.
+  bool _forcedOut = false;
+
   bool get isConnected => _socket?.connected ?? false;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -46,10 +66,11 @@ class SocketService {
   void connect(String token) {
     _currentToken = token;
     // An explicit connect is a fresh start — anything the backoff was holding
-    // back is now moot.
+    // back is now moot, and a new sign-in clears the previous forced logout.
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
     _kickCount = 0;
+    _forcedOut = false;
 
     if (_socket != null) {
       if (_socket!.connected) {
@@ -98,6 +119,18 @@ class SocketService {
       debugPrint('[Socket] ⚠️  Error: $err');
     });
 
+    // One device per account: the server emits this to the *previous* device
+    // the moment the account signs in somewhere else.
+    _socket!.on('forceLogout', (raw) {
+      final String reason =
+          (raw is Map ? raw['reason'] as String? : null) ?? 'unknown';
+      debugPrint('[Socket] 🚫 forceLogout received — reason=$reason');
+      _forcedOut = true;
+      _reconnectTimer?.cancel();
+      _reconnectTimer = null;
+      onForceLogout?.call(reason);
+    });
+
     _socket!.connect();
   }
 
@@ -141,6 +174,12 @@ class SocketService {
   /// Queues one backoff-delayed reconnect after the server hung up on us.
   void _scheduleReconnectAfterKick() {
     if (_currentToken == null) return;
+    // The server didn't drop us, it dismissed us. Retrying asks a revoked
+    // session to come back, which it never will.
+    if (_forcedOut) {
+      debugPrint('[Socket] ⛔ Not reconnecting — session was force-logged out');
+      return;
+    }
     // Only one retry may be in flight; without this a kick arriving while a
     // retry is already pending would stack timers and defeat the backoff.
     if (_reconnectTimer?.isActive ?? false) return;
@@ -347,6 +386,7 @@ class SocketService {
   // ── Helper ────────────────────────────────────────────────────────────────
 
   void _ensureConnected() {
+    if (_forcedOut) return;
     if ((_socket == null || !_socket!.connected) && _currentToken != null) {
       debugPrint('[Socket] 🔌 Socket disconnected — attempting automatic reconnect');
       connect(_currentToken!);

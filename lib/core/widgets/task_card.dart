@@ -107,14 +107,20 @@ class TaskCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        task.description,
-                        style: TextStyleManager.style11Medium.copyWith(
-                          color: AppColors.textPrimary,
-                          height: 1.6,
+                      // Dropped entirely when there is nothing to say — an
+                      // empty Text still claims a line's height plus the gap
+                      // below it, which read as a rendering fault rather than
+                      // as an item that simply has no description.
+                      if (task.description.isNotEmpty) ...[
+                        Text(
+                          task.description,
+                          style: TextStyleManager.style11Medium.copyWith(
+                            color: AppColors.textPrimary,
+                            height: 1.6,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8.h),
+                        SizedBox(height: 8.h),
+                      ],
                       _buildExtra(),
                     ],
                   ),

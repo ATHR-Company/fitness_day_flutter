@@ -16,6 +16,10 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
+  # Already in the tree transitively; declared so `firstWhereOrNull` can be
+  # imported directly instead of hand-rolling it per call site.
+  collection: ^1.19.0
+
   flutter_screenutil: ^5.9.3
   flutter_svg: ^2.2.1
   flutter_bloc: ^9.1.1

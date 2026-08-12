@@ -15,6 +15,11 @@ class ReportTextField extends StatelessWidget {
   final GlobalKey? fieldKey;
   final List<TextInputFormatter>? inputFormatters;
 
+  /// Shows the value but refuses the keyboard — for a field the screen fills in
+  /// itself. Drawn on a tinted background so it reads as "computed for you"
+  /// rather than as an input someone forgot to enable.
+  final bool readOnly;
+
   const ReportTextField({
     super.key,
     required this.label,
@@ -25,6 +30,7 @@ class ReportTextField extends StatelessWidget {
     this.errorText,
     this.fieldKey,
     this.inputFormatters,
+    this.readOnly = false,
   });
 
   @override
@@ -44,14 +50,15 @@ class ReportTextField extends StatelessWidget {
         SizedBox(height: 8.h),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: readOnly ? AppColors.backgroundTint : AppColors.white,
             borderRadius: BorderRadius.circular(8.r),
-            boxShadow: AppShadows.primaryShadow,
+            boxShadow: readOnly ? null : AppShadows.primaryShadow,
           ),
           child: TextFormField(
             controller: controller,
             keyboardType: keyboardType,
             inputFormatters: inputFormatters,
+            readOnly: readOnly,
             style: TextStyleManager.style9Medium.copyWith(color: AppColors.textSecondary),
             decoration: InputDecoration(
               hintText: hintText,

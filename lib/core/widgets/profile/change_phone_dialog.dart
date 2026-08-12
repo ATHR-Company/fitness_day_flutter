@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:pinput/pinput.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/errors/failures.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -16,6 +17,7 @@ import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/custom_button.dart';
 import 'package:fitness_day/core/widgets/custom_outlined_button.dart';
 import 'package:fitness_day/core/widgets/loader.dart';
+import 'package:fitness_day/core/widgets/resend_code_button.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 
 /// Two-step flow: request an OTP for the new phone number, then verify it.
@@ -41,6 +43,8 @@ class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
   bool _otpStep = false;
   String _changePhoneToken = '';
 
+  final _resendCountdown = ResendCountdown();
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +53,7 @@ class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
 
   @override
   void dispose() {
+    _resendCountdown.dispose();
     _phoneController.dispose();
     _otpController.dispose();
     super.dispose();
@@ -56,7 +61,14 @@ class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
 
   Future<void> _onSendCode() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    await _requestCode();
+  }
 
+  /// Resending is the same request again — there is no separate endpoint, and
+  /// the reply carries a fresh token that replaces the spent one.
+  Future<void> _onResendCode() async => _requestCode(isResend: true);
+
+  Future<void> _requestCode({bool isResend = false}) async {
     setState(() => _isLoading = true);
     final result = await context
         .read<UserProfileCubit>()
@@ -69,9 +81,16 @@ class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
         setState(() {
           _changePhoneToken = data.changePhoneToken;
           _otpStep = true;
+          if (isResend) _otpController.clear();
         });
+        _resendCountdown.start(kResendCooldownSeconds);
         showAppSnackBar(context, text: data.message, isSuccess: true);
       case FailureResult(:final failure):
+        // A refusal for asking too soon is not a failure to report as one — it
+        // says how long is left, which the button counts down.
+        if (failure is RateLimitFailure) {
+          _resendCountdown.start(failure.retryAfterSeconds);
+        }
         showAppSnackBar(context, text: failure.message, isError: true);
     }
   }
@@ -169,6 +188,10 @@ class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
                       defaultPinTheme: defaultPinTheme,
                       focusedPinTheme: focusedPinTheme,
                     ),
+                  ),
+                  ResendCodeButton(
+                    countdown: _resendCountdown,
+                    onResend: _onResendCode,
                   ),
                 ],
                 SizedBox(height: 32.h),

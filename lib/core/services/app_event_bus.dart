@@ -20,7 +20,18 @@ import 'dart:async';
 /// from the truth.
 ///
 /// See `docs/live_update_event_bus.md` for how to add a new event.
-sealed class AppEvent {}
+/// Open, not `sealed`, on purpose.
+///
+/// Sealing would force every event type to live in this file, and `core` would
+/// then have to import the models of whichever feature published them — a
+/// feature-to-core dependency inverted. Features declare their own events
+/// beside the code that raises them; the ones below are here only because they
+/// are shared by several.
+///
+/// Nothing switches exhaustively over `AppEvent` — listeners match the specific
+/// types they care about. [TaskProgressEvent] *is* sealed, and the exhaustive
+/// switches are over that.
+abstract class AppEvent {}
 
 // ─── Daily-task events ───────────────────────────────────────────────────────
 
