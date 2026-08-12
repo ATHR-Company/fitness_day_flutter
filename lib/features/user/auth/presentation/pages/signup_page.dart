@@ -287,9 +287,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                                 ),
                                                 onTap: () async {
                                                   try {
-                                                    final idToken =
+                                                    final result =
                                                         await AppleSignInHelper.signIn();
-                                                    if (idToken != null) {
+                                                    if (result != null) {
                                                       if (mounted) {
                                                         context
                                                             .read<
@@ -297,7 +297,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                                             >()
                                                             .socialAuth(
                                                               provider: 'APPLE',
-                                                              idToken: idToken,
+                                                              idToken:
+                                                                  result.idToken,
                                                             );
                                                       }
                                                     }
