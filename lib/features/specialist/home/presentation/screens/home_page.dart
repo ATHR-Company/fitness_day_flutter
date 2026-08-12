@@ -53,6 +53,7 @@ class HomePage extends StatelessWidget {
           ),
           endDrawer: const AppDrawer(),
           body: SafeArea(
+            bottom: false,
             child: BlocBuilder<SpecialistHomeCubit, SpecialistHomeState>(
               builder: (context, state) {
                 if (state is SpecialistHomeLoading) {

@@ -50,6 +50,7 @@ class BmiReportPage extends StatelessWidget {
           gradient: AppColors.splashBackgroundGradient,
         ),
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               Padding(

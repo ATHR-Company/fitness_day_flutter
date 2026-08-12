@@ -39,6 +39,7 @@ class MealDetailsPage extends StatelessWidget {
             gradient: AppColors.splashBackgroundGradient,
           ),
           child: SafeArea(
+            bottom: false,
             child: BlocBuilder<MealDetailsCubit, MealDetailsState>(
               builder: (context, state) {
                 if (state is MealDetailsLoading) {

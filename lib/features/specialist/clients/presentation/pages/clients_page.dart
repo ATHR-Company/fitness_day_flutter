@@ -67,6 +67,7 @@ class _ClientsPageState extends State<ClientsPage> {
               return LoaderHud(
                 isCall: false,
                 child: SafeArea(
+                  bottom: false,
                   child: TopCenteredConstrainedBox(
                     horizontalPadding: 0,
                     child: Column(

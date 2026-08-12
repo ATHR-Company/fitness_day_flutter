@@ -16,6 +16,7 @@ import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/network/apple_sign_in_helper.dart';
 
 
 class LogoutDialog extends StatelessWidget {
@@ -146,6 +147,10 @@ class LogoutDialog extends StatelessWidget {
                                     return;
                                   }
                                   di.getIt<SocketService>().disconnect();
+                                  // Both Apple and Google go through Firebase
+                                  // Auth — leaving that session alive keeps a
+                                  // signed-in Firebase user after logout.
+                                  await AppleSignInHelper.signOut();
                                   await di.getIt<SecureCache>().deleteToken();
                                   await di.getIt<SecureCache>().deleteRefreshToken();
                                   await di.getIt<AppCache>().clearSession();

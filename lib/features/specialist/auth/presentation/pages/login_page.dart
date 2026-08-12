@@ -60,6 +60,7 @@ class _LoginPageState extends State<LoginPage> {
             gradient: AppColors.splashBackgroundGradient,
           ),
           child: SafeArea(
+            bottom: false,
             child: Column(
               children: [
                 Padding(

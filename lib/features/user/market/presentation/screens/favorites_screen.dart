@@ -38,6 +38,7 @@ class _FavoritesView extends StatelessWidget {
     return Scaffold(
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               _AppBar(title: 'market.favorites_title'.tr()),

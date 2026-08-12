@@ -166,6 +166,7 @@
     "apple_error_invalid": "Apple sign-in response was invalid. Please try again.",
     "apple_error_not_handled": "Apple sign-in could not be completed. Please try again.",
     "apple_error_generic": "Couldn't sign in with Apple. Please try again.",
+    "apple_error_network": "No internet connection. Check your network and try again.",
     "apple_error_account_exists": "An account with this email already exists. Please sign in with the original method.",
     "apple_error_invalid_credential": "Invalid Apple credentials. Please try again.",
     "apple_error_disabled": "Apple sign-in is not enabled. Please contact support.",

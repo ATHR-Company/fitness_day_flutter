@@ -27,6 +27,7 @@ import 'package:fitness_day/core/cache/app_cache.dart';
 import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/core/network/apple_sign_in_helper.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/widgets/confirm_dialog.dart';
 import 'package:fitness_day/fitness_day.dart';
@@ -54,12 +55,20 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Future<void> _deleteAccount(BuildContext context) async {
     final cubit = context.read<UserProfileCubit>();
+
+    // App Review guideline 5.1.1(v): an Apple-authenticated account must have
+    // its Apple token revoked when the account is deleted. This re-opens the
+    // Apple sheet, so it runs before the backend call — best-effort, a refusal
+    // here must not strand the user with a half-deleted account.
+    await AppleSignInHelper.revokeAppleToken();
+
     final result = await cubit.deleteAccount();
     if (!context.mounted) return;
 
     switch (result) {
       case Success(:final data):
         getIt<SocketService>().disconnect();
+        await AppleSignInHelper.signOut();
         await getIt<SecureCache>().deleteToken();
         await getIt<SecureCache>().deleteRefreshToken();
         // Full wipe on account deletion — the device-level onboarding flag
@@ -112,6 +121,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   gradient: AppColors.splashBackgroundGradient,
                 ),
                 child: SafeArea(
+                  bottom: false,
                   child: Column(
                     children: [
                       SizedBox(height: 20.h),

@@ -39,6 +39,7 @@ class _CartScreenState extends State<CartScreen> {
     return Scaffold(
       backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
+        bottom: false,
         child: BlocConsumer<CartCubit, CartState>(
           bloc: _cart,
           listenWhen: (prev, curr) =>

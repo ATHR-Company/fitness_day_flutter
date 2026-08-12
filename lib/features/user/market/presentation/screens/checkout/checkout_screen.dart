@@ -54,6 +54,7 @@ class _CheckoutViewState extends State<_CheckoutView> {
     return Scaffold(
       backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             _buildAppBar(context),

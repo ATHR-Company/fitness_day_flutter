@@ -28,6 +28,7 @@ class _BranchPickupScreenState extends State<BranchPickupScreen> {
     return Scaffold(
       backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             _buildAppBar(context),

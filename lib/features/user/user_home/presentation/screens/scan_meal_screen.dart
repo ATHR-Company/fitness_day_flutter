@@ -83,6 +83,7 @@ class _ScanMealScreenState extends State<ScanMealScreen>
                 ),
               ),
               SafeArea(
+                bottom: false,
                 child: Column(
                   children: [
                     const ScanMealAppBar(),

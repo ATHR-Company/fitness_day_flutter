@@ -125,6 +125,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     return Scaffold(
       backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             _buildAppBar(context),

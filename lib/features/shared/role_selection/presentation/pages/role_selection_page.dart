@@ -22,6 +22,7 @@ class RoleSelectionPage extends StatelessWidget {
           gradient: AppColors.splashBackgroundGradient,
         ),
         child: SafeArea(
+          bottom: false,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: Column(

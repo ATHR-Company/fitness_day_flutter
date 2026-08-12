@@ -119,6 +119,7 @@ class _ProductsListViewState extends State<_ProductsListView> {
     return Scaffold(
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               _AppBar(title: widget.title),

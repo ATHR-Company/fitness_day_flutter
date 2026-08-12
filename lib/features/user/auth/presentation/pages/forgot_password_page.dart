@@ -69,6 +69,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 gradient: AppColors.splashBackgroundGradient,
               ),
               child: SafeArea(
+                bottom: false,
                 child: TopCenteredConstrainedBox(
                   horizontalPadding: 0,
                   child: Column(

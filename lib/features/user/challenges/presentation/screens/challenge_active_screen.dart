@@ -71,6 +71,7 @@ class _ChallengeActiveScreenState extends State<ChallengeActiveScreen> {
     return Scaffold(
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               ChallengeAppBar(

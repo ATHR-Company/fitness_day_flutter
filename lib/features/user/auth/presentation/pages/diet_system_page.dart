@@ -123,6 +123,7 @@ class _DietSystemPageState extends State<DietSystemPage>
             gradient: AppColors.splashBackgroundGradient,
           ),
           child: SafeArea(
+            bottom: false,
             child: TopCenteredConstrainedBox(
               horizontalPadding: 0,
               child: Column(

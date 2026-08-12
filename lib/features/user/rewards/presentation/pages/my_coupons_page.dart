@@ -61,6 +61,7 @@ class _MyCouponsViewState extends State<_MyCouponsView> {
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppColors.profileGradient),
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               Padding(

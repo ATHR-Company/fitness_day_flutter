@@ -75,6 +75,7 @@ class _TodayTasksPageContentState extends State<_TodayTasksPageContent> {
           backgroundColor: Colors.transparent,
           endDrawer: const AppDrawer(),
           body: SafeArea(
+            bottom: false,
             child: Column(
               children: [
                 Builder(

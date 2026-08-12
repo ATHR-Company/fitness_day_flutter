@@ -96,6 +96,7 @@ class NotificationsPage extends StatelessWidget {
                 gradient: AppColors.visitsBackgroundGradient,
               ),
               child: SafeArea(
+                bottom: false,
                 child: Column(
                   children: [
                     SizedBox(height: 20.h),
