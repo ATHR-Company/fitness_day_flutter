@@ -148,6 +148,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Scaffold(
       backgroundColor: AppColors.marketScaffoldBackground,
       body: SafeArea(
+        bottom: false,
         child: Stack(
           children: [
             Column(

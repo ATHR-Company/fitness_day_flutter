@@ -109,6 +109,7 @@ class _HealthProblemsPageState extends State<HealthProblemsPage> {
                   gradient: AppColors.splashBackgroundGradient,
                 ),
                 child: SafeArea(
+                  bottom: false,
                   child: TopCenteredConstrainedBox(
                     horizontalPadding: 0,
                     child: Column(

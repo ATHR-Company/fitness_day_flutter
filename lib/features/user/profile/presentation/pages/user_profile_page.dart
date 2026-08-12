@@ -121,6 +121,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   gradient: AppColors.splashBackgroundGradient,
                 ),
                 child: SafeArea(
+                  bottom: false,
                   child: Column(
                     children: [
                       SizedBox(height: 20.h),

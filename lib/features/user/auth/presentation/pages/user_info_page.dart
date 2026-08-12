@@ -318,6 +318,7 @@ class _UserInfoPageState extends State<UserInfoPage>
             gradient: AppColors.splashBackgroundGradient,
           ),
           child: SafeArea(
+            bottom: false,
             child: TopCenteredConstrainedBox(
               horizontalPadding: 0,
               child: Column(

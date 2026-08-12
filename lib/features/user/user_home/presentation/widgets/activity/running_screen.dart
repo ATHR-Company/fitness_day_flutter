@@ -164,6 +164,7 @@ class _RunningScreenState extends State<RunningScreen> {
     return Scaffold(
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               buildActivityAppBar(context, _frozenActivityName),
@@ -260,6 +261,7 @@ class _RunningScreenState extends State<RunningScreen> {
             return Scaffold(
               body: ScreenBackground(
                 child: SafeArea(
+                  bottom: false,
                   child: Column(
                     children: [
                       buildActivityAppBar(context, _frozenActivityName),

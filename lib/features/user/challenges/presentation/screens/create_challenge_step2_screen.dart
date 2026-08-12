@@ -46,6 +46,7 @@ class _CreateChallengeStep2ScreenState
     return Scaffold(
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               ChallengeAppBar(title: 'challenges.step2_title'.tr()),

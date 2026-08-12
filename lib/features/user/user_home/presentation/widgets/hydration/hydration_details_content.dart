@@ -125,6 +125,7 @@ class _HydrationDetailsContentState extends State<HydrationDetailsContent> {
                 ),
 
                 SafeArea(
+                  bottom: false,
                   child: Column(
                     children: [
                       // ── AppBar ──

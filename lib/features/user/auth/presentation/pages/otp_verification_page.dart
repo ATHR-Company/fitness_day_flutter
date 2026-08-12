@@ -238,6 +238,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 gradient: AppColors.splashBackgroundGradient,
               ),
               child: SafeArea(
+                bottom: false,
                 child: TopCenteredConstrainedBox(
                   horizontalPadding: 0,
                   child: Column(

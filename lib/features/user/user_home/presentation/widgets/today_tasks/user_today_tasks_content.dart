@@ -48,6 +48,7 @@ class _UserTodayTasksContentState extends State<UserTodayTasksContent> {
       backgroundColor: AppColors.white,
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               AppBar(

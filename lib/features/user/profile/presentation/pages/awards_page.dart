@@ -64,6 +64,7 @@ class _AwardsView extends StatelessWidget {
         height: double.infinity,
         decoration: const BoxDecoration(gradient: AppColors.profileGradient),
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               Padding(

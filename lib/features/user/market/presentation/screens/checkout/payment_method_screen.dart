@@ -87,6 +87,7 @@ class PaymentMethodScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.dialogBackground,
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             _buildAppBar(context),

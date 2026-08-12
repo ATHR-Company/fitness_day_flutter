@@ -48,6 +48,7 @@ class _VisitLogPageState extends State<VisitLogPage> {
         endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
         body: ScreenBackground(
           child: SafeArea(
+            bottom: false,
             child: Column(
               children: [
                 AppHeader(

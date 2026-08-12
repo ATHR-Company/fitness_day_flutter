@@ -70,6 +70,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 gradient: AppColors.splashBackgroundGradient,
               ),
               child: SafeArea(
+                bottom: false,
                 child: TopCenteredConstrainedBox(
                   horizontalPadding: 0,
                   child: Column(

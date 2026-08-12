@@ -92,6 +92,7 @@ class _VisitsPageContentState extends State<_VisitsPageContent> {
               return LoaderHud(
                 isCall: false,
                 child: SafeArea(
+                  bottom: false,
                   child: TopCenteredConstrainedBox(
                     horizontalPadding: 0,
                     child: Column(

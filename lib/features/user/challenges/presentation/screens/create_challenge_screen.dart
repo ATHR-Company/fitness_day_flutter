@@ -49,6 +49,7 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
     return Scaffold(
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               ChallengeAppBar(title: 'challenges.create_title'.tr()),

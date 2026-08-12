@@ -154,6 +154,7 @@ class _AchievementsPageState extends State<AchievementsPage> {
           gradient: AppColors.profileGradient,
         ),
         child: SafeArea(
+          bottom: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

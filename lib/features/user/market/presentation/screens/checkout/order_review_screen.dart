@@ -181,6 +181,7 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
             child: Scaffold(
               backgroundColor: AppColors.dialogBackground,
               body: SafeArea(
+                bottom: false,
                 child: BlocBuilder<CheckoutCubit, CheckoutState>(
                   builder: (context, state) {
                     final order = state.order;

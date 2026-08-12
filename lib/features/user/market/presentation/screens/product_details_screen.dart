@@ -71,6 +71,7 @@ class _ProductDetailsViewState extends State<_ProductDetailsView> {
         return Scaffold(
           backgroundColor: AppColors.dialogBackground,
           body: SafeArea(
+            bottom: false,
             child: Column(
               children: [
                 // ── App bar ────────────────────────────────────────────

@@ -77,6 +77,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
             gradient: AppColors.profileGradient,
           ),
           child: SafeArea(
+            bottom: false,
           child: Column(
             children: [
               Padding(

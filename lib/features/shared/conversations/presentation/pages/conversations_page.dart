@@ -94,6 +94,7 @@ class _ConversationsPageState extends State<ConversationsPage> {
             gradient: AppColors.visitsBackgroundGradient,
           ),
           child: SafeArea(
+            bottom: false,
             child: Column(
               children: [
                 SizedBox(height: 20.h),

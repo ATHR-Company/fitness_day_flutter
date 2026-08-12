@@ -69,7 +69,7 @@ class _HomePageContentState extends State<HomePageContent> {
         if (state is UserHomeLoading) {
           return const Scaffold(
             backgroundColor: AppColors.white,
-            body: SafeArea(child: HomeShimmerLoading()),
+            body: SafeArea(bottom: false, child: HomeShimmerLoading()),
           );
         }
         if (state is UserHomeLoaded) {
@@ -116,6 +116,7 @@ class _HomePageContentState extends State<HomePageContent> {
         ),
         endDrawer: UserAppDrawer(isSubscribed: isSubscribed),
         body: SafeArea(
+          bottom: false,
           child: RefreshIndicator(
             // Silent: RefreshIndicator draws its own spinner, so dropping the
             // page to the shimmer on top of it just makes the content flash —

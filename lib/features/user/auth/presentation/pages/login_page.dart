@@ -119,6 +119,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                   gradient: AppColors.splashBackgroundGradient,
                 ),
                 child: SafeArea(
+                  bottom: false,
                   child: Column(
                     children: [
                       // ── Back button ──────────────────────────────────────

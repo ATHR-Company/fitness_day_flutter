@@ -74,6 +74,7 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
     return Scaffold(
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: _hasActiveChallenges ? _buildWithChallenges() : _buildEmptyState(),
         ),
       ),

@@ -210,6 +210,7 @@ class _WalkingScreenState extends State<WalkingScreen>
     return Scaffold(
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               buildActivityAppBar(context, _frozenActivityName),
@@ -295,6 +296,7 @@ class _WalkingScreenState extends State<WalkingScreen>
             return Scaffold(
               body: ScreenBackground(
                 child: SafeArea(
+                  bottom: false,
                   child: Column(
                     children: [
                       buildActivityAppBar(context, _frozenActivityName),

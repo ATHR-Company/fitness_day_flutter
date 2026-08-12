@@ -93,6 +93,7 @@ class _WorkoutPlanPageState extends State<WorkoutPlanPage> {
               backgroundColor: AppColors.scaffoldBackground,
               endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
               body: SafeArea(
+                bottom: false,
                 child: Column(
                   children: [
                     AppHeader(

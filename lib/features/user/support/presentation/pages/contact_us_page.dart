@@ -46,6 +46,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
       child: Scaffold(
         backgroundColor: AppColors.white,
         body: SafeArea(
+          bottom: false,
           child: RefreshIndicator(
             color: AppColors.primary,
             onRefresh: _cubit.fetchUserChat,

@@ -98,6 +98,7 @@ class _MarketMainScreenState extends State<MarketMainScreen>
           endDrawer: UserAppDrawer(isSubscribed: getIt<AppCache>().getIsSubscribed()),
           body: ScreenBackground(
             child: SafeArea(
+              bottom: false,
               child: Column(
                 children: [
                   MarketAppBar(

@@ -67,6 +67,7 @@ class _VisitDetailsContentState extends State<_VisitDetailsContent> {
       backgroundColor: Colors.transparent,
       body: ScreenBackground(
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               SizedBox(height: 10.h),

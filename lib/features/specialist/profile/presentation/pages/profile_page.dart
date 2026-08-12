@@ -42,6 +42,7 @@ class ProfilePage extends StatelessWidget {
           body: Builder(
             builder: (context) {
               return SafeArea(
+                bottom: false,
                 child: Column(
                   children: [
                     SizedBox(height: 20.h),

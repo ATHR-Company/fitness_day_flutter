@@ -113,6 +113,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 gradient: AppColors.splashBackgroundGradient,
               ),
               child: SafeArea(
+                bottom: false,
                 child: Column(
                   children: [
                     // ── Back button ──────────────────────────────────────
