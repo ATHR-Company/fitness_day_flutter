@@ -92,18 +92,35 @@ class _ChallengeImage extends StatelessWidget {
 
   const _ChallengeImage({this.imageUrl});
 
-  static const _fallbackUrl =
-      'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400';
-
   @override
   Widget build(BuildContext context) {
+    final String? url = imageUrl;
+    final bool hasArtwork = url != null && url.isNotEmpty;
+
     return ClipRRect(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      child: AppImage(
-        imageUrl ?? _fallbackUrl,
+      child: SizedBox(
         height: 180.h,
         width: double.infinity,
-        fit: BoxFit.cover,
+        // `image` is null until an admin uploads artwork, which is the normal
+        // state for a freshly created challenge — so the empty case needs a
+        // deliberate design, not a stand-in. This used to point at a hardcoded
+        // Unsplash food photo, so every artwork-less challenge rendered the
+        // same stock salad: wrong for a step goal, fetched from a third party,
+        // and indistinguishable from a real image the admin had chosen.
+        child: hasArtwork
+            ? AppImage(url, height: 180.h, width: double.infinity,
+                fit: BoxFit.cover)
+            : ColoredBox(
+                color: AppColors.backgroundTint,
+                child: Center(
+                  child: AppImage(
+                    AppImages.challenge_cap,
+                    height: 84.h,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
       ),
     );
   }

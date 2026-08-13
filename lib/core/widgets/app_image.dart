@@ -166,10 +166,17 @@ class AppImage extends StatelessWidget {
 
   int? _decodeWidth(BuildContext context) => _decodePixels(context, width);
 
-  /// Only used when there is no width to go by — passing both would fight the
-  /// aspect ratio the source already has.
+  /// Only used when there is a height to go by and no width — passing both
+  /// resizes the bitmap to those exact dimensions, which squashes it.
+  ///
+  /// The `height != null` half matters as much as the `width == null` half.
+  /// With both unset — a full-bleed image that simply fills its parent, as in
+  /// the full-screen viewer — [_decodePixels] answers with its [_maxDecodeWidth]
+  /// fallback for *either* axis, so returning it here handed the decoder
+  /// 1080×1080 and every photo came out stretched to a square. A cap on one
+  /// axis alone scales proportionally, which is what was always intended.
   int? _decodeHeight(BuildContext context) =>
-      width == null ? _decodePixels(context, height) : null;
+      (width == null && height != null) ? _decodePixels(context, height) : null;
 
   /// Logical pixels → device pixels, capped.
   ///

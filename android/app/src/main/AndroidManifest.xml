@@ -63,10 +63,26 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
+            <!-- Routes the incoming App Link through the Flutter Router API
+                 (GoRouter) rather than only bringing the app to the front.
+                 Without it the link opens the app on whatever route it was
+                 last showing. -->
+            <meta-data
+                android:name="flutter_deeplinking_enabled"
+                android:value="true" />
+
             <!-- Deep links — https://fitnessday.tech/...
                  autoVerify=true triggers Android App Links (no chooser dialog).
                  The server must serve /.well-known/assetlinks.json with the
-                 correct SHA-256 fingerprints for verification to succeed. -->
+                 correct SHA-256 fingerprints for verification to succeed.
+
+                 The paths are listed explicitly on purpose. A host-only filter
+                 claims *every* URL on the domain — including /api/... and the
+                 /uploads/chat-messages-media/... attachment links that
+                 open_filex hands to the system — which would bounce those back
+                 into the app instead of the browser or a document viewer.
+                 Keep this list in sync with DeepLinkGuard and with the paths
+                 in .well-known/apple-app-site-association. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -74,6 +90,12 @@
                 <data
                     android:scheme="https"
                     android:host="fitnessday.tech" />
+                <data android:pathPrefix="/products/" />
+                <data android:pathPrefix="/store/products/" />
+                <data android:path="/open" />
+                <data android:path="/user-home" />
+                <data android:path="/challenges" />
+                <data android:path="/user-profile" />
             </intent-filter>
         </activity>
         <!-- Health Connect activity for Android 14+ -->

@@ -17,6 +17,7 @@ import 'package:fitness_day/features/user/market/presentation/screens/orders_scr
 import 'package:fitness_day/features/user/market/presentation/screens/products_list_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_app_bar.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_categories_row.dart';
+import 'package:fitness_day/features/user/market/presentation/widgets/market_empty_state.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_products_grid.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_section_header.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/market_tab_bar.dart';
@@ -203,6 +204,15 @@ class _ProductsTab extends StatelessWidget {
             .map(toProductData)
             .toList();
 
+        // Under "All" every section is empty only when the store itself is;
+        // under a category it just means nothing matched the filter.
+        final categoryProducts = _dedupeById([
+          ...filteredBestOffers,
+          ...filteredBestSellers,
+          ...filteredNewProducts,
+        ]);
+        final bool hasProducts = categoryProducts.isNotEmpty;
+
         return CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
@@ -289,19 +299,28 @@ class _ProductsTab extends StatelessWidget {
                 ),
                 MarketProductsGrid(products: filteredNewProducts),
               ],
+
+              // Nothing in any section — the banners alone would read as a
+              // half-loaded page, so say it plainly.
+              if (!hasProducts)
+                MarketEmptySliver(
+                  title: 'market.empty_products_title'.tr(),
+                  message: 'market.empty_products_message'.tr(),
+                ),
             ] else ...[
               // Filtered category — show all matching products together,
               // de-duplicated since a product can appear in several sections.
-              MarketProductsGrid(
-                products: _dedupeById([
-                  ...filteredBestOffers,
-                  ...filteredBestSellers,
-                  ...filteredNewProducts,
-                ]),
-              ),
+              if (hasProducts)
+                MarketProductsGrid(products: categoryProducts)
+              else
+                MarketEmptySliver(
+                  title: 'market.empty_category_title'.tr(),
+                  message: 'market.empty_category_message'.tr(),
+                ),
             ],
 
-            SliverPadding(padding: EdgeInsets.only(bottom: 40.h)),
+            if (hasProducts)
+              SliverPadding(padding: EdgeInsets.only(bottom: 40.h)),
           ],
         );
       },
@@ -357,7 +376,10 @@ class _PackagesTab extends StatelessWidget {
                   isSubscribed: sub != null,
                   subscriptionName: sub?.name ?? 'market.subscribed_package_message'.tr(),
                   subscriptionEndDate: sub?.endDate ?? '',
-                  onSubscribedTap: sub == null
+                  // Needs a plan to open the details dialog with — with an
+                  // empty list there is nothing to show, and `plans.first`
+                  // would throw.
+                  onSubscribedTap: sub == null || plans.isEmpty
                       ? null
                       : () {
                           final plan = plans.firstWhere(
@@ -381,40 +403,46 @@ class _PackagesTab extends StatelessWidget {
             SliverPadding(padding: EdgeInsets.only(top: 8.h)),
 
             // Plans grid
-            SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16.w,
-                  mainAxisSpacing: 16.h,
-                  childAspectRatio: 0.58,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final plan = plans[index];
-                    final package = SubscriptionPackageData(
-                      id: plan.id,
-                      imageUrl: plan.coverPhoto,
-                      name: plan.name,
-                      currentPrice: plan.price.toInt(),
-                      oldPrice: plan.compareAtPrice?.toInt() ?? 0,
-                      isFavorite: plan.isFavorite,
-                    );
-                    return SubscriptionPackageCard(
-                      package: package,
-                      badge: plan.badge,
-                      detailsLabelKey: 'market.details_button',
-                      onTap: () => _showPlanDetails(context, plan),
-                      onDetailsTap: () => _showPlanDetails(context, plan),
-                    );
-                  },
-                  childCount: plans.length,
+            if (plans.isEmpty)
+              MarketEmptySliver(
+                title: 'market.empty_plans_title'.tr(),
+                message: 'market.empty_plans_message'.tr(),
+              )
+            else ...[
+              SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16.w,
+                    mainAxisSpacing: 16.h,
+                    childAspectRatio: 0.58,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final plan = plans[index];
+                      final package = SubscriptionPackageData(
+                        id: plan.id,
+                        imageUrl: plan.coverPhoto,
+                        name: plan.name,
+                        currentPrice: plan.price.toInt(),
+                        oldPrice: plan.compareAtPrice?.toInt() ?? 0,
+                        isFavorite: plan.isFavorite,
+                      );
+                      return SubscriptionPackageCard(
+                        package: package,
+                        badge: plan.badge,
+                        detailsLabelKey: 'market.details_button',
+                        onTap: () => _showPlanDetails(context, plan),
+                        onDetailsTap: () => _showPlanDetails(context, plan),
+                      );
+                    },
+                    childCount: plans.length,
+                  ),
                 ),
               ),
-            ),
-
-            SliverPadding(padding: EdgeInsets.only(bottom: 40.h)),
+              SliverPadding(padding: EdgeInsets.only(bottom: 40.h)),
+            ],
           ],
         );
       },

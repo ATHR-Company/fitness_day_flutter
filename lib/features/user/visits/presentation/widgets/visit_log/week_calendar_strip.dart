@@ -9,7 +9,19 @@ import 'package:intl/intl.dart';
 /// with the currently selected day highlighted.
 class WeekCalendarStrip extends StatelessWidget {
   final List<DateTime> weekDays;
+
+  /// Days with something on them: these get the tint, the border and the dot.
   final Set<String> appointmentDateKeys;
+
+  /// Days the user may tap, when that is not the same thing as having content.
+  ///
+  /// The visit log has nothing to show for a day without an appointment, so it
+  /// omits this and taps stay gated on [appointmentDateKeys]. The achievements
+  /// screen does — a quiet day is a legitimate answer with its own empty
+  /// state — so it passes all seven and lets the dot alone mark the days that
+  /// earned a badge.
+  final Set<String>? selectableDateKeys;
+
   final int selectedIndex;
   final ValueChanged<int> onDaySelected;
 
@@ -19,6 +31,7 @@ class WeekCalendarStrip extends StatelessWidget {
     required this.appointmentDateKeys,
     required this.selectedIndex,
     required this.onDaySelected,
+    this.selectableDateKeys,
   });
 
   static String dateKey(DateTime dt) =>
@@ -30,15 +43,19 @@ class WeekCalendarStrip extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(weekDays.length, (i) {
         final day = weekDays[i];
-        final hasAppointment = appointmentDateKeys.contains(dateKey(day));
-        final isSelected = i == selectedIndex && hasAppointment;
+        final key = dateKey(day);
+        final hasAppointment = appointmentDateKeys.contains(key);
+        // Falls back to `hasAppointment`, so a caller that omits
+        // `selectableDateKeys` behaves exactly as before.
+        final isSelectable = selectableDateKeys?.contains(key) ?? hasAppointment;
+        final isSelected = i == selectedIndex && isSelectable;
         final dayName =
             DateFormat.E(context.locale.languageCode).format(day);
         final dayNum = DateFormat.d('en').format(day);
 
         return Expanded(
           child: GestureDetector(
-            onTap: hasAppointment ? () => onDaySelected(i) : null,
+            onTap: isSelectable ? () => onDaySelected(i) : null,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               margin: EdgeInsets.symmetric(horizontal: 2.w),
@@ -64,9 +81,11 @@ class WeekCalendarStrip extends StatelessWidget {
                   Text(
                     dayName,
                     style: TextStyleManager.style9Medium.copyWith(
+                      // Greyed out only when the day cannot be opened at all —
+                      // a selectable day with nothing on it is still readable.
                       color: isSelected
                           ? AppColors.white
-                          : hasAppointment
+                          : isSelectable
                               ? AppColors.textPrimary
                               : AppColors.divider,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -79,7 +98,7 @@ class WeekCalendarStrip extends StatelessWidget {
                     style: TextStyleManager.style14Bold.copyWith(
                       color: isSelected
                           ? AppColors.white
-                          : hasAppointment
+                          : isSelectable
                               ? AppColors.black
                               : AppColors.divider,
                     ),

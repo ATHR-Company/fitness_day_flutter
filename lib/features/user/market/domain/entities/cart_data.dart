@@ -54,6 +54,15 @@ class CartData {
   /// A product/plan is "in the cart" when its identity matches a line item.
   /// Drives the ✓ state on add-to-cart buttons across the store.
   bool containsItem(String id) => items.any((i) => i.id == id);
+
+  /// Server-side quantity for [id], or 0 when the item is not in the cart.
+  /// Lets a quantity stepper outside the cart screen mirror the real line item.
+  int quantityOf(String id) {
+    for (final item in items) {
+      if (item.id == id) return item.quantity;
+    }
+    return 0;
+  }
 }
 
 /// Payload for `POST /cart`.

@@ -100,8 +100,7 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.today_tasks'.tr(),
                     isSelected: selectedIndex == 1,
                     onTap: () {
-                      Navigator.pop(context);
-                      context.pushReplacement(SpecialistAppRoutes.todayTasks);
+                      _openSection(context, SpecialistAppRoutes.todayTasks);
                     },
                   ),
                   _buildMenuItem(
@@ -110,8 +109,7 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.visits_log'.tr(),
                     isSelected: selectedIndex == 2,
                     onTap: () {
-                      Navigator.pop(context);
-                      context.pushReplacement(SpecialistAppRoutes.visits);
+                      _openSection(context, SpecialistAppRoutes.visits);
                     },
                   ),
                   _buildMenuItem(
@@ -120,8 +118,7 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.clients'.tr(),
                     isSelected: selectedIndex == 3,
                     onTap: () {
-                      Navigator.pop(context);
-                      context.pushReplacement(SpecialistAppRoutes.clients);
+                      _openSection(context, SpecialistAppRoutes.clients);
                     },
                   ),
                   _buildMenuItem(
@@ -130,8 +127,7 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.notifications'.tr(),
                     isSelected: selectedIndex == 4,
                     onTap: () {
-                      Navigator.pop(context);
-                      context.pushReplacement(SpecialistAppRoutes.notifications);
+                      _openSection(context, SpecialistAppRoutes.notifications);
                     },
                   ),
                   _buildMenuItem(
@@ -140,8 +136,7 @@ class AppDrawer extends StatelessWidget {
                     title: 'drawer.my_profile'.tr(),
                     isSelected: selectedIndex == 5,
                     onTap: () {
-                      Navigator.pop(context);
-                      context.pushReplacement(SpecialistAppRoutes.profile);
+                      _openSection(context, SpecialistAppRoutes.profile);
                     },
                   ),
                   _buildMenuItem(
@@ -165,6 +160,25 @@ class AppDrawer extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Opens a drawer section while keeping home directly beneath it.
+  ///
+  /// The sections are siblings, not a hierarchy: swapping between them must
+  /// not grow the stack, but backing out of one has to land on home — not on
+  /// whatever happened to be underneath. Pushing from home and replacing from
+  /// anywhere else keeps the stack at exactly [home, section].
+  static void _openSection(BuildContext context, String route) {
+    // Read the location before popping — the drawer's context is defunct once
+    // it closes.
+    final bool isOnHome =
+        GoRouterState.of(context).uri.path == SpecialistAppRoutes.home;
+    Navigator.pop(context);
+    if (isOnHome) {
+      context.push(route);
+    } else {
+      context.pushReplacement(route);
+    }
   }
 
   Widget _buildMenuItem({

@@ -10,6 +10,8 @@ import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/features/user/challenges/data/models/challenge_model.dart';
 import 'package:fitness_day/features/user/challenges/presentation/manager/challenge_details_cubit.dart';
 import 'package:fitness_day/features/user/challenges/presentation/screens/challenge_active_screen.dart';
+import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_action_button.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_description_tab.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_dialog_header.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_image_tab_switcher.dart';
@@ -148,20 +150,64 @@ class _DetailsViewState extends State<_DetailsView> {
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: _isDescriptionSelected
-                ? ChallengeDescriptionTab(
-                    challenge: challenge,
-                    onNext: _goToRules,
-                  )
-                : ChallengeRulesTab(
-                    challenge: challenge,
-                    isBusy: isBusy,
-                    onJoin: _join,
-                    onLeave: _leave,
-                  ),
+                ? ChallengeDescriptionTab(challenge: challenge)
+                : ChallengeRulesTab(challenge: challenge),
           ),
         ),
-        SizedBox(height: 8.h),
+        // Pinned, outside the scroll view. Each tab used to carry its own
+        // buttons at the end of its content, so they landed at a different
+        // height per tab and moved under the user's thumb on every switch.
+        _buildActions(challenge, isBusy),
+        SizedBox(height: 16.h),
       ],
+    );
+  }
+
+  Widget _buildActions(ChallengeModel challenge, bool isBusy) {
+    final action = ChallengeActionButton(
+      challenge: challenge,
+      isBusy: isBusy,
+      onJoin: _join,
+      onLeave: _leave,
+    );
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      // "Next" only means something on the description tab — there is nothing
+      // after the rules — so the rules tab gives the action the full width.
+      child: _isDescriptionSelected
+          ? Row(
+              children: [
+                Expanded(child: action),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _goToRules,
+                    style: OutlinedButton.styleFrom(
+                      // Outlined, so the filled button stays the primary one
+                      // and two solid greens don't compete side by side.
+                      minimumSize: Size(double.infinity, 50.h),
+                      side: const BorderSide(color: AppColors.primary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.r),
+                      ),
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'challenges.btn_next'.tr(),
+                        maxLines: 1,
+                        style: TextStyleManager.style13Medium.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : action,
     );
   }
 }

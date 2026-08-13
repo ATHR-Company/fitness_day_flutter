@@ -7,16 +7,16 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
-import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
-import 'package:fitness_day/features/user/market/domain/usecases/toggle_favorite_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/favorite_status_cubit.dart';
 import 'package:fitness_day/features/user/user_home/domain/entities/subscription_package_data.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 export 'package:fitness_day/features/user/user_home/domain/entities/subscription_package_data.dart';
 
-class SubscriptionPackageCard extends StatefulWidget {
+class SubscriptionPackageCard extends StatelessWidget {
   final SubscriptionPackageData package;
   final String detailsLabelKey;
   final bool isSelected;
@@ -32,9 +32,9 @@ class SubscriptionPackageCard extends StatefulWidget {
   final bool isInCart;
   final bool isAdding;
 
-  /// Optional override for the heart-button tap. When provided, the card
-  /// still does its optimistic local toggle but also calls this callback
-  /// so the parent (e.g. FavoritesScreen) can update its own list.
+  /// When provided, tapping the heart hands the whole toggle to the parent —
+  /// request included — instead of going through [FavoriteStatusCubit]. Used by
+  /// the favourites list, which also has to drop the row it just un-favourited.
   final VoidCallback? onFavoriteTap;
 
   /// What this card actually renders — decides the `itemType` sent to
@@ -58,61 +58,24 @@ class SubscriptionPackageCard extends StatefulWidget {
     this.favoriteItemType = CartItemType.plan,
   });
 
-  @override
-  State<SubscriptionPackageCard> createState() =>
-      _SubscriptionPackageCardState();
-}
-
-class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
-  late bool _isFavorite;
-  bool _isTogglingFavorite = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _isFavorite = widget.package.isFavorite;
-  }
-
-  Future<void> _handleFavoriteTap() async {
-    if (_isTogglingFavorite) return;
-    // Optimistic update
-    setState(() {
-      _isFavorite = !_isFavorite;
-      _isTogglingFavorite = true;
-    });
-
-    // If a parent override is provided (e.g. FavoritesScreen wants to remove
-    // the item from its list), call it and let it own the API call.
-    if (widget.onFavoriteTap != null) {
-      widget.onFavoriteTap!();
-      if (!mounted) return;
-      setState(() => _isTogglingFavorite = false);
+  void _handleFavoriteTap(bool isFavorite) {
+    if (onFavoriteTap != null) {
+      onFavoriteTap!();
       return;
     }
 
     // The server keys favourites by type: PLAN for a subscription package,
     // PRODUCT for a store product — send whichever this card is showing.
-    final result = await getIt<ToggleFavoriteUseCase>()(
-      itemType: widget.favoriteItemType,
-      itemIdentity: widget.package.id,
+    getIt<FavoriteStatusCubit>().toggle(
+      itemType: favoriteItemType,
+      id: package.id,
+      current: isFavorite,
     );
-    if (!mounted) return;
-
-    // The use case reports failure through ApiResult rather than throwing, so
-    // the rollback has to be driven off the result, not a catch block.
-    setState(() {
-      if (result is Success<bool>) {
-        _isFavorite = result.data;
-      } else {
-        _isFavorite = !_isFavorite;
-      }
-      _isTogglingFavorite = false;
-    });
   }
 
-  Widget _buildDetailsButton() {
+  Widget _buildDetailsButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: widget.onDetailsTap,
+      onPressed: onDetailsTap,
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         shape: RoundedRectangleBorder(
@@ -127,7 +90,7 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
         children: [
           SizedBox(width: 4.w),
           Text(
-            widget.detailsLabelKey.tr(),
+            detailsLabelKey.tr(),
             style: TextStyleManager.style9Medium.copyWith(
               color: AppColors.white,
               fontWeight: FontWeight.w600,
@@ -143,10 +106,10 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
   }
 
   Widget _buildAddToCartButton() {
-    final bool added = widget.isInCart;
+    final bool added = isInCart;
     return ElevatedButton(
       // Disabled while adding, and once already in the cart.
-      onPressed: (widget.isAdding || added) ? null : widget.onAddToCart,
+      onPressed: (isAdding || added) ? null : onAddToCart,
       style: ElevatedButton.styleFrom(
         backgroundColor: added ? AppColors.marketGreen : AppColors.primary,
         disabledBackgroundColor:
@@ -157,7 +120,7 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
         elevation: 0,
         padding: EdgeInsets.symmetric(horizontal: 10.w),
       ),
-      child: widget.isAdding
+      child: isAdding
           ? SizedBox(
               width: 14.sp,
               height: 14.sp,
@@ -172,7 +135,7 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
               children: [
                 SizedBox(width: 4.w),
                 Text(
-                  (added ? 'market.added' : widget.detailsLabelKey).tr(),
+                  (added ? 'market.added' : detailsLabelKey).tr(),
                   style: TextStyleManager.style9Medium.copyWith(
                     color: AppColors.white,
                     fontWeight: FontWeight.w600,
@@ -189,6 +152,45 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
     );
   }
 
+  /// Heart driven by [FavoriteStatusCubit] rather than local state, so it keeps
+  /// its shape when the grid recycles this card out of view and back.
+  Widget _buildFavoriteButton() {
+    return BlocBuilder<FavoriteStatusCubit, FavoriteStatusState>(
+      bloc: getIt<FavoriteStatusCubit>(),
+      builder: (context, status) {
+        final bool isFavorite =
+            status.isFavorite(package.id, serverValue: package.isFavorite);
+        final bool busy = status.isToggling(package.id);
+
+        return GestureDetector(
+          onTap: busy ? null : () => _handleFavoriteTap(isFavorite),
+          child: Container(
+            padding: EdgeInsets.all(5.r),
+            decoration: BoxDecoration(
+              color: AppColors.white.withValues(alpha: 0.85),
+              shape: BoxShape.circle,
+              boxShadow: AppShadows.primaryShadow,
+            ),
+            child: busy
+                ? SizedBox(
+                    width: 18.sp,
+                    height: 18.sp,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? AppColors.error : AppColors.primary,
+                    size: 18.sp,
+                  ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -196,14 +198,14 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
       borderRadius: BorderRadius.circular(16.r),
       child: InkWell(
         borderRadius: BorderRadius.circular(16.r),
-        onTap: widget.onTap,
+        onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
-              color: widget.isSelected ? AppColors.primary : AppColors.divider,
-              width: widget.isSelected ? 1 : 0.5,
+              color: isSelected ? AppColors.primary : AppColors.divider,
+              width: isSelected ? 1 : 0.5,
             ),
             boxShadow: AppShadows.primaryShadow,
           ),
@@ -221,7 +223,7 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                         topRight: Radius.circular(16.r),
                       ),
                       child: AppImage(
-                        widget.package.imageUrl,
+                        package.imageUrl,
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
@@ -229,7 +231,7 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                     ),
 
                     // Badge — top start (right in RTL)
-                    if (widget.badge != null && widget.badge!.isNotEmpty)
+                    if (badge != null && badge!.isNotEmpty)
                       PositionedDirectional(
                         top: 8.h,
                         start: 8.w,
@@ -241,7 +243,7 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: Text(
-                            widget.badge!,
+                            badge!,
                             style: TextStyleManager.style9Medium.copyWith(
                               color: AppColors.white,
                               fontWeight: FontWeight.bold,
@@ -254,35 +256,7 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                     PositionedDirectional(
                       top: 8.h,
                       end: 8.w,
-                      child: GestureDetector(
-                        onTap: _handleFavoriteTap,
-                        child: Container(
-                          padding: EdgeInsets.all(5.r),
-                          decoration: BoxDecoration(
-                            color: AppColors.white.withValues(alpha: 0.85),
-                            shape: BoxShape.circle,
-                            boxShadow: AppShadows.primaryShadow,
-                          ),
-                          child: _isTogglingFavorite
-                              ? SizedBox(
-                                  width: 18.sp,
-                                  height: 18.sp,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 1.5,
-                                    color: AppColors.primary,
-                                  ),
-                                )
-                              : Icon(
-                                  _isFavorite
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: _isFavorite
-                                      ? AppColors.error
-                                      : AppColors.primary,
-                                  size: 18.sp,
-                                ),
-                        ),
-                      ),
+                      child: _buildFavoriteButton(),
                     ),
                   ],
                 ),
@@ -295,7 +269,7 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      widget.package.name,
+                      package.name,
                       style: TextStyleManager.style11Medium.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.bold,
@@ -321,7 +295,7 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                               textBaseline: TextBaseline.alphabetic,
                               children: [
                                 Text(
-                                  '${widget.package.currentPrice}',
+                                  '${package.currentPrice}',
                                   style: TextStyleManager.style15Medium.copyWith(
                                     color: AppColors.black,
                                     fontWeight: FontWeight.bold,
@@ -335,10 +309,10 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                                     color: AppColors.black,
                                   ),
                                 ),
-                                if (widget.package.oldPrice > 0) ...[
+                                if (package.oldPrice > 0) ...[
                                   SizedBox(width: 6.w),
                                   Text(
-                                    '${widget.package.oldPrice} ${'home.sar'.tr()}',
+                                    '${package.oldPrice} ${'home.sar'.tr()}',
                                     style: TextStyleManager.style8Medium.copyWith(
                                       color: AppColors.error,
                                       decoration: TextDecoration.lineThrough,
@@ -356,9 +330,9 @@ class _SubscriptionPackageCardState extends State<SubscriptionPackageCard> {
                       alignment: AlignmentDirectional.centerEnd,
                       child: SizedBox(
                         height: 32.h,
-                        child: widget.onAddToCart != null
+                        child: onAddToCart != null
                             ? _buildAddToCartButton()
-                            : _buildDetailsButton(),
+                            : _buildDetailsButton(context),
                       ),
                     ),
                   ],

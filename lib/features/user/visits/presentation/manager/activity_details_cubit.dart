@@ -4,6 +4,7 @@ import 'package:fitness_day/core/constant/api_endpoints.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_service.dart';
 import 'package:fitness_day/core/services/app_event_bus.dart';
+import 'package:fitness_day/features/user/challenges/presentation/manager/activity_sync_service.dart';
 import 'package:fitness_day/features/user/visits/domain/usecases/get_activity_details_usecase.dart';
 import 'package:fitness_day/features/user/visits/data/models/activity_details_model.dart';
 import 'activity_details_state.dart';
@@ -77,6 +78,17 @@ class ActivityDetailsCubit extends Cubit<ActivityDetailsState> {
           response.data as Map<String, dynamic>);
       emit(ActivityDetailsSuccess(data.data));
       _publishProgress(data.data);
+
+      // Second destination, same number. `amount` is litres here and the ledger
+      // takes millilitres; removing a glass sends it negative, which is the one
+      // field allowed to be — server totals are floored at zero.
+      //
+      // Only after the plan PATCH succeeds: the catch below leaves the UI on
+      // its previous figure, so a delta credited here would be water the user
+      // was never shown as having logged.
+      getIt<ActivitySyncService>().pushHydration(
+        deltaWaterMl: (amount * 1000).round() * (increase ? 1 : -1),
+      );
     } catch (_) {
       // Keep current state on failure
     }

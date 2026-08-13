@@ -404,7 +404,7 @@ class _StaticDialogContent extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(top: 5.h),
+                            padding: EdgeInsets.only(top: 0.h),
                             child: Icon(Icons.circle,
                                 color: AppColors.primary, size: 10.sp),
                           ),

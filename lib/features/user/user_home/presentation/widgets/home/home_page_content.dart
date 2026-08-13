@@ -30,7 +30,6 @@ import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/home_shimmer_loading.dart';
 import 'package:fitness_day/core/widgets/home_connectivity_banner.dart';
 
-import 'package:fitness_day/core/widgets/exit_dialog.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/user_today_tasks_page.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/articles_list_page.dart';
@@ -91,16 +90,10 @@ class _HomePageContentState extends State<HomePageContent> {
           final bannerUrl = homeData?.banners.isNotEmpty == true ? homeData!.banners.first.photo : null;
           final currentActivity = homeData?.dailyTasks?.currentActivity;
 
-          return PopScope(
-        canPop: false,
-        onPopInvoked: (didPop) async {
-          if (didPop) return;
-          showDialog(
-            context: context,
-            builder: (context) => const ExitDialog(),
-          );
-        },
-        child: Scaffold(
+          // No PopScope here — HomePage already owns the back-press guard for
+          // this route. A second one on the same route gets its callback
+          // invoked too, which put two exit dialogs on screen.
+          return Scaffold(
           backgroundColor: AppColors.white,
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(0),
@@ -383,7 +376,7 @@ class _HomePageContentState extends State<HomePageContent> {
           ),
         ),
       ),
-        ));
+        );
         }
         if (state is UserHomeError) {
           return Scaffold(

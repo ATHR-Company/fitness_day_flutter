@@ -21,12 +21,15 @@ import 'package:fitness_day/features/user/challenges/presentation/manager/challe
 /// half the unsent deltas and neither could guarantee ordering.
 class ActivitySyncService {
   final PushActivityUseCase _pushActivityUseCase;
+  final GetDailyTotalsUseCase _getDailyTotalsUseCase;
   final AppEventBus _eventBus;
 
   ActivitySyncService({
     required PushActivityUseCase pushActivityUseCase,
+    required GetDailyTotalsUseCase getDailyTotalsUseCase,
     required AppEventBus eventBus,
   })  : _pushActivityUseCase = pushActivityUseCase,
+        _getDailyTotalsUseCase = getDailyTotalsUseCase,
         _eventBus = eventBus;
 
   static const Uuid _uuid = Uuid();
@@ -100,6 +103,41 @@ class ActivitySyncService {
     ));
   }
 
+  // ── Launch reconciliation ──────────────────────────────────────────────────
+
+  /// Whether the day's stored totals have been read once this app session.
+  ///
+  /// Attempted once and then left alone whether or not it succeeded: nothing
+  /// downstream depends on it, so a failure must not wedge the queue behind a
+  /// retry loop.
+  bool _primeAttempted = false;
+
+  /// Reads `GET /activity-sync/daily` so [lastTotals] starts the session
+  /// holding the server's figure rather than null.
+  ///
+  /// Run before the first sync of a session, as the contract asks. Note that
+  /// this app does **not** need it to avoid double-counting: the deltas it
+  /// sends are session-relative — each walking/running session starts its
+  /// counters at zero and reports only what accrued since the previous push —
+  /// so it never re-sends a cumulative daily reading in the first place, and a
+  /// reinstall replays nothing. Kept because seeding the totals is still worth
+  /// one request, and because an app that later switched to sending
+  /// `today's total - what the server has` would need exactly this.
+  Future<void> primeDailyTotals() async {
+    _primeAttempted = true;
+    final result = await _getDailyTotalsUseCase();
+    switch (result) {
+      case Success(:final data):
+        _lastTotals = data;
+        debugPrint(
+          '[ActivitySync] 🔄 primed ${data.dayKey}: steps=${data.steps} '
+          'water=${data.waterMl}ml',
+        );
+      case FailureResult(:final failure):
+        debugPrint('[ActivitySync] ⚠️  prime failed: ${failure.message}');
+    }
+  }
+
   // ── Queue ──────────────────────────────────────────────────────────────────
 
   void _enqueue(ActivitySyncRequestModel request) {
@@ -121,6 +159,11 @@ class ActivitySyncService {
   }
 
   Future<void> _drainLoop() async {
+    // "Before the first sync of the session" — hooked here rather than at app
+    // launch so it cannot be missed by a boot path that forgets to call it, and
+    // so a user who never moves never pays for the request.
+    if (!_primeAttempted) await primeDailyTotals();
+
     while (_pending.isNotEmpty) {
       final request = _pending.first;
       final result = await _pushActivityUseCase(request);

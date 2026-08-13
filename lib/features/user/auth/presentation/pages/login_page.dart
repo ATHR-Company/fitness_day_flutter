@@ -82,10 +82,14 @@ class _UserLoginPageState extends State<UserLoginPage> {
               } else if (!state.response.isSurveyComplete) {
                 context.pushReplacement(UserAppRoutes.healthProblems);
               } else {
-                context.pushReplacement(UserAppRoutes.home);
+                // `go`, not `pushReplacement`: role-selection pushed this page,
+                // so replacing it would leave role-selection sitting under
+                // home and back would exit the session. `go` rebuilds the
+                // stack as just [home].
+                context.go(UserAppRoutes.home);
               }
             } else {
-              context.pushReplacement(SpecialistAppRoutes.home);
+              context.go(SpecialistAppRoutes.home);
             }
           } else if (state is UserSigninSuccess) {
             if (state.response.type == 'user') {
@@ -98,10 +102,14 @@ class _UserLoginPageState extends State<UserLoginPage> {
               } else if (!state.response.isSurveyComplete) {
                 context.pushReplacement(UserAppRoutes.healthProblems);
               } else {
-                context.pushReplacement(UserAppRoutes.home);
+                // `go`, not `pushReplacement`: role-selection pushed this page,
+                // so replacing it would leave role-selection sitting under
+                // home and back would exit the session. `go` rebuilds the
+                // stack as just [home].
+                context.go(UserAppRoutes.home);
               }
             } else {
-              context.pushReplacement(SpecialistAppRoutes.home);
+              context.go(SpecialistAppRoutes.home);
             }
           } else if (state is UserAuthFailure) {
             showAppError(context, state.error, message: state.message);

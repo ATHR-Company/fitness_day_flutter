@@ -15,6 +15,7 @@ import 'package:fitness_day/core/services/health_service.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/features/user/user_home/data/models/walking_sync_model.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/sync_walking_usecase.dart';
+import 'package:fitness_day/features/user/challenges/presentation/manager/activity_sync_service.dart';
 
 part 'walking_state.dart';
 
@@ -30,6 +31,11 @@ part 'walking_state.dart';
 class WalkingCubit extends Cubit<WalkingState> {
   final FitnessHealthService _healthService;
   final SyncWalkingUseCase _syncWalkingUseCase;
+
+  /// The challenges/achievements ledger — a second, separate destination for
+  /// the same numbers. It is never fed from the plan sync's result, and the
+  /// plan sync is never fed from its own; both receive the identical delta.
+  final ActivitySyncService _activitySyncService;
 
   /// Identifies the plan activity this progress is credited to. The backend
   /// does not infer any of these — every sync names its target explicitly.
@@ -66,6 +72,21 @@ class WalkingCubit extends Cubit<WalkingState> {
   int _lastSentSteps = 0;
   double _lastSentDistanceKm = 0;
   int _lastSentElapsedSeconds = 0;
+
+  /// The same marks again, kept separately for the challenges ledger.
+  ///
+  /// They cannot be shared with the plan's: the plan sync refuses to run at all
+  /// without an [activityItemId], and only advances its marks once the server
+  /// acknowledges. The ledger is open to users who have no plan and therefore
+  /// no item id, so sharing either the guard or the marks would silently stop
+  /// feeding challenges for exactly the users the feature exists for.
+  ///
+  /// These advance as soon as the delta is handed to [ActivitySyncService],
+  /// which owns delivery from that point — it holds a failed delta with its
+  /// original `syncId` and resends it rather than folding it into the next one.
+  int _ledgerSentSteps = 0;
+  double _ledgerSentDistanceKm = 0;
+  int _ledgerSentElapsedSeconds = 0;
 
   /// An attempt that was built but never acknowledged. It is retried byte-for
   /// byte — same deltas, same [_pendingSyncId] — so that if the request
@@ -310,6 +331,7 @@ class WalkingCubit extends Cubit<WalkingState> {
   WalkingCubit({
     required FitnessHealthService healthService,
     required SyncWalkingUseCase syncWalkingUseCase,
+    required ActivitySyncService activitySyncService,
     required this.assessmentId,
     required this.dayNumber,
     required this.activityId,
@@ -318,6 +340,7 @@ class WalkingCubit extends Cubit<WalkingState> {
     required double goalDistanceKm,
   }) : _healthService = healthService,
        _syncWalkingUseCase = syncWalkingUseCase,
+       _activitySyncService = activitySyncService,
        super(
          WalkingState(goalSteps: goalSteps, goalDistanceKm: goalDistanceKm),
        );
@@ -439,6 +462,13 @@ class WalkingCubit extends Cubit<WalkingState> {
     _lastSentDistanceKm = 0;
     _lastSentElapsedSeconds = 0;
     _pendingSyncId = null;
+
+    // Session-relative like the readings they are compared against, so they
+    // restart with them. Anything already handed to the ledger service stays in
+    // its queue and is unaffected by this.
+    _ledgerSentSteps = 0;
+    _ledgerSentDistanceKm = 0;
+    _ledgerSentElapsedSeconds = 0;
 
     await _startPedometerIfPermitted();
     await _startGpsIfPermitted();
@@ -611,6 +641,15 @@ class WalkingCubit extends Cubit<WalkingState> {
           ),
         );
       }
+
+      // Two destinations, same numbers, neither derived from the other.
+      // The ledger goes first and is not awaited: it owns its own queue, and
+      // the plan sync must not be delayed by — or skipped because of — it.
+      _pushToLedger(
+        steps: sessionSteps,
+        distanceKm: sessionDistanceKm,
+        elapsedSeconds: state.elapsedSeconds,
+      );
 
       await _syncToBackend(
         steps: sessionSteps,
@@ -836,6 +875,38 @@ class WalkingCubit extends Cubit<WalkingState> {
   /// see no pending attempt, both build one, and the second would overwrite the
   /// first's payload — acknowledging the first would then advance the baseline
   /// past steps that were never actually sent.
+  /// Hands this poll's delta to the challenges/achievements ledger.
+  ///
+  /// Deliberately outside [_syncToBackend]: that method returns early when
+  /// there is no [activityItemId], which is the normal state for a user with no
+  /// plan — and those users are precisely who challenges are open to.
+  void _pushToLedger({
+    required int steps,
+    required double distanceKm,
+    required int elapsedSeconds,
+  }) {
+    final int stepDelta = (steps - _ledgerSentSteps).clamp(0, steps);
+    final double distDeltaKm =
+        (distanceKm - _ledgerSentDistanceKm).clamp(0.0, distanceKm);
+    final int durationDelta =
+        (elapsedSeconds - _ledgerSentElapsedSeconds).clamp(0, elapsedSeconds);
+
+    if (stepDelta == 0 && distDeltaKm == 0 && durationDelta == 0) return;
+
+    _ledgerSentSteps = steps;
+    _ledgerSentDistanceKm = distanceKm;
+    _ledgerSentElapsedSeconds = elapsedSeconds;
+
+    _activitySyncService.pushWalking(
+      deltaSteps: stepDelta,
+      // Metres on the way in — the ledger reports kilometres back, and a
+      // distance challenge's goal is in kilometres. The backend converts, so
+      // converting again here would divide the user's progress by a thousand.
+      deltaDistanceMeters: double.parse((distDeltaKm * 1000).toStringAsFixed(1)),
+      durationSeconds: durationDelta,
+    );
+  }
+
   Future<void> _syncToBackend({
     required int steps,
     required double distanceKm,

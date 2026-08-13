@@ -1,0 +1,23 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "XB8YVBDAM7.com.athr.fitnessday",
+        "paths": [
+          "/products/*",
+          "/store/products/*",
+          "/open",
+          "/user-home",
+          "/challenges",
+          "/user-profile"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "XB8YVBDAM7.com.athr.fitnessday"
+    ]
+  }
+}

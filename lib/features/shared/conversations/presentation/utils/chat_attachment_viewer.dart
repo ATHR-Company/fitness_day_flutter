@@ -8,6 +8,14 @@ import 'package:fitness_day/core/widgets/video_viewer_dialog.dart';
 import 'package:fitness_day/features/shared/conversations/domain/entities/chat_message.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/models/local_chat_message.dart';
 
+/// Drops focus before pushing a viewer.
+///
+/// Every viewer here is a route, and popping one hands focus back to the page's
+/// focus scope — which restores whatever child it last had focused. With the
+/// composer still on that list the keyboard reappears over the chat. Unfocusing
+/// the primary node (rather than the scope) clears that entry.
+void _dismissKeyboard() => FocusManager.instance.primaryFocus?.unfocus();
+
 /// Opens [attachment] in the viewer that fits its type:
 ///   - image → [FullScreenImageView] (zoom + drag to dismiss)
 ///   - video → [VideoViewerDialog]
@@ -19,6 +27,8 @@ void openChatAttachment(
   ChatMediaAttachment attachment, {
   List<ChatMediaAttachment>? allAttachments,
 }) {
+  _dismissKeyboard();
+
   if (attachment.isImage) {
     final list = allAttachments ?? [attachment];
     final items = list.map((a) => FullScreenImageItem(
@@ -57,6 +67,8 @@ void openLocalChatMedia(
   required bool isVideo,
   List<LocalChatMessage>? allImages,
 }) {
+  _dismissKeyboard();
+
   if (isVideo) {
     VideoViewerDialog.show(context, source: path);
   } else {

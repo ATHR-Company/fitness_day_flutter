@@ -1,71 +1,46 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:fitness_day/core/theme/app_colors.dart';
-import 'package:fitness_day/core/theme/app_text_styles.dart';
 
 /// Viewfinder drawn over the live preview: four corner brackets marking where
-/// to place the plate, plus the alignment hint underneath.
+/// to place the plate.
+///
+/// The alignment hint lives below the preview now ([ScanMealHint]) — inside
+/// here it sat under the shutter button.
 class ScanMealFrameOverlay extends StatelessWidget {
   const ScanMealFrameOverlay({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 60.h),
-            child: const Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  child: _FrameCorner(isTop: true, isLeft: true),
-                ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: _FrameCorner(isTop: true, isLeft: false),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  child: _FrameCorner(isTop: false, isLeft: true),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: _FrameCorner(isTop: false, isLeft: false),
-                ),
-              ],
-            ),
+    return Padding(
+      // Inset from the card edges rather than the old full-height values, which
+      // were sized for a preview that filled the whole page.
+      padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 32.h),
+      child: const Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            child: _FrameCorner(isTop: true, isLeft: true),
           ),
-        ),
-        Positioned(
-          bottom: 40.h,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Text(
-              'scan_meal.align_hint'.tr(),
-              textAlign: TextAlign.center,
-              style: TextStyleManager.style11Medium.copyWith(
-                color: AppColors.white,
-                fontWeight: FontWeight.bold,
-                shadows: const [
-                  Shadow(
-                    color: Colors.black54,
-                    blurRadius: 4,
-                    offset: Offset(0, 1),
-                  ),
-                ],
-              ),
-            ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: _FrameCorner(isTop: true, isLeft: false),
           ),
-        ),
-      ],
+          Positioned(
+            bottom: 0,
+            left: 0,
+            child: _FrameCorner(isTop: false, isLeft: true),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: _FrameCorner(isTop: false, isLeft: false),
+          ),
+        ],
+      ),
     );
   }
 }

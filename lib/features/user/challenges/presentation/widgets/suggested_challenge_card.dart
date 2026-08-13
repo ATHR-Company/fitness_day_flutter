@@ -55,11 +55,14 @@ class SuggestedChallengeCard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 8.h),
+                  // Start before end, matching the active card. They were
+                  // reversed here, so the two cards on the same screen read
+                  // their dates in opposite orders.
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      DateBadge(label: challenge.endLabel, isEnd: true),
                       DateBadge(label: challenge.startLabel, isEnd: false),
+                      DateBadge(label: challenge.endLabel, isEnd: true),
                     ],
                   ),
                 ],

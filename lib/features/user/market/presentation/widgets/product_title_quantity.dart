@@ -10,12 +10,17 @@ class ProductTitleQuantity extends StatelessWidget {
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
 
+  /// True while a cart request for this product is in flight — the stepper is
+  /// replaced by a spinner and taps are ignored, same as the cart screen row.
+  final bool busy;
+
   const ProductTitleQuantity({
     super.key,
     required this.name,
     required this.quantity,
     required this.onIncrement,
     required this.onDecrement,
+    this.busy = false,
   });
 
   @override
@@ -37,34 +42,44 @@ class ProductTitleQuantity extends StatelessWidget {
           ),
           SizedBox(width: 16.w),
           // Quantity stepper
-          Row(
-            children: [
-              GestureDetector(
-                onTap: onIncrement,
-                child: Icon(
-                  Icons.add_circle_outline,
-                  color: AppColors.primary,
-                  size: 28.sp,
-                ),
+          if (busy)
+            SizedBox(
+              width: 28.sp,
+              height: 28.sp,
+              child: const CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primary,
               ),
-              SizedBox(width: 12.w),
-              Text(
-                '$quantity',
-                style: TextStyleManager.heading3.copyWith(
-                  fontWeight: FontWeight.bold,
+            )
+          else
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: onIncrement,
+                  child: Icon(
+                    Icons.add_circle_outline,
+                    color: AppColors.primary,
+                    size: 28.sp,
+                  ),
                 ),
-              ),
-              SizedBox(width: 12.w),
-              GestureDetector(
-                onTap: onDecrement,
-                child: Icon(
-                  Icons.remove_circle_outline,
-                  color: AppColors.primary,
-                  size: 28.sp,
+                SizedBox(width: 12.w),
+                Text(
+                  '$quantity',
+                  style: TextStyleManager.heading3.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
-          ),
+                SizedBox(width: 12.w),
+                GestureDetector(
+                  onTap: onDecrement,
+                  child: Icon(
+                    Icons.remove_circle_outline,
+                    color: AppColors.primary,
+                    size: 28.sp,
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );

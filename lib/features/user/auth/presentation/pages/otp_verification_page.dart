@@ -159,7 +159,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           } else if (!isSurveyComplete) {
                             context.pushReplacement(UserAppRoutes.healthProblems);
                           } else {
-                            context.pushReplacement(UserAppRoutes.home);
+                            // `go` clears the auth stack — see login_page.dart.
+                            context.go(UserAppRoutes.home);
                           }
                         }
                       },

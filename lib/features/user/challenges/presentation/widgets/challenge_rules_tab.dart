@@ -13,22 +13,13 @@ import 'package:fitness_day/features/user/challenges/data/models/challenge_model
 /// translated to the requested language. They used to be five hardcoded keys,
 /// which meant every challenge showed the same five sentences no matter what it
 /// actually asked of the user.
+/// Scrolling content only — the action button is pinned to the bottom of the
+/// sheet by [ChallengeDetailsDialog], so it sits at the same height here as it
+/// does on the description tab.
 class ChallengeRulesTab extends StatelessWidget {
   final ChallengeModel challenge;
 
-  /// True while a join or leave is in flight.
-  final bool isBusy;
-
-  final VoidCallback onJoin;
-  final VoidCallback onLeave;
-
-  const ChallengeRulesTab({
-    super.key,
-    required this.challenge,
-    required this.onJoin,
-    required this.onLeave,
-    this.isBusy = false,
-  });
+  const ChallengeRulesTab({super.key, required this.challenge});
 
   @override
   Widget build(BuildContext context) {
@@ -48,114 +39,8 @@ class ChallengeRulesTab extends StatelessWidget {
           )
         else
           ...challenge.rules.map((rule) => _RuleItem(text: rule)),
-        SizedBox(height: 32.h),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: _ActionButton(
-            challenge: challenge,
-            isBusy: isBusy,
-            onJoin: onJoin,
-            onLeave: onLeave,
-          ),
-        ),
+        SizedBox(height: 24.h),
       ],
-    );
-  }
-}
-
-/// Join, leave, or nothing at all.
-///
-/// A finished challenge and one whose dates have passed both have no action
-/// left — offering "join" on either would only produce a rejection from the
-/// server.
-class _ActionButton extends StatelessWidget {
-  final ChallengeModel challenge;
-  final bool isBusy;
-  final VoidCallback onJoin;
-  final VoidCallback onLeave;
-
-  const _ActionButton({
-    required this.challenge,
-    required this.isBusy,
-    required this.onJoin,
-    required this.onLeave,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (challenge.isCompleted) {
-      return _StatusPill(
-        label: 'challenges.completed'.tr(),
-        color: AppColors.primary,
-      );
-    }
-
-    if (challenge.status == ChallengeStatus.ended) {
-      return _StatusPill(
-        label: 'challenges.ended'.tr(),
-        color: AppColors.textSecondary,
-      );
-    }
-
-    final bool isJoined = challenge.isJoined;
-
-    return ElevatedButton(
-      onPressed: isBusy ? null : (isJoined ? onLeave : onJoin),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isJoined ? AppColors.white : AppColors.primary,
-        minimumSize: Size(double.infinity, 50.h),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25.r),
-          side: BorderSide(
-            color: isJoined ? AppColors.error : Colors.transparent,
-          ),
-        ),
-        elevation: 0,
-      ),
-      child: isBusy
-          ? SizedBox(
-              width: 20.r,
-              height: 20.r,
-              child: const CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.primary,
-              ),
-            )
-          : Text(
-              isJoined
-                  ? 'challenges.btn_leave'.tr()
-                  : 'challenges.btn_join'.tr(),
-              style: TextStyleManager.style13Medium.copyWith(
-                color: isJoined ? AppColors.error : AppColors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-    );
-  }
-}
-
-class _StatusPill extends StatelessWidget {
-  final String label;
-  final Color color;
-
-  const _StatusPill({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 50.h,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(25.r),
-      ),
-      child: Text(
-        label,
-        style: TextStyleManager.style13Medium.copyWith(
-          color: color,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
     );
   }
 }

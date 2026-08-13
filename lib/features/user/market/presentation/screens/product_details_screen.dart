@@ -2,7 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/services/app_share_service.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/favorite_status_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/product_details_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/product_add_to_cart_bar.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/product_details_app_bar.dart';
@@ -46,8 +49,19 @@ class _ProductDetailsView extends StatefulWidget {
 }
 
 class _ProductDetailsViewState extends State<_ProductDetailsView> {
+  /// Draft quantity used only until the product is in the cart — after that the
+  /// stepper reads the server line item through [CartCubit].
   int _quantity = 1;
   final PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Reached from a share link the store tab may never have opened, so the
+    // cart would read as empty and the stepper / ✓ would both be wrong.
+    final cart = getIt<CartCubit>();
+    if (!cart.state.hasLoadedCart) cart.loadCart();
+  }
 
   @override
   void dispose() {
@@ -142,33 +156,46 @@ class _ProductBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Photo carousel
-          ProductPhotoCarousel(
-            photos: photos,
-            selectedIndex: selectedPhoto,
-            pageController: pageController,
-            onPageChanged: (i) =>
-                context.read<ProductDetailsCubit>().selectPhoto(i),
-            isFavorite: product.isFavorite,
-            onFavoriteTap: () =>
-                context.read<ProductDetailsCubit>().toggleFavorite(),
-            onShareTap: () => AppShareService.shareProduct(
-              context,
-              productId: product.id,
-              productName: product.name,
-            ),
+          // Photo carousel — the heart reads the shared favourite state so it
+          // agrees with the card this screen was opened from, in both
+          // directions.
+          BlocBuilder<FavoriteStatusCubit, FavoriteStatusState>(
+            bloc: getIt<FavoriteStatusCubit>(),
+            builder: (context, status) {
+              final bool isFavorite = status.isFavorite(
+                product.id,
+                serverValue: product.isFavorite,
+              );
+
+              return ProductPhotoCarousel(
+                photos: photos,
+                selectedIndex: selectedPhoto,
+                pageController: pageController,
+                onPageChanged: (i) =>
+                    context.read<ProductDetailsCubit>().selectPhoto(i),
+                isFavorite: isFavorite,
+                isTogglingFavorite: status.isToggling(product.id),
+                onFavoriteTap: () => getIt<FavoriteStatusCubit>().toggle(
+                  itemType: CartItemType.product,
+                  id: product.id,
+                  current: isFavorite,
+                ),
+                onShareTap: () => AppShareService.shareProduct(
+                  context,
+                  productId: product.id,
+                  productName: product.name,
+                ),
+              );
+            },
           ),
 
           SizedBox(height: 16.h),
 
           // Title + quantity stepper
-          ProductTitleQuantity(
-            name: product.name,
-            quantity: quantity,
-            onIncrement: () => onQuantityChanged(quantity + 1),
-            onDecrement: () {
-              if (quantity > 1) onQuantityChanged(quantity - 1);
-            },
+          _CartQuantitySelector(
+            product: product,
+            localQuantity: quantity,
+            onLocalChanged: onQuantityChanged,
           ),
 
           SizedBox(height: 8.h),
@@ -195,6 +222,70 @@ class _ProductBody extends StatelessWidget {
           SizedBox(height: 40.h),
         ],
       ),
+    );
+  }
+}
+
+// ─── Cart-bound quantity stepper ──────────────────────────────────────────────
+
+/// Product name plus a stepper that follows the shared [CartCubit].
+///
+/// Before the product is in the cart the number is a local draft that the
+/// add-to-cart bar sends along. Once it is in the cart the stepper mirrors the
+/// server line item and every tap goes through the cubit — `PATCH /cart/items`
+/// on +/-, `DELETE` when the last unit is removed — so the number here, the
+/// cart screen, and the badge never disagree.
+class _CartQuantitySelector extends StatelessWidget {
+  final ProductData product;
+  final int localQuantity;
+  final ValueChanged<int> onLocalChanged;
+
+  const _CartQuantitySelector({
+    required this.product,
+    required this.localQuantity,
+    required this.onLocalChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cart = getIt<CartCubit>();
+
+    return BlocBuilder<CartCubit, CartState>(
+      bloc: cart,
+      builder: (context, state) {
+        final bool inCart = state.isInCart(product.id);
+        final int quantity =
+            inCart ? state.quantityOf(product.id) : localQuantity;
+
+        return ProductTitleQuantity(
+          name: product.name,
+          quantity: quantity,
+          busy: state.isAdding(product.id),
+          onIncrement: () {
+            if (inCart) {
+              cart.updateQuantity(
+                itemIdentity: product.id,
+                quantity: quantity + 1,
+              );
+            } else {
+              onLocalChanged(quantity + 1);
+            }
+          },
+          onDecrement: () {
+            if (!inCart) {
+              // Nothing to remove yet — 1 is the floor for the draft quantity.
+              if (quantity > 1) onLocalChanged(quantity - 1);
+            } else if (quantity > 1) {
+              cart.updateQuantity(
+                itemIdentity: product.id,
+                quantity: quantity - 1,
+              );
+            } else {
+              cart.removeItem(itemIdentity: product.id);
+            }
+          },
+        );
+      },
     );
   }
 }

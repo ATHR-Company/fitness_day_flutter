@@ -7,6 +7,7 @@ import 'package:fitness_day/features/user/auth/presentation/manager/user_auth_cu
 import 'package:fitness_day/features/user/auth/presentation/manager/user_setup_cubit.dart';
 import 'package:fitness_day/features/user/profile/presentation/manager/user_profile_cubit.dart';
 import 'package:fitness_day/core/widgets/offline_banner.dart';
+import 'package:fitness_day/features/user/challenges/presentation/widgets/achievement_unlocked_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -85,8 +86,16 @@ class FitnessDay extends StatelessWidget {
               routerConfig: AppRouter.router,
               // App-wide offline banner: slides down whenever the device
               // loses connectivity, on top of every route.
-              builder: (context, child) =>
-                  OfflineBanner(child: child ?? const SizedBox.shrink()),
+              //
+              // The achievement overlay sits inside it, so a badge unlocked
+              // just as the connection drops never covers the banner. Both are
+              // here rather than on a screen because the events that drive them
+              // arrive regardless of where the user is.
+              builder: (context, child) => OfflineBanner(
+                child: AchievementUnlockedOverlay(
+                  child: child ?? const SizedBox.shrink(),
+                ),
+              ),
             ),
           ),
         );

@@ -77,7 +77,7 @@ class SubscriptionBanner extends StatelessWidget {
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 2.h),
-            constraints: BoxConstraints(minHeight: 40.h, maxHeight: 48.h),
+            constraints: BoxConstraints(minHeight: 46.h, maxHeight: 48.h),
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(35.r),

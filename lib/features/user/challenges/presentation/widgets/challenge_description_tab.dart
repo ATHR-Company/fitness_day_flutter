@@ -9,11 +9,13 @@ import 'package:fitness_day/features/user/challenges/presentation/widgets/date_b
 import 'package:fitness_day/core/widgets/app_image.dart';
 
 /// "Description" tab content of the challenge details dialog.
+/// Scrolling content only — the join / next actions are pinned to the bottom of
+/// the sheet by [ChallengeDetailsDialog] so they hold one position across both
+/// tabs instead of following each tab's content height.
 class ChallengeDescriptionTab extends StatelessWidget {
   final ChallengeModel challenge;
-  final VoidCallback onNext;
 
-  const ChallengeDescriptionTab({super.key, required this.challenge, required this.onNext});
+  const ChallengeDescriptionTab({super.key, required this.challenge});
 
   @override
   Widget build(BuildContext context) {
@@ -79,26 +81,7 @@ class ChallengeDescriptionTab extends StatelessWidget {
             style: TextStyleManager.style10Medium.copyWith(color: AppColors.textSecondary),
           ),
         ),
-        SizedBox(height: 32.h),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: ElevatedButton(
-            onPressed: onNext,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              minimumSize: Size(double.infinity, 50.h),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.r)),
-              elevation: 0,
-            ),
-            child: Text(
-              'challenges.btn_next'.tr(),
-              style: TextStyleManager.style13Medium.copyWith(
-                color: AppColors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
+        SizedBox(height: 24.h),
       ],
     );
   }

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
@@ -9,28 +10,48 @@ import 'package:fitness_day/core/widgets/app_image.dart';
 /// active challenge screen.
 class ChallengeHeroSection extends StatelessWidget {
   final String? imageUrl;
-  final int achievedPercent;
 
-  static const _fallback =
-      'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400';
+  /// The user's real percentage, the same figure the ring below draws.
+  ///
+  /// Required, not defaulted: it used to fall back to a literal `44` that no
+  /// caller ever overrode, so every challenge claimed 44% however far along it
+  /// actually was.
+  final int achievedPercent;
 
   const ChallengeHeroSection({
     super.key,
+    required this.achievedPercent,
     this.imageUrl,
-    this.achievedPercent = 44,
   });
 
   @override
   Widget build(BuildContext context) {
+    final String? url = imageUrl;
+    final bool hasArtwork = url != null && url.isNotEmpty;
+
     return Stack(
       alignment: Alignment.bottomCenter,
       clipBehavior: Clip.none,
       children: [
-        AppImage(
-          imageUrl ?? _fallback,
+        SizedBox(
           height: 200.h,
           width: double.infinity,
-          fit: BoxFit.cover,
+          // `image` is null until an admin uploads artwork. This pointed at a
+          // hardcoded Unsplash food photo, so an artwork-less challenge showed
+          // a stock salad it had nothing to do with.
+          child: hasArtwork
+              ? AppImage(url,
+                  height: 200.h, width: double.infinity, fit: BoxFit.cover)
+              : ColoredBox(
+                  color: AppColors.backgroundTint,
+                  child: Center(
+                    child: AppImage(
+                      AppImages.challenge_cap,
+                      height: 96.h,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
         ),
         Positioned(
           bottom: -15.h,

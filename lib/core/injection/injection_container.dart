@@ -162,6 +162,7 @@ import 'package:fitness_day/features/user/market/domain/usecases/get_favorites_u
 import 'package:fitness_day/features/user/market/presentation/manager/favorites_cubit.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/get_plan_by_id_usecase.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/toggle_favorite_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/favorite_status_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/market_home_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/product_details_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/plans_cubit.dart';
@@ -223,7 +224,6 @@ import 'package:fitness_day/features/user/user_home/presentation/manager/user_ho
 import 'package:fitness_day/features/user/user_home/presentation/manager/saved_articles_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/articles_list_cubit.dart';
 import 'package:fitness_day/core/services/health_service.dart';
-import 'package:fitness_day/core/services/session_manager.dart';
 import 'package:fitness_day/core/services/session_manager.dart';
 import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/features/user/challenges/data/datasources/challenges_remote_datasource.dart';
@@ -703,14 +703,17 @@ Future<void> init() async {
   getIt.registerLazySingleton<ToggleFavoriteUseCase>(
     () => ToggleFavoriteUseCase(getIt<MarketRepository>()),
   );
+  // Favourite flags are a singleton for the same reason the cart is: cards are
+  // rebuilt from stale list payloads whenever a grid recycles them, so the
+  // heart cannot live inside the card.
+  getIt.registerLazySingleton<FavoriteStatusCubit>(
+    () => FavoriteStatusCubit(getIt<ToggleFavoriteUseCase>()),
+  );
   getIt.registerFactory<MarketHomeCubit>(
     () => MarketHomeCubit(getIt<GetStoreHomeUseCase>()),
   );
   getIt.registerFactory<ProductDetailsCubit>(
-    () => ProductDetailsCubit(
-      getIt<GetProductByIdUseCase>(),
-      getIt<ToggleFavoriteUseCase>(),
-    ),
+    () => ProductDetailsCubit(getIt<GetProductByIdUseCase>()),
   );
   getIt.registerLazySingleton<GetFavoritesUseCase>(
     () => GetFavoritesUseCase(getIt<MarketRepository>()),
@@ -719,6 +722,7 @@ Future<void> init() async {
     () => FavoritesCubit(
       getIt<GetFavoritesUseCase>(),
       getIt<ToggleFavoriteUseCase>(),
+      getIt<FavoriteStatusCubit>(),
     ),
   );
   getIt.registerFactory<PlansCubit>(
@@ -1133,6 +1137,7 @@ Future<void> init() async {
   getIt.registerLazySingleton<ActivitySyncService>(
     () => ActivitySyncService(
       pushActivityUseCase: getIt<PushActivityUseCase>(),
+      getDailyTotalsUseCase: getIt<GetDailyTotalsUseCase>(),
       eventBus: getIt<AppEventBus>(),
     ),
   );

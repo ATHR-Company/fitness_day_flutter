@@ -36,6 +36,8 @@ class ChangePhoneDialog extends StatefulWidget {
 }
 
 class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
+  static const int _otpLength = 6;
+
   final _phoneController = TextEditingController();
   final _otpController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -58,6 +60,17 @@ class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
     _otpController.dispose();
     super.dispose();
   }
+
+  /// The field opens prefilled with the number already on file, so until it is
+  /// actually edited there is nothing to change — sending an OTP to the current
+  /// number is a wasted round trip and a confusing success message.
+  bool get _canSendCode {
+    final entered = _phoneController.text.trim();
+    return entered.isNotEmpty && entered != (widget.initialPhone ?? '').trim();
+  }
+
+  /// The code is fixed-length; anything shorter cannot verify.
+  bool get _canVerify => _otpController.text.trim().length == _otpLength;
 
   Future<void> _onSendCode() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -181,7 +194,7 @@ class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
                   Directionality(
                     textDirection: ui.TextDirection.ltr,
                     child: Pinput(
-                      length: 6,
+                      length: _otpLength,
                       controller: _otpController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -198,10 +211,25 @@ class _ChangePhoneDialogState extends State<ChangePhoneDialog> {
                 Row(
                   children: [
                     Expanded(
-                      child: CustomButton(
-                      
-                        text: _otpStep ? 'profile.verify_code'.tr() : 'profile.send_code'.tr(),
-                        onPressed: _otpStep ? _onVerify : _onSendCode,
+                      // Rebuilds on every keystroke so the button follows the
+                      // field instead of waiting for some other setState.
+                      child: ListenableBuilder(
+                        listenable: Listenable.merge(
+                          [_phoneController, _otpController],
+                        ),
+                        builder: (context, _) {
+                          final bool enabled =
+                              _otpStep ? _canVerify : _canSendCode;
+
+                          return CustomButton(
+                            text: _otpStep
+                                ? 'profile.verify_code'.tr()
+                                : 'profile.send_code'.tr(),
+                            onPressed: enabled
+                                ? (_otpStep ? _onVerify : _onSendCode)
+                                : null,
+                          );
+                        },
                       ),
                     ),
                     SizedBox(width: 16.w),

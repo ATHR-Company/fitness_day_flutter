@@ -1,9 +1,7 @@
 import 'package:fitness_day/core/network/api_result.dart';
-import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_product_by_id_usecase.dart';
-import '../../domain/usecases/toggle_favorite_usecase.dart';
 import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class ProductDetailsState {
@@ -18,6 +16,8 @@ class ProductDetailsLoading extends ProductDetailsState {
   const ProductDetailsLoading();
 }
 
+/// The favourite flag is deliberately absent here — it lives in
+/// [FavoriteStatusCubit] so this screen and the store grids can never disagree.
 class ProductDetailsSuccess extends ProductDetailsState {
   final ProductData product;
   final int selectedPhotoIndex;
@@ -27,7 +27,10 @@ class ProductDetailsSuccess extends ProductDetailsState {
     this.selectedPhotoIndex = 0,
   });
 
-  ProductDetailsSuccess copyWith({ProductData? product, int? selectedPhotoIndex}) {
+  ProductDetailsSuccess copyWith({
+    ProductData? product,
+    int? selectedPhotoIndex,
+  }) {
     return ProductDetailsSuccess(
       product: product ?? this.product,
       selectedPhotoIndex: selectedPhotoIndex ?? this.selectedPhotoIndex,
@@ -47,11 +50,8 @@ class ProductDetailsFailure extends ProductDetailsState {
 
 class ProductDetailsCubit extends Cubit<ProductDetailsState> {
   final GetProductByIdUseCase _getProductByIdUseCase;
-  final ToggleFavoriteUseCase _toggleFavoriteUseCase;
 
-  bool _isTogglingFavorite = false;
-
-  ProductDetailsCubit(this._getProductByIdUseCase, this._toggleFavoriteUseCase)
+  ProductDetailsCubit(this._getProductByIdUseCase)
       : super(const ProductDetailsInitial());
 
   Future<void> load(String id) async {
@@ -69,28 +69,5 @@ class ProductDetailsCubit extends Cubit<ProductDetailsState> {
     if (current is ProductDetailsSuccess) {
       emit(current.copyWith(selectedPhotoIndex: index));
     }
-  }
-
-  /// Flips the heart immediately, then settles on whatever the server reports —
-  /// which also rolls the icon back if the request failed.
-  Future<void> toggleFavorite() async {
-    final current = state;
-    if (current is! ProductDetailsSuccess || _isTogglingFavorite) return;
-
-    _isTogglingFavorite = true;
-    final bool previous = current.product.isFavorite;
-    emit(current.copyWith(product: current.product.copyWith(isFavorite: !previous)));
-
-    final result = await _toggleFavoriteUseCase(
-      itemType: CartItemType.product,
-      itemIdentity: current.product.id,
-    );
-    _isTogglingFavorite = false;
-
-    final latest = state;
-    if (latest is! ProductDetailsSuccess) return;
-
-    final bool settled = result is Success<bool> ? result.data : previous;
-    emit(latest.copyWith(product: latest.product.copyWith(isFavorite: settled)));
   }
 }

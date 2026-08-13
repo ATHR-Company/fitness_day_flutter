@@ -75,6 +75,11 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Hands incoming Universal Links to the Flutter Router API (GoRouter)
+	     instead of just foregrounding the app on the last route. Pairs with
+	     the applinks: entry in Runner.entitlements. -->
+	<key>FlutterDeepLinkingEnabled</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

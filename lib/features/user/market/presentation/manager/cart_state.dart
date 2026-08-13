@@ -32,6 +32,9 @@ class CartState extends Equatable {
   bool isInCart(String id) => cart.containsItem(id);
   bool isAdding(String id) => addingIds.contains(id);
 
+  /// Quantity of [id] in the server cart, 0 when absent.
+  int quantityOf(String id) => cart.quantityOf(id);
+
   int get totalItems => cart.totalItems;
 
   /// What the cart badge shows.

@@ -7,7 +7,12 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 /// Bottom sheet with report / share / end-challenge options, shown from the
 /// active challenge screen's overflow menu.
 class ChallengeOptionsSheet extends StatelessWidget {
-  const ChallengeOptionsSheet({super.key});
+  /// Leaves the challenge. This is the only way out now: exiting the screen
+  /// deliberately does **not** leave, because leaving deletes the enrolment and
+  /// discards the progress with it.
+  final VoidCallback? onEndChallenge;
+
+  const ChallengeOptionsSheet({super.key, this.onEndChallenge});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +38,12 @@ class ChallengeOptionsSheet extends StatelessWidget {
           Divider(height: 1, color: AppColors.divider),
           _OptionItem(
             label: 'challenges.option_end_challenge'.tr(),
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              // Close the sheet first so the confirmation dialog is not stacked
+              // on top of it.
+              Navigator.pop(context);
+              onEndChallenge?.call();
+            },
             isDestructive: true,
           ),
         ],

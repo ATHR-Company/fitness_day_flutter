@@ -96,6 +96,25 @@ class UserAppDrawer extends StatelessWidget {
     );
   }
 
+  /// Opens a drawer section while keeping home directly beneath it.
+  ///
+  /// The sections are siblings, not a hierarchy: swapping between them must
+  /// not grow the stack, but backing out of one has to land on home — not on
+  /// whatever happened to be underneath. Pushing from home and replacing from
+  /// anywhere else keeps the stack at exactly [home, section].
+  static void _openSection(BuildContext context, String route) {
+    // Read the location before popping — the drawer's context is defunct once
+    // it closes.
+    final bool isOnHome =
+        GoRouterState.of(context).uri.path == UserAppRoutes.home;
+    Navigator.pop(context);
+    if (isOnHome) {
+      context.push(route);
+    } else {
+      context.pushReplacement(route);
+    }
+  }
+
   // ── Subscribed menu ─────────────────────────────────────────────────────────
   List<Widget> _subscribedItems(BuildContext context, int selected) => [
         _buildMenuItem(
@@ -112,8 +131,7 @@ class UserAppDrawer extends StatelessWidget {
           title: 'drawer.visit_log'.tr(),
           isSelected: selected == 1,
           onTap: () {
-            Navigator.pop(context);
-            context.pushReplacement(UserAppRoutes.visitLog);
+            _openSection(context, UserAppRoutes.visitLog);
           },
         ),
         _buildMenuItem(
@@ -121,8 +139,7 @@ class UserAppDrawer extends StatelessWidget {
           title: 'drawer.diet_plan'.tr(),
           isSelected: selected == 2,
           onTap: () {
-            Navigator.pop(context);
-            context.pushReplacement(UserAppRoutes.dietPlan);
+            _openSection(context, UserAppRoutes.dietPlan);
           },
         ),
         _buildMenuItem(
@@ -130,8 +147,7 @@ class UserAppDrawer extends StatelessWidget {
           title: 'drawer.workout_plan'.tr(),
           isSelected: selected == 3,
           onTap: () {
-            Navigator.pop(context);
-            context.pushReplacement(UserAppRoutes.workoutPlan);
+            _openSection(context, UserAppRoutes.workoutPlan);
           },
         ),
         _buildMenuItem(
@@ -139,8 +155,7 @@ class UserAppDrawer extends StatelessWidget {
           title: 'drawer.store'.tr(),
           isSelected: selected == 4,
           onTap: () {
-            Navigator.pop(context);
-            context.pushReplacement(UserAppRoutes.store);
+            _openSection(context, UserAppRoutes.store);
           },
         ),
         _buildMenuItem(
@@ -148,8 +163,7 @@ class UserAppDrawer extends StatelessWidget {
           title: 'drawer.notifications_alerts'.tr(),
           isSelected: selected == 5,
           onTap: () {
-            Navigator.pop(context);
-            context.pushReplacement(UserAppRoutes.notifications);
+            _openSection(context, UserAppRoutes.notifications);
           },
         ),
         _buildMenuItem(
@@ -157,8 +171,7 @@ class UserAppDrawer extends StatelessWidget {
           title: 'drawer.my_profile'.tr(),
           isSelected: selected == 6,
           onTap: () {
-            Navigator.pop(context);
-            context.pushReplacement(UserAppRoutes.profile);
+            _openSection(context, UserAppRoutes.profile);
           },
         ),
         _logoutItem(context),
@@ -180,8 +193,7 @@ class UserAppDrawer extends StatelessWidget {
           title: 'drawer.visit_log'.tr(),
           isSelected: selected == 1,
           onTap: () {
-            Navigator.pop(context);
-            context.pushReplacement(UserAppRoutes.visitLog);
+            _openSection(context, UserAppRoutes.visitLog);
           },
         ),
         _buildMenuItem(
@@ -189,8 +201,7 @@ class UserAppDrawer extends StatelessWidget {
           title: 'drawer.store'.tr(),
           isSelected: selected == 2,
           onTap: () {
-            Navigator.pop(context);
-            context.pushReplacement(UserAppRoutes.store);
+            _openSection(context, UserAppRoutes.store);
           },
         ),
         _buildMenuItem(
@@ -198,8 +209,7 @@ class UserAppDrawer extends StatelessWidget {
           title: 'drawer.my_profile'.tr(),
           isSelected: selected == 3,
           onTap: () {
-            Navigator.pop(context);
-            context.pushReplacement(UserAppRoutes.profile);
+            _openSection(context, UserAppRoutes.profile);
           },
         ),
         _buildMenuItem(

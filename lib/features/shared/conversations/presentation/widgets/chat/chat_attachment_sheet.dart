@@ -13,7 +13,14 @@ enum ChatAttachmentType { camera, gallery, video, document }
 /// Returns the chosen [ChatAttachmentType], or null when dismissed — the page
 /// runs the actual picker so the permission flow stays in one place.
 Future<ChatAttachmentType?> showChatAttachmentSheet(BuildContext context) {
-  FocusScope.of(context).unfocus();
+  // Unfocus the *field*, not the surrounding scope.
+  //
+  // `FocusScope.of(context).unfocus()` hides the keyboard but clears the
+  // focused-child list of the parent scope, leaving this page's scope still
+  // pointing at the composer. Popping the sheet re-focuses that scope, it
+  // restores its remembered child, and the keyboard comes straight back.
+  // Unfocusing the primary node clears the entry that causes the restore.
+  FocusManager.instance.primaryFocus?.unfocus();
 
   return showModalBottomSheet<ChatAttachmentType>(
     context: context,

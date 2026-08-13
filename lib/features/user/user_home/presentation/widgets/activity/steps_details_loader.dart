@@ -48,6 +48,7 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
     if (widget.type == ActivityType.running) {
       _runningCubit = RunningCubit(
         syncRunningUseCase: getIt(),
+        activitySyncService: getIt(),
         assessmentId: widget.assessmentId,
         dayNumber: widget.dayNumber,
         activityId: widget.activityId,
@@ -65,6 +66,7 @@ class _StepsDetailsLoaderState extends State<StepsDetailsLoader> {
       _walkingCubit = WalkingCubit(
         healthService: getIt(),
         syncWalkingUseCase: getIt(),
+        activitySyncService: getIt(),
         assessmentId: widget.assessmentId,
         dayNumber: widget.dayNumber,
         activityId: widget.activityId,

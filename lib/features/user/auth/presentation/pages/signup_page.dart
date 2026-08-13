@@ -94,7 +94,8 @@ class _SignUpPageState extends State<SignUpPage> {
           } else if (!state.response.isSurveyComplete) {
             context.pushReplacement(UserAppRoutes.healthProblems);
           } else {
-            context.pushReplacement(UserAppRoutes.home);
+            // `go` clears the auth stack — see the note in login_page.dart.
+            context.go(UserAppRoutes.home);
           }
         } else if (state is UserAuthFailure) {
           showAppError(context, state.error, message: state.message);

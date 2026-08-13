@@ -36,6 +36,14 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
     super.dispose();
   }
 
+  /// Nothing has been entered yet, so there is nothing to save. Only gates the
+  /// button — the actual rules still run in [_validate] on tap, where a weak or
+  /// mismatched password gets a message explaining why.
+  bool get _hasInput =>
+      _oldPasswordController.text.isNotEmpty &&
+      _newPasswordController.text.isNotEmpty &&
+      _confirmPasswordController.text.isNotEmpty;
+
   /// Runs the same rules the sign-up and reset screens use, so a password that
   /// would be refused there cannot be set from here either.
   ///
@@ -137,9 +145,18 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                 Row(
                   children: [
                     Expanded(
-                      child: CustomButton(
-                        text: 'profile.save'.tr(),
-                        onPressed: _onSave,
+                      // Rebuilds on every keystroke so the button follows the
+                      // fields instead of waiting for some other setState.
+                      child: ListenableBuilder(
+                        listenable: Listenable.merge([
+                          _oldPasswordController,
+                          _newPasswordController,
+                          _confirmPasswordController,
+                        ]),
+                        builder: (context, _) => CustomButton(
+                          text: 'profile.save'.tr(),
+                          onPressed: _hasInput ? _onSave : null,
+                        ),
                       ),
                     ),
                     SizedBox(width: 16.w),

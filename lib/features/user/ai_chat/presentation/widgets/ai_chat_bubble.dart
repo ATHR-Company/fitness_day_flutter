@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/features/shared/conversations/presentation/utils/chat_time_format.dart';
+import 'package:fitness_day/features/shared/conversations/presentation/widgets/chat/chat_expandable_text.dart';
 import 'package:fitness_day/features/user/ai_chat/presentation/models/ai_chat_message.dart';
 import 'package:fitness_day/core/widgets/typing_dots_indicator.dart';
 
@@ -44,8 +45,11 @@ class AiChatBubble extends StatelessWidget {
                       ? Border.all(color: AppColors.divider, width: 0.5)
                       : null,
                 ),
-                child: Text(
-                  message.content,
+                // The coach answers at length, and an unclamped reply pushed
+                // the question that prompted it off screen. Same collapse the
+                // normal chat uses, so both read identically.
+                child: ChatExpandableText(
+                  text: message.content,
                   style: TextStyleManager.style11Medium.copyWith(
                     color: AppColors.black,
                     height: 1.5,

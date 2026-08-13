@@ -1,4 +1,3 @@
-import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +13,10 @@ class ProductPhotoCarousel extends StatelessWidget {
   final VoidCallback onFavoriteTap;
   final VoidCallback onShareTap;
 
+  /// True while the favourite request is in flight — shows a spinner in place
+  /// of the heart, mirroring the product cards in the store list.
+  final bool isTogglingFavorite;
+
   const ProductPhotoCarousel({
     super.key,
     required this.photos,
@@ -23,6 +26,7 @@ class ProductPhotoCarousel extends StatelessWidget {
     required this.isFavorite,
     required this.onFavoriteTap,
     required this.onShareTap,
+    this.isTogglingFavorite = false,
   });
 
   @override
@@ -58,8 +62,9 @@ class ProductPhotoCarousel extends StatelessWidget {
                     children: [
                       _CarouselIconBtn(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
-                        AppColors.primary,
+                        isFavorite ? AppColors.error : AppColors.primary,
                         onTap: onFavoriteTap,
+                        busy: isTogglingFavorite,
                       ),
                       SizedBox(width: 8.w),
                       _CarouselIconBtn(
@@ -106,20 +111,30 @@ class _CarouselIconBtn extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback? onTap;
+  final bool busy;
 
-  const _CarouselIconBtn(this.icon, this.color, {this.onTap});
+  const _CarouselIconBtn(this.icon, this.color, {this.onTap, this.busy = false});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: busy ? null : onTap,
       child: Container(
         padding: EdgeInsets.all(8.r),
         decoration: BoxDecoration(
           color: AppColors.black.withValues(alpha: 0.4),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: color, size: 20.sp),
+        child: busy
+            ? SizedBox(
+                width: 20.sp,
+                height: 20.sp,
+                child: CircularProgressIndicator(
+                  strokeWidth: 1.8,
+                  color: color,
+                ),
+              )
+            : Icon(icon, color: color, size: 20.sp),
       ),
     );
   }

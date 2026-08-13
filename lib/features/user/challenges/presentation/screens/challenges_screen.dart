@@ -18,6 +18,7 @@ import 'package:fitness_day/features/user/challenges/presentation/dialogs/challe
 import 'package:fitness_day/features/user/challenges/presentation/manager/challenges_cubit.dart';
 import 'package:fitness_day/features/user/challenges/presentation/manager/challenges_events.dart';
 import 'package:fitness_day/features/user/challenges/presentation/manager/challenges_state.dart';
+import 'package:fitness_day/features/user/challenges/presentation/screens/challenge_active_screen.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/active_challenge_card.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/suggested_challenge_card.dart';
 
@@ -84,11 +85,26 @@ class _ChallengesViewState extends State<_ChallengesView> {
 
   Future<void> _openDetails(ChallengeModel challenge) async {
     final cubit = context.read<ChallengesCubit>();
+
+    // Already in it — go straight to the challenge. The details sheet exists to
+    // decide whether to join; re-asking someone who has already joined only put
+    // "Leave" in front of them, with no way through to their own progress.
+    if (challenge.isJoined) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ChallengeActiveScreen(challenge: challenge),
+        ),
+      );
+      // They may have left from the overflow menu, which moves the card.
+      if (mounted) cubit.load();
+      return;
+    }
+
     await showDialog(
       context: context,
       builder: (_) => ChallengeDetailsDialog(challenge: challenge),
     );
-    // The sheet can join or leave, and either moves a card between sections.
+    // The sheet can join, and that moves a card between sections.
     if (mounted) cubit.load();
   }
 

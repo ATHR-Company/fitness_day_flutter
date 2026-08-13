@@ -12,10 +12,37 @@ import 'package:fitness_day/features/user/challenges/data/models/challenge_model
 class ChallengeProgressContent extends StatelessWidget {
   final ChallengeModel challenge;
 
-  const ChallengeProgressContent({super.key, required this.challenge});
+  /// What to draw, which during a session is the server's progress plus what
+  /// the session has added since it started. Defaults to the challenge's own
+  /// figure when no session is running.
+  final double? progress;
+
+  /// The matching fraction. Passed in rather than derived here so the badge
+  /// over the hero image and this ring are guaranteed to be the same number.
+  final double? fraction;
+
+  final bool isTracking;
+
+  /// Null disables the button — a completed or expired challenge has nothing
+  /// left to track.
+  final VoidCallback? onToggle;
+
+  const ChallengeProgressContent({
+    super.key,
+    required this.challenge,
+    this.progress,
+    this.fraction,
+    this.isTracking = false,
+    this.onToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final double current = progress ?? challenge.progress;
+    // The server's own percentage is the fallback, not the primary: during a
+    // session it sits still while the local figure keeps moving.
+    final double fraction = this.fraction ?? challenge.progressFraction;
+
     return Column(
       children: [
         SizedBox(height: 8.h),
@@ -23,11 +50,13 @@ class ChallengeProgressContent extends StatelessWidget {
         // (2500 of 5000, 44%) that the widget showed for whichever challenge it
         // was given, so the ring never matched what the user had actually done.
         _StepsCircularIndicator(
-          percent: challenge.progressFraction,
-          current: challenge.progress,
+          percent: fraction,
+          current: current,
           goal: challenge.goal,
-          goalPercent: challenge.progressPercentage.round(),
+          goalPercent: (fraction * 100).round(),
           unit: challenge.unit,
+          isTracking: isTracking,
+          onToggle: onToggle,
         ),
         SizedBox(height: 32.h),
       ],
@@ -45,13 +74,26 @@ class _StepsCircularIndicator extends StatelessWidget {
   /// the metric here.
   final String unit;
 
+  final bool isTracking;
+  final VoidCallback? onToggle;
+
   const _StepsCircularIndicator({
     required this.percent,
     required this.current,
     required this.goal,
     required this.goalPercent,
     required this.unit,
+    required this.isTracking,
+    this.onToggle,
   });
+
+  /// Distance reads in kilometres and needs its decimals; steps, calories and
+  /// millilitres are whole numbers, and "5.00 km" vs "7480 steps" is the same
+  /// distinction the plan's screens make.
+  String get _currentLabel =>
+      current < 100 && current != current.roundToDouble()
+          ? current.toStringAsFixed(2)
+          : current.toStringAsFixed(0);
 
   @override
   Widget build(BuildContext context) {
@@ -79,18 +121,32 @@ class _StepsCircularIndicator extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      current.toStringAsFixed(0),
+                      _currentLabel,
                       style: TextStyleManager.style28Bold.copyWith(color: AppColors.black),
                     ),
                     SizedBox(height: 6.h),
-                    Container(
-                      width: 32.w,
-                      height: 32.w,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
+                    // Was a bare Icon with no gesture at all, so the ring
+                    // looked like it offered a session it could not start.
+                    GestureDetector(
+                      onTap: onToggle,
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: 32.w,
+                        height: 32.w,
+                        decoration: BoxDecoration(
+                          color: onToggle == null
+                              ? AppColors.textSecondary
+                              : AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isTracking
+                              ? Icons.stop_rounded
+                              : Icons.play_arrow_rounded,
+                          color: AppColors.white,
+                          size: 18.sp,
+                        ),
                       ),
-                      child: Icon(Icons.play_arrow_rounded, color: AppColors.white, size: 18.sp),
                     ),
                     SizedBox(height: 8.h),
                     Text(

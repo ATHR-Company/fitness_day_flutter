@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
@@ -11,7 +12,6 @@ import 'package:fitness_day/features/user/market/presentation/manager/addresses_
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/map_picker_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/static_map_preview.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
-import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 
 class EditAddressScreen extends StatefulWidget {
   /// Pass [address] to pre-fill fields (edit mode).
@@ -25,6 +25,14 @@ class EditAddressScreen extends StatefulWidget {
 }
 
 class _EditAddressScreenState extends State<EditAddressScreen> {
+  /// Cap for the free-text fields. The postal code has its own, tighter rule.
+  static const int _maxTextLength = 50;
+  static const int _minPostalCodeLength = 5;
+  static const int _maxPostalCodeLength = 10;
+
+  /// Digits in any of the three scripts an Arabic keyboard can emit.
+  static final RegExp _anyDigit = RegExp(r'[0-9٠-٩۰-۹]');
+
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _nameController;
@@ -94,7 +102,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
       title: _nameController.text.trim(),
       district: _neighborhoodController.text.trim(),
       street: _streetController.text.trim(),
-      postalCode: _postalCodeController.text.trim(),
+      postalCode: _toWesternDigits(_postalCodeController.text.trim()),
       lat: _pickedLocation!.latitude,
       lng: _pickedLocation!.longitude,
       isDefault: _isDefault,
@@ -149,6 +157,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         hint: 'market.address_name_hint'.tr(),
                         controller: _nameController,
                         validator: _requiredValidator,
+                        inputFormatters: _textFormatters,
                       ),
                       SizedBox(height: 16.h),
                       _buildField(
@@ -156,6 +165,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         hint: 'market.neighborhood_hint'.tr(),
                         controller: _neighborhoodController,
                         validator: _requiredValidator,
+                        inputFormatters: _textFormatters,
                       ),
                       SizedBox(height: 16.h),
                       _buildField(
@@ -163,6 +173,7 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         hint: 'market.street_hint'.tr(),
                         controller: _streetController,
                         validator: _requiredValidator,
+                        inputFormatters: _textFormatters,
                       ),
                       SizedBox(height: 16.h),
                       _buildField(
@@ -171,6 +182,12 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
                         controller: _postalCodeController,
                         keyboardType: TextInputType.number,
                         validator: _postalCodeValidator,
+                        // Digits only, so no minus sign or decimal point can be
+                        // typed — and never more than 10 of them.
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(_anyDigit),
+                          LengthLimitingTextInputFormatter(_maxPostalCodeLength),
+                        ],
                       ),
                       SizedBox(height: 16.h),
                       _buildDefaultToggle(),
@@ -189,20 +206,52 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
 
   // ── Validators ───────────────────────────────────────────────────────────────
   String? _requiredValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'market.field_required_error'.tr();
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return 'market.field_required_error'.tr();
+    // Typing is already capped by the formatter; this catches a paste and
+    // keeps the backend from rejecting the save on length.
+    if (text.length > _maxTextLength) {
+      return 'market.max_length_error'.tr(args: ['$_maxTextLength']);
     }
     return null;
   }
 
   String? _postalCodeValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'market.field_required_error'.tr();
+    final text = _toWesternDigits(value?.trim() ?? '');
+    if (text.isEmpty) return 'market.field_required_error'.tr();
+    // Digits only — no sign, no separator, so the value is always positive.
+    if (!RegExp(r'^\d+$').hasMatch(text)) {
+      return 'market.postal_code_digits_error'.tr();
     }
-    if (value.trim().length < 5) {
-      return 'market.postal_code_length_error'.tr();
+    if (text.length < _minPostalCodeLength ||
+        text.length > _maxPostalCodeLength) {
+      return 'market.postal_code_length_error'
+          .tr(args: ['$_minPostalCodeLength', '$_maxPostalCodeLength']);
     }
     return null;
+  }
+
+  /// Rewrites Arabic-Indic (٥) and extended Arabic-Indic (۵) digits as ASCII.
+  /// An Arabic keyboard emits those for a postal code, and the API wants `0-9`.
+  static String _toWesternDigits(String input) {
+    const arabicIndic = '٠١٢٣٤٥٦٧٨٩';
+    const extendedArabicIndic = '۰۱۲۳۴۵۶۷۸۹';
+
+    final buffer = StringBuffer();
+    for (final rune in input.runes) {
+      final char = String.fromCharCode(rune);
+      final arabicIndex = arabicIndic.indexOf(char);
+      final extendedIndex = extendedArabicIndic.indexOf(char);
+
+      if (arabicIndex >= 0) {
+        buffer.write(arabicIndex);
+      } else if (extendedIndex >= 0) {
+        buffer.write(extendedIndex);
+      } else {
+        buffer.write(char);
+      }
+    }
+    return buffer.toString();
   }
 
   // ── Widgets ──────────────────────────────────────────────────────────────────
@@ -370,12 +419,27 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
     );
   }
 
+  /// Free-text fields: strip injection attempts, and stop at 50 characters —
+  /// including a paste, which the formatter truncates rather than rejects.
+  List<TextInputFormatter> get _textFormatters => [
+        NoScriptInputFormatter(),
+        LengthLimitingTextInputFormatter(_maxTextLength),
+      ];
+
+  OutlineInputBorder _fieldBorder(Color color, {double width = 1}) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8.r),
+      borderSide: BorderSide(color: color, width: width),
+    );
+  }
+
   Widget _buildField({
     required String label,
     required String hint,
     required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,47 +464,40 @@ class _EditAddressScreenState extends State<EditAddressScreen> {
           ],
         ),
         SizedBox(height: 8.h),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(8.r),
-            border: Border.all(
-              color: AppColors.textSecondary.withValues(alpha: 0.2),
+        // The white background and the border belong to the InputDecorator, not
+        // to a Container wrapped around the field: the error message is part of
+        // the field's own layout, so a wrapper painted its white box behind the
+        // message too — which is what made it read as a second, detached box
+        // hanging under the outlined one.
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          validator: validator,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          inputFormatters: inputFormatters,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppColors.white,
+            labelStyle: TextStyleManager.style9Medium.copyWith(
+              color: AppColors.textPrimary,
             ),
-          ),
-          child: TextFormField(
-            controller: controller,
-            keyboardType: keyboardType,
-            validator: validator,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            inputFormatters: keyboardType == TextInputType.number
-                ? null
-                : [NoScriptInputFormatter()],
-            decoration: InputDecoration(
-              labelStyle: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textPrimary,
-              ),
-              hintText: hint,
-              hintStyle: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              errorStyle: TextStyleManager.style9Medium.copyWith(
-                color: AppColors.error,
-              ),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 14.h,
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(color: AppColors.error, width: 1.5),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-                borderSide: BorderSide(color: AppColors.error, width: 1.5),
-              ),
+            hintText: hint,
+            hintStyle: TextStyleManager.style9Medium.copyWith(
+              color: AppColors.textSecondary,
             ),
+            errorStyle: TextStyleManager.style9Medium.copyWith(
+              color: AppColors.error,
+            ),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 14.h,
+            ),
+            border: _fieldBorder(AppColors.textSecondary.withValues(alpha: 0.2)),
+            enabledBorder:
+                _fieldBorder(AppColors.textSecondary.withValues(alpha: 0.2)),
+            focusedBorder: _fieldBorder(AppColors.primary),
+            errorBorder: _fieldBorder(AppColors.error, width: 1.5),
+            focusedErrorBorder: _fieldBorder(AppColors.error, width: 1.5),
           ),
         ),
       ],

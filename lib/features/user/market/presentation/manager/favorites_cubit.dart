@@ -5,6 +5,7 @@ import '../../domain/entities/cart_data.dart';
 import '../../domain/entities/favorites_page_data.dart';
 import '../../domain/usecases/get_favorites_usecase.dart';
 import '../../domain/usecases/toggle_favorite_usecase.dart';
+import 'favorite_status_cubit.dart';
 import 'package:fitness_day/core/errors/app_error.dart';
 
 sealed class FavoritesState {
@@ -39,7 +40,11 @@ class FavoritesCubit extends Cubit<FavoritesState> {
   final GetFavoritesUseCase _getFavorites;
   final ToggleFavoriteUseCase _toggleFavorite;
 
-  FavoritesCubit(this._getFavorites, this._toggleFavorite)
+  /// This screen owns the request, so it also has to publish the resulting flag
+  /// — otherwise the store grids would still show the item as favourited.
+  final FavoriteStatusCubit _favoriteStatus;
+
+  FavoritesCubit(this._getFavorites, this._toggleFavorite, this._favoriteStatus)
       : super(const FavoritesInitial());
 
   Future<void> load() async {
@@ -76,6 +81,7 @@ class FavoritesCubit extends Cubit<FavoritesState> {
       page: previous.page,
       limit: previous.limit,
     )));
+    _favoriteStatus.record(itemIdentity, isFavorite: false);
 
     final result = await _toggleFavorite(
       itemType: itemType,
@@ -84,6 +90,7 @@ class FavoritesCubit extends Cubit<FavoritesState> {
 
     if (result is! Success<bool> && !isClosed) {
       emit(FavoritesSuccess(previous));
+      _favoriteStatus.record(itemIdentity, isFavorite: true);
     }
   }
 }

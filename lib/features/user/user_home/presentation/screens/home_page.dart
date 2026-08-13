@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/widgets/exit_dialog.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/pending_payment_watcher.dart';
 import 'package:fitness_day/features/user/user_home/presentation/manager/user_home_cubit.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/home/home_page_content.dart';
@@ -59,9 +60,22 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cubit,
-      // Home is the landing screen, so it is where a payment interrupted by
-      // the app being killed gets confirmed and reported.
-      child: const PendingPaymentWatcher(child: HomePageContent()),
+      // Home is the bottom of the stack, so back here means leaving the app.
+      // Confirm first rather than dropping the user out on a stray gesture —
+      // same treatment as the specialist home.
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          showDialog(
+            context: context,
+            builder: (context) => const ExitDialog(),
+          );
+        },
+        // Home is the landing screen, so it is where a payment interrupted by
+        // the app being killed gets confirmed and reported.
+        child: const PendingPaymentWatcher(child: HomePageContent()),
+      ),
     );
   }
 }

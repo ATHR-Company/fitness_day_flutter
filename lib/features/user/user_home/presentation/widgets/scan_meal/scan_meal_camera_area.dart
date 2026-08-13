@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:fitness_day/core/theme/app_colors.dart';
@@ -9,8 +10,12 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/scan_me
 import 'package:fitness_day/features/user/user_home/presentation/widgets/scan_meal/scan_meal_frame_overlay.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/scan_meal/scan_meal_status_view.dart';
 
-/// The black area under the app bar: whichever of the live preview, the
+/// The viewfinder card under the app bar: whichever of the live preview, the
 /// spinner or a recovery message the current [ScanMealStatus] calls for.
+///
+/// Sized by its parent — the screen gives it a fixed slice of the page rather
+/// than the whole remaining height, so the shutter and the hint have room of
+/// their own below it.
 class ScanMealCameraArea extends StatelessWidget {
   final ScanMealController controller;
 
@@ -25,15 +30,18 @@ class ScanMealCameraArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      color: AppColors.black,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          _buildForStatus(),
-          if (controller.isAnalyzing) const ScanMealAnalyzingOverlay(),
-        ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24.r),
+      child: Container(
+        width: double.infinity,
+        color: AppColors.black,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            _buildForStatus(),
+            if (controller.isAnalyzing) const ScanMealAnalyzingOverlay(),
+          ],
+        ),
       ),
     );
   }

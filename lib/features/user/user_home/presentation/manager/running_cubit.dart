@@ -10,6 +10,7 @@ import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/core/utils/activity_permissions.dart';
 import 'package:fitness_day/features/user/user_home/data/models/running_sync_model.dart';
 import 'package:fitness_day/features/user/user_home/domain/usecases/sync_running_usecase.dart';
+import 'package:fitness_day/features/user/challenges/presentation/manager/activity_sync_service.dart';
 
 part 'running_state.dart';
 
@@ -21,6 +22,10 @@ part 'running_state.dart';
 /// Time:      Real stopwatch from start() to stop().
 class RunningCubit extends Cubit<RunningState> {
   final SyncRunningUseCase _syncRunningUseCase;
+
+  /// The challenges/achievements ledger — a second, separate destination for
+  /// the same numbers. Neither total is computed from the other.
+  final ActivitySyncService _activitySyncService;
 
   /// Identifies the plan activity this progress is credited to. Captured when
   /// the screen opens and deliberately frozen for the whole session — a run
@@ -72,6 +77,15 @@ class RunningCubit extends Cubit<RunningState> {
   double _lastSyncedDistanceKm = 0;
   int _lastSyncedElapsedSeconds = 0;
 
+  /// The same marks again, for the challenges ledger.
+  ///
+  /// Separate on purpose: the plan sync bails out when there is no
+  /// [activityItemId] and only advances its marks on acknowledgement, whereas
+  /// the ledger is open to users with no plan at all. Sharing either would stop
+  /// feeding challenges for exactly those users.
+  double _ledgerSentDistanceKm = 0;
+  int _ledgerSentElapsedSeconds = 0;
+
   /// Sync every 5 m — the same distance as the GPS stream's own
   /// `distanceFilter`, so effectively every fix that counts as movement sends.
   static const double _kSyncThresholdKm = 0.005;
@@ -101,12 +115,14 @@ class RunningCubit extends Cubit<RunningState> {
 
   RunningCubit({
     required SyncRunningUseCase syncRunningUseCase,
+    required ActivitySyncService activitySyncService,
     required this.assessmentId,
     required this.dayNumber,
     required this.activityId,
     required this.activityItemId,
     required double goalDistanceKm,
   }) : _syncRunningUseCase = syncRunningUseCase,
+       _activitySyncService = activitySyncService,
        super(RunningState(goalDistanceKm: goalDistanceKm));
 
   // ─── Public API ───────────────────────────────────────────────────────────
@@ -162,6 +178,10 @@ class RunningCubit extends Cubit<RunningState> {
     _lastSyncedDistanceKm = 0;
     _lastSyncedElapsedSeconds = 0;
     _pendingSyncId = null;
+    // Session-relative, like the state they track. Deltas already handed to the
+    // ledger service live in its queue and are untouched by this.
+    _ledgerSentDistanceKm = 0;
+    _ledgerSentElapsedSeconds = 0;
     _startTime = DateTime.now();
 
     emit(
@@ -317,6 +337,11 @@ class RunningCubit extends Cubit<RunningState> {
   }
 
   Future<void> _runSync({bool final_ = false}) async {
+    // Two destinations, same numbers. Above the guard below on purpose: the
+    // ledger has no item id to match on and is open to users with no plan, so
+    // gating it on the plan's precondition would silently exclude them.
+    _pushToLedger();
+
     // The server matches on activityItemId; without it the request would be
     // rejected, so keep the progress in the session marks and report it once
     // the details response carries the id.
@@ -347,6 +372,30 @@ class RunningCubit extends Cubit<RunningState> {
     _pendingTargetElapsedSeconds = state.elapsedSeconds;
 
     await _postPending();
+  }
+
+  /// Hands the distance and time accrued since the last push to the
+  /// challenges/achievements ledger.
+  ///
+  /// Steps are deliberately not reported: the backend reads them only for
+  /// `walking` and would drop them under `running`.
+  void _pushToLedger() {
+    final double distDeltaKm =
+        (state.distanceKm - _ledgerSentDistanceKm).clamp(0.0, state.distanceKm);
+    final int durationDelta = (state.elapsedSeconds - _ledgerSentElapsedSeconds)
+        .clamp(0, state.elapsedSeconds);
+
+    if (distDeltaKm <= 0 && durationDelta <= 0) return;
+
+    _ledgerSentDistanceKm = state.distanceKm;
+    _ledgerSentElapsedSeconds = state.elapsedSeconds;
+
+    _activitySyncService.pushRunning(
+      // Metres in, kilometres back out. The backend does the conversion, so
+      // there is none to do here beyond km → m.
+      deltaDistanceMeters: double.parse((distDeltaKm * 1000).toStringAsFixed(1)),
+      durationSeconds: durationDelta,
+    );
   }
 
   /// Sends the outstanding attempt. Returns true once it is acknowledged.

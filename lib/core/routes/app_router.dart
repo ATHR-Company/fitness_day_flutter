@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/routes/specialist_routes/app_routes.dart';
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
+import 'package:fitness_day/core/routes/deep_link_guard.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/features/user/visits/presentation/manager/assessments_cubit.dart';
@@ -45,6 +46,8 @@ import 'package:fitness_day/features/user/visits/presentation/pages/meal_details
 import 'package:fitness_day/features/user/user_home/presentation/screens/hydration_details_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/steps_details_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/market_main_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/product_details_screen.dart';
+import 'package:fitness_day/features/user/market/domain/entities/product_data.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_video_screen.dart';
 import 'package:fitness_day/features/user/workout/presentation/screens/workout_rest_screen.dart';
 import 'package:fitness_day/features/user/visits/presentation/pages/diet_plan_page.dart';
@@ -54,6 +57,7 @@ import 'package:fitness_day/features/user/challenges/presentation/screens/challe
 import 'package:fitness_day/features/user/user_home/presentation/screens/scan_meal_screen.dart';
 import 'package:fitness_day/features/user/profile/presentation/pages/awards_page.dart';
 import 'package:fitness_day/features/user/profile/presentation/pages/achievements_page.dart';
+import 'package:fitness_day/features/user/challenges/presentation/screens/achievements_wall_page.dart';
 
 /// Single combined router — keeps ALL user + specialist routes so that
 /// swapping routerConfig is never needed and "Page Not Found" never occurs.
@@ -65,12 +69,13 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: SharedRoutes.splash,
-    // GoRouter automatically reads the launch URI on cold start when the app
-    // is opened via an App Link — no extra configuration needed because every
-    // deep link path (/store/products/:id, /user-home, etc.) is already a
-    // named route in this router.  The only thing we do here is register a
-    // redirect so unauthenticated deep links land on role-selection instead
-    // of crashing on a protected page.
+    // On an App Link cold start the OS supplies the launch URI, which
+    // overrides [initialLocation] — so the splash never runs and neither do
+    // its session/role checks. [DeepLinkGuard] re-applies them here.
+    // Requires flutter_deeplinking_enabled (Android) and
+    // FlutterDeepLinkingEnabled (iOS); without those the link only foregrounds
+    // the app and this redirect never sees it.
+    redirect: (context, state) => DeepLinkGuard.resolve(state),
     routes: [
       // ── Shared ────────────────────────────────────────────────────────────
       GoRoute(
@@ -330,6 +335,45 @@ class AppRouter {
         path: UserAppRoutes.achievements,
         builder: (context, state) => const AchievementsPage(),
       ),
+      GoRoute(
+        path: UserAppRoutes.achievementsWall,
+        builder: (context, state) => const AchievementsWallPage(),
+      ),
+
+      // ── App Link entry points ─────────────────────────────────────────────
+      // Opened from https://fitnessday.tech/... links shared outside the app.
+      // `/open` has no page of its own — DeepLinkGuard rewrites it to home —
+      // but it still needs a route here or GoRouter reports "no match" before
+      // the redirect runs.
+      GoRoute(
+        path: UserAppRoutes.openApp,
+        redirect: (context, state) => UserAppRoutes.home,
+      ),
+      GoRoute(
+        path: UserAppRoutes.productDetails,
+        builder: (context, state) => _productDetailsFromLink(state),
+      ),
+      GoRoute(
+        path: UserAppRoutes.storeProductDetails,
+        builder: (context, state) => _productDetailsFromLink(state),
+      ),
     ],
   );
+
+  /// Builds the product screen from a link that carries only an id.
+  ///
+  /// In-app navigation passes the [ProductData] it already has so the screen
+  /// can render immediately while the full record loads. A link has no such
+  /// record, so it gets an empty placeholder — the screen shows its loading
+  /// state until `ProductDetailsCubit.load(id)` returns.
+  static Widget _productDetailsFromLink(GoRouterState state) {
+    return ProductDetailsScreen(
+      product: ProductData(
+        id: state.pathParameters['id'] ?? '',
+        name: '',
+        imageUrl: '',
+        currentPrice: 0,
+      ),
+    );
+  }
 }

@@ -13,5 +13,15 @@
 	<array>
 		<string>Default</string>
 	</array>
+
+	<!-- Universal Links — iOS fetches
+	     https://fitnessday.tech/.well-known/apple-app-site-association and
+	     verifies XB8YVBDAM7.com.athr.fitnessday appears in it. Without this
+	     entitlement the AASA file is never requested and links open Safari. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:fitnessday.tech</string>
+		<string>webcredentials:fitnessday.tech</string>
+	</array>
 </dict>
 </plist>

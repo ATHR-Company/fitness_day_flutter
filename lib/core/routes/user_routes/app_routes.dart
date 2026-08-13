@@ -35,4 +35,25 @@ class UserAppRoutes extends SharedRoutes {
   static const String workoutRest = '/workout-rest';
   static const String awards = '/awards';
   static const String achievements = '/achievements';
+
+  /// The full badge wall, locked ones included. Separate from [achievements],
+  /// which is the day-strip view of what was unlocked on a given date.
+  static const String achievementsWall = '/achievements-wall';
+
+  // ── App Link entry points ────────────────────────────────
+  // Reached from https://fitnessday.tech/... links shared outside the app.
+  // Keep in sync with the intent-filter in AndroidManifest.xml and the paths
+  // in .well-known/apple-app-site-association.
+
+  /// Shared product link. `/products/:id` is what [AppShareLinks.product]
+  /// builds; `/store/products/:id` is accepted too so older shared links and
+  /// anything the website links to keep working.
+  static const String productDetails = '/products/:id';
+  static const String storeProductDetails = '/store/products/:id';
+
+  /// Generic "open the app" link — used in emails and push payloads that only
+  /// need to bring the user to the home screen.
+  static const String openApp = '/open';
+
+  static String productDetailsPath(String id) => '/products/$id';
 }
