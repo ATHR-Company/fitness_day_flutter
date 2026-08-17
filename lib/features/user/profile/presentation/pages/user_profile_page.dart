@@ -1,14 +1,12 @@
 import 'dart:ui' as ui;
 
 import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
-import 'package:fitness_day/core/routes/user_routes/app_routes.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/theme/app_shadows.dart';
@@ -31,11 +29,8 @@ import 'package:fitness_day/core/network/apple_sign_in_helper.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/widgets/confirm_dialog.dart';
 import 'package:fitness_day/fitness_day.dart';
-import 'package:go_router/go_router.dart';
 import '../../../user_home/presentation/widgets/user_app_drawer.dart';
 import 'package:fitness_day/core/widgets/errors/show_app_error.dart';
-import 'package:fitness_day/core/utils/permission_tester.dart';
-import 'package:fitness_day/features/settings/presentation/pages/permissions_settings_screen.dart';
 
 class UserProfilePage extends StatefulWidget {
   const UserProfilePage({super.key});

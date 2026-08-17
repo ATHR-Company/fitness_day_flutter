@@ -53,20 +53,33 @@ class ChallengeHeroSection extends StatelessWidget {
                   ),
                 ),
         ),
+        // Bounded left/right: with no horizontal constraint the pill was free
+        // to grow wider than the screen at a large system font, and its rounded
+        // ends were cut off by the display edges. The margin keeps it inside
+        // the page, and the label scales down rather than filling it edge to
+        // edge.
         Positioned(
           bottom: -15.h,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 7.h),
-            decoration: BoxDecoration(
-              gradient: AppColors.timeRemainingGradient,
-              border: Border.all(color: AppColors.greenMint, width: 1),
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: Text(
-              'challenges.achieved_percent'.tr(args: ['$achievedPercent']),
-              style: TextStyleManager.style11Medium.copyWith(
-                color: AppColors.greenDarkAccent,
-                fontWeight: FontWeight.bold,
+          left: 20.w,
+          right: 20.w,
+          child: Align(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 7.h),
+              decoration: BoxDecoration(
+                gradient: AppColors.timeRemainingGradient,
+                border: Border.all(color: AppColors.greenMint, width: 1),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'challenges.achieved_percent'.tr(args: ['$achievedPercent']),
+                  maxLines: 1,
+                  style: TextStyleManager.style11Medium.copyWith(
+                    color: AppColors.greenDarkAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),

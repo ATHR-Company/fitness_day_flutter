@@ -8,6 +8,7 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/features/user/challenges/data/models/challenge_model.dart';
+import 'package:fitness_day/features/user/challenges/presentation/dialogs/leave_challenge_dialog.dart';
 import 'package:fitness_day/features/user/challenges/presentation/manager/challenge_details_cubit.dart';
 import 'package:fitness_day/features/user/challenges/presentation/screens/challenge_active_screen.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
@@ -76,28 +77,8 @@ class _DetailsViewState extends State<_DetailsView> {
   /// Leaving discards progress outright, so it asks first.
   Future<void> _leave() async {
     final cubit = context.read<ChallengeDetailsCubit>();
-    final bool confirmed = await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: Text('challenges.leave_title'.tr()),
-            content: Text('challenges.leave_message'.tr()),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                child: Text('profile.cancel'.tr()),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                child: Text(
-                  'challenges.btn_leave'.tr(),
-                  style: const TextStyle(color: AppColors.error),
-                ),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-    if (!confirmed) return;
+    final bool confirmed = await confirmLeaveChallenge(context);
+    if (!confirmed || !mounted) return;
 
     final (ok, message) = await cubit.leave();
     if (!mounted || ok) return;
@@ -141,17 +122,40 @@ class _DetailsViewState extends State<_DetailsView> {
     return Column(
       children: [
         ChallengeDialogHeader(onClose: () => Navigator.pop(context)),
-        ChallengeImageTabSwitcher(
-          imageUrl: challenge.image,
-          isDescriptionSelected: _isDescriptionSelected,
-          onTabChanged: (val) => setState(() => _isDescriptionSelected = val),
-        ),
+        ChallengeHeaderImage(imageUrl: challenge.image),
         Expanded(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: _isDescriptionSelected
-                ? ChallengeDescriptionTab(challenge: challenge)
-                : ChallengeRulesTab(challenge: challenge),
+          // The tab pill is the last child of this Stack, so it paints above
+          // the scroll view instead of under it. Previously it lived inside the
+          // image widget — an earlier sibling in the Column — and the content
+          // scrolled straight over the tabs.
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Inset by the pill's overhang so content stops at its lower
+              // edge rather than sliding behind it.
+              Padding(
+                padding: EdgeInsets.only(top: ChallengeHeaderImage.overlap),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: _isDescriptionSelected
+                      ? ChallengeDescriptionTab(challenge: challenge)
+                      : ChallengeRulesTab(challenge: challenge),
+                ),
+              ),
+              Positioned(
+                // Negative: the pill straddles the seam, half over the image.
+                top: -ChallengeHeaderImage.overlap,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: ChallengeTabSwitcher(
+                    isDescriptionSelected: _isDescriptionSelected,
+                    onTabChanged: (val) =>
+                        setState(() => _isDescriptionSelected = val),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         // Pinned, outside the scroll view. Each tab used to carry its own

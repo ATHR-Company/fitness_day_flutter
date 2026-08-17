@@ -59,10 +59,10 @@ class UserProfileRemoteDataSourceImpl implements UserProfileRemoteDataSource {
     String? avatarPath,
   }) async {
     final formData = FormData.fromMap({
-      if (fullName != null) 'fullName': fullName,
-      if (goalId != null) 'goal': goalId,
-      if (weight != null) 'weight': weight,
-      if (height != null) 'height': height,
+      'fullName': ?fullName,
+      'goal': ?goalId,
+      'weight': ?weight,
+      'height': ?height,
       if (avatarPath != null)
         'avatar': await MultipartFile.fromFile(
           avatarPath,

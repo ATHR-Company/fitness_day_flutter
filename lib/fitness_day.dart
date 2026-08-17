@@ -91,11 +91,31 @@ class FitnessDay extends StatelessWidget {
               // just as the connection drops never covers the banner. Both are
               // here rather than on a screen because the events that drive them
               // arrive regardless of where the user is.
-              builder: (context, child) => OfflineBanner(
-                child: AchievementUnlockedOverlay(
-                  child: child ?? const SizedBox.shrink(),
-                ),
-              ),
+              builder: (context, child) {
+                final mq = MediaQuery.of(context);
+
+                return MediaQuery(
+                  // Ceiling on the device's font-size setting.
+                  //
+                  // Sizes here come from ScreenUtil (`.sp`), which scales to
+                  // the screen; the OS text scale then multiplies on top of
+                  // that. Past ~1.3 the compounded result overflows fixed-height
+                  // rows, buttons and dialogs across the app — so the setting is
+                  // honoured up to a bound the layouts can actually absorb,
+                  // rather than ignored outright.
+                  data: mq.copyWith(
+                    textScaler: mq.textScaler.clamp(
+                      minScaleFactor: 1.0,
+                      maxScaleFactor: 1.3,
+                    ),
+                  ),
+                  child: OfflineBanner(
+                    child: AchievementUnlockedOverlay(
+                      child: child ?? const SizedBox.shrink(),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         );

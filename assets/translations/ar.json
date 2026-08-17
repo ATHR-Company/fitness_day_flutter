@@ -341,13 +341,13 @@
     "height": "الطول",
     "write_height": "اكتب الطول",
     "cm": "سم",
-    "bmi": "مؤشر كتلة الجسم (BMI)",
+    "bmi": "BMI",
     "bmi_auto_hint": "يُحسب تلقائيًا من الوزن والطول",
     "body_fat_percentage": "نسبة الدهون في الجسم",
     "write_body_fat_percentage": "اكتب نسبة الدهون في الجسم",
     "fat_mass": "كتلة الدهون",
     "muscle_weight": "كتلة العضلات",
-    "metabolic_rate": "معدل الحرق الأساسي",
+    "metabolic_rate": "BMR",
     "write_total_metabolic_rate": "اكتب معدل الحرق الأساسي",
     "muscle_percentage": "نسبة العضلات",
     "write_muscle_percentage": "اكتب نسبة العضلات",
@@ -993,8 +993,8 @@
     "achievement_title": "كمل دلوقتى... الإنجاز على بعد خطوة!",
     "achievement_continue": "يلا نكمل",
     "achievement_finish": "إنهاء",
-    "well_done": "احسنت!",
-    "well_done_desc": "لقد أنجزت يوم من الحركات، استمر على هذا الأداء للحفاظ على الصحة وتخفيف الألم."
+    "well_done": "أحسنت!",
+    "well_done_desc": "لقد أكملت جميع الجولات بنجاح. استمر على هذا الأداء للحفاظ على تقدمك وتحسين لياقتك."
   },
   "scan_meal": {
     "title": "مسح الوجبة",

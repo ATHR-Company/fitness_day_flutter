@@ -8,11 +8,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_result.dart';
 import 'package:fitness_day/core/services/app_event_bus.dart';
+import 'package:fitness_day/core/services/app_share_service.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/screen_background.dart';
 import 'package:fitness_day/features/user/challenges/data/models/challenge_model.dart';
 import 'package:fitness_day/features/user/challenges/domain/usecases/challenges_usecases.dart';
+import 'package:fitness_day/features/user/challenges/presentation/dialogs/leave_challenge_dialog.dart';
 import 'package:fitness_day/features/user/challenges/presentation/manager/activity_sync_service.dart';
 import 'package:fitness_day/features/user/challenges/presentation/manager/challenges_events.dart';
 import 'package:fitness_day/features/user/challenges/presentation/widgets/challenge_app_bar.dart';
@@ -145,7 +147,10 @@ class _ChallengeActiveScreenState extends State<ChallengeActiveScreen> {
       if (event is! ActivityLedgerChanged || !mounted) return;
       for (final c in event.challenges) {
         if (c.id != _challenge.id) continue;
-        setState(() => _challenge = c);
+        // Patched, not replaced: the sync entry has no dates, participant count
+        // or `isJoined`, so assigning it wholesale blanked the header of the
+        // very screen the session was started from.
+        setState(() => _challenge = _challenge.withLedgerProgress(c));
         break;
       }
     });
@@ -221,27 +226,7 @@ class _ChallengeActiveScreenState extends State<ChallengeActiveScreen> {
   /// Leaving discards progress outright, so it asks first.
   Future<void> _leaveChallenge() async {
     final navigator = Navigator.of(context);
-    final bool confirmed = await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: Text('challenges.leave_title'.tr()),
-            content: Text('challenges.leave_message'.tr()),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                child: Text('profile.cancel'.tr()),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                child: Text(
-                  'challenges.btn_leave'.tr(),
-                  style: const TextStyle(color: AppColors.error),
-                ),
-              ),
-            ],
-          ),
-        ) ??
-        false;
+    final bool confirmed = await confirmLeaveChallenge(context);
     if (!confirmed || !mounted) return;
 
     await _stopSession();
@@ -264,7 +249,13 @@ class _ChallengeActiveScreenState extends State<ChallengeActiveScreen> {
       builder: (_) => Dialog(
         insetPadding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 24.h),
         backgroundColor: Colors.transparent,
-        child: ChallengeOptionsSheet(onEndChallenge: _leaveChallenge),
+        child: ChallengeOptionsSheet(
+          onEndChallenge: _leaveChallenge,
+          onShare: () => AppShareService.shareChallenge(
+            context,
+            challengeName: _challenge.name,
+          ),
+        ),
       ),
     );
   }

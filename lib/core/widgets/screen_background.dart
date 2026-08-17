@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 

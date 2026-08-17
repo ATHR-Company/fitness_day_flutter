@@ -134,6 +134,41 @@ class ChallengeModel {
     );
   }
 
+  /// This record with only the numbers a sync owns taken from [ledger].
+  ///
+  /// `POST /activity-sync` reports a *ledger* entry: `challengeId`, `name`,
+  /// `metric`, `unit`, `goal` and this user's figures — and nothing else. It
+  /// carries no `isJoined`, no dates, no `participantsCount` and no `status`,
+  /// so parsing one through [ChallengeModel.fromJson] yields `isJoined: false`,
+  /// null dates and zero participants.
+  ///
+  /// Swapping that in for the full record is what made a joined challenge jump
+  /// out of the active section and into "suggested" — with blank dates — after
+  /// every session stop. So the ledger's numbers are merged onto the record
+  /// rather than replacing it.
+  ChallengeModel withLedgerProgress(ChallengeModel ledger) {
+    return ChallengeModel(
+      id: id,
+      name: name,
+      description: description,
+      image: image,
+      metric: metric,
+      unit: unit,
+      goal: goal,
+      startDate: startDate,
+      endDate: endDate,
+      status: status,
+      participantsCount: participantsCount,
+      isJoined: isJoined,
+      rules: rules,
+      // The four the sync is authoritative for.
+      progress: ledger.progress,
+      progressPercentage: ledger.progressPercentage,
+      isCompleted: ledger.isCompleted,
+      completedAt: ledger.completedAt,
+    );
+  }
+
   /// Ring fill, 0–1.
   double get progressFraction => (progressPercentage / 100).clamp(0.0, 1.0);
 

@@ -7,6 +7,7 @@ import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/checkout/checkout_exit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/orders_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/cart_bottom_summary.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/cart_item_tile.dart';
@@ -186,7 +187,10 @@ class _CartEmptyState extends StatelessWidget {
             width: double.infinity,
             height: 48.h,
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              // Same reasoning as the orders empty state: the cart is opened
+              // from product details too, where popping goes back to a single
+              // product instead of the products list.
+              onPressed: () => backToStore(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(

@@ -34,16 +34,22 @@ class ChallengeAppBar extends StatelessWidget {
               color: AppColors.black,
             ),
           ),
-          const Spacer(),
-          Text(
-            title,
-            style: TextStyleManager.heading2.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w700,
-              fontSize: 16.sp,
+          // Expanded rather than Spacer-Text-Spacer: the leading icon and the
+          // trailing slot are the same width, so the title still reads centred,
+          // but now it can shrink instead of running under the ⋮ menu.
+          Expanded(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyleManager.heading2.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.w700,
+                fontSize: 16.sp,
+              ),
             ),
           ),
-          const Spacer(),
           trailing ?? SizedBox(width: 20.sp),
         ],
       ),

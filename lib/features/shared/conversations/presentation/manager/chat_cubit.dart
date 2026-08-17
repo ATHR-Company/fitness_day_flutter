@@ -136,7 +136,7 @@ class ChatCubit extends Cubit<ChatState> {
         final page2 = page2Result.data;
         // Page 2 messages are older — prepend them before page 1.
         allMessages = [
-          ...page2.messages.reversed.toList(),
+          ...page2.messages.reversed,
           ...allMessages,
         ];
         loadedPage = 2;

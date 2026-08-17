@@ -16,7 +16,6 @@ import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 
 /// Second tab of the visit details page: the day's custom plan

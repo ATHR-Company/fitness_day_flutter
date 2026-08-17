@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/constant/api_endpoints.dart';
-import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/entities/task_data.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/network/api_service.dart';

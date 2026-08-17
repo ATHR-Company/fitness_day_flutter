@@ -88,36 +88,53 @@ class InfoTableCard extends StatelessWidget {
         color: isEven ? AppColors.backgroundTint : AppColors.white,
         borderRadius: isLast ? BorderRadius.vertical(bottom: Radius.circular(16.r)) : null,
       ),
+      // Neither side used to be flexible, so a long label pushed the value —
+      // and its unit — straight off the right edge. The label gives way first;
+      // the reading is the part nobody can afford to lose.
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyleManager.style11Medium.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w600,
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyleManager.style11Medium.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          Row(
-            children: [
-              Text(
-                value,
-                style: TextStyleManager.style11Medium.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (unit != null) ...[
-                SizedBox(width: 4.w),
-                Text(
-                  unit,
-                  style: TextStyleManager.style9Medium.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
+          SizedBox(width: 8.w),
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyleManager.style11Medium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+                if (unit != null) ...[
+                  SizedBox(width: 4.w),
+                  Flexible(
+                    child: Text(
+                      unit,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyleManager.style9Medium.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),

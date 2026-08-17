@@ -64,10 +64,28 @@ class ActiveChallengeCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      DateBadge(label: challenge.startLabel, isEnd: false),
-                      SizedBox(width: 16.w),
-                      DateBadge(label: challenge.endLabel, isEnd: true),
-                      const Spacer(),
+                      // The badges share whatever the arrow leaves, and shrink
+                      // between themselves — a Spacer alone left them at their
+                      // natural width and let them run past the card.
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: DateBadge(
+                                label: challenge.startLabel,
+                                isEnd: false,
+                              ),
+                            ),
+                            SizedBox(width: 16.w),
+                            Flexible(
+                              child: DateBadge(
+                                label: challenge.endLabel,
+                                isEnd: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       Icon(
                         Directionality.of(context) ==ui. TextDirection.rtl
                             ? Icons.keyboard_double_arrow_left_rounded
@@ -136,14 +154,20 @@ class _TitleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          title,
-          style: TextStyleManager.style13Medium.copyWith(
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
+        // Expanded rather than Text + Spacer: a Spacer cannot take negative
+        // space, so a title wider than the row simply overflowed it.
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyleManager.style13Medium.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        const Spacer(),
+        SizedBox(width: 8.w),
         AppImage(
           SvgIcons.usersGroup,
           width: 16.w,

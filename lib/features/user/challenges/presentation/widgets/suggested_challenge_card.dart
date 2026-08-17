@@ -61,8 +61,19 @@ class SuggestedChallengeCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      DateBadge(label: challenge.startLabel, isEnd: false),
-                      DateBadge(label: challenge.endLabel, isEnd: true),
+                      Flexible(
+                        child: DateBadge(
+                          label: challenge.startLabel,
+                          isEnd: false,
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Flexible(
+                        child: DateBadge(
+                          label: challenge.endLabel,
+                          isEnd: true,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -119,11 +130,19 @@ class _TitleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          title,
-          style: TextStyleManager.style13Medium.copyWith(
-            color: AppColors.primary,
-            fontWeight: FontWeight.bold,
+        // Expanded, not a bare Text: the name is the only part of this row that
+        // can vary in width, so it is what has to give. Without it the title
+        // took its natural width and shoved the count and icon off the card —
+        // which is exactly what a long name at a large font did.
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyleManager.style13Medium.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         SizedBox(width: 14.w),

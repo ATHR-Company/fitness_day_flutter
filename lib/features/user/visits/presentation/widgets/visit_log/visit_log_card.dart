@@ -9,7 +9,6 @@ import 'package:fitness_day/features/user/visits/data/models/assessment_model.da
 import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 
 /// Card summarizing a single visit/assessment for a selected day,
 /// with optional reschedule and details actions.

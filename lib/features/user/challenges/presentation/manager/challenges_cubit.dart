@@ -143,8 +143,12 @@ class ChallengesCubit extends Cubit<ChallengesState> {
     }
   }
 
-  /// Replaces the whole list from a sync response — every live joined challenge
-  /// arrives on each sync, so patching entry by entry is unnecessary.
+  /// Moves the rings from a sync response.
+  ///
+  /// Each entry is patched onto the card it belongs to rather than replacing
+  /// it: a sync reports progress, not a challenge record, so it has no
+  /// `isJoined`, dates or participant count to give. Replacing wholesale
+  /// dropped a joined challenge out of the active section on every sync.
   void applyLedgerUpdate(List<ChallengeModel> fresh) {
     final current = state;
     if (current is! ChallengesLoaded || fresh.isEmpty) return;
@@ -152,7 +156,8 @@ class ChallengesCubit extends Cubit<ChallengesState> {
     final byId = {for (final c in fresh) c.id: c};
     emit(current.copyWith(
       challenges: [
-        for (final c in current.challenges) byId[c.id] ?? c,
+        for (final c in current.challenges)
+          byId[c.id] == null ? c : c.withLedgerProgress(byId[c.id]!),
       ],
     ));
   }

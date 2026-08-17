@@ -31,10 +31,16 @@ class DateBadge extends StatelessWidget {
           ),
         ),
         SizedBox(width: 4.w),
-        Text(
-          label,
-          style: TextStyleManager.style8Medium.copyWith(
-            color: AppColors.textSecondary,
+        // The date itself gives way before the "Start"/"End" chip does — the
+        // badge is used inside a Flexible, so it has to be able to shrink.
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyleManager.style8Medium.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
         ),
       ],

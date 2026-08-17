@@ -255,7 +255,7 @@ class AppImage extends StatelessWidget {
       cacheHeight: (safeH != null && safeH.isFinite && safeH > 0)
           ? (safeH * pixelRatio).toInt()
           : null,
-      errorBuilder: (_, __, ___) => _buildErrorWidget(),
+      errorBuilder: (_, _, _) => _buildErrorWidget(),
     );
 
     return _flipIfLtr(_clip(_gradient(_align(image))), context);

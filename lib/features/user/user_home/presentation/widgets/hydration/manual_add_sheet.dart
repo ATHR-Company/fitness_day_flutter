@@ -123,35 +123,50 @@ class _ManualAddSheetState extends State<ManualAddSheet> {
                 ),
                 SizedBox(height: 20.h),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  // Equal slots rather than spaceEvenly: five labels at a large
+                  // system font are wider than the dialog, and a Row cannot
+                  // shrink children that carry no flex.
                   children: List.generate(_options.length, (index) {
                     final opt = _options[index];
                     final isSelected = _selectedIndex == index;
-                    return GestureDetector(
-                      onTap: () => _selectOption(index),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.all(8.w),
-                        decoration: BoxDecoration(
-                          color: isSelected ? AppColors.white : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(
-                            color: isSelected ? AppColors.hydrationAccent : Colors.transparent,
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            _buildContainerIcon(index, isSelected),
-                            SizedBox(height: 4.h),
-                            Text(
-                              '${formatLitres(opt.amount)} ${'hydration.litre_short'.tr()}',
-                              style: TextStyleManager.style10Medium.copyWith(
-                                color: isSelected ? AppColors.hydrationAccent : AppColors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => _selectOption(index),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          margin: EdgeInsets.symmetric(horizontal: 2.w),
+                          padding: EdgeInsets.all(8.w),
+                          decoration: BoxDecoration(
+                            color:
+                                isSelected ? AppColors.white : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.hydrationAccent
+                                  : Colors.transparent,
+                              width: 1.5,
                             ),
-                          ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildContainerIcon(index, isSelected),
+                              SizedBox(height: 4.h),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  '${formatLitres(opt.amount)} ${'hydration.litre_short'.tr()}',
+                                  maxLines: 1,
+                                  style: TextStyleManager.style10Medium.copyWith(
+                                    color: isSelected
+                                        ? AppColors.hydrationAccent
+                                        : AppColors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -209,17 +224,31 @@ class _ManualAddSheetState extends State<ManualAddSheet> {
     );
   }
 
+  /// Different sizes, to visually mimic different container sizes. Ordered
+  /// largest first, matching [_options].
+  static const _iconHeights = [52.0, 44.0, 36.0, 30.0, 26.0];
+  static const _iconWidths = [22.0, 22.0, 20.0, 20.0, 22.0];
+
   Widget _buildContainerIcon(int index, bool isSelected) {
-    // Different sizes to visually mimic different container sizes.
-    const heights = [52.0, 44.0, 36.0, 30.0, 26.0];
-    const widths = [22.0, 22.0, 20.0, 20.0, 22.0];
     final opt = _options[index];
 
-    return AppImage(
-      opt.iconAsset,
-      width: widths[index].w,
-      height: heights[index].h,
-      color: isSelected ? AppColors.hydrationAccent : AppColors.hydrationUnselected,
+    // Every option reserves the same height and sits its icon at the bottom of
+    // it. Without this each column was only as tall as its own icon, and the
+    // Row centred them — so the labels landed at five different heights, with
+    // "1 L" (tallest bottle) lowest. Bottom-aligning also reads better: the
+    // containers stand on one shelf instead of floating.
+    return SizedBox(
+      height: _iconHeights.first.h,
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: AppImage(
+          opt.iconAsset,
+          width: _iconWidths[index].w,
+          height: _iconHeights[index].h,
+          color:
+              isSelected ? AppColors.hydrationAccent : AppColors.hydrationUnselected,
+        ),
+      ),
     );
   }
 }

@@ -111,49 +111,74 @@ class _StepsCircularIndicator extends StatelessWidget {
               backgroundColor: AppColors.backgroundTint,
               progressColor: AppColors.greenLightAccent,
               circularStrokeCap: CircularStrokeCap.round,
-              center: Container(
-                padding: EdgeInsets.all(45.w),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.backgroundTint,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      _currentLabel,
-                      style: TextStyleManager.style28Bold.copyWith(color: AppColors.black),
-                    ),
-                    SizedBox(height: 6.h),
-                    // Was a bare Icon with no gesture at all, so the ring
-                    // looked like it offered a session it could not start.
-                    GestureDetector(
-                      onTap: onToggle,
-                      behavior: HitTestBehavior.opaque,
-                      child: Container(
-                        width: 32.w,
-                        height: 32.w,
-                        decoration: BoxDecoration(
-                          color: onToggle == null
-                              ? AppColors.textSecondary
-                              : AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isTracking
-                              ? Icons.stop_rounded
-                              : Icons.play_arrow_rounded,
-                          color: AppColors.white,
-                          size: 18.sp,
-                        ),
+              // A fixed inner disc rather than `padding: EdgeInsets.all(45.w)`
+              // around the content. That padding made the disc's size follow
+              // its text, so a large system font grew it past the ring while
+              // "/ 70000 steps" wrapped onto a second line. The size is now
+              // independent of the text, and the FittedBox below shrinks the
+              // content to fit instead of the disc growing to hold it.
+              center: SizedBox(
+                width: 180.r,
+                height: 180.r,
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.backgroundTint,
+                  ),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _currentLabel,
+                            maxLines: 1,
+                            style: TextStyleManager.style28Bold
+                                .copyWith(color: AppColors.black),
+                          ),
+                          SizedBox(height: 6.h),
+                          // Was a bare Icon with no gesture at all, so the ring
+                          // looked like it offered a session it could not start.
+                          GestureDetector(
+                            onTap: onToggle,
+                            behavior: HitTestBehavior.opaque,
+                            child: Container(
+                              width: 32.w,
+                              height: 32.w,
+                              decoration: BoxDecoration(
+                                color: onToggle == null
+                                    ? AppColors.textSecondary
+                                    : AppColors.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isTracking
+                                    ? Icons.stop_rounded
+                                    : Icons.play_arrow_rounded,
+                                color: AppColors.white,
+                                size: 18.sp,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            '/ ${goal.toStringAsFixed(0)} $unit',
+                            // One line on purpose: the FittedBox scales the
+                            // whole block down rather than letting the unit
+                            // drop onto its own row.
+                            softWrap: false,
+                            maxLines: 1,
+                            style: TextStyleManager.style11Medium
+                                .copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      '/ ${goal.toStringAsFixed(0)} $unit',
-                      style: TextStyleManager.style11Medium.copyWith(color: AppColors.textSecondary),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -170,11 +195,17 @@ class _StepsCircularIndicator extends StatelessWidget {
                     gradient: AppColors.timeRemainingGradient,
                     borderRadius: BorderRadius.circular(20.r),
                   ),
-                  child: Text(
-                    'challenges.goal_percent_label'.tr(args: ['$goalPercent']),
-                    style: TextStyleManager.style11Medium.copyWith(
-                      color: AppColors.greenDarkAccent,
-                      fontWeight: FontWeight.bold,
+                  // Bounded by the ring's width, so a long label scales
+                  // instead of pushing the pill past the ring.
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'challenges.goal_percent_label'.tr(args: ['$goalPercent']),
+                      maxLines: 1,
+                      style: TextStyleManager.style11Medium.copyWith(
+                        color: AppColors.greenDarkAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),

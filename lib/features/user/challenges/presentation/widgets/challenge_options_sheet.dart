@@ -12,7 +12,15 @@ class ChallengeOptionsSheet extends StatelessWidget {
   /// discards the progress with it.
   final VoidCallback? onEndChallenge;
 
-  const ChallengeOptionsSheet({super.key, this.onEndChallenge});
+  /// Opens the native share sheet. Null hides nothing — the row is still shown
+  /// but does nothing, which is what every row here used to do.
+  final VoidCallback? onShare;
+
+  const ChallengeOptionsSheet({
+    super.key,
+    this.onEndChallenge,
+    this.onShare,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +41,12 @@ class ChallengeOptionsSheet extends StatelessWidget {
           Divider(height: 1, color: AppColors.divider),
           _OptionItem(
             label: 'challenges.option_share'.tr(),
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              // Sheet first, share sheet second — otherwise the system sheet
+              // opens behind this one.
+              Navigator.pop(context);
+              onShare?.call();
+            },
           ),
           Divider(height: 1, color: AppColors.divider),
           _OptionItem(

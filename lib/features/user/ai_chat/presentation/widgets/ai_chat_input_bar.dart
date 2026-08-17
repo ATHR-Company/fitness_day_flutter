@@ -43,6 +43,10 @@ class AiChatInputBar extends StatelessWidget {
                 inputFormatters: [NoScriptInputFormatter()],
                 decoration: InputDecoration(
                   hintText: 'ai_chat.input_hint'.tr(),
+                  // One line, ellipsised. Left to wrap, the hint grew the empty
+                  // field to two lines, so it sat above the vertical centre
+                  // while the Send button stayed centred beside it.
+                  hintMaxLines: 1,
                   hintStyle: TextStyleManager.style10Medium.copyWith(
                     color: AppColors.textSecondary.withValues(alpha: 0.5),
                   ),

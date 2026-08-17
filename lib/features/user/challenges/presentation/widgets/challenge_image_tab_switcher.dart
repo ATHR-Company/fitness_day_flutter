@@ -5,52 +5,47 @@ import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 
-/// Challenge image with a floating description/rules tab switcher, shown in
-/// the challenge details dialog.
-class ChallengeImageTabSwitcher extends StatelessWidget {
+/// Header artwork of the challenge details dialog.
+///
+/// The tab switcher used to be stacked on top of this image, which put it
+/// *before* the scrolling content in the dialog's Column — so the content was
+/// painted over it and the challenge title slid across the tabs on scroll. The
+/// two are composed separately by the dialog now, with the switcher last.
+class ChallengeHeaderImage extends StatelessWidget {
   final String? imageUrl;
-  final bool isDescriptionSelected;
-  final ValueChanged<bool> onTabChanged;
+
+  /// How far the tab switcher hangs below this image. The dialog insets its
+  /// scroll area by the same amount so nothing scrolls into that band.
+  static double get overlap => 24.h;
+
+  static double get height => 180.h;
 
   static const _fallbackUrl =
       'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400';
 
-  const ChallengeImageTabSwitcher({
-    super.key,
-    this.imageUrl,
-    required this.isDescriptionSelected,
-    required this.onTabChanged,
-  });
+  const ChallengeHeaderImage({super.key, this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.bottomCenter,
-      children: [
-        AppImage(
-          imageUrl ?? _fallbackUrl,
-          height: 180.h,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        ),
-        Positioned(
-          bottom: -24.h,
-          child: _TabSwitcher(
-            isDescriptionSelected: isDescriptionSelected,
-            onTabChanged: onTabChanged,
-          ),
-        ),
-      ],
+    return AppImage(
+      imageUrl ?? _fallbackUrl,
+      height: height,
+      width: double.infinity,
+      fit: BoxFit.cover,
     );
   }
 }
 
-class _TabSwitcher extends StatelessWidget {
+/// The floating description/rules pill.
+class ChallengeTabSwitcher extends StatelessWidget {
   final bool isDescriptionSelected;
   final ValueChanged<bool> onTabChanged;
 
-  const _TabSwitcher({required this.isDescriptionSelected, required this.onTabChanged});
+  const ChallengeTabSwitcher({
+    super.key,
+    required this.isDescriptionSelected,
+    required this.onTabChanged,
+  });
 
   @override
   Widget build(BuildContext context) {

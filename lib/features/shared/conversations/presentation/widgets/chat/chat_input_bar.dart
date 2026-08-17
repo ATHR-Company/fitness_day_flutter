@@ -84,6 +84,9 @@ class _ComposerRow extends StatelessWidget {
               inputFormatters: [NoScriptInputFormatter()],
               decoration: InputDecoration(
                 hintText: 'conversations.write_message_hint'.tr(),
+                // Same as the AI composer: a wrapping hint grows the empty
+                // field and drags the placeholder off the vertical centre.
+                hintMaxLines: 1,
                 hintStyle: TextStyleManager.style10Medium.copyWith(
                   color: AppColors.textSecondary.withValues(alpha: 0.5),
                 ),

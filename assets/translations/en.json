@@ -341,13 +341,13 @@
     "height": "Height",
     "write_height": "Enter height",
     "cm": "cm",
-    "bmi": "Body Mass Index (BMI)",
+    "bmi": "BMI",
     "bmi_auto_hint": "Calculated automatically from weight and height",
     "body_fat_percentage": "Body Fat Percentage",
     "write_body_fat_percentage": "Enter body fat percentage",
     "fat_mass": "Fat Mass",
     "muscle_weight": "Muscle Mass",
-    "metabolic_rate": "Basal Metabolic Rate (BMR)",
+    "metabolic_rate": "BMR",
     "write_total_metabolic_rate": "Enter basal metabolic rate",
     "muscle_percentage": "Muscle Percentage",
     "write_muscle_percentage": "Enter muscle percentage",
@@ -994,7 +994,7 @@
     "achievement_continue": "Let's continue",
     "achievement_finish": "Finish",
     "well_done": "Well Done!",
-    "well_done_desc": "You've accomplished a day of movement, keep it up to maintain health and relieve pain."
+    "well_done_desc": "You've completed all the rounds successfully. Keep up this performance to maintain your progress and improve your fitness."
   },
   "scan_meal": {
     "title": "Scan Meal",

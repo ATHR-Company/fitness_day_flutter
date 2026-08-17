@@ -148,8 +148,9 @@ class _WorkoutVideoScreenState extends State<WorkoutVideoScreen> {
   }
 
   void _togglePlayPause() {
-    if (_videoController == null || !_videoController!.value.isInitialized)
+    if (_videoController == null || !_videoController!.value.isInitialized) {
       return;
+    }
     setState(() {
       _isPlaying = !_isPlaying;
       if (_isPlaying) {

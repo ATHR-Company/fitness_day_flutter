@@ -21,7 +21,10 @@ class ChallengeDescriptionTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 40.h),
+        // 16 rather than 40: the dialog's scroll area already starts at the
+        // floating tab pill's lower edge, so the other 24 is no longer this
+        // tab's job.
+        SizedBox(height: 16.h),
         Container(
           width: 56.w,
           height: 56.w,

@@ -12,6 +12,7 @@ import 'package:fitness_day/features/user/market/domain/entities/order_data.dart
 import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/orders_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/payment_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/checkout/checkout_exit.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/checkout/paymob_webview_page.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/order_card.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/order_details_dialog.dart';
@@ -299,7 +300,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
             width: double.infinity,
             height: 48.h,
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              // Not `pop` — orders is opened from the cart as well as from the
+              // store, and popping there lands on the cart the buyer just
+              // emptied rather than on the products they were sent to.
+              onPressed: () => backToStore(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(

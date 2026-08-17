@@ -58,12 +58,18 @@ class ChallengeHeaderInfo extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10.h),
+          // Flexible: two badges plus a fixed gap overflow the row once the
+          // system font grows them, and a date is not something to truncate.
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              DateBadge(label: challenge.endLabel, isEnd: true),
+              Flexible(
+                child: DateBadge(label: challenge.endLabel, isEnd: true),
+              ),
               SizedBox(width: 16.w),
-              DateBadge(label: challenge.startLabel, isEnd: false),
+              Flexible(
+                child: DateBadge(label: challenge.startLabel, isEnd: false),
+              ),
             ],
           ),
         ],

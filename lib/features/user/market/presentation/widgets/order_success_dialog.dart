@@ -29,7 +29,7 @@ class OrderSuccessDialog extends StatefulWidget {
 }
 
 class _OrderSuccessDialogState extends State<OrderSuccessDialog> {
-  int _rating = 4; // default 4 stars
+  final int _rating = 4; // default 4 stars
 
   @override
   Widget build(BuildContext context) {

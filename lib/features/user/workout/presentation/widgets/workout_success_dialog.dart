@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -92,21 +93,25 @@ class _WorkoutSuccessDialogState extends State<WorkoutSuccessDialog> {
                       style: TextStyle(fontSize: 24.sp),
                     ),
                     SizedBox(width: 8.w),
-                    Text(
-                      'أحسنت',
-                      textAlign: TextAlign.center,
-                      style: TextStyleManager.heading2.copyWith(
-                        color: const Color(0xFF00A900),
-                        fontWeight: FontWeight.bold,
+                    Flexible(
+                      child: Text(
+                        'workout.well_done'.tr(),
+                        textAlign: TextAlign.center,
+                        style: TextStyleManager.heading2.copyWith(
+                          color: const Color(0xFF00A900),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 24.h),
 
-                // Description
+                // Description — no hardcoded line break: where it wraps
+                // depends on the language and the device's font size, so the
+                // break belongs to the layout rather than the string.
                 Text(
-                  'لقد أكملت جميع الجولات بنجاح. استمر على هذا الأداء\nللحفاظ على تقدمك وتحسين لياقتك.',
+                  'workout.well_done_desc'.tr(),
                   textAlign: TextAlign.center,
                   style: TextStyleManager.style14Medium.copyWith(
                     color: AppColors.textSecondary,

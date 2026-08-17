@@ -12,9 +12,16 @@ import 'package:fitness_day/features/user/challenges/data/models/challenge_model
 /// including a replay: nothing was applied there, but the totals it reports are
 /// still current.
 ///
-/// [challenges] is **every** live joined challenge as the server reported it,
-/// not only the ones that moved, so a listener redraws its list wholesale
-/// instead of patching entries.
+/// [challenges] carries every live joined challenge the sync touched — but as
+/// *ledger* entries, which is not the same shape as a challenge record. They
+/// hold `challengeId`, `name`, `metric`, `unit`, `goal` and this user's
+/// progress, and nothing else: no `isJoined`, no dates, no `participantsCount`,
+/// no `status`.
+///
+/// So a listener must merge them with [ChallengeModel.withLedgerProgress]
+/// rather than swap them in. Assigning one wholesale silently sets `isJoined`
+/// to false and the dates to null, which moved a joined challenge into the
+/// "suggested" section after every session stop.
 class ActivityLedgerChanged extends AppEvent {
   final ActivityTotalsModel totals;
   final List<ChallengeModel> challenges;

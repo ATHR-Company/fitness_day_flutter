@@ -9,7 +9,6 @@ import 'package:fitness_day/generated/locale_keys.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 
 /// First tab of the visit details page: a summary card, visit goals,
 /// and the health report, built from [AssessmentDetailsCubit] state.

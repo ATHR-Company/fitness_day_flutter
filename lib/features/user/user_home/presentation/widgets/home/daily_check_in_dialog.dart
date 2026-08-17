@@ -83,7 +83,11 @@ class _DailyCheckInDialog extends StatelessWidget {
           ),
           backgroundColor: AppColors.white,
           insetPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
-          child: Padding(
+          // Scrollable so a large system font size can't overflow the dialog:
+          // every label here grows with the device's text scale, and the seven
+          // day tiles plus the button are already close to the available height
+          // at the default scale.
+          child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 24.h),
             child: switch (state) {
               DailyCheckInLoaded() => _CycleContent(state: state),
@@ -217,7 +221,6 @@ class _CycleContent extends StatelessWidget {
         // ── Claim button ──────────────────────────────────────────────
         SizedBox(
           width: double.infinity,
-          height: 50.h,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -227,6 +230,11 @@ class _CycleContent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14.r),
               ),
               elevation: 0,
+              // A minimum rather than a fixed height: at a large system font
+              // the label used to wrap inside a locked 50.h box and the "+N"
+              // was clipped off the bottom.
+              minimumSize: Size.fromHeight(50.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             ),
             onPressed: (!status.canClaimToday || state.isClaiming)
                 ? null
@@ -240,14 +248,22 @@ class _CycleContent extends StatelessWidget {
                       color: AppColors.white,
                     ),
                   )
-                : Text(
-                    status.canClaimToday
-                        ? '${'check_in.claim_button'.tr()}  +${status.todayPoints}'
-                        : 'check_in.already_claimed'.tr(),
-                    style: TextStyleManager.button.copyWith(
-                      color: status.canClaimToday
-                          ? AppColors.white
-                          : AppColors.textPrimary,
+                // Same treatment as CustomButton: the label stays on one line
+                // and gives way instead of wrapping, since "Claim Your Prize"
+                // and "احصل على جائزتك" differ a lot in width.
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      status.canClaimToday
+                          ? '${'check_in.claim_button'.tr()}  +${status.todayPoints}'
+                          : 'check_in.already_claimed'.tr(),
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      style: TextStyleManager.button.copyWith(
+                        color: status.canClaimToday
+                            ? AppColors.white
+                            : AppColors.textPrimary,
+                      ),
                     ),
                   ),
           ),
@@ -337,12 +353,19 @@ class _DayTile extends StatelessWidget {
                       : AppColors.divider.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(20.r),
                 ),
-                child: Text(
-                  '${'check_in.day'.tr()} ${day.dayNumber}',
-                  style: TextStyleManager.style8Medium.copyWith(
-                    color: highlighted
-                        ? AppColors.primaryDark
-                        : AppColors.textSecondary,
+                // Three tiles share a row, so at a large system font "Day 7"
+                // is wider than the pill it sits in — scale it down rather
+                // than let it spill past the tile.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '${'check_in.day'.tr()} ${day.dayNumber}',
+                    maxLines: 1,
+                    style: TextStyleManager.style8Medium.copyWith(
+                      color: highlighted
+                          ? AppColors.primaryDark
+                          : AppColors.textSecondary,
+                    ),
                   ),
                 ),
               ),

@@ -42,11 +42,11 @@ class ImageFullScreenViewer extends StatefulWidget {
         barrierDismissible: true,
         transitionDuration: const Duration(milliseconds: 220),
         reverseTransitionDuration: const Duration(milliseconds: 180),
-        pageBuilder: (_, __, ___) => ImageFullScreenViewer._(
+        pageBuilder: (_, _, _) => ImageFullScreenViewer._(
           networkUrl: networkUrl,
           file: file,
         ),
-        transitionsBuilder: (_, animation, __, child) => FadeTransition(
+        transitionsBuilder: (_, animation, _, child) => FadeTransition(
           opacity: animation,
           child: child,
         ),
@@ -117,7 +117,7 @@ class _ImageFullScreenViewerState extends State<ImageFullScreenViewer> {
                       ),
                     );
                   },
-                  errorBuilder: (_, __, ___) => Center(
+                  errorBuilder: (_, _, _) => Center(
                     child: Icon(
                       Icons.broken_image_rounded,
                       color: AppColors.textSecondary,

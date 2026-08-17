@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:omni_image/omni_image.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 
 /// Data model representing an image in the gallery.

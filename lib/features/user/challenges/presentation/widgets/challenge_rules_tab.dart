@@ -25,7 +25,9 @@ class ChallengeRulesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 32.h),
+        // See the note in [ChallengeDescriptionTab]: the dialog's scroll area
+        // now carries the clearance for the floating tab pill.
+        SizedBox(height: 8.h),
         if (challenge.rules.isEmpty)
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
