@@ -57,6 +57,15 @@ class ApiEndpoints {
       '/specialist/assessments/meal-templates?mealCategoryId=$categoryId';
   static const String specialistActivities = '/specialist/assessments/activities';
   static const String specialistExercises = '/specialist/assessments/exercises';
+
+  // Programs — dashboard-authored plan templates a specialist applies onto a
+  // visit. The picker reads /specialist/programs; the write is an *assessment*
+  // endpoint, because what it changes is the visit's plan.
+  static const String specialistPrograms = '/specialist/programs';
+  static String specialistProgramWeeks(String programId) =>
+      '/specialist/programs/$programId/weeks';
+  static String applyProgramToAssessment(String assessmentId) =>
+      '/specialist/assessments/$assessmentId/apply-program';
   static String specialistClientProfile(String userId) => '/specialist/clients/$userId/profile';
   static String specialistClientUpcomingAssessments(String userId) => '/specialist/clients/$userId/assessments/upcoming';
   static String specialistClientPreviousAssessments(String userId) => '/specialist/clients/$userId/assessments/previous';

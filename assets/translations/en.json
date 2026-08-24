@@ -364,6 +364,7 @@
     "add_meal": "Add Nutrition",
     "add_exercise": "Add Exercise",
     "add_activity": "Add Activity",
+    "apply_program": "Apply a program",
     "add": "Add »",
     "nutrition": "Nutrition",
     "exercises": "Exercises",
@@ -396,6 +397,20 @@
     "nutrition_protein": "Protein (g)",
     "nutrition_fiber": "Fiber (g)",
     "nutrition_cholesterol": "Cholesterol (g)"
+  },
+  "apply_program": {
+    "title": "Choose a program",
+    "search_hint": "Search by program name",
+    "no_programs": "No programs available right now",
+    "retry": "Try again",
+    "weeks_count": "{count} weeks",
+    "week": "Week {number}",
+    "week_summary": "{days} days · {meals} meals · {workouts} exercises · {activities} activities",
+    "confirm_title": "Apply program to visit",
+    "confirm_body": "All 7 days will be filled from \"{program}\" — week {week}.",
+    "confirm_warning": "Every meal, exercise and activity currently on this visit will be deleted, along with the client's progress on them. This cannot be undone.",
+    "confirm": "Apply",
+    "cancel": "Cancel"
   },
   "add_meal": {
     "title": "Add Meal",

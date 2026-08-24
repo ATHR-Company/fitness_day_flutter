@@ -10,6 +10,7 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_fi
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_apply_program_model.dart';
 import 'package:fitness_day/features/specialist/visits/domain/repositories/specialist_visits_repository.dart';
 import 'package:fitness_day/features/user/visits/data/models/meal_details_model.dart';
 import 'package:fitness_day/features/user/workout/data/models/workout_details_model.dart';
@@ -409,6 +410,24 @@ class SpecialistVisitsRepositoryImpl implements SpecialistVisitsRepository {
         assessmentId: assessmentId,
         dayNumber: dayNumber,
         activityItemId: activityItemId,
+      );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<SpecialistApplyProgramResponseModel>> applyProgram({
+    required String assessmentId,
+    required String programId,
+    required int weekNumber,
+  }) async {
+    try {
+      final response = await remoteDataSource.applyProgram(
+        assessmentId: assessmentId,
+        programId: programId,
+        weekNumber: weekNumber,
       );
       return Success(response);
     } catch (e) {

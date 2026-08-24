@@ -461,6 +461,60 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
     return (false, '');
   }
 
+  /// Applies one week of a program onto every day of the visit.
+  ///
+  /// Unlike the add/update calls, this rewrites **all seven days**, so the
+  /// per-day plan cache is rebuilt from scratch rather than patched: leaving a
+  /// stale day in it would show the specialist the old plan the moment they
+  /// tapped another day tab.
+  ///
+  /// The client's progress on the previous plan is gone — deliberately, see
+  /// ApplyProgramToAssessmentUseCase on the backend. The caller is responsible
+  /// for confirming that with the specialist before getting here.
+  Future<(bool, String)> applyProgram({
+    required String assessmentId,
+    required String programId,
+    required int weekNumber,
+    required int currentDayNumber,
+  }) async {
+    final currentState = state;
+    if (currentState is! VisitDetailsSuccess) return (false, '');
+
+    emit(currentState.copyWith(isStarting: true));
+
+    final result = await _repository.applyProgram(
+      assessmentId: assessmentId,
+      programId: programId,
+      weekNumber: weekNumber,
+    );
+
+    switch (result) {
+      case Success(:final data):
+        final days = data.data?.days ?? const <SpecialistAssessmentCustomPlanModel>[];
+
+        final newCache = <int, SpecialistAssessmentCustomPlanModel>{
+          for (final day in days) day.dayNumber: day,
+        };
+
+        final planState = data.data?.currentState;
+        final canFinish = days.isNotEmpty && days.first.canFinishAssessment;
+
+        emit(currentState.copyWith(
+          isStarting: false,
+          customPlan: newCache[currentDayNumber] ?? currentState.customPlan,
+          customPlanCache: newCache,
+          visitData: currentState.visitData?.copyWith(
+            currentState: planState ?? currentState.visitData?.currentState,
+          ),
+          canFinishAssessment: canFinish,
+        ));
+        return (true, data.message);
+      case FailureResult(:final failure):
+        emit(currentState.copyWith(isStarting: false));
+        return (false, failure.message);
+    }
+  }
+
   (bool, String) _handlePlanResult(
     ApiResult<SpecialistAssessmentCustomPlanResponseModel> result,
     int dayNumber,

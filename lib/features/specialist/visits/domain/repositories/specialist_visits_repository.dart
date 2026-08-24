@@ -1,4 +1,5 @@
 import 'package:fitness_day/core/network/api_result.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_apply_program_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_history_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_visit_data_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_health_report_model.dart';
@@ -148,5 +149,16 @@ abstract class SpecialistVisitsRepository {
     required String assessmentId,
     required int dayNumber,
     required String activityItemId,
+  });
+
+  /// Replaces the visit's seven days with one week of a program.
+  ///
+  /// Destructive by design: the client's progress on whatever was there is
+  /// **not** carried over, because the plan it belonged to no longer exists.
+  /// Callers are expected to confirm with the specialist first.
+  Future<ApiResult<SpecialistApplyProgramResponseModel>> applyProgram({
+    required String assessmentId,
+    required String programId,
+    required int weekNumber,
   });
 }

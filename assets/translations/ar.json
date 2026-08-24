@@ -364,6 +364,7 @@
     "add_meal": "إضافة تغذية",
     "add_exercise": "إضافة تمرين",
     "add_activity": "إضافة نشاط",
+    "apply_program": "تطبيق برنامج",
     "add": "إضافة »",
     "nutrition": "التغذية",
     "exercises": "التمارين",
@@ -396,6 +397,20 @@
     "nutrition_protein": "البروتين بالجرام",
     "nutrition_fiber": "الالياف بالجرام",
     "nutrition_cholesterol": "كوليسترول بالجرام"
+  },
+  "apply_program": {
+    "title": "اختر برنامجًا",
+    "search_hint": "ابحث باسم البرنامج",
+    "no_programs": "لا توجد برامج متاحة حاليًا",
+    "retry": "إعادة المحاولة",
+    "weeks_count": "{count} أسبوع",
+    "week": "الأسبوع {number}",
+    "week_summary": "{days} أيام · {meals} وجبة · {workouts} تمرين · {activities} نشاط",
+    "confirm_title": "تطبيق البرنامج على الزيارة",
+    "confirm_body": "سيتم ملء الأيام السبعة بالكامل من «{program}» — الأسبوع {week}.",
+    "confirm_warning": "سيتم حذف جميع الوجبات والتمارين والأنشطة الموجودة حاليًا في الزيارة، وكل تقدّم العميل عليها. لا يمكن التراجع عن هذا الإجراء.",
+    "confirm": "تطبيق",
+    "cancel": "إلغاء"
   },
   "add_meal": {
     "title": "اضافة وجبة",

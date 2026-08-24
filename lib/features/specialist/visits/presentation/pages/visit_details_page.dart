@@ -26,6 +26,7 @@ import 'package:fitness_day/features/specialist/visits/presentation/widgets/repo
 import 'add_activity_page.dart';
 import 'add_exercise_page.dart';
 import 'add_meal_page.dart';
+import 'package:fitness_day/features/specialist/programs/presentation/pages/apply_program_page.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 import '../manager/visit_details_cubit.dart';
 import '../manager/visit_details_state.dart';
@@ -825,6 +826,38 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /*
+                  The bulk alternative to the three cards below: instead of
+                  adding one meal, one exercise and one activity per day for
+                  seven days, pick a dashboard-authored program and a week and
+                  get all seven filled at once.
+
+                  It replaces the whole plan — including the client's progress
+                  on it — so ApplyProgramPage confirms before it writes.
+                */
+                _buildActionCard(
+                  title: 'visit_details.apply_program'.tr(),
+                  onPressed: () async {
+                    final applied = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (ctx) => BlocProvider.value(
+                          value: context.read<VisitDetailsCubit>(),
+                          child: ApplyProgramPage(
+                            assessmentId: widget.assessmentId,
+                            currentDayNumber: dayNumber,
+                          ),
+                        ),
+                      ),
+                    );
+
+                    // The cubit already rebuilt its plan cache from the apply
+                    // response, so there is nothing to refetch — this only
+                    // nudges a rebuild once the pop has landed.
+                    if (applied == true && mounted) setState(() {});
+                  },
+                ),
+                SizedBox(height: 16.h),
                 _buildActionCard(
                   title: 'visit_details.add_meal'.tr(),
                   onPressed: () {

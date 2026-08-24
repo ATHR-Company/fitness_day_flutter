@@ -57,6 +57,12 @@ import 'package:fitness_day/features/specialist/tasks/data/repositories/speciali
 import 'package:fitness_day/features/specialist/tasks/domain/repositories/specialist_daily_tasks_repository.dart';
 import 'package:fitness_day/features/specialist/tasks/domain/usecases/get_specialist_daily_tasks_usecase.dart';
 import 'package:fitness_day/features/specialist/tasks/presentation/manager/specialist_daily_tasks_cubit.dart';
+import 'package:fitness_day/features/specialist/programs/data/datasources/specialist_programs_remote_datasource.dart';
+import 'package:fitness_day/features/specialist/programs/data/repositories/specialist_programs_repository_impl.dart';
+import 'package:fitness_day/features/specialist/programs/domain/repositories/specialist_programs_repository.dart';
+import 'package:fitness_day/features/specialist/programs/domain/usecases/get_program_weeks_usecase.dart';
+import 'package:fitness_day/features/specialist/programs/domain/usecases/get_specialist_programs_usecase.dart';
+import 'package:fitness_day/features/specialist/programs/presentation/manager/programs_cubit.dart';
 
 // Specialist Visits & Assessment Details
 import 'package:fitness_day/features/specialist/visits/data/datasources/specialist_visits_remote_datasource.dart';
@@ -996,6 +1002,30 @@ Future<void> init() async {
       getIt<UpdateHealthReportUseCase>(),
       getIt<UpdateCustomPlanUseCase>(),
       getIt<SpecialistVisitsRepository>(),
+    ),
+  );
+
+  // Specialist Programs (the plan-template picker)
+  //
+  // Read-only here. Applying a week is a write to a *visit*, so it goes
+  // through SpecialistVisitsRepository / VisitDetailsCubit above — the ones
+  // that own the visit's plan cache.
+  getIt.registerLazySingleton<SpecialistProgramsRemoteDataSource>(
+    () => SpecialistProgramsRemoteDataSourceImpl(getIt<ApiService>()),
+  );
+  getIt.registerLazySingleton<SpecialistProgramsRepository>(
+    () => SpecialistProgramsRepositoryImpl(getIt<SpecialistProgramsRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetSpecialistProgramsUseCase>(
+    () => GetSpecialistProgramsUseCase(getIt<SpecialistProgramsRepository>()),
+  );
+  getIt.registerLazySingleton<GetProgramWeeksUseCase>(
+    () => GetProgramWeeksUseCase(getIt<SpecialistProgramsRepository>()),
+  );
+  getIt.registerFactory<ProgramsCubit>(
+    () => ProgramsCubit(
+      getIt<GetSpecialistProgramsUseCase>(),
+      getIt<GetProgramWeeksUseCase>(),
     ),
   );
 

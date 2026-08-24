@@ -9,6 +9,7 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_fi
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_apply_program_model.dart';
 import 'package:fitness_day/features/user/visits/data/models/meal_details_model.dart';
 import 'package:fitness_day/features/user/workout/data/models/workout_details_model.dart';
 import 'package:fitness_day/features/user/visits/data/models/activity_details_model.dart';
@@ -65,6 +66,17 @@ abstract class SpecialistVisitsRemoteDataSource {
     required String assessmentId,
     required int dayNumber,
     required Map<String, dynamic> planData,
+  });
+
+  /// Writes a whole week of a program onto the visit's seven days.
+  ///
+  /// A *visit* endpoint, not a program one — what it changes is the plan — so
+  /// it lives here beside the per-item add/update calls it replaces in bulk.
+  /// The response carries all seven rebuilt days.
+  Future<SpecialistApplyProgramResponseModel> applyProgram({
+    required String assessmentId,
+    required String programId,
+    required int weekNumber,
   });
 
   Future<List<SpecialistMealCategoryModel>> getMealCategories();
@@ -489,5 +501,21 @@ class SpecialistVisitsRemoteDataSourceImpl implements SpecialistVisitsRemoteData
       ApiEndpoints.activityDetails(assessmentId, dayNumber, activityItemId),
     );
     return ActivityDetailsResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<SpecialistApplyProgramResponseModel> applyProgram({
+    required String assessmentId,
+    required String programId,
+    required int weekNumber,
+  }) async {
+    final response = await _apiService.post(
+      ApiEndpoints.applyProgramToAssessment(assessmentId),
+      data: {
+        'programId': programId,
+        'weekNumber': weekNumber,
+      },
+    );
+    return SpecialistApplyProgramResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 }
