@@ -7,6 +7,7 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_as
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_start_visit_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_finish_visit_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_client_notes_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_apply_program_model.dart';
@@ -47,6 +48,11 @@ abstract class SpecialistVisitsRemoteDataSource {
   Future<SpecialistUpdateGoalResponseModel> updateGoal({
     required String assessmentId,
     required String goal,
+  });
+
+  Future<SpecialistUpdateClientNotesResponseModel> updateClientNotes({
+    required String assessmentId,
+    required String clientNotes,
   });
 
   Future<SpecialistUpdateHealthReportResponseModel> updateHealthReport({
@@ -263,6 +269,20 @@ class SpecialistVisitsRemoteDataSourceImpl implements SpecialistVisitsRemoteData
       },
     );
     return SpecialistUpdateGoalResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<SpecialistUpdateClientNotesResponseModel> updateClientNotes({
+    required String assessmentId,
+    required String clientNotes,
+  }) async {
+    final response = await _apiService.patch(
+      ApiEndpoints.updateSpecialistAssessmentClientNotes(assessmentId),
+      data: {
+        'clientNotes': clientNotes,
+      },
+    );
+    return SpecialistUpdateClientNotesResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   @override

@@ -2,6 +2,10 @@
 
 > ملف توثيقي لآخر جلسة مراجعة لشاشة تتبّع المشي/الجري (`StepsDetailsScreen`) والـ cubits المرتبطة بيها.
 > بيغطّي: الحلول اللي اتطبّقت فعلاً، والمشاكل المتبقية مقسّمة بين **الباك إند** و**الفرونت إند**.
+>
+> **لو هتبني الفيتشر من الصفر** الملف ده مش نقطة البداية — هو سجل قرارات.
+> ابدأ من [`walking_running_implementation.md`](walking_running_implementation.md) (فرونت)
+> و[`walking_running_backend_spec.md`](walking_running_backend_spec.md) (باك).
 
 ---
 

@@ -9,6 +9,12 @@ import 'package:easy_localization/easy_localization.dart';
 class AddGoalDialog extends StatefulWidget {
   final String initialGoal;
 
+  /// Translation keys, so the same dialog can edit any single free-text field
+  /// on a visit — the goal by default, the client notes with these overridden.
+  final String titleKey;
+  final String labelKey;
+  final String placeholderKey;
+
   /// Saves the goal. Return `null` when it went through — the dialog then
   /// closes. Any other string is pinned under the field and the dialog stays
   /// open with the text still in it, so the rejection is read next to what
@@ -19,6 +25,9 @@ class AddGoalDialog extends StatefulWidget {
     super.key,
     required this.initialGoal,
     required this.onSave,
+    this.titleKey = 'visit_details.add_goal_dialog_title',
+    this.labelKey = 'visit_details.goal_label',
+    this.placeholderKey = 'visit_details.enter_goal_placeholder',
   });
 
   @override
@@ -102,7 +111,7 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
               children: [
                 Expanded(
                   child: Text(
-                    'visit_details.add_goal_dialog_title'.tr(),
+                    widget.titleKey.tr(),
                     style: TextStyleManager.heading3.copyWith(
                       color: AppColors.black,
                       fontWeight: FontWeight.bold,
@@ -123,7 +132,7 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
 
             // Input Field Label
             Text(
-              'visit_details.goal_label'.tr(),
+              widget.labelKey.tr(),
               style: TextStyleManager.style11Medium.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.bold,
@@ -159,7 +168,7 @@ class _AddGoalDialogState extends State<AddGoalDialog> {
                   color: AppColors.textPrimary,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'visit_details.enter_goal_placeholder'.tr(),
+                  hintText: widget.placeholderKey.tr(),
                   hintStyle: TextStyleManager.style11Medium.copyWith(
                     color: Colors.grey.withValues(alpha: 0.5),
                   ),
@@ -213,6 +222,9 @@ void showAddGoalDialog({
   required BuildContext context,
   required String initialGoal,
   required Future<String?> Function(String) onSave,
+  String titleKey = 'visit_details.add_goal_dialog_title',
+  String labelKey = 'visit_details.goal_label',
+  String placeholderKey = 'visit_details.enter_goal_placeholder',
 }) {
   showDialog(
     context: context,
@@ -223,6 +235,9 @@ void showAddGoalDialog({
     builder: (context) => AddGoalDialog(
       initialGoal: initialGoal,
       onSave: onSave,
+      titleKey: titleKey,
+      labelKey: labelKey,
+      placeholderKey: placeholderKey,
     ),
   );
 }

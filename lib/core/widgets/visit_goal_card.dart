@@ -8,6 +8,11 @@ import 'package:fitness_day/core/theme/app_text_styles.dart';
 
 class VisitGoalCard extends StatelessWidget {
   final String title;
+
+  /// Optional line under the title — used by the client-notes card to say who
+  /// the notes are actually for.
+  final String? subtitle;
+
   final List<String> goals;
   final VoidCallback? onAddPressed;
   final VoidCallback? onEditPressed;
@@ -15,6 +20,7 @@ class VisitGoalCard extends StatelessWidget {
   const VisitGoalCard({
     super.key,
     required this.title,
+    this.subtitle,
     required this.goals,
     this.onAddPressed,
     this.onEditPressed,
@@ -51,12 +57,30 @@ class VisitGoalCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  textAlign: TextAlign.start,
-                  style: TextStyleManager.style11Medium.copyWith(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        textAlign: TextAlign.start,
+                        style: TextStyleManager.style11Medium.copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (subtitle != null) ...[
+                        SizedBox(height: 2.h),
+                        Text(
+                          subtitle!,
+                          textAlign: TextAlign.start,
+                          style: TextStyleManager.style9Medium.copyWith(
+                            color: AppColors.textPrimary.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 if (showButton)

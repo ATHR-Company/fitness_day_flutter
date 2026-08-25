@@ -8,6 +8,7 @@ import 'package:fitness_day/features/specialist/visits/domain/usecases/get_healt
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_custom_plan_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/start_visit_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/update_goal_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/update_client_notes_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/update_health_report_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/update_custom_plan_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_assessment_custom_plan_model.dart';
@@ -21,6 +22,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
   final GetCustomPlanUseCase _getCustomPlanUseCase;
   final StartVisitUseCase _startVisitUseCase;
   final UpdateGoalUseCase _updateGoalUseCase;
+  final UpdateClientNotesUseCase _updateClientNotesUseCase;
   final UpdateHealthReportUseCase _updateHealthReportUseCase;
   final SpecialistVisitsRepository _repository;
 
@@ -30,6 +32,7 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
     this._getCustomPlanUseCase,
     this._startVisitUseCase,
     this._updateGoalUseCase,
+    this._updateClientNotesUseCase,
     this._updateHealthReportUseCase,
     this._updateCustomPlanUseCase,
     this._repository,
@@ -217,6 +220,38 @@ class VisitDetailsCubit extends Cubit<VisitDetailsState> {
         case Success(:final data):
           final updatedVisitData = currentState.visitData?.copyWith(
             goal: data.data?.goal ?? goal,
+          );
+          emit(currentState.copyWith(
+            isStarting: false,
+            visitData: updatedVisitData,
+          ));
+          return (true, data.message);
+        case FailureResult(:final failure):
+          emit(currentState.copyWith(isStarting: false));
+          return (false, failure.message);
+      }
+    }
+    return (false, '');
+  }
+
+  /// Saves the specialist's notes about the client for this visit.
+  ///
+  /// Deliberately does not touch `canFinishAssessment`: notes are optional on
+  /// the server too, so writing them can never be what unlocks finishing.
+  Future<(bool, String)> updateClientNotes(String assessmentId, String clientNotes) async {
+    final currentState = state;
+    if (currentState is VisitDetailsSuccess) {
+      emit(currentState.copyWith(isStarting: true));
+
+      final result = await _updateClientNotesUseCase(
+        assessmentId: assessmentId,
+        clientNotes: clientNotes,
+      );
+
+      switch (result) {
+        case Success(:final data):
+          final updatedVisitData = currentState.visitData?.copyWith(
+            clientNotes: data.data?.clientNotes ?? clientNotes,
           );
           emit(currentState.copyWith(
             isStarting: false,

@@ -74,6 +74,7 @@ import 'package:fitness_day/features/specialist/visits/domain/usecases/get_healt
 import 'package:fitness_day/features/specialist/visits/domain/usecases/get_custom_plan_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/start_visit_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/update_goal_usecase.dart';
+import 'package:fitness_day/features/specialist/visits/domain/usecases/update_client_notes_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/update_health_report_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/domain/usecases/update_custom_plan_usecase.dart';
 import 'package:fitness_day/features/specialist/visits/presentation/manager/visits_cubit.dart';
@@ -986,6 +987,9 @@ Future<void> init() async {
   getIt.registerLazySingleton<UpdateGoalUseCase>(
     () => UpdateGoalUseCase(getIt<SpecialistVisitsRepository>()),
   );
+  getIt.registerLazySingleton<UpdateClientNotesUseCase>(
+    () => UpdateClientNotesUseCase(getIt<SpecialistVisitsRepository>()),
+  );
   getIt.registerLazySingleton<UpdateHealthReportUseCase>(
     () => UpdateHealthReportUseCase(getIt<SpecialistVisitsRepository>()),
   );
@@ -999,6 +1003,7 @@ Future<void> init() async {
       getIt<GetCustomPlanUseCase>(),
       getIt<StartVisitUseCase>(),
       getIt<UpdateGoalUseCase>(),
+      getIt<UpdateClientNotesUseCase>(),
       getIt<UpdateHealthReportUseCase>(),
       getIt<UpdateCustomPlanUseCase>(),
       getIt<SpecialistVisitsRepository>(),

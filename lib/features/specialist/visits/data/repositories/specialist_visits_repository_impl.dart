@@ -8,6 +8,7 @@ import 'package:fitness_day/features/specialist/visits/data/models/specialist_as
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_start_visit_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_finish_visit_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_goal_model.dart';
+import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_client_notes_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_update_health_report_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_plan_lookups_model.dart';
 import 'package:fitness_day/features/specialist/visits/data/models/specialist_apply_program_model.dart';
@@ -114,6 +115,22 @@ class SpecialistVisitsRepositoryImpl implements SpecialistVisitsRepository {
       final response = await remoteDataSource.updateGoal(
         assessmentId: assessmentId,
         goal: goal,
+      );
+      return Success(response);
+    } catch (e) {
+      return FailureResult(ErrorHandler.handle(e));
+    }
+  }
+
+  @override
+  Future<ApiResult<SpecialistUpdateClientNotesResponseModel>> updateClientNotes({
+    required String assessmentId,
+    required String clientNotes,
+  }) async {
+    try {
+      final response = await remoteDataSource.updateClientNotes(
+        assessmentId: assessmentId,
+        clientNotes: clientNotes,
       );
       return Success(response);
     } catch (e) {

@@ -37,6 +37,10 @@ class ApiEndpoints {
   static String startSpecialistAssessment(String id) => '/specialist/assessment-history/$id/start';
   static String finishSpecialistAssessment(String id) => '/specialist/assessment-history/$id/finish';
   static String updateSpecialistAssessmentGoal(String id) => '/specialist/assessment-history/$id/goal';
+  // The specialist's notes about the client for one visit. Written here, read
+  // by the admin dashboard — the client's own app never receives them.
+  static String updateSpecialistAssessmentClientNotes(String id) =>
+      '/specialist/assessment-history/$id/client-notes';
   static String updateSpecialistAssessmentHealthReport(String id) => '/specialist/assessment-history/$id/health-report';
   static String updateSpecialistAssessmentPlan(String assessmentId, int dayNumber) =>
       '/specialist/assessments/$assessmentId/days/$dayNumber/plan';

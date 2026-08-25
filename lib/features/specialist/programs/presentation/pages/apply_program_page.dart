@@ -377,7 +377,7 @@ class _ProgramCard extends StatelessWidget {
               ),
             ),
             Icon(
-              Icons.chevron_left,
+              Icons.chevron_right,
               color: AppColors.textSecondary.withValues(alpha: 0.5),
               size: 26.sp,
             ),
@@ -437,7 +437,7 @@ class _WeekCard extends StatelessWidget {
               ),
             ),
             Icon(
-              Icons.chevron_left,
+              Icons.chevron_right,
               color: AppColors.textSecondary.withValues(alpha: 0.5),
               size: 26.sp,
             ),

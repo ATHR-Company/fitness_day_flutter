@@ -491,6 +491,12 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
         .where((e) => e.isNotEmpty)
         .toList();
 
+    final clientNotesList = (visitData.clientNotes ?? '')
+        .split('\n')
+        .map((e) => e.replaceAll('•', '').trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -553,8 +559,46 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
                 );
               },
             ),
+
+          // The specialist's notes about this client, sitting right under the
+          // goal and gated on exactly the same condition — both are written on
+          // a visit that has actually started. Unlike the goal, these never
+          // reach the client's app: only the admin dashboard reads them, which
+          // is what the line under the card title says.
+          if (visitData.currentState != null
+              ? visitData.currentState != AssessmentCurrentState.notStarted
+              : visitData.isStarted) ...[
+            SizedBox(height: 16.h),
+            VisitGoalCard(
+              title: 'visit_details.client_notes_title'.tr(),
+              subtitle: 'visit_details.client_notes_hint'.tr(),
+              goals: clientNotesList,
+              onAddPressed: () => _showClientNotesDialog(visitData),
+              onEditPressed: () => _showClientNotesDialog(visitData),
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  void _showClientNotesDialog(SpecialistAssessmentVisitDataModel visitData) {
+    showAddGoalDialog(
+      context: context,
+      initialGoal: visitData.clientNotes ?? '',
+      titleKey: 'visit_details.add_client_notes_dialog_title',
+      labelKey: 'visit_details.client_notes_label',
+      placeholderKey: 'visit_details.enter_client_notes_placeholder',
+      onSave: (notes) async {
+        final cubit = context.read<VisitDetailsCubit>();
+        final (success, message) = await cubit.updateClientNotes(widget.assessmentId, notes);
+        // A rejection stays in the dialog, pinned under the field.
+        if (!success) return message;
+        if (mounted) {
+          showAppSnackBar(context, text: message, isSuccess: true);
+        }
+        return null;
+      },
     );
   }
 
