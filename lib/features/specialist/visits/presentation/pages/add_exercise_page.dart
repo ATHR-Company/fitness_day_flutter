@@ -115,6 +115,7 @@ class _AddExercisePageState extends State<AddExercisePage> {
       title: 'add_exercise.exercise_type'.tr(),
       items: items,
       showSearch: true,
+      searchHintKey: 'add_exercise.search_exercise_name',
       initialSelectedIndex: _selectedExercise != null
           ? _exercises.indexOf(_selectedExercise!)
           : 0,

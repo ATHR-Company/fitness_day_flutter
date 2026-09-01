@@ -11,8 +11,10 @@ import 'package:fitness_day/features/user/market/domain/entities/product_data.da
 import 'package:fitness_day/features/user/market/domain/entities/products_page_data.dart';
 import 'package:fitness_day/features/user/market/domain/entities/store_home_data.dart';
 import 'package:fitness_day/features/user/market/domain/usecases/get_products_usecase.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/products_list_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/manager/products_list_state.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/cart_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/screens/product_details_screen.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/product_card_shimmer.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/product_cart_card.dart';
@@ -245,22 +247,71 @@ class _AppBar extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Container(
-            width: 44.w,
-            height: 44.w,
-            padding: EdgeInsets.all(12.r),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.textSecondary.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-            child: AppImage(
-              SvgIcons.market_icon,
-              color: AppColors.textSecondary,
-            ),
+          // The cart button was decoration only here — no tap target and no
+          // badge — so adding from this list looked like nothing happened.
+          // Reads the singleton CartCubit, same as the market app bar.
+          BlocBuilder<CartCubit, CartState>(
+            bloc: getIt<CartCubit>(),
+            builder: (context, state) {
+              final count = state.badgeCount;
+              return GestureDetector(
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CartScreen()),
+                  );
+                  // Checking out or emptying the cart changes the badge.
+                  getIt<CartCubit>().loadCounters();
+                },
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 44.w,
+                      height: 44.w,
+                      padding: EdgeInsets.all(12.r),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.textSecondary.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: AppImage(
+                        SvgIcons.market_icon,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    if (count > 0)
+                      Positioned(
+                        top: -2.h,
+                        right: -2.w,
+                        child: Container(
+                          padding: EdgeInsets.all(4.r),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 16.w,
+                            minHeight: 16.w,
+                          ),
+                          child: Text(
+                            count > 99 ? '99+' : '$count',
+                            textAlign: TextAlign.center,
+                            style: TextStyleManager.style9Medium.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 8.sp,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),

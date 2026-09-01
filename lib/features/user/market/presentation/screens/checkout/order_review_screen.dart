@@ -43,6 +43,13 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
     context.read<CheckoutCubit>().applyCoupon(code);
   }
 
+  void _remove(BuildContext context) {
+    // Empty the field along with the coupon, so the button goes back to
+    // disabled instead of offering to re-apply the code that was just dropped.
+    _couponController.clear();
+    context.read<CheckoutCubit>().removeCoupon();
+  }
+
   void _confirm(BuildContext context) {
     final order = context.read<CheckoutCubit>().state.order;
     if (order == null) return;
@@ -330,53 +337,67 @@ class _OrderReviewScreenState extends State<OrderReviewScreen> {
               ),
             ),
             SizedBox(width: 12.w),
-            SizedBox(
-              height: 48.h,
-              width: 100.w,
-              child: ElevatedButton(
-                onPressed: isApplying
-                    ? null
-                    : () => isApplied
-                        ? context.read<CheckoutCubit>().removeCoupon()
-                        : _apply(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      isApplied ? AppColors.white : AppColors.primary,
-                  side: isApplied
-                      ? const BorderSide(color: AppColors.error)
-                      : null,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  elevation: 0,
-                ),
-                child: isApplying
-                    ? SizedBox(
-                        width: 18.w,
-                        height: 18.w,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.primary,
-                        ),
-                      )
-                    // Fixed 100.w button: "Remove" is longer than "Apply" and
-                    // wrapped out of the pill at larger font sizes.
-                    : FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          (isApplied
-                                  ? 'market.remove_button'
-                                  : 'market.apply_button')
-                              .tr(),
-                          maxLines: 1,
-                          textAlign: TextAlign.center,
-                          style: TextStyleManager.style13Medium.copyWith(
-                            color: isApplied ? AppColors.error : AppColors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+            // Rebuilds on every keystroke so "Apply" stays dead until the
+            // field actually holds a code — and again once a removal empties
+            // it.
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _couponController,
+              builder: (context, value, _) {
+                final hasCode = value.text.trim().isNotEmpty;
+                final enabled = !isApplying && (isApplied || hasCode);
+                return SizedBox(
+                  height: 48.h,
+                  width: 100.w,
+                  child: ElevatedButton(
+                    onPressed: !enabled
+                        ? null
+                        : () => isApplied
+                            ? _remove(context)
+                            : _apply(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          isApplied ? AppColors.white : AppColors.primary,
+                      disabledBackgroundColor:
+                          isApplied ? AppColors.white : AppColors.divider,
+                      side: isApplied
+                          ? const BorderSide(color: AppColors.error)
+                          : null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
-              ),
+                      elevation: 0,
+                    ),
+                    child: isApplying
+                        ? SizedBox(
+                            width: 18.w,
+                            height: 18.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.primary,
+                            ),
+                          )
+                        // Fixed 100.w button: "Remove" is longer than "Apply"
+                        // and wrapped out of the pill at larger font sizes.
+                        : FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              (isApplied
+                                      ? 'market.remove_button'
+                                      : 'market.apply_button')
+                                  .tr(),
+                              maxLines: 1,
+                              textAlign: TextAlign.center,
+                              style: TextStyleManager.style13Medium.copyWith(
+                                color: isApplied
+                                    ? AppColors.error
+                                    : AppColors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                  ),
+                );
+              },
             ),
           ],
         ),

@@ -92,8 +92,16 @@ class _VisitDetailsPageContentState extends State<_VisitDetailsPageContent> {
   late final List<
       ({String key, TextEditingController controller, String? Function(String) rule})>
       _reportFields = [
-    (key: 'WEIGHT', controller: _weightController, rule: AppValidators.weight),
-    (key: 'HEIGHT', controller: _heightController, rule: AppValidators.height),
+    (
+      key: 'WEIGHT',
+      controller: _weightController,
+      rule: AppValidators.clientWeight
+    ),
+    (
+      key: 'HEIGHT',
+      controller: _heightController,
+      rule: AppValidators.clientHeight
+    ),
     (
       key: 'FAT_PERCENTAGE',
       controller: _fatPercentageController,

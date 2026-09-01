@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android 12 and below (android:fullBackupContent).
+
+    Auto Backup copies shared_prefs/ and the app data dir to the cloud, but it
+    can NEVER copy the Android Keystore key that FlutterSecureStorage encrypts
+    the tokens with — Keystore material is non-exportable by design.
+
+    Restoring the pair therefore produced a broken install: GetStorage.gs came
+    back with is_logged_in = true, FlutterSecureStorage.xml came back
+    undecryptable, the plugin wiped it and returned null, and the app opened on
+    Home issuing unauthenticated requests that all 401'd.
+
+    Excluding both keeps them consistent: a restored install is simply logged
+    out, which is the only honest outcome when the credentials cannot travel.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="FlutterSecureStorage.xml" />
+    <exclude domain="root" path="app_flutter/GetStorage.gs" />
+    <exclude domain="root" path="app_flutter/GetStorage.bak" />
+</full-backup-content>

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:fitness_day/core/routes/deep_link_back.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,9 +33,13 @@ class ChallengesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<ChallengesCubit>()..load(),
-      child: const _ChallengesView(),
+    // Reachable from an App Link (/challenges), which opens it with no page
+    // underneath — see DeepLinkPopScope.
+    return DeepLinkPopScope(
+      child: BlocProvider(
+        create: (_) => getIt<ChallengesCubit>()..load(),
+        child: const _ChallengesView(),
+      ),
     );
   }
 }
@@ -249,7 +254,7 @@ class _ChallengesAppBar extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: () => DeepLinkBack.pop(context),
             child: Icon(
               Icons.arrow_back_ios_rounded,
               size: 20.sp,

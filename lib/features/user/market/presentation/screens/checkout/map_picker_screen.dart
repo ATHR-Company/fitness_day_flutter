@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,6 +28,8 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
 
   LatLng? _pickedLocation;
   bool _isLocating = false;
+  bool _mapReady = false;
+  LatLng? _pendingMoveTarget;
 
   @override
   void initState() {
@@ -43,56 +47,141 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     super.dispose();
   }
 
+  /// Moves the map camera, deferring the move until the map is ready.
+  void _moveTo(LatLng target) {
+    if (!_mapReady) {
+      _pendingMoveTarget = target;
+      return;
+    }
+    _mapController.move(target, 16.0);
+  }
+
+  void _onMapReady() {
+    _mapReady = true;
+    final pending = _pendingMoveTarget;
+    if (pending != null) {
+      _pendingMoveTarget = null;
+      _mapController.move(pending, 16.0);
+    }
+  }
+
+  void _applyLocation(LatLng loc) {
+    if (!mounted) return;
+    setState(() {
+      _pickedLocation = loc;
+      _isLocating = false;
+    });
+    _moveTo(loc);
+  }
+
   Future<void> _determineCurrentPosition() async {
+    if (_isLocating) return;
     setState(() => _isLocating = true);
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        _fallbackToDefault();
+        _stopLocating();
+        _showLocationMessage(
+          'market.location_service_disabled'.tr(),
+          onAction: Geolocator.openLocationSettings,
+        );
         return;
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
+      var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          _fallbackToDefault();
-          return;
-        }
+      }
+
+      if (permission == LocationPermission.denied) {
+        _stopLocating();
+        _showLocationMessage('market.location_permission_denied'.tr());
+        return;
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _fallbackToDefault();
+        _stopLocating();
+        _showLocationMessage(
+          'market.location_permission_blocked'.tr(),
+          onAction: Geolocator.openAppSettings,
+        );
         return;
+      }
+
+      // Show the last known fix immediately so the map is never stuck on the
+      // default city while the GPS is still acquiring a precise position.
+      if (_pickedLocation == null) {
+        try {
+          final lastKnown = await Geolocator.getLastKnownPosition();
+          if (lastKnown != null && mounted && _pickedLocation == null) {
+            setState(
+              () => _pickedLocation = LatLng(
+                lastKnown.latitude,
+                lastKnown.longitude,
+              ),
+            );
+            _moveTo(_pickedLocation!);
+          }
+        } catch (_) {
+          // Last known position is a best-effort optimisation only.
+        }
       }
 
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 5),
+          timeLimit: Duration(seconds: 25),
         ),
       );
 
-      if (mounted) {
-        final loc = LatLng(position.latitude, position.longitude);
-        setState(() {
-          _pickedLocation = loc;
-          _isLocating = false;
-        });
-        _mapController.move(loc, 15.0);
+      _applyLocation(LatLng(position.latitude, position.longitude));
+    } on TimeoutException {
+      _stopLocating();
+      if (_pickedLocation == null) {
+        _fallbackToDefault();
       }
+      _showLocationMessage('market.location_timeout'.tr());
     } catch (_) {
-      _fallbackToDefault();
+      _stopLocating();
+      if (_pickedLocation == null) {
+        _fallbackToDefault();
+      }
+      _showLocationMessage('market.location_failed'.tr());
     }
   }
 
+  void _stopLocating() {
+    if (mounted && _isLocating) setState(() => _isLocating = false);
+  }
+
   void _fallbackToDefault() {
-    if (mounted) {
-      setState(() {
-        _pickedLocation = _defaultLocation;
-        _isLocating = false;
-      });
-    }
+    if (!mounted) return;
+    setState(() => _pickedLocation = _defaultLocation);
+    _moveTo(_defaultLocation);
+  }
+
+  void _showLocationMessage(String message, {VoidCallback? onAction}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyleManager.style13Medium.copyWith(
+            color: AppColors.white,
+          ),
+        ),
+        backgroundColor: AppColors.black,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+        action: onAction == null
+            ? null
+            : SnackBarAction(
+                label: 'market.open_settings'.tr(),
+                textColor: AppColors.primary,
+                onPressed: onAction,
+              ),
+      ),
+    );
   }
 
   void _onMapTap(TapPosition _, LatLng point) {
@@ -114,57 +203,68 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
           children: [
             _buildAppBar(context),
             Expanded(
-              child: _isLocating
-                  ? const Center(child: CircularProgressIndicator())
-                  : Stack(
-                      children: [
-                        FlutterMap(
-                          mapController: _mapController,
-                          options: MapOptions(
-                            initialCenter: _pickedLocation ?? _defaultLocation,
-                            initialZoom: 15.0,
-                            onTap: _onMapTap,
-                          ),
-                          children: [
-                            TileLayer(
-                              urlTemplate:
-                                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                              userAgentPackageName: 'com.fitness.fitness_day',
-                            ),
-                            if (_pickedLocation != null)
-                              MarkerLayer(
-                                markers: [
-                                  Marker(
-                                    point: _pickedLocation!,
-                                    width: 40,
-                                    height: 40,
-                                    child: const Icon(
-                                      Icons.location_on,
-                                      color: AppColors.error,
-                                      size: 40,
-                                    ),
-                                  ),
-                                ],
+              child: Stack(
+                children: [
+                  FlutterMap(
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: _pickedLocation ?? _defaultLocation,
+                      initialZoom: 15.0,
+                      onTap: _onMapTap,
+                      onMapReady: _onMapReady,
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.fitness.fitness_day',
+                      ),
+                      if (_pickedLocation != null)
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: _pickedLocation!,
+                              width: 40,
+                              height: 40,
+                              alignment: Alignment.topCenter,
+                              child: const Icon(
+                                Icons.location_on,
+                                color: AppColors.error,
+                                size: 40,
                               ),
+                            ),
                           ],
                         ),
-                        // My location button
-                        PositionedDirectional(
-                          bottom: 16.h,
-                          start: 16.w,
-                          child: FloatingActionButton.small(
-                            heroTag: 'my_location',
-                            backgroundColor: AppColors.white,
-                            onPressed: _determineCurrentPosition,
-                            child: Icon(
-                              Icons.my_location,
-                              color: AppColors.primary,
-                              size: 20.sp,
-                            ),
+                    ],
+                  ),
+                  if (_isLocating)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: ColoredBox(
+                          color: AppColors.black.withValues(alpha: 0.08),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
                           ),
                         ),
-                      ],
+                      ),
                     ),
+                  // My location button
+                  PositionedDirectional(
+                    bottom: 16.h,
+                    start: 16.w,
+                    child: FloatingActionButton.small(
+                      heroTag: 'my_location',
+                      backgroundColor: AppColors.white,
+                      onPressed: _isLocating ? null : _determineCurrentPosition,
+                      child: Icon(
+                        Icons.my_location,
+                        color: AppColors.primary,
+                        size: 20.sp,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             _buildConfirmButton(),
           ],

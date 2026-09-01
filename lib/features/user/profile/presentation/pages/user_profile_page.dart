@@ -298,17 +298,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
       },
     ),
   
-    _buildMenuItem(
-      title: 'profile.edit_password'.tr(),
-      iconWidget: _buildCircleIcon(iconPath: SvgIcons.editPassword),
-      onTap: () {
-        showDialog(
-          context: context,
-          barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
-          builder: (context) => const ChangePasswordDialog(),
-        );
-      },
-    ),
+    // Social accounts (GOOGLE / APPLE) have no password to change.
+    if (data?.typeOfIdentifier == 'EMAIL' || data?.typeOfIdentifier == 'PHONE')
+      _buildMenuItem(
+        title: 'profile.edit_password'.tr(),
+        iconWidget: _buildCircleIcon(iconPath: SvgIcons.editPassword),
+        onTap: () {
+          showDialog(
+            context: context,
+            barrierColor: AppColors.scrimOverlay.withValues(alpha: 0.5),
+            builder: (context) => const ChangePasswordDialog(),
+          );
+        },
+      ),
     if (data?.typeOfIdentifier == 'PHONE')
       _buildMenuItem(
         title: 'profile.change_phone'.tr(),

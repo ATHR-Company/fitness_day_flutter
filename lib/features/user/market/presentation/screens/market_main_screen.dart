@@ -147,10 +147,23 @@ class _MarketMainScreenState extends State<MarketMainScreen>
 // ─────────────────────────────────────────────────────────────────────────────
 // Products Tab
 // ─────────────────────────────────────────────────────────────────────────────
-class _ProductsTab extends StatelessWidget {
+class _ProductsTab extends StatefulWidget {
   final ProductData Function(StoreProductItem) toProductData;
 
   const _ProductsTab({required this.toProductData});
+
+  @override
+  State<_ProductsTab> createState() => _ProductsTabState();
+}
+
+/// Kept alive so switching to Packages and back does not dispose the tab.
+/// Without it the category row and the product list both rebuild from scratch
+/// and snap back to offset 0 — the selected category scrolls out of view and
+/// the page reads as though the filter had reset to "All".
+class _ProductsTabState extends State<_ProductsTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
 
   /// Keeps the first occurrence of each product id — a product may appear in
   /// more than one section (offers / sellers / new).
@@ -161,6 +174,7 @@ class _ProductsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocBuilder<MarketHomeCubit, MarketHomeState>(
       builder: (context, state) {
         if (state is MarketHomeLoading || state is MarketHomeInitial) {
@@ -193,15 +207,15 @@ class _ProductsTab extends StatelessWidget {
 
         List<ProductData> filteredBestOffers = data.bestOffers
             .where((p) => selectedCategoryId == null || p.category?.id == selectedCategoryId)
-            .map(toProductData)
+            .map(widget.toProductData)
             .toList();
         List<ProductData> filteredNewProducts = data.newProducts
             .where((p) => selectedCategoryId == null || p.category?.id == selectedCategoryId)
-            .map(toProductData)
+            .map(widget.toProductData)
             .toList();
         List<ProductData> filteredBestSellers = data.bestSellers
             .where((p) => selectedCategoryId == null || p.category?.id == selectedCategoryId)
-            .map(toProductData)
+            .map(widget.toProductData)
             .toList();
 
         // Under "All" every section is empty only when the store itself is;
@@ -331,8 +345,17 @@ class _ProductsTab extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 // Packages Tab — driven by PlansCubit → GET /plans
 // ─────────────────────────────────────────────────────────────────────────────
-class _PackagesTab extends StatelessWidget {
+class _PackagesTab extends StatefulWidget {
   const _PackagesTab();
+
+  @override
+  State<_PackagesTab> createState() => _PackagesTabState();
+}
+
+class _PackagesTabState extends State<_PackagesTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
 
   void _showPlanDetails(BuildContext context, PlanItem plan) {
     showDialog(
@@ -344,6 +367,7 @@ class _PackagesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocBuilder<PlansCubit, PlansState>(
       builder: (context, state) {
         if (state is PlansLoading || state is PlansInitial) {

@@ -58,9 +58,28 @@ class SessionManager {
     try {
       final String? token = await _secureCache.getToken();
       final String? refreshToken = await _secureCache.getRefreshToken();
-      final bool hadSession = (token != null && token.isNotEmpty) ||
+      final bool hasTokens = (token != null && token.isNotEmpty) ||
           (refreshToken != null && refreshToken.isNotEmpty);
-      if (!hadSession) return;
+
+      // The tokens being gone is NOT proof there is nothing to end. They live
+      // in FlutterSecureStorage (Keystore-encrypted), the `is_logged_in` flag
+      // lives in GetStorage (a plain file) — and the two can desync: a restored
+      // backup carries the encrypted blob without the Keystore key that opens
+      // it, and some OEMs drop the key on reinstall. Either way the plugin
+      // wipes the unreadable blob (`resetOnError` defaults to true) and hands
+      // back null, leaving `is_logged_in` true with no token behind it.
+      //
+      // Returning here on that state was the bug: every request went out with
+      // no Authorization header, came back 401, reached this method — and this
+      // method did nothing, so the app sat on Home failing forever until the
+      // user cleared app data. Session flags left standing are exactly what
+      // needs clearing.
+      bool hasLocalSession = false;
+      try {
+        hasLocalSession = GetIt.instance<AppCache>().isLoggedIn();
+      } catch (_) {}
+
+      if (!hasTokens && !hasLocalSession) return;
 
       debugPrint('[Session] 🔚 Ending session — reason=${reason.name}');
 

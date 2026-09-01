@@ -60,8 +60,11 @@ class CheckInCalendar extends StatelessWidget {
   bool _isFuture(CheckInCalendarDayModel day) {
     final DateTime today = DateTime.now().toUtc();
     final DateTime todayDate = DateTime.utc(today.year, today.month, today.day);
-    return DateTime.utc(calendar.year, calendar.month, day.dayOfMonth)
-        .isAfter(todayDate);
+    return DateTime.utc(
+      calendar.year,
+      calendar.month,
+      day.dayOfMonth,
+    ).isAfter(todayDate);
   }
 
   @override
@@ -95,10 +98,18 @@ class CheckInCalendar extends StatelessWidget {
         .map(
           (key) => Expanded(
             child: Center(
-              child: Text(
-                key.tr(),
-                style: TextStyleManager.style10Medium.copyWith(
-                  color: AppColors.textSecondary,
+              // Arabic day names are full words, not abbreviations — "الخميس"
+              // is wider than a 1/7th column and used to wrap onto a second
+              // line. Shrink to fit instead of breaking the word.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  key.tr(),
+                  maxLines: 1,
+                  softWrap: false,
+                  style: TextStyleManager.style10Medium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
             ),
@@ -152,15 +163,20 @@ class _MonthHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // `month` is 1-based; DateTime.utc keeps the label off the device clock.
-    final String label = DateFormat.yMMMM(context.locale.languageCode)
-        .format(DateTime.utc(year, month));
+    final String label = DateFormat.yMMMM(
+      context.locale.languageCode,
+    ).format(DateTime.utc(year, month));
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
           onPressed: onMonthChanged == null ? null : () => onMonthChanged!(-1),
-          icon: Icon(Icons.chevron_left, color: AppColors.textPrimary, size: 22.sp),
+          icon: Icon(
+            Icons.chevron_left,
+            color: AppColors.textPrimary,
+            size: 22.sp,
+          ),
         ),
         Column(
           children: [
@@ -184,7 +200,11 @@ class _MonthHeader extends StatelessWidget {
         ),
         IconButton(
           onPressed: onMonthChanged == null ? null : () => onMonthChanged!(1),
-          icon: Icon(Icons.chevron_right, color: AppColors.textPrimary, size: 22.sp),
+          icon: Icon(
+            Icons.chevron_right,
+            color: AppColors.textPrimary,
+            size: 22.sp,
+          ),
         ),
       ],
     );

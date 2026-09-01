@@ -1,4 +1,5 @@
 import 'package:fitness_day/core/constant/app_assets.dart';
+import 'package:fitness_day/core/routes/deep_link_back.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
@@ -35,7 +36,7 @@ class ProductDetailsAppBar extends StatelessWidget {
             children: [
               // Back button
               GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () => DeepLinkBack.pop(context),
                 child: _CircleBtn(
                   child: Icon(
                     Icons.arrow_back_ios_rounded,

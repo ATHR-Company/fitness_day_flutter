@@ -9,10 +9,14 @@ import 'package:fitness_day/core/notification_helper/local_notification.dart';
 import 'package:fitness_day/core/services/socket_service.dart';
 import 'package:fitness_day/core/routes/app_router.dart';
 import 'package:fitness_day/core/constant/app_locale.dart';
+import 'package:fitness_day/core/utils/media_picker_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Route gallery picks through the system photo picker (no permission, always
+  // the full library) instead of the permission-filtered MediaStore query.
+  configureMediaPickers();
   // Load runtime secrets from the bundled .env. Wrapped so a missing/empty
   // file never crashes startup — AppEnv still falls back to --dart-define.
   try {

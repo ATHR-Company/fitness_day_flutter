@@ -24,6 +24,7 @@ import 'package:fitness_day/features/user/user_home/presentation/widgets/unsubsc
 import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/hydration_details_screen.dart';
 import 'package:fitness_day/features/user/user_home/presentation/screens/steps_details_screen.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
 import 'package:fitness_day/features/user/market/presentation/widgets/package_details_dialog.dart';
 import 'package:fitness_day/features/user/user_home/presentation/widgets/subscription_packages_grid.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
@@ -44,6 +45,17 @@ class HomePageContent extends StatefulWidget {
 
 class _HomePageContentState extends State<HomePageContent> {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Seeds the cart badge the header shows for unsubscribed users — home can
+    // be the first store-aware screen they open, so nothing else has pulled
+    // the cart yet.
+    final cart = getIt<CartCubit>();
+    if (!cart.state.hasLoadedCart) cart.loadCart();
+    cart.loadCounters();
+  }
 
   @override
   void dispose() {
@@ -139,6 +151,9 @@ class _HomePageContentState extends State<HomePageContent> {
                   isSubscribed: isSubscribed,
                   userName: userName,
                   userAvatar: userAvatar,
+                  // The packages below are bought from this page, so the cart
+                  // has to be reachable from it too.
+                  showCart: !isSubscribed,
                 ),
                 // Offline / reconnected banner — slides in below the header
                 // and collapses to zero height when the connection is healthy.

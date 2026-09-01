@@ -106,6 +106,7 @@ class _AddActivityPageState extends State<AddActivityPage> {
       title: 'add_activity.activity_name'.tr(),
       items: items,
       showSearch: true,
+      searchHintKey: 'add_activity.search_activity_name',
       initialSelectedIndex: _selectedActivity != null
           ? _activities.indexOf(_selectedActivity!)
           : 0,

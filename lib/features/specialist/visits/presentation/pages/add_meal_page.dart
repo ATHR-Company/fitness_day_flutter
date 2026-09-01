@@ -198,6 +198,7 @@ class _AddMealPageState extends State<AddMealPage> {
       title: 'add_meal.meal_name'.tr(),
       items: items,
       showSearch: true,
+      searchHintKey: 'add_meal.search_meal_name',
       initialSelectedIndex: _selectedTemplate != null
           ? _templates.indexOf(_selectedTemplate!)
           : 0,

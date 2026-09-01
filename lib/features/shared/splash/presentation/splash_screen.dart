@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fitness_day/core/routes/shared/shared_routes.dart';
 import 'package:fitness_day/core/cache/app_cache.dart';
+import 'package:fitness_day/core/cache/secure_cache.dart';
 import 'package:fitness_day/core/injection/injection_container.dart' as di;
 
 import '../../../../core/routes/user_routes/app_routes.dart';
@@ -57,8 +58,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Navigate to next screen after animation completes
     await Future.delayed(const Duration(seconds: 2));
+    final appCache = di.getIt<AppCache>();
+    await _repairOrphanedSession(appCache);
     if (mounted) {
-      final appCache = di.getIt<AppCache>();
       if (appCache.isLoggedIn()) {
         final userType = appCache.getUserType();
         if (userType == 'specialist') {
@@ -77,6 +79,40 @@ class _SplashScreenState extends State<SplashScreen> {
         context.go(SharedRoutes.onboarding);
       }
     }
+  }
+
+  /// Clears `is_logged_in` when the tokens behind it are gone.
+  ///
+  /// The flag lives in GetStorage (a plain file) and the tokens in
+  /// FlutterSecureStorage (encrypted with a key held in the Android Keystore).
+  /// A restored backup brings the encrypted blob without the Keystore key, and
+  /// some OEMs drop the key on reinstall; either way the plugin wipes the
+  /// unreadable blob and returns null while the flag survives.
+  ///
+  /// Trusting the flag alone sent the app straight to Home, where every request
+  /// went out with no Authorization header and came back 401 — the app looked
+  /// broken until the user cleared its data. Checking here means that install
+  /// simply starts at role selection, which is what a logged-out app should do.
+  Future<void> _repairOrphanedSession(AppCache appCache) async {
+    if (!appCache.isLoggedIn()) return;
+
+    String? token;
+    String? refreshToken;
+    try {
+      final secureCache = di.getIt<SecureCache>();
+      token = await secureCache.getToken();
+      refreshToken = await secureCache.getRefreshToken();
+    } catch (_) {
+      // An unreadable keystore is itself a missing credential — fall through
+      // and treat this install as logged out.
+    }
+
+    final bool hasCredentials = (token != null && token.isNotEmpty) ||
+        (refreshToken != null && refreshToken.isNotEmpty);
+    if (hasCredentials) return;
+
+    debugPrint('[Splash] session flag with no token — clearing local session');
+    await appCache.clearSession();
   }
 
   @override

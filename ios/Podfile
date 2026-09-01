@@ -50,12 +50,36 @@ post_install do |installer|
       definitions = config.build_settings['GCC_PREPROCESSOR_DEFINITIONS']
       definitions = [definitions].compact unless definitions.is_a?(Array)
       definitions << '$(inherited)' unless definitions.include?('$(inherited)')
+      # permission_handler_apple compiles EVERY permission module unless the
+      # macro is explicitly set to 0. Left at the default, the binary references
+      # Contacts, EventKit, Speech, MediaPlayer, CoreBluetooth and ATT — APIs the
+      # app never calls and has no NS*UsageDescription for, which is what App
+      # Store review rejects as ITMS-90683. Only the five the app actually uses
+      # stay on; everything else is compiled out.
       [
+        # Used: scan-meal + "take a photo" pickers.
         'PERMISSION_CAMERA=1',
-        'PERMISSION_PHOTOS=1',
+        # Used: voice notes in chat.
         'PERMISSION_MICROPHONE=1',
+        # Used: map picker + GPS distance while running.
         'PERMISSION_LOCATION=1',
+        # Used: CoreMotion pedometer (walking / running step counts).
         'PERMISSION_SENSORS=1',
+        # Used: the permissions settings screen only. Gallery *picking* needs
+        # nothing — PHPickerViewController reads the library out of process.
+        'PERMISSION_PHOTOS=1',
+
+        'PERMISSION_PHOTOS_ADD_ONLY=0',
+        'PERMISSION_EVENTS=0',
+        'PERMISSION_EVENTS_FULL_ACCESS=0',
+        'PERMISSION_REMINDERS=0',
+        'PERMISSION_CONTACTS=0',
+        'PERMISSION_SPEECH_RECOGNIZER=0',
+        'PERMISSION_MEDIA_LIBRARY=0',
+        'PERMISSION_BLUETOOTH=0',
+        'PERMISSION_APP_TRACKING_TRANSPARENCY=0',
+        'PERMISSION_CRITICAL_ALERTS=0',
+        'PERMISSION_ASSISTANT=0',
       ].each { |definition| definitions << definition unless definitions.include?(definition) }
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = definitions
     end

@@ -46,10 +46,10 @@ class WeekCalendarStrip extends StatelessWidget {
         final hasAppointment = appointmentDateKeys.contains(key);
         // Falls back to `hasAppointment`, so a caller that omits
         // `selectableDateKeys` behaves exactly as before.
-        final isSelectable = selectableDateKeys?.contains(key) ?? hasAppointment;
+        final isSelectable =
+            selectableDateKeys?.contains(key) ?? hasAppointment;
         final isSelected = i == selectedIndex && isSelectable;
-        final dayName =
-            DateFormat.E(context.locale.languageCode).format(day);
+        final dayName = DateFormat.E(context.locale.languageCode).format(day);
         final dayNum = DateFormat.d('en').format(day);
 
         return Expanded(
@@ -63,31 +63,39 @@ class WeekCalendarStrip extends StatelessWidget {
                 color: isSelected
                     ? AppColors.primary
                     : hasAppointment
-                        ? AppColors.backgroundTint
-                        : Colors.transparent,
+                    ? AppColors.backgroundTint
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(14.r),
                 border: hasAppointment && !isSelected
-                    ? Border.all(
-                        color: AppColors.greenMint,
-                        width: 1,
-                      )
+                    ? Border.all(color: AppColors.greenMint, width: 1)
                     : null,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Day name
-                  Text(
-                    dayName,
-                    style: TextStyleManager.style9Medium.copyWith(
-                      // Greyed out only when the day cannot be opened at all —
-                      // a selectable day with nothing on it is still readable.
-                      color: isSelected
-                          ? AppColors.white
-                          : isSelectable
+                  // Day name — `DateFormat.E` gives no real abbreviation in
+                  // Arabic ("الخميس"), so it has to shrink rather than wrap.
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 2.w),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        dayName,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: TextStyleManager.style9Medium.copyWith(
+                          // Greyed out only when the day cannot be opened at all —
+                          // a selectable day with nothing on it is still readable.
+                          color: isSelected
+                              ? AppColors.white
+                              : isSelectable
                               ? AppColors.textPrimary
                               : AppColors.divider,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 6.h),
@@ -98,8 +106,8 @@ class WeekCalendarStrip extends StatelessWidget {
                       color: isSelected
                           ? AppColors.white
                           : isSelectable
-                              ? AppColors.black
-                              : AppColors.divider,
+                          ? AppColors.black
+                          : AppColors.divider,
                     ),
                   ),
                   SizedBox(height: 4.h),

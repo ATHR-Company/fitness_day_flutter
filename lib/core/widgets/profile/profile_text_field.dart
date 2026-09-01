@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fitness_day/core/constant/app_assets.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/core/theme/app_text_styles.dart';
 import 'package:fitness_day/core/utils/no_script_input_formatter.dart';
 
-class ProfileTextField extends StatelessWidget {
+class ProfileTextField extends StatefulWidget {
   final String hintText;
   final String iconPath;
   final bool isPassword;
@@ -36,8 +37,43 @@ class ProfileTextField extends StatelessWidget {
   });
 
   @override
+  State<ProfileTextField> createState() => _ProfileTextFieldState();
+}
+
+class _ProfileTextFieldState extends State<ProfileTextField> {
+  /// Password fields start hidden; the eye in the suffix flips this, matching
+  /// [AppPasswordField] on the auth screens.
+  bool _obscure = true;
+
+  /// The eye only appears once something has been typed — an empty field has
+  /// nothing to reveal.
+  bool _hasText = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isPassword) {
+      _hasText = widget.controller?.text.isNotEmpty ?? false;
+      widget.controller?.addListener(_onTextChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.isPassword) {
+      widget.controller?.removeListener(_onTextChanged);
+    }
+    super.dispose();
+  }
+
+  void _onTextChanged() {
+    final bool hasText = widget.controller?.text.isNotEmpty ?? false;
+    if (_hasText != hasText) setState(() => _hasText = hasText);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final hasError = errorText != null;
+    final hasError = widget.errorText != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -48,7 +84,7 @@ class ProfileTextField extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 4.w),
             child: Text(
-              errorText!,
+              widget.errorText!,
               style: TextStyleManager.style11Medium.copyWith(
                 color: AppColors.error,
               ),
@@ -77,7 +113,7 @@ class ProfileTextField extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: AppImage(
-              iconPath,
+              widget.iconPath,
               width: 20.w,
             ),
           ),
@@ -88,28 +124,30 @@ class ProfileTextField extends StatelessWidget {
           ),
           Expanded(
             child: TextField(
-              controller: controller,
-              obscureText: isPassword,
-              keyboardType: keyboardType,
+              controller: widget.controller,
+              obscureText: widget.isPassword && _obscure,
+              keyboardType: widget.isPassword
+                  ? TextInputType.visiblePassword
+                  : widget.keyboardType,
               // Caller-supplied formatters win outright.
               // Name-only fields: allow letters + spaces + dot only.
               // Other free-text fields: strip script/HTML patterns.
-              inputFormatters: inputFormatters ??
-                  (isPassword
+              inputFormatters: widget.inputFormatters ??
+                  (widget.isPassword
                       ? null
-                      : nameOnly
+                      : widget.nameOnly
                           ? [
                               NameInputFormatter(),
-                              if (maxLength != null)
-                                LengthLimitingTextInputFormatter(maxLength!),
+                              if (widget.maxLength != null)
+                                LengthLimitingTextInputFormatter(widget.maxLength!),
                             ]
                           : [
                               NoScriptInputFormatter(),
-                              if (maxLength != null)
-                                LengthLimitingTextInputFormatter(maxLength!),
+                              if (widget.maxLength != null)
+                                LengthLimitingTextInputFormatter(widget.maxLength!),
                             ]),
               decoration: InputDecoration(
-                hintText: hintText,
+                hintText: widget.hintText,
                 hintStyle: TextStyleManager.style11Medium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -117,6 +155,21 @@ class ProfileTextField extends StatelessWidget {
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 16.w,
                   vertical: 14.h,
+                ),
+                suffixIcon: widget.isPassword && _hasText
+                    ? IconButton(
+                        icon: AppImage(
+                          _obscure ? SvgIcons.eyeClosed : SvgIcons.eye,
+                          width: 20.w,
+                          height: 20.h,
+                          color: AppColors.textSecondary,
+                        ),
+                        onPressed: () => setState(() => _obscure = !_obscure),
+                      )
+                    : null,
+                suffixIconConstraints: BoxConstraints(
+                  minWidth: 44.w,
+                  minHeight: 24.h,
                 ),
               ),
             ),

@@ -8,6 +8,12 @@
 	<string>Fitness Day needs access to your photo library to select images for your profile, challenges, and chat messages.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Fitness Day needs permission to save photos to your photo library.</string>
+	<!-- Picking images uses PHPickerViewController, which reads the library out
+	     of process and needs no authorization. Without this key iOS still shows
+	     the "Select More Photos" prompt on every launch to anyone who once chose
+	     limited access, for an app that never touches PHAsset directly. -->
+	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Fitness Day needs microphone access to record voice messages in chat.</string>
 

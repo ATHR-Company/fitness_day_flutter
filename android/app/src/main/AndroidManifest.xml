@@ -1,9 +1,51 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.CAMERA" />
+    <!--
+        Declaring CAMERA makes Play treat android.hardware.camera as required
+        and hides the app from devices without one. Only the scan-meal screen
+        and the "take a photo" pickers use it, so it stays optional.
+    -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+    <!--
+        Declared so the app can show the system media-access prompt before it
+        opens the gallery — a deliberate product decision, not a technical
+        requirement. Picking itself needs neither: every gallery pick goes
+        through ACTION_PICK_IMAGES (see configureMediaPickers) and every
+        document pick through ACTION_OPEN_DOCUMENT, both of which run out of
+        process and hand back a URI grant per item.
+
+        That separation is what keeps the original bug fixed. The picker never
+        queries MediaStore, so whatever the user answers here cannot filter what
+        the picker shows — "Select photos" no longer pins the app to the subset
+        granted the first time.
+
+        READ_MEDIA_VISUAL_USER_SELECTED is what puts the third option — "Select
+        photos and videos" — in that dialog on Android 14+, and what makes the
+        resulting partial grant persist instead of being re-asked every launch.
+        permission_handler reports it as PermissionStatus.limited, which
+        MediaPermissions.ensure accepts as success.
+
+        Declaring it was the original bug when the app read MediaStore itself:
+        the partial grant pinned the picker to the subset chosen the first time.
+        It is safe now for the same reason the other two are — ACTION_PICK_IMAGES
+        never reads any of them, so a limited grant still browses the full
+        library and every pick returns whatever the user actually selected.
+    -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+
+    <!--
+        open_filex merges these in defensively, for opening files by raw path.
+        Every path this app hands it is inside getTemporaryDirectory() (see
+        AttachmentOpener) and travels as a FileProvider URI grant, so they buy
+        nothing here. Stripped rather than shipped unused.
+    -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
     <!-- Chat: voice message recording -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Location permissions for map picker -->
@@ -25,8 +67,7 @@
     <!-- Required on Android 13+ to display notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Health & Activity tracking -->
-    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <!-- Health & Activity tracking (ACTIVITY_RECOGNITION is declared above) -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />
@@ -35,7 +76,9 @@
     <application
         android:label="@string/app_name"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/launcher_icon"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules">
         <activity android:enableOnBackInvokedCallback="true"
             android:name=".MainActivity"
             android:exported="true"

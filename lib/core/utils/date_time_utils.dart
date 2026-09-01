@@ -31,6 +31,16 @@ String formatVisitDate(String isoDate, BuildContext context) {
       .format(parsed.toLocal());
 }
 
+/// Calendar day of an ISO timestamp, without the clock — for places that only
+/// summarise *when* something happened, like the clients list's "last visit".
+String formatVisitDay(String isoDate, BuildContext context) {
+  if (isoDate.isEmpty) return '';
+  final parsed = DateTime.tryParse(isoDate);
+  if (parsed == null) return isoDate;
+  return DateFormat('yyyy-MM-dd', context.locale.languageCode)
+      .format(parsed.toLocal());
+}
+
 String formatVisitTimeRemaining(String isoDate, BuildContext context) {
   if (isoDate.isEmpty) return '';
 

@@ -1,4 +1,5 @@
 import 'package:fitness_day/core/theme/app_text_styles.dart';
+import 'package:fitness_day/core/utils/date_time_utils.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
 import 'package:fitness_day/core/widgets/errors/app_error_view.dart';
 import 'package:fitness_day/core/widgets/top_centered_constrained_box.dart';
@@ -205,11 +206,23 @@ class _ClientsPageState extends State<ClientsPage> {
                                   itemBuilder: (context, index) {
                                     final clientItem = clientsList[index];
                                     final user = clientItem.user;
+                                    // `lastAppointment` is a UTC timestamp and
+                                    // is null for a client who has never been
+                                    // seen — shown as its own line rather than
+                                    // an empty value.
+                                    final lastAppointment =
+                                        clientItem.lastAppointment ?? '';
+                                    final lastVisit = lastAppointment.isEmpty
+                                        ? 'clients_page.no_last_visit'.tr()
+                                        : formatVisitDay(
+                                            lastAppointment,
+                                            context,
+                                          );
                                     return ClientCard(
                                       clientName: user?.name ?? '',
                                       currentWeight: clientItem.currentWeight?.toInt().toString() ?? '',
                                       goal: clientItem.goal ?? '',
-                                      lastVisit: '',
+                                      lastVisit: lastVisit,
                                       status: cardStatus,
                                       commitmentRate: clientItem.adherenceRate?.toInt(),
                                       avatarUrl: user?.image,

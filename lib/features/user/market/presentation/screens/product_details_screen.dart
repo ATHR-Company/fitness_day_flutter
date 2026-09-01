@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fitness_day/core/injection/injection_container.dart';
+import 'package:fitness_day/core/routes/deep_link_back.dart';
 import 'package:fitness_day/core/services/app_share_service.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
 import 'package:fitness_day/features/user/market/domain/entities/cart_data.dart';
@@ -30,9 +31,13 @@ class ProductDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<ProductDetailsCubit>()..load(product.id),
-      child: _ProductDetailsView(fallback: product),
+    // Reachable from an App Link (/products/:id), which opens it with no page
+    // underneath — see DeepLinkPopScope.
+    return DeepLinkPopScope(
+      child: BlocProvider(
+        create: (_) => getIt<ProductDetailsCubit>()..load(product.id),
+        child: _ProductDetailsView(fallback: product),
+      ),
     );
   }
 }

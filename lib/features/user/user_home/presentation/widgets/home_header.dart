@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fitness_day/core/injection/injection_container.dart';
 import 'package:fitness_day/core/widgets/app_image.dart';
+import 'package:fitness_day/features/user/market/presentation/manager/cart_cubit.dart';
+import 'package:fitness_day/features/user/market/presentation/screens/cart_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
@@ -14,11 +18,17 @@ class HomeHeader extends StatelessWidget {
   final String userName;
   final String userAvatar;
 
+  /// Shows the store's cart button here on home. Used by the unsubscribed
+  /// home, where the packages are bought straight from the page — without it
+  /// the buyer has to walk through the store just to reach their own cart.
+  final bool showCart;
+
   const HomeHeader({
     super.key,
     this.isSubscribed = true,
     this.userName = '',
     this.userAvatar = '',
+    this.showCart = false,
   });
 
   @override
@@ -92,6 +102,12 @@ class HomeHeader extends StatelessWidget {
             SizedBox(width: 8.w),
           ],
 
+          // Cart button — same target as the store's cart icon
+          if (showCart) ...[
+            const _CartIconButton(),
+            SizedBox(width: 8.w),
+          ],
+
           // Menu button
           _IconButton(
             svgPath: SvgIcons.menuIcon,
@@ -130,6 +146,64 @@ class _IconButton extends StatelessWidget {
           color: AppColors.textSecondary,
         ),
       ),
+    );
+  }
+}
+
+/// Cart button with the same live badge the market app bar carries — both read
+/// the singleton [CartCubit], so a package added from home shows up here at
+/// once.
+class _CartIconButton extends StatelessWidget {
+  const _CartIconButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CartCubit, CartState>(
+      bloc: getIt<CartCubit>(),
+      builder: (context, state) {
+        final count = state.badgeCount;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            _IconButton(
+              svgPath: SvgIcons.market_icon,
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CartScreen()),
+                );
+                // Checking out or emptying the cart changes the badge.
+                getIt<CartCubit>().loadCounters();
+              },
+            ),
+            if (count > 0)
+              Positioned(
+                top: -2.h,
+                right: -2.w,
+                child: Container(
+                  padding: EdgeInsets.all(4.r),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: BoxConstraints(
+                    minWidth: 16.w,
+                    minHeight: 16.w,
+                  ),
+                  child: Text(
+                    count > 99 ? '99+' : '$count',
+                    textAlign: TextAlign.center,
+                    style: TextStyleManager.style9Medium.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 8.sp,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

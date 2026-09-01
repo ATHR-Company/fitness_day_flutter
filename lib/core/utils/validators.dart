@@ -70,9 +70,27 @@ class AppValidators {
   /// Weight in kilogrammes. Accepts a decimal number inside
   /// [Measurement.minWeight]–[Measurement.maxWeight]; anything outside that is
   /// a typo, not a person.
-  static String? weight(String? value) {
+  static String? weight(String? value) =>
+      _weight(value, 'auth_val_err_weight');
+
+  /// Height in centimetres, same shape as [weight].
+  static String? height(String? value) =>
+      _height(value, 'auth_val_err_height');
+
+  /// [weight] worded for a specialist filling in someone else's report —
+  /// "enter your weight" is wrong when the number belongs to the trainee.
+  /// Only the missing-value message changes; the range message never names a
+  /// person, so both flows share it.
+  static String? clientWeight(String? value) =>
+      _weight(value, 'visit_details.weight_required');
+
+  /// [height] worded for the trainee, see [clientWeight].
+  static String? clientHeight(String? value) =>
+      _height(value, 'visit_details.height_required');
+
+  static String? _weight(String? value, String missingKey) {
     final parsed = Measurement.parse(value);
-    if (parsed == null) return 'auth_val_err_weight'.tr();
+    if (parsed == null) return missingKey.tr();
     if (!Measurement.isValidWeight(parsed)) {
       return 'auth_val_err_weight_range'.tr(namedArgs: {
         'min': Measurement.format(Measurement.minWeight),
@@ -82,10 +100,9 @@ class AppValidators {
     return null;
   }
 
-  /// Height in centimetres, same shape as [weight].
-  static String? height(String? value) {
+  static String? _height(String? value, String missingKey) {
     final parsed = Measurement.parse(value);
-    if (parsed == null) return 'auth_val_err_height'.tr();
+    if (parsed == null) return missingKey.tr();
     if (!Measurement.isValidHeight(parsed)) {
       return 'auth_val_err_height_range'.tr(namedArgs: {
         'min': Measurement.format(Measurement.minHeight),

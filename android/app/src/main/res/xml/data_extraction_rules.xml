@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android 13+ (android:dataExtractionRules). Same exclusions as
+    backup_rules.xml, applied to both transfer paths.
+
+    device-transfer is excluded for the same reason as cloud-backup: Keystore
+    keys are non-exportable, so a direct device-to-device copy also lands the
+    encrypted token blob on a phone that cannot open it.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="FlutterSecureStorage.xml" />
+        <exclude domain="root" path="app_flutter/GetStorage.gs" />
+        <exclude domain="root" path="app_flutter/GetStorage.bak" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="FlutterSecureStorage.xml" />
+        <exclude domain="root" path="app_flutter/GetStorage.gs" />
+        <exclude domain="root" path="app_flutter/GetStorage.bak" />
+    </device-transfer>
+</data-extraction-rules>

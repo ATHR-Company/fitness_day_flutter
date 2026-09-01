@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:permission_handler/permission_handler.dart' as ph;
 
 /// Helper class to manage app permissions for camera, photos, and microphone.
@@ -49,14 +47,15 @@ class PermissionHelper {
     return await ph.Permission.camera.status;
   }
 
-  /// Get photo library permission status
-  static Future<ph.PermissionStatus> getPhotosStatus() async {
-    if (!Platform.isAndroid) return ph.Permission.photos.status;
-
-    final photos = await ph.Permission.photos.status;
-    if (photos.isGranted || photos.isLimited) return photos;
-
-    return ph.Permission.storage.status;
+  /// Get photo library permission status.
+  ///
+  /// No `Permission.storage` fallback: `READ_EXTERNAL_STORAGE` is capped at
+  /// `maxSdkVersion="32"` in the manifest, so on Android 13+ requesting it
+  /// resolves to `permanentlyDenied` and used to poison the photos result —
+  /// after one refusal the caller bailed out without ever showing a dialog
+  /// again. `Permission.photos` already resolves per SDK level on its own.
+  static Future<ph.PermissionStatus> getPhotosStatus() {
+    return ph.Permission.photos.status;
   }
 
   /// Get microphone permission status
@@ -159,18 +158,8 @@ class PermissionHelper {
     }
   }
 
-  static Future<ph.PermissionStatus> _requestPhotos() async {
-    if (!Platform.isAndroid) return ph.Permission.photos.request();
-
-    final photos = await ph.Permission.photos.request();
-    if (photos.isGranted || photos.isLimited) return photos;
-
-    final storage = await ph.Permission.storage.request();
-    if (storage.isGranted) return storage;
-
-    return photos.isPermanentlyDenied || storage.isPermanentlyDenied
-        ? ph.PermissionStatus.permanentlyDenied
-        : ph.PermissionStatus.denied;
+  static Future<ph.PermissionStatus> _requestPhotos() {
+    return ph.Permission.photos.request();
   }
 }
 

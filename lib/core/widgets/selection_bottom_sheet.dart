@@ -10,6 +10,13 @@ class SelectionBottomSheet extends StatefulWidget {
   final List<String> items;
   final int initialSelectedIndex;
   final bool showSearch;
+
+  /// Translation key for the search field's hint, so each caller names what is
+  /// actually being searched. Falls back to the meal wording it was hardcoded
+  /// to before, which showed "search for meal name" on the exercise and
+  /// activity sheets too.
+  final String? searchHintKey;
+
   final ValueChanged<int> onConfirm;
 
   const SelectionBottomSheet({
@@ -18,6 +25,7 @@ class SelectionBottomSheet extends StatefulWidget {
     required this.items,
     this.initialSelectedIndex = 0,
     this.showSearch = false,
+    this.searchHintKey,
     required this.onConfirm,
   });
 
@@ -86,7 +94,7 @@ class _SelectionBottomSheetState extends State<SelectionBottomSheet> {
                 });
               },
               decoration: InputDecoration(
-                hintText: 'add_meal.search_meal_name'.tr(),
+                hintText: (widget.searchHintKey ?? 'add_meal.search_meal_name').tr(),
                 hintStyle: TextStyleManager.heading3.copyWith(
                   color: AppColors.textSecondary.withValues(alpha: 0.5),
                 ),
@@ -215,6 +223,7 @@ void showSelectionBottomSheet({
   required List<String> items,
   int initialSelectedIndex = 0,
   bool showSearch = false,
+  String? searchHintKey,
   required ValueChanged<int> onConfirm,
 }) {
   showModalBottomSheet(
@@ -234,6 +243,7 @@ void showSelectionBottomSheet({
             items: items,
             initialSelectedIndex: initialSelectedIndex,
             showSearch: showSearch,
+            searchHintKey: searchHintKey,
             onConfirm: onConfirm,
           ),
         ),
