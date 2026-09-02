@@ -16,18 +16,21 @@ class MediaPermissions {
   ///
   /// Returns true when granted, or limited (a partial photo grant).
   ///
-  /// ### Why asking for [MediaPermissionKind.gallery] is safe again
+  /// ### What the gallery grant does and does not control
   ///
-  /// The picker and the permission are deliberately decoupled. `image_picker`
-  /// runs on `ACTION_PICK_IMAGES` on Android (see `configureMediaPickers`) and
-  /// on `PHPickerViewController` on iOS; both pick out of process and return a
-  /// per-item grant, so neither reads this permission.
+  /// The permission is asked for so the app has a real "Photos and videos"
+  /// entry the user can find and change in system settings, and so the prompt
+  /// appears before the picker opens.
   ///
-  /// That is what keeps the original bug fixed. Before, the app queried
-  /// MediaStore itself, so answering "Select photos" pinned it to the subset
-  /// granted the first time and later selections were silently ignored. Now the
-  /// answer changes nothing about what the picker shows — a `limited` grant
-  /// still browses the full library.
+  /// It does not filter the picker. `image_picker` runs on ACTION_PICK_IMAGES
+  /// on Android (see `configureMediaPickers`) and on PHPickerViewController on
+  /// iOS; both pick out of process and hand back a per-item URI grant, so the
+  /// picker lists the whole library even under a `limited` grant. Honouring the
+  /// selected subset instead would mean querying MediaStore directly — the
+  /// original bug, where the app stayed pinned to the photos chosen the first
+  /// time and never saw a later selection.
+  ///
+  /// A `limited` status is therefore treated as success, not as a refusal.
   static Future<bool> ensure(
     BuildContext context,
     MediaPermissionKind kind,

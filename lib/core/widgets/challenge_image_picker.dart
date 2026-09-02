@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/utils/lost_media_recovery.dart';
 import 'package:fitness_day/core/utils/media_permissions.dart';
 import 'package:fitness_day/core/widgets/image_source_sheet.dart';
 import 'package:fitness_day/core/widgets/full_screen_image_view.dart';
@@ -44,7 +45,29 @@ class _ChallengeImagePickerState extends State<ChallengeImagePicker> {
   File? _pickedImage;
   final ImagePicker _picker = ImagePicker();
 
+  @override
+  void initState() {
+    super.initState();
+    _recoverLostShot();
+  }
+
   // ── Image picking ─────────────────────────────────────────────────────────
+
+  /// Picks up a photo the camera captured while Android was killing this app.
+  ///
+  /// The screen is rebuilt from scratch on the way back, so `_pickImage` is long
+  /// gone and its `await` will never complete. Asking here — once, as the widget
+  /// mounts — is what turns "my photo disappeared" into the photo simply being
+  /// there. See [LostMediaRecovery].
+  Future<void> _recoverLostShot() async {
+    final List<XFile> lost = await LostMediaRecovery.take(
+      only: RetrieveType.image,
+    );
+    if (lost.isEmpty || !mounted) return;
+
+    setState(() => _pickedImage = File(lost.first.path));
+    widget.onImagePicked?.call(_pickedImage!);
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final bool granted = await MediaPermissions.ensure(

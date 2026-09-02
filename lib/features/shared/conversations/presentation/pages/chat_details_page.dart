@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:fitness_day/core/theme/app_colors.dart';
+import 'package:fitness_day/core/utils/lost_media_recovery.dart';
 import 'package:fitness_day/core/utils/media_permissions.dart';
 import 'package:fitness_day/core/widgets/app_snack_bar.dart';
 import 'package:fitness_day/core/widgets/loader_hud.dart';
@@ -125,6 +126,10 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
     } else {
       _seedLocalMessages();
     }
+
+    // Only server-backed chats can actually send; claiming a stranded file in a
+    // local chat would consume it with nowhere to put it.
+    if (_isServerBacked) _recoverLostAttachment();
   }
 
   /// Notifications hinge on this. The server holds back a push only while it
@@ -217,6 +222,10 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
   /// A pagination load arriving ([currentPage] increased) is explicitly
   /// excluded — we never scroll when the user is reading history.
   void _onChatStateChanged(BuildContext context, ChatState state) {
+    // Before the early returns below: the conversation may well load empty, and
+    // a recovered attachment still has to go out.
+    _flushRecoveredMedia();
+
     if (state is! ChatLoaded || state.messages.isEmpty) return;
 
     // Sync _lastSeenPage on the very first ChatLoaded emission (which now
@@ -293,6 +302,35 @@ class _ChatDetailsPageState extends State<ChatDetailsPage>
     if (files.isEmpty) return;
     _chatCubit.sendMedia(files);
     _scrollToBottom();
+  }
+
+  /// Attachment recovered from a camera capture that outlived this screen.
+  ///
+  /// Held rather than sent straight away: [ChatCubit.sendMedia] drops anything
+  /// handed to it before the conversation is loaded, and on the way back from a
+  /// process kill the load has not even started yet.
+  List<XFile> _pendingRecoveredMedia = const <XFile>[];
+
+  /// Claims a photo or video the camera captured while Android was killing this
+  /// app, then sends it as soon as the conversation is up. See
+  /// [LostMediaRecovery].
+  Future<void> _recoverLostAttachment() async {
+    final List<XFile> lost = await LostMediaRecovery.take();
+    if (lost.isEmpty || !mounted) return;
+
+    _pendingRecoveredMedia = lost;
+    _flushRecoveredMedia();
+  }
+
+  /// Sends the recovered attachment once — retried from the state listener until
+  /// the chat is loaded, so nothing is lost to a slow first fetch.
+  void _flushRecoveredMedia() {
+    if (_pendingRecoveredMedia.isEmpty) return;
+    if (_chatCubit.state is! ChatLoaded) return;
+
+    final List<XFile> files = _pendingRecoveredMedia;
+    _pendingRecoveredMedia = const <XFile>[];
+    _sendMedia(files);
   }
 
   // ── Attachments ────────────────────────────────────────────────────────────

@@ -10,44 +10,53 @@
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <!--
-        Declared so the app can show the system media-access prompt before it
-        opens the gallery — a deliberate product decision, not a technical
-        requirement. Picking itself needs neither: every gallery pick goes
-        through ACTION_PICK_IMAGES (see configureMediaPickers) and every
-        document pick through ACTION_OPEN_DOCUMENT, both of which run out of
-        process and hand back a URI grant per item.
+        Gallery / media access.
 
-        That separation is what keeps the original bug fixed. The picker never
-        queries MediaStore, so whatever the user answers here cannot filter what
-        the picker shows — "Select photos" no longer pins the app to the subset
-        granted the first time.
+        Declared so the app owns a real "Photos and videos" entry in the system
+        settings screen, and so the runtime prompt appears before the picker
+        opens. MediaPermissions.ensure requests these for
+        MediaPermissionKind.gallery.
 
-        READ_MEDIA_VISUAL_USER_SELECTED is what puts the third option — "Select
-        photos and videos" — in that dialog on Android 14+, and what makes the
-        resulting partial grant persist instead of being re-asked every launch.
-        permission_handler reports it as PermissionStatus.limited, which
-        MediaPermissions.ensure accepts as success.
+        READ_MEDIA_VISUAL_USER_SELECTED is what adds the third option — "Select
+        photos and videos" — to the Android 14+ dialog, and what makes a partial
+        grant persist instead of being re-asked every launch. permission_handler
+        reports it as PermissionStatus.limited, which ensure() accepts.
 
-        Declaring it was the original bug when the app read MediaStore itself:
-        the partial grant pinned the picker to the subset chosen the first time.
-        It is safe now for the same reason the other two are — ACTION_PICK_IMAGES
-        never reads any of them, so a limited grant still browses the full
-        library and every pick returns whatever the user actually selected.
+        Note on what the grant does and does not control: picking runs through
+        ACTION_PICK_IMAGES (see configureMediaPickers), which is out of process,
+        so the picker lists the full library regardless of a limited grant and
+        returns a fresh URI grant per selected item. The permission gates the
+        app's own access to MediaStore, not what the picker shows.
     -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <!--
-        open_filex merges these in defensively, for opening files by raw path.
-        Every path this app hands it is inside getTemporaryDirectory() (see
-        AttachmentOpener) and travels as a FileProvider URI grant, so they buy
-        nothing here. Stripped rather than shipped unused.
+        Legacy storage — Android 12 and below, where permission_handler maps
+        Permission.photos onto READ_EXTERNAL_STORAGE. Without the declaration a
+        request there comes back permanentlyDenied on a device that was never
+        actually asked, and nothing shows up in app settings either.
+        maxSdkVersion caps them off on Android 13+, where READ_MEDIA_* replaces
+        them.
     -->
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
+        tools:ignore="ScopedStorage" />
+
     <!-- Chat: voice message recording -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!--
+        Audio routing/volume while recording and playing voice notes. A normal
+        permission — no runtime prompt. Some OEM builds (Huawei in particular)
+        need it before the recorder will open the mic stream at all.
+    -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- Location permissions for map picker -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
